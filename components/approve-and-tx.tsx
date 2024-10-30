@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters } from 'viem'
 
-import { Spinner } from './spinner'
+import { BBtn } from './ui/bbtn'
 
 export function ApproveAndTx<
   const abi extends Abi | readonly unknown[],
@@ -14,7 +14,6 @@ export function ApproveAndTx<
   accountOverride extends Account | Address | undefined = undefined,
 >({
   className,
-  txType = 'btn-primary',
   tx,
   busyShowTxet = true,
   approves,
@@ -28,7 +27,6 @@ export function ApproveAndTx<
   onApproveSuccess,
 }: {
   className?: string
-  txType?: 'btn-link' | 'btn-primary'
   tx: string
   busyShowTxet?: boolean
   approves?: { [k: Address]: bigint }
@@ -56,15 +54,13 @@ export function ApproveAndTx<
 
   if (shouldApprove)
     return (
-      <button className={twMerge(txType, 'flex items-center justify-center gap-4', className)} onClick={approve} disabled={approveDisabled}>
-        {isApproveLoading && <Spinner />}
-        {'Approve'}
-      </button>
+      <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={approve} busy={isApproveLoading} disabled={approveDisabled}>
+        Approve
+      </BBtn>
     )
   return (
-    <button className={twMerge(txType, 'flex items-center justify-center gap-4', className)} onClick={() => doTx()} disabled={txDisabled}>
-      {isTxLoading && <Spinner />}
-      {(busyShowTxet || !isTxLoading) && tx}
-    </button>
+    <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={() => doTx()} busy={isTxLoading} busyShowContent={busyShowTxet} disabled={txDisabled}>
+      {tx}
+    </BBtn>
   )
 }

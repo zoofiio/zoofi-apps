@@ -1,6 +1,7 @@
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit'
 import { useWindowSize } from 'react-use'
 import { useAccount } from 'wagmi'
+import { BBtn } from './ui/bbtn'
 
 export default function ConnectBtn() {
   const size = useWindowSize(1024)
@@ -9,9 +10,9 @@ export default function ConnectBtn() {
   const cm = useConnectModal()
   if (showConnect)
     return (
-      <button className='btn-primary mt-0 w-fit' onClick={() => cm.openConnectModal?.()}>
+      <BBtn className='mt-0 w-fit' onClick={() => cm.openConnectModal?.()}>
         <span className='font-medium text-sm px-5'>Connect Wallet</span>
-      </button>
+      </BBtn>
     )
   return <ConnectButton chainStatus={size.width > 600 ? 'full' : 'icon'} showBalance={false} />
 }

@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils'
-import { CoinIcon } from './icons/coinicon'
 import { displayBalance } from '@/utils/display'
+import { AllHTMLAttributes, ButtonHTMLAttributes, EventHandler, HTMLAttributes, MouseEventHandler, ReactEventHandler, ReactNode } from 'react'
 import { IconsMap } from './icons'
-import { MouseEventHandler, ReactNode } from 'react'
+import { CoinIcon } from './icons/coinicon'
+import { BBtn } from './ui/bbtn'
 
 export const itemClassname = 'py-5 flex flex-col items-center gap-2 relative dark:border-border border-solid'
 export const renderToken = (symbol: string, amount: bigint, usd: bigint, borderL: boolean = false) => {
@@ -33,6 +34,18 @@ export const renderStat = (tit: string, icon: string, sub: ReactNode, borderL: b
   </div>
 )
 
+const BtnWrap = (p: ButtonHTMLAttributes<HTMLButtonElement>) => {
+  const { children, onClick, ...props } = p
+  return p.onClick ? (
+    <BBtn {...props} onClick={onClick}>
+      {children}
+    </BBtn>
+  ) : (
+    <div {...(props as any)} onClick={onClick}>
+      {children}
+    </div>
+  )
+}
 export const renderChoseSide = (
   leftSymbol: keyof typeof IconsMap,
   leftTitle: string,
@@ -45,11 +58,12 @@ export const renderChoseSide = (
 ) => {
   const LeftIcon = IconsMap[leftSymbol]
   const RightIcon = IconsMap[rightSymbol]
+
   return (
     <div className={cn(itemClassname, 'col-span-2 gap-4')}>
       <div className='text-[#64748B] dark:text-slate-50/60 text-xs font-semibold leading-[12px] whitespace-nowrap'>Choose your side</div>
       <div className='grid grid-cols-2 gap-4 w-full px-4'>
-        <div className={cn('h-[4.25rem] w-full relative', { 'btn-primary hover:scale-105': onClickLeft })} onClick={onClickLeft}>
+        <BtnWrap className={cn('h-[4.25rem] w-full relative')} onClick={onClickLeft as any}>
           <div className='flex gap-2 items-center p-4 w-full h-[4.25rem] absolute left-0 top-0'>
             <LeftIcon className='text-4xl' showBg />
             <div className='flex flex-col items-start gap-2'>
@@ -57,8 +71,8 @@ export const renderChoseSide = (
               <span className=' text-[14px] leading-[14px] font-medium'>{leftSub}</span>
             </div>
           </div>
-        </div>
-        <div className={cn('h-[4.25rem] w-full relative', { 'btn-primary hover:scale-105': onClickRight })} onClick={onClickRight}>
+        </BtnWrap>
+        <BtnWrap className={cn('h-[4.25rem] w-full relative')} onClick={onClickRight as any}>
           <div className='flex flex-row-reverse gap-2 items-center p-4 w-full h-[4.25rem] absolute left-0 top-0'>
             <RightIcon className='text-4xl' showBg />
             <div className='flex flex-col items-end gap-2'>
@@ -66,7 +80,7 @@ export const renderChoseSide = (
               <span className=' text-[14px] leading-[14px] font-medium'>{rightSub}</span>
             </div>
           </div>
-        </div>
+        </BtnWrap>
       </div>
     </div>
   )

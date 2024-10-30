@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useHover } from 'react-use'
 import { toLVault } from './routes'
+import { BBtn } from '@/components/ui/bbtn'
 
 type CardItemType = {
   icon: React.FunctionComponent<IconProps>
@@ -73,14 +74,14 @@ export default function Home() {
             A Structured Protocol for Better <br />
             Liquidity Utilization.
           </div>
-          <div className='flex gap-5 mt-8 w-fit justify-start flex-wrap'>
-            <button className='btn-primary !text-sm w-[150px] !mx-0  mt-0' onClick={() => toLVault(r)}>
+          <div className='flex gap-5 mt-8 justify-start flex-wrap'>
+            <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => toLVault(r)}>
               Launch Dapp
-            </button>
-            <button className='text-sm h-10 rounded-lg bg-btndis w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>
+            </BBtn>
+            <BBtn hiddenBorder className='text-sm h-10 !w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>
               <CoinIcon size={24} symbol='berachain' />
               Built on Berachain
-            </button>
+            </BBtn>
           </div>
         </div>
 

@@ -94,7 +94,7 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress }: { paramL
           setState({ value: '' })
           refetch()
         }}
-        className='btn-primary w-full flex items-center justify-center gap-4'
+        className=' w-full flex items-center justify-center gap-4'
       />
       <div className='text-sm flex flex-col items-start' ref={infoRef}>
         {infos.map((info, index) => (
@@ -121,7 +121,7 @@ function UpdateVaultPrice({ vc }: { vc: VaultConfig }) {
         onTxSuccess={() => {
           setState({ feed: '' })
         }}
-        className='btn-primary w-full flex items-center justify-center gap-4'
+        className=' w-full flex items-center justify-center gap-4'
       />
     </Expandable>
   )
@@ -148,7 +148,7 @@ function ClaimYieldsForBuyPool({ vc }: { vc: VaultConfig }) {
           functionName: 'claimYields',
           args: [address as any],
         }}
-        className='!mt-0 btn-primary max-w-[100px] flex items-center justify-center gap-4'
+        className='!mt-0  max-w-[100px] flex items-center justify-center gap-4'
       />
     </Expandable>
   )
@@ -195,7 +195,7 @@ function SetTester({ vc }: { vc: VaultConfig }) {
           functionName: 'setTester',
           args: [address as any, true],
         }}
-        className='!mt-0 btn-primary max-w-[100px] flex items-center justify-center gap-4'
+        className='!mt-0  max-w-[100px] flex items-center justify-center gap-4'
       />
     </Expandable>
   )

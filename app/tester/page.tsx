@@ -48,7 +48,7 @@ function MockPrice({ vc }: { vc: VaultConfig }) {
         onTxSuccess={() => {
           setValue('')
         }}
-        className='btn-primary flex items-center justify-center gap-4'
+        className='flex items-center justify-center gap-4'
       />
     </Expandable>
   )

@@ -21,6 +21,7 @@ import { CoinIcon } from './icons/coinicon'
 import { PulseTokenItem } from './pulse-ui'
 import { SimpleDialog } from './simple-dialog'
 import { Spinner } from './spinner'
+import { BBtn } from './ui/bbtn'
 
 const defTokens: TokenItem[] = [
   { symbol: 'HONEY', name: 'HONEY Token', address: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03' },
@@ -184,9 +185,9 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
           />
         </SimpleDialog>
       </div>
-      <button className='btn-primary w-full flex justify-center items-center gap-2' disabled={disableAdd} onClick={() => mutate()}>
-        {isPending && <Spinner />} Add
-      </button>
+      <BBtn busy={isPending} className='w-full flex justify-center items-center gap-2' disabled={disableAdd} onClick={() => mutate()}>
+        Add
+      </BBtn>
     </div>
   )
 }

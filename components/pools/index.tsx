@@ -27,6 +27,7 @@ import { Tip } from '../ui/tip'
 import { WrapDiv } from '../ui/wrap-div'
 import { useLVault, useUpLVaultOnUserAction, useUserLVault } from '@/providers/useLVaultsData'
 import { useBalances } from '@/providers/useTokenStore'
+import { BBtn } from '../ui/bbtn'
 
 interface DualInvestmentCardProps {
   vc: VaultConfig
@@ -340,8 +341,8 @@ export function PoolCard({ type, vc }: DualInvestmentCardProps) {
             </div>
             <div className='mt-auto h-fit'>
               <div className='w-full flex justify-center items-center'>
-                <button
-                  className='btn-primary flex items-center w-[60%] md:w-fit self-end justify-center gap-4 bg-[#64738B]'
+                <BBtn
+                  className='flex items-center w-[60%] md:w-fit self-end justify-center gap-4 bg-[#64738B]'
                   disabled={claimAllDisabled || isClaimAllLoading}
                   onClick={() => claimAll().then(upForUserAction)}
                 >
@@ -349,7 +350,7 @@ export function PoolCard({ type, vc }: DualInvestmentCardProps) {
                     {isClaimAllLoading && <Spinner />}
                     <span>Claim All</span>
                   </div>
-                </button>
+                </BBtn>
               </div>
               <div className='relative flex flex-col gap-1 mt-4 md:mt-[28px] justify-center items-center text-[#64748B] text-sm font-medium p-3 rounded-md bg-slate-100 dark:bg-transparent dark:text-slate-50'>
                 <div className='flex items-center gap-1'>
