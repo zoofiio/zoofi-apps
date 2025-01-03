@@ -1,4 +1,4 @@
-import { abiBQuery } from '@/config/abi'
+import { abiBQuery, abiBQueryOld } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
 import { Address } from 'viem'
 import { getPC } from './publicClient'
@@ -7,9 +7,12 @@ import { SliceFun } from './types'
 
 export type BVaultUserDTO = {
   epochId: bigint
-  bribes: { bribeTotalAmount: bigint; bribeSymbol: string; epochId: bigint; bribeToken: Address; bribeAmount: bigint }[]
+  bribes: { bribeTotalAmount: bigint; bribeSymbol: string; epochId: bigint; bribeToken: Address; bribeAmount: bigint }[] // for old BVault
+  sBribes: { bribeTotalAmount: bigint; bribeSymbol: string; epochId: bigint; bribeToken: Address; bribeAmount: bigint }[]
+  aBribes: { bribeTotalAmount: bigint; bribeSymbol: string; epochId: bigint; bribeToken: Address; bribeAmount: bigint }[]
   userBalanceYToken: bigint
   userBalanceYTokenSyntyetic: bigint
+  userClaimableYTokenSyntyetic: bigint
   claimableAssetBalance: bigint
   redeemingBalance: bigint
 }
@@ -29,7 +32,9 @@ export const sliceUserBVaults: SliceFun<UserBVaultsStore> = (set, get, init) => 
     if (epoches.length == 0) return {}
     const pc = getPC()
     const endEpoches = await Promise.all(
-      epoches.map((e) => pc.readContract({ abi: abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpochUser', args: [bvc.vault, e.epochId, user] })),
+      epoches.map((e) =>
+        pc.readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpochUser', args: [bvc.vault, e.epochId, user] }),
+      ),
     )
     set({ epoches: { ...get().epoches, [bvc.vault]: endEpoches } })
     return endEpoches

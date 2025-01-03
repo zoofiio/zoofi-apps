@@ -12,6 +12,7 @@ export type BVaultConfig = {
   protocolSettingsAddress: Address
   bQueryAddres: Address
   lpPoolIdx?: number
+  isOld?: boolean
   onEnv?: ('beta' | 'test' | 'prod')[]
 }
 export const ZooProtocolAddress = '0xF86a9a53D963B7a845F3496a97d0dB11cEc3c4E0'
@@ -52,6 +53,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: ZooProtocolAddress,
       protocolSettingsAddress: ZooProtocolSettingsAddress,
       bQueryAddres: BQueryAddress[berachainTestnet.id],
+      isOld: true,
       onEnv: ['beta'],
     },
     {
@@ -64,6 +66,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: ZooProtocolAddress,
       protocolSettingsAddress: ZooProtocolSettingsAddress,
       bQueryAddres: BQueryAddress[berachainTestnet.id],
+      isOld: true,
       onEnv: ['beta'],
     },
     {
@@ -76,7 +79,32 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: ZooProtocolAddress,
       protocolSettingsAddress: ZooProtocolSettingsAddress,
       bQueryAddres: BQueryAddress[berachainTestnet.id],
+      isOld: true,
       onEnv: ['beta', 'test'],
+    },
+    {
+      vault: '0x77412b08bB3a8c38F7D0DC7D1158C5E7bfE03Eea',
+      asset: '0xd28d852cbcc68dcec922f6d5c7a8185dbaa104b7',
+      assetSymbol: 'HONEY-WBERA',
+      pToken: '0x02FEDe9cf47c3D8aCE52613C2a45bC588D4e0516',
+      pTokenSymbol: 'pHONEY-BERA',
+      yTokenSymbol: 'yHONEY-BERA',
+      protocolAddress: ZooProtocolAddress,
+      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
+      onEnv: ['beta'],
+    },
+    {
+      vault: '0xCC5AeD7b81dc45f02329Cc2Bf2c64B873D0be752',
+      asset: '0xd28d852cbcc68dcec922f6d5c7a8185dbaa104b7',
+      assetSymbol: 'HONEY-WBERA',
+      pToken: '0x05425F978a87DC80827f6c4a104FCbc6E9021ecc',
+      pTokenSymbol: 'pHONEY-BERA',
+      yTokenSymbol: 'yHONEY-BERA',
+      protocolAddress: ZooProtocolAddress,
+      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
+      onEnv: ['beta'],
     },
   ],
 }

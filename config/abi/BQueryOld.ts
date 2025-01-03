@@ -182,16 +182,6 @@ export default [
                 name: 'settled',
                 type: 'bool',
               },
-              {
-                internalType: 'address',
-                name: 'stakingBribesPool',
-                type: 'address',
-              },
-              {
-                internalType: 'address',
-                name: 'adhocBribesPool',
-                type: 'address',
-              },
             ],
             internalType: 'struct BQuery.BVaultEpoch',
             name: 'current',
@@ -273,16 +263,6 @@ export default [
             name: 'settled',
             type: 'bool',
           },
-          {
-            internalType: 'address',
-            name: 'stakingBribesPool',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'adhocBribesPool',
-            type: 'address',
-          },
         ],
         internalType: 'struct BQuery.BVaultEpoch',
         name: '',
@@ -348,39 +328,7 @@ export default [
               },
             ],
             internalType: 'struct BQuery.BribeInfo[]',
-            name: 'sBribes',
-            type: 'tuple[]',
-          },
-          {
-            components: [
-              {
-                internalType: 'uint256',
-                name: 'epochId',
-                type: 'uint256',
-              },
-              {
-                internalType: 'address',
-                name: 'bribeToken',
-                type: 'address',
-              },
-              {
-                internalType: 'uint256',
-                name: 'bribeAmount',
-                type: 'uint256',
-              },
-              {
-                internalType: 'string',
-                name: 'bribeSymbol',
-                type: 'string',
-              },
-              {
-                internalType: 'uint256',
-                name: 'bribeTotalAmount',
-                type: 'uint256',
-              },
-            ],
-            internalType: 'struct BQuery.BribeInfo[]',
-            name: 'aBribes',
+            name: 'bribes',
             type: 'tuple[]',
           },
           {
@@ -401,11 +349,6 @@ export default [
           {
             internalType: 'uint256',
             name: 'userBalanceYTokenSyntyetic',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'userClaimableYTokenSyntyetic',
             type: 'uint256',
           },
         ],

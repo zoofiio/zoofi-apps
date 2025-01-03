@@ -12,6 +12,7 @@ import { SliceFun } from './types'
 export type TokenItem = {
   address: Address
   symbol: string
+  decimals: number
   name?: string
   url?: string
 }
@@ -103,11 +104,13 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     const list = await fetch('https://raw.githubusercontent.com/berachain/default-lists/main/src/tokens/bartio/defaultTokenList.json')
       .then((res) => res.json())
       .then((data) => {
-        return (data.tokens as any[]).map<TokenItem>((item) => ({
+        return (data.tokens as any[]).filter(item => item.chainId === getCurrentChainId()).map<TokenItem>((item) => ({
           symbol: item.symbol as string,
           address: item.address as Address,
+          decimals: item.decimals as number,
           name: item.name as string,
           url: ((item.logoURI as string) || '').replace('https://https://', 'https://'),
+          
         }))
       })
     localStorage.setItem('catchedDefTokenList', JSON.stringify(list))

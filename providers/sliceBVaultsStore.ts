@@ -1,4 +1,4 @@
-import { abiBQuery } from '@/config/abi'
+import { abiBQuery, abiBQueryOld } from '@/config/abi'
 import { getBvaultsPtSynthetic } from '@/config/api'
 import { BVaultConfig } from '@/config/bvaults'
 import _ from 'lodash'
@@ -17,6 +17,8 @@ export type BVaultEpochDTO = {
   yTokenAmountForSwapYT: bigint
   totalRedeemingBalance: bigint
   settled: boolean
+  stakingBribesPool: Address
+  adhocBribesPool: Address
 }
 
 export type BVaultDTO = {
@@ -52,7 +54,9 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     const pc = getPC()
     const datas = await Promise.all(
       bvcs.map((bvc) =>
-        pc.readContract({ abi: abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVault', args: [bvc.vault] }).then((item) => ({ vault: bvc.vault, item })),
+        pc
+          .readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVault', args: [bvc.vault] })
+          .then((item) => ({ vault: bvc.vault, item })),
       ),
     )
     const map = _.filter(datas, (item) => item != null).reduce<BVaultsStore['bvaults']>((map, item) => ({ ...map, [item.vault]: item.item }), {})
@@ -65,7 +69,9 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     if (mIds.length == 0) return {}
     const pc = getPC()
     const datas = await Promise.all(
-      mIds.map((epochId) => pc.readContract({ abi: abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpoch', args: [bvc.vault, epochId] })),
+      mIds.map((epochId) =>
+        pc.readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpoch', args: [bvc.vault, epochId] }),
+      ),
     )
     const map = datas.reduce<BVaultsStore['epoches']>((map, item) => ({ ...map, [`${bvc.vault}_${item!.epochId.toString()}`]: item }), {})
     set({ epoches: { ...get().epoches, ...map } })

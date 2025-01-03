@@ -1,6 +1,6 @@
 import PandaLine from '@/components/icons/PandaLine'
 import VenomLine from '@/components/icons/VenomLine'
-import { abiBVault, abiRedeemPool } from '@/config/abi'
+import { abiAdhocBribesPool, abiBVault, abiRedeemPool, abiStakingBribesPool } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
 import { getBexPoolURL } from '@/config/network'
 import { LP_TOKENS } from '@/config/tokens'
@@ -369,7 +369,7 @@ function BribeTit(p: { name: string }) {
   )
 }
 
-function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
+function BVaultPoolsOld({ bvc }: { bvc: BVaultConfig }) {
   const [onlyMy, setOnlyMy] = useState(false)
   const epochesData = useEpochesData(bvc.vault)
   const epoches = useMemo(() => {
@@ -478,6 +478,142 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
     </div>
   )
 }
+function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
+  const [onlyMy, setOnlyMy] = useState(false)
+  const epochesData = useEpochesData(bvc.vault)
+  const epoches = useMemo(() => {
+    const myFilter = (item: (typeof epochesData)[number]) => item.bribes.reduce((sum, b) => sum + b.bribeAmount, 0n) > 0n
+    return onlyMy ? epochesData.filter(myFilter) : epochesData
+  }, [epochesData, onlyMy])
+  const viewMax = 6
+  const itemHeight = 56
+  const itemSpaceY = 20
+  const [mesRef, mes] = useMeasure<HTMLDivElement>()
+  const valueClassname = 'text-black/60 dark:text-white/60 text-sm'
+  const [currentEpochId, setCurrentEpochId] = useState<bigint | undefined>(epoches[0]?.epochId)
+  const current = useMemo(() => (!currentEpochId ? epoches[0] : epoches.find((e) => e.epochId == currentEpochId)), [epoches, currentEpochId])
+  const userBalanceYToken = current?.userBalanceYToken || 0n
+  const userBalanceYTokenSyntyetic = current?.userBalanceYTokenSyntyetic || 0n
+  const userClaimableYTokenSyntyetic = current?.userClaimableYTokenSyntyetic || 0n
+  const onRowClick = (index: number) => {
+    setCurrentEpochId(epoches[index]?.epochId)
+  }
+  const sBribes = current?.sBribes || []
+  const aBribes = current?.aBribes || []
+
+  const upForUserAction = useUpBVaultForUserAction(bvc)
+  function rowRender({ key, style, index }: ListRowProps) {
+    const itemEpoch = epoches[index]
+    const fTime = `${fmtDate(itemEpoch.startTime * 1000n)}-${fmtDate((itemEpoch.startTime + itemEpoch.duration) * 1000n)}`
+    return (
+      <div key={key} style={style} className='cursor-pointer' onClick={() => onRowClick(index)}>
+        <div className={cn('h-[56px] card !rounded-lg !px-5 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
+          <div className='text-sm'>Epoch {epoches[index].epochId.toString()}</div>
+          <div className='text-xs dark:text-white/60 mt-1'>{fTime}</div>
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className='md:h-[24.25rem] card !p-4'>
+      <div className='font-bold text-base'>Harvest</div>
+      <div className={cn('flex flex-col md:flex-row gap-4 mt-2')}>
+        <div className='flex flex-col gap-4 shrink-0 w-full md:w-[14.375rem]' ref={mesRef}>
+          <div className='flex items-center gap-8 text-sm font-semibold'>
+            <span>My Pool Only</span>
+            <Switch checked={onlyMy} onChange={setOnlyMy as any} />
+          </div>
+          <List
+            className={epoches.length > viewMax ? 'pr-5' : ''}
+            width={mes.width}
+            height={280}
+            rowHeight={({ index }) => (index < epoches.length - 1 ? itemHeight + itemSpaceY : itemHeight)}
+            overscanRowCount={viewMax}
+            rowCount={epoches.length}
+            rowRenderer={rowRender}
+          />
+        </div>
+        <div className='flex flex-col gap-2 w-full'>
+          <div className='flex gap-6 items-end font-semibold'>
+            <span className='text-sm'>Rewards</span>
+            <span className='text-xs dark:text-white/60'>Epoch {(current?.epochId || 1n).toString()}</span>
+          </div>
+          <div className='flex-1 overflow-y-auto flex flex-col gap-4 font-semibold text-sm'>
+            <div className='flex gap-20 items-end font-semibold'>
+              <span className='text-sm'>YT Balance</span>
+              <span className='text-xs dark:text-white/60'>{displayBalance(userBalanceYToken)}</span>
+            </div>
+
+            <div className='flex flex-col gap-5 justify-start relative pt-8 items-center'>
+              {sBribes.map(item => <div key={item.bribeToken} className='flex items-center w-full relative gap-20 pl-[20%]'>
+                <BribeTit name={item.bribeSymbol} />
+                <div className='absolute left-1/2'>{displayBalance(item.bribeAmount)}</div>
+              </div>)}
+              <span className='absolute left-0 top-0'>Berachain Emission</span>
+              <span className='absolute left-1/2 top-0 dark:text-white/60'>Claimable</span>
+              <ApproveAndTx
+                className='absolute w-28 top-0 right-0'
+                tx='Claim'
+                disabled={!current}
+                config={{
+                  abi: abiStakingBribesPool,
+                  address: current?.stakingBribesPool!,
+                  functionName: 'getBribes',
+                }}
+                onTxSuccess={() => {
+                  upForUserAction()
+                }}
+              />
+            </div>
+            <div className='flex items-center relative'>
+              <span className='text-sm'>YT Points</span>
+              <span className=' dark:text-white/60 ml-16'>{displayBalance(userBalanceYTokenSyntyetic)}</span>
+              <div className='flex flex-col gap-1 absolute left-1/2 top-0'>
+                <span className='dark:text-white/60'>Claimable</span>
+                <span>{displayBalance(userClaimableYTokenSyntyetic)}</span>
+              </div>
+              <ApproveAndTx
+                className='w-28 ml-auto'
+                tx='Claim'
+                disabled={!current}
+                config={{
+                  abi: abiAdhocBribesPool,
+                  address: current?.adhocBribesPool!,
+                  functionName: 'collectYT',
+                }}
+                onTxSuccess={() => {
+                  upForUserAction()
+                }}
+              />
+            </div>
+            {aBribes.length > 0 && <div className='flex flex-col gap-5 justify-start relative pt-8 items-center'>
+              {aBribes.map(item => <div key={item.bribeToken} className='flex items-center w-full relative gap-20 pl-[20%]'>
+                <BribeTit name={item.bribeSymbol} />
+                <div className='absolute left-1/2'>{displayBalance(item.bribeAmount)}</div>
+              </div>)}
+              <span className='absolute left-0 top-0'>Additional Incentives</span>
+              <span className='absolute left-1/2 top-0 dark:text-white/60'>Claimable</span>
+              <ApproveAndTx
+                className='absolute w-28 top-0 right-0'
+                tx='Claim'
+                disabled={!current}
+                config={{
+                  abi: abiAdhocBribesPool,
+                  address: current?.adhocBribesPool!,
+                  functionName: 'getBribes',
+                }}
+                onTxSuccess={() => {
+                  upForUserAction()
+                }}
+              />
+            </div>}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function BVaultB({ bvc }: { bvc: BVaultConfig }) {
   const bvd = useBVault(bvc.vault)
@@ -486,7 +622,7 @@ export function BVaultB({ bvc }: { bvc: BVaultConfig }) {
       <BVaultYInfo bvc={bvc} />
       <BvaultEpochYtPrices bvc={bvc} epochId={bvd.epochCount} />
       <BVaultYTrans bvc={bvc} />
-      <BVaultPools bvc={bvc} />
+      {bvc.isOld ? <BVaultPoolsOld bvc={bvc} /> : <BVaultPools bvc={bvc} />}
     </div>
   )
 }

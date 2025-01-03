@@ -17,7 +17,7 @@ export function AssetInput({
   checkBalance = true,
   balance,
   balanceTit = 'Balance',
-  balanceDecimals = 18,
+  decimals = 18,
   exchange,
   readonly,
   selected,
@@ -40,7 +40,7 @@ export function AssetInput({
   checkBalance?: boolean
   balance?: bigint
   balanceTit?: string
-  balanceDecimals?: number
+  decimals?: number
   exchange?: string | number
   readonly?: boolean
   selected?: boolean
@@ -60,7 +60,7 @@ export function AssetInput({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const balanceInsufficient =
-    checkBalance && typeof balance !== 'undefined' && parseEthers(typeof amount == 'number' ? amount + '' : amount || '') > (typeof balance == 'bigint' ? balance : 0n)
+    checkBalance && typeof balance !== 'undefined' && parseEthers(typeof amount == 'number' ? amount + '' : amount || '', decimals) > (typeof balance == 'bigint' ? balance : 0n)
   const isDark = useThemeState((t) => t.theme == 'dark')
   const isError = balanceInsufficient
   return (
@@ -151,12 +151,12 @@ export function AssetInput({
         <div className='flex items-center justify-between mt-1 px-1 text-slate-400 dark:text-slate-50/70 text-sm'>
           <div className={balanceClassName}>
             <span>
-              {balanceTit}: {displayBalance(balance, 3, balanceDecimals)}
+              {balanceTit}: {displayBalance(balance, 3, decimals)}
             </span>
             <button
               className='text-primary ml-2'
               onClick={() => {
-                const fmtAmount = formatUnits(balance, balanceDecimals)
+                const fmtAmount = formatUnits(balance, decimals)
                 setAmount(fmtAmount)
                 onClick && !disable && onClick()
               }}
