@@ -52,7 +52,7 @@ export function useEpochesData(vault: Address) {
   const userEpochs = useUserBVaultEpoches(vault)
   return useMemo(() => {
     const userEpochsMap = userEpochs.reduce<{ [k: string]: (typeof userEpochs)[number] }>((map, item) => ({ ...map, [item.epochId.toString()]: item }), {})
-    return epochs.map((ep) => proxyGetDef({ ...ep!, ...(userEpochsMap[ep!.epochId.toString()] || { bribes: [] }) }, 0n))
+    return epochs.map((ep) => proxyGetDef({ ...ep!, ...(userEpochsMap[ep!.epochId.toString()] || { bribes: [], sBribes: [], aBribes: [] }) }, 0n))
   }, [epochs, userEpochs])
 }
 

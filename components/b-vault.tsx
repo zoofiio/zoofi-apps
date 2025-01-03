@@ -482,7 +482,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
   const [onlyMy, setOnlyMy] = useState(false)
   const epochesData = useEpochesData(bvc.vault)
   const epoches = useMemo(() => {
-    const myFilter = (item: (typeof epochesData)[number]) => item.bribes.reduce((sum, b) => sum + b.bribeAmount, 0n) > 0n
+    const myFilter = (item: (typeof epochesData)[number]) => item.sBribes.reduce((sum, b) => sum + b.bribeAmount, 0n) > 0n || item.aBribes.reduce((sum, b) => sum + b.bribeAmount, 0n) > 0n
     return onlyMy ? epochesData.filter(myFilter) : epochesData
   }, [epochesData, onlyMy])
   const viewMax = 6
