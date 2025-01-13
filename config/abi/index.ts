@@ -20,6 +20,12 @@ import abiCalcLiq from './CalcLiq'
 import abiBQueryOld from './BQueryOld'
 import abiBQuery from './BQuery'
 import { abiAdhocBribesPool, abiStakingBribesPool } from './BribesPool'
+import abiLntQuery from './LntQuery';
+import abiLntVault from './LntVault';
+import abiLntYtRewardsPool from './LntYtRewardsPool';
+import abiMockERC20 from './MockERC20';
+import abiMockERC721 from './MockERC721';
+
 export {
   abiPriceFeed,
   abiPtyPool,
@@ -37,9 +43,15 @@ export {
   abiRedeemPool,
   abiCrocQuery,
   abiCalcLiq,
-  
+
   abiBQueryOld,
   abiBQuery,
   abiAdhocBribesPool,
   abiStakingBribesPool,
+  abiLntQuery,
+  abiLntVault,
+  abiLntYtRewardsPool,
+
+  abiMockERC20,
+  abiMockERC721,
 }

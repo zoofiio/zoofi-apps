@@ -1,5 +1,6 @@
 import { Address } from 'viem'
 import { berachainTestnet } from './network'
+import { TypeENV } from './env'
 
 export type BVaultConfig = {
   vault: Address
@@ -13,7 +14,7 @@ export type BVaultConfig = {
   bQueryAddres: Address
   lpPoolIdx?: number
   isOld?: boolean
-  onEnv?: ('beta' | 'test' | 'prod')[]
+  onEnv?: TypeENV[]
 }
 export const ZooProtocolAddress = '0xF86a9a53D963B7a845F3496a97d0dB11cEc3c4E0'
 export const ZooProtocolSettingsAddress = '0x97d82C639835F4EfaCC366fdE78CA0c4EC2a2A83'

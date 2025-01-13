@@ -9,6 +9,7 @@ import { useMemo } from 'react'
 import { Address } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCurrentChainId } from './useCurrentChainId'
+import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 
 export function useLoadLVaults() {
   const chainId = useCurrentChainId()
@@ -81,6 +82,47 @@ export function useLoadBVaults() {
   })
   useQuery({
     queryKey: ['UpdateUserBvautlsTokens', tokens, address],
+    queryFn: async () => {
+      if (!address) return false
+      await useBoundStore.getState().sliceTokenStore.updateTokensBalance(tokens, address)
+      return true
+    },
+  })
+}
+export function useLoadLntVaults() {
+  const chainId = useCurrentChainId()
+  const vcs = useMemo(() => LNTVAULTS_CONFIG[chainId]?.filter((vc) => (vc.onEnv || []).includes(ENV)) ||[], [chainId, ENV])
+  // useUpdateBVaultsData(bvcs)
+  useQuery({
+    queryKey: ["UpdateLntVaults",vcs],
+    queryFn: async () => {
+      await useBoundStore.getState().sliceLntVaultsStore.updateLntVaults(vcs)
+      return true
+    },
+  })
+  const { address } = useAccount()
+  const tokens = useMemo(
+    () =>
+      vcs
+        .map((b) => [b.vestingToken, b.vToken])
+        .flat()
+        .reduce<Address[]>((union, item) => (union.includes(item) ? union : [...union, item]), []),
+    [vcs],
+  )
+  useQuery({
+    queryKey: ['UpdateLntvautlsTokens', tokens],
+    queryFn: async () => {
+      await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens)
+      await useBoundStore.getState().sliceTokenStore.updateTokenPrices(tokens)
+      return true
+    },
+    throwOnError(error, query) {
+      console.error(error)
+      return false
+    },
+  })
+  useQuery({
+    queryKey: ['UpdateUserLntvautlsTokens', tokens, address],
     queryFn: async () => {
       if (!address) return false
       await useBoundStore.getState().sliceTokenStore.updateTokensBalance(tokens, address)

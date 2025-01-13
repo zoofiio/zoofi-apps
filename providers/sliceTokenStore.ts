@@ -8,6 +8,7 @@ import _ from 'lodash'
 import { Address, erc20Abi } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
+import { getNftTokenIdsByUser, getNftTokensIdsByUser } from '@/config/api'
 
 export type TokenItem = {
   address: Address
@@ -30,6 +31,12 @@ export type TokenStore = {
   // tokenList
   defTokenList: TokenItem[]
   updateDefTokenList: () => Promise<TokenItem[]>
+
+  // nft
+  nftBalance: {
+    [k: Address]: bigint[]
+  }
+  updateNftBalance: (tokens: Address[], user: Address) => Promise<TokenStore['nftBalance']>
 }
 
 export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
@@ -104,14 +111,15 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     const list = await fetch('https://raw.githubusercontent.com/berachain/default-lists/main/src/tokens/bartio/defaultTokenList.json')
       .then((res) => res.json())
       .then((data) => {
-        return (data.tokens as any[]).filter(item => item.chainId === getCurrentChainId()).map<TokenItem>((item) => ({
-          symbol: item.symbol as string,
-          address: item.address as Address,
-          decimals: item.decimals as number,
-          name: item.name as string,
-          url: ((item.logoURI as string) || '').replace('https://https://', 'https://'),
-          
-        }))
+        return (data.tokens as any[])
+          .filter((item) => item.chainId === getCurrentChainId())
+          .map<TokenItem>((item) => ({
+            symbol: item.symbol as string,
+            address: item.address as Address,
+            decimals: item.decimals as number,
+            name: item.name as string,
+            url: ((item.logoURI as string) || '').replace('https://https://', 'https://'),
+          }))
       })
     localStorage.setItem('catchedDefTokenList', JSON.stringify(list))
     set({ defTokenList: list })
@@ -123,6 +131,13 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     } catch (error) {
       return []
     }
+  }
+
+  const updateNftBalance = async (tokens: Address[], user: Address) => {
+    const data = await getNftTokensIdsByUser(tokens, user)
+    const idsMap = _.mapValues(data, (item) => item.map((id) => BigInt(id)))
+    set({ nftBalance: { ...get().nftBalance, ...idsMap } })
+    return {}
   }
   return {
     totalSupply: {},
@@ -136,6 +151,9 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
 
     defTokenList: getCatchedDefTokenList(),
     updateDefTokenList,
+
+    nftBalance: {},
+    updateNftBalance,
     ...init,
   }
 }

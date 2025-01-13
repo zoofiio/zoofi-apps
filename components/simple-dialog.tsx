@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import * as Dialog from '@radix-ui/react-dialog'
+import { Ref } from 'react'
 import { IoIosCloseCircleOutline } from 'react-icons/io'
 
 export function SimpleDialog({
@@ -11,6 +12,7 @@ export function SimpleDialog({
   disableOutClose,
   disableClose,
   triggerProps,
+  triggerRef,
   ...props
 }: {
   trigger?: React.ReactNode
@@ -21,10 +23,11 @@ export function SimpleDialog({
   disableOutClose?: boolean
   disableClose?: boolean
   triggerProps?: Dialog.DialogTriggerProps
+  triggerRef?: Ref<HTMLButtonElement>
 } & Dialog.DialogProps) {
   return (
     <Dialog.Root {...props}>
-      <Dialog.Trigger {...(triggerProps||{})}>{trigger}</Dialog.Trigger>
+      <Dialog.Trigger ref={triggerRef} {...(triggerProps||{})}>{trigger}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className='fixed top-0 left-0 inset-0 z-50 bg-black/60' />
 

@@ -30,7 +30,7 @@ export function useValutsLeverageRatio() {
   const vcs = VAULTS_CONFIG[chainId]
   const leverageMap: { [k: Address]: number } = useMemoOfChainId(() => proxyGetDef({}, 0))
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults)
-  vcs.forEach((vc) => {
+  vcs?.forEach((vc) => {
     const vs = lvaults[vc.vault]
     const aarNum = vs ? aarToNumber(vs.aar, vs.AARDecimals) : 0
     leverageMap[vc.vault] = Math.max(0, 1 + 1 / (aarNum - 1))
@@ -42,7 +42,7 @@ export function useSetLVaultPrices(prices: { [k: Address]: bigint }) {
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults)
   const totalSupply = useStore((s) => s.sliceTokenStore.totalSupply)
   const chainId = useCurrentChainId()
-  VAULTS_CONFIG[chainId].forEach((vc) => {
+  VAULTS_CONFIG[chainId]?.forEach((vc) => {
     const lvd = lvaults[vc.vault] || defLVault
     const _assetTotal = lvd.assetBalance
     const assetPrice = lvd.latestPrice
@@ -67,7 +67,7 @@ export function useUSBApr() {
   let enableCount = 0
   let multiTotal = 0n
   let total = 0n
-  VAULTS_CONFIG[chainId].forEach((vc) => {
+  VAULTS_CONFIG[chainId]?.forEach((vc) => {
     const lvd = lvaults[vc.vault] || defLVault
     if (lvd.isStable) {
       multiTotal += (lvd.M_USB_USDC * lvd.Y * lvd.aar) / 10n ** lvd.AARDecimals

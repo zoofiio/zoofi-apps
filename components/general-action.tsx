@@ -16,6 +16,7 @@ export const selectClassNames: Parameters<Select>[0]['classNames'] = {
 export const inputClassname = 'bg-white dark:bg-transparent border-primary/70 w-full h-14 text-right pr-4 font-bold text-sm border focus:border-2  rounded-md outline-none '
 
 export const defConvertArg = (arg: string, _i: number, param: AbiParameter) => {
+  if (param.type == 'uint8') return parseInt(arg)
   if (param.type.startsWith('uint')) return BigInt(arg)
   if (param.type == 'bytes32') return stringToHex(arg, { size: 32 })
   if (param.type == 'bool') {
@@ -97,7 +98,7 @@ export function GeneralAction({
       ))}
       {infos}
       <ApproveAndTx
-        {...(txProps || { })}
+        {...(txProps || {})}
         tx='Write'
         config={
           {

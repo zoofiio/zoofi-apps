@@ -1,10 +1,13 @@
 'use client'
 
 import { berachainTestnet, SUPPORT_CHAINS } from '@/config/network'
-import { DISCORD_LINK, DOC_LINK, TWITTER_LINK } from '@/constants'
+import { DISCORD_LINK, DOC_LINK, ENV, isLNT, TWITTER_LINK } from '@/constants'
 
 import { abiMockPriceFeed, abiVault } from '@/config/abi'
+import { BASE_PATH } from '@/config/env'
+import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { VAULTS_CONFIG } from '@/config/swap'
+import { DomainRef } from '@/hooks/useConfigDomain'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useWandContractRead } from '@/hooks/useWand'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -14,15 +17,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
-import { LuBox, LuDollarSign, LuLineChart, LuPaperclip, LuSettings, LuSettings2, LuTag, LuUserCircle } from 'react-icons/lu'
+import { LuBox, LuLineChart, LuSettings, LuSettings2, LuUserCircle } from 'react-icons/lu'
 import { TbBook2, TbBrandDiscordFilled, TbBrandX, TbChevronDown } from 'react-icons/tb'
 import { useWindowSize } from 'react-use'
 import { useAccount } from 'wagmi'
 import ConnectBtn from './connet-btn'
-import { ThemeMode } from './theme-mode'
-import { DomainRef } from '@/hooks/useConfigDomain'
-import { BASE_PATH } from '@/config/env'
 import { CoinIcon } from './icons/coinicon'
+import { ThemeMode } from './theme-mode'
+import { sepolia } from 'viem/chains'
 
 const NetName: { [k: number]: string } = {
   [berachainTestnet.id]: 'Berachain Bartio',
@@ -30,6 +32,7 @@ const NetName: { [k: number]: string } = {
 
 const NetIcon: { [k: number]: string } = {
   [berachainTestnet.id]: `${BASE_PATH}/berachain.svg`,
+  [sepolia.id]: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iIzI1MjkyRSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNhKSIgZmlsbC1vcGFjaXR5PSIuMyIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTguMTkgMTQuNzcgMTQgMTguMjFsNS44LTMuNDQtNS44IDguMTktNS44MS04LjE5WiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Im0xNCAxNi45My01LjgxLTMuNDRMMTQgNC4zNGw1LjgxIDkuMTVMMTQgMTYuOTNaIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMCIgeDI9IjE0IiB5MT0iMCIgeTI9IjI4IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgxPSIxNCIgeDI9IjE0IiB5MT0iMTQuNzciIHkyPSIyMi45NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iLjkiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48L3N2Zz4K',
 }
 
 export function useShowAdmin() {
@@ -37,7 +40,7 @@ export function useShowAdmin() {
   const { address } = useAccount()
   const { data: owner } = useWandContractRead({
     abi: abiVault,
-    address: VAULTS_CONFIG[chainId]?.[0]?.vault,
+    address: isLNT ? LNTVAULTS_CONFIG[chainId]?.[0]?.vault : VAULTS_CONFIG[chainId]?.[0]?.vault,
     functionName: 'owner',
     query: { enabled: !!address },
   })
@@ -68,16 +71,17 @@ export function Header() {
   const showTester = useShowTester()
   const links = useMemo(() => {
     const links = [
-      // { href: '/early', label: 'Early Access', icon: LuPaperclip },
-      { href: '/l-vaults', label: 'L-Vaults', icon: LuBox },
-      { href: '/b-vaults', label: 'B-Vaults', icon: LuBox },
-      // { href: '/earn', label: 'Earn', icon: LuDollarSign },
-      // { href: '/discount', label: 'Discount Offer', icon: LuTag },
-      { href: '/portfolio', label: 'Portfolio', icon: LuUserCircle },
-      { href: '/dashboard', label: 'Dashboard', icon: LuLineChart },
+      ...(ENV.includes("lnt") ? [
+        { href: '/lnt-vaults', label: 'LNT-Vaults', icon: LuBox },
+      ] : [
+        { href: '/l-vaults', label: 'L-Vaults', icon: LuBox },
+        { href: '/b-vaults', label: 'B-Vaults', icon: LuBox },
+        { href: '/portfolio', label: 'Portfolio', icon: LuUserCircle },
+        { href: '/dashboard', label: 'Dashboard', icon: LuLineChart },
+      ]),
     ]
     showAdmin && links.push({ href: '/admin', label: 'Admin', icon: LuSettings })
-    ;(showTester || showAdmin) && links.push({ href: '/tester', label: 'Tester', icon: LuSettings2 })
+      ; (showTester || showAdmin) && links.push({ href: '/tester', label: 'Tester', icon: LuSettings2 })
     return links
   }, [showAdmin, showTester])
 

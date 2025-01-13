@@ -16,6 +16,7 @@ export function useWrapContractWrite<
     | SimulateContractParameters<abi, functionName, args, Chain, chainOverride, accountOverride>
     | (() => Promise<SimulateContractParameters<abi, functionName, args, Chain, chainOverride, accountOverride>>),
   opts?: {
+    confirmations?: number
     skipSimulate?: boolean
     autoToast?: boolean
     onSuccess?: () => void
@@ -40,7 +41,7 @@ export function useWrapContractWrite<
         req = res.request as any
       }
       const hash = await wc.writeContract(req)
-      const txr = await pc.waitForTransactionReceipt({ hash })
+      const txr = await pc.waitForTransactionReceipt({ hash , confirmations: opts?.confirmations })
       if (txr.status !== 'success') {
         throw 'Transaction reverted'
       }

@@ -6,6 +6,7 @@ import { sliceBVaultsStore } from './sliceBVaultsStore'
 import { sliceLVaultsStore } from './sliceLVaultsStore'
 import { sliceTokenStore } from './sliceTokenStore'
 import { sliceUserBVaults } from './sliceUserBVaults'
+import { sliceLntVaultsStore } from './sliceLntVaultsStore'
 
 type SliceType<T> = { [k in keyof T]: (set: (data: Partial<T[k]>) => void, get: () => T[k], init?: Partial<T[k]>) => T[k] }
 
@@ -24,6 +25,7 @@ const boundStore = sliceStores(
   {
     sliceBVaultsStore,
     sliceLVaultsStore,
+    sliceLntVaultsStore,
     sliceTokenStore,
     sliceUserBVaults,
   },
@@ -36,31 +38,11 @@ export type BoundStoreType = ReturnType<typeof wrapDevtools>
 export const useBoundStore = create<BoundStoreType>(wrapDevtools as any)
 
 type KKeys<T> = Extract<keyof T, string | number | bigint>
-type LKeys<T, K extends KKeys<T>> = `${K}.${KKeys<T[K]>}`
-type sliceBVaultsPaths =
-  | LKeys<ReturnType<typeof sliceBVaultsStore>, 'bvaults'>
-  | LKeys<ReturnType<typeof sliceBVaultsStore>, 'epoches'>
-  | LKeys<ReturnType<typeof sliceBVaultsStore>, 'yTokenSythetic'>
-type sliceLVaultsPaths = LKeys<ReturnType<typeof sliceLVaultsStore>, 'lvaults'> | LKeys<ReturnType<typeof sliceLVaultsStore>, 'user'>
-type sliceTokenPaths =
-  | LKeys<ReturnType<typeof sliceTokenStore>, 'balances'>
-  | LKeys<ReturnType<typeof sliceTokenStore>, 'defTokenList'>
-  | LKeys<ReturnType<typeof sliceTokenStore>, 'prices'>
-  | LKeys<ReturnType<typeof sliceTokenStore>, 'totalSupply'>
-type sliceUserBVaultsPaths = LKeys<ReturnType<typeof sliceUserBVaults>, 'epoches'>
+type LKeys<T, K extends KKeys<T>> = T[K] extends any[] ? K : `${K}.${KKeys<T[K]>}`
+type EK<T> = { [K in KKeys<T>]: LKeys<T, K> }[KKeys<T>]
+type Paths<T> = { [K in KKeys<T>]: `${K}.${EK<T[K]>}` }[KKeys<T>] | EK<T> | KKeys<T>
 
-type DepPaths =
-  | KKeys<BoundStoreType>
-  | LKeys<BoundStoreType, 'sliceBVaultsStore'>
-  | `sliceBVaultsStore.${sliceBVaultsPaths}`
-  | LKeys<BoundStoreType, 'sliceLVaultsStore'>
-  | `sliceLVaultsStore.${sliceLVaultsPaths}`
-  | LKeys<BoundStoreType, 'sliceTokenStore'>
-  | `sliceTokenStore.${sliceTokenPaths}`
-  | LKeys<BoundStoreType, 'sliceUserBVaults'>
-  | `sliceUserBVaults.${sliceUserBVaultsPaths}`
-
-export function useStore<T>(selector: (s: BoundStoreType) => T, dependsPaths: ('' | DepPaths)[] = ['']) {
+export function useStore<T>(selector: (s: BoundStoreType) => T, dependsPaths: ('' | Paths<BoundStoreType>)[] = ['']) {
   const store = useBoundStore()
   return useMemo(
     () => selector(store),

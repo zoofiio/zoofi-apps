@@ -7,16 +7,13 @@ import VenomLine from '@/components/icons/VenomLine'
 import { CoinIcon } from '@/components/icons/coinicon'
 import { IconProps } from '@/components/icons/types'
 import { PageWrap } from '@/components/page-wrap'
-import { VAULTS_CONFIG } from '@/config/swap'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useTVL, useTVLV1 } from '@/hooks/useTVL'
-import { useTokenApys } from '@/hooks/useTokenApys'
+import { BBtn } from '@/components/ui/bbtn'
+import { isLNT } from '@/constants'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useHover } from 'react-use'
-import { toLVault } from './routes'
-import { BBtn } from '@/components/ui/bbtn'
+import { toLntVault, toLVault } from './routes'
 
 type CardItemType = {
   icon: React.FunctionComponent<IconProps>
@@ -58,14 +55,7 @@ function CardItem(item: CardItemType) {
   return element
 }
 export default function Home() {
-  const chainId = useCurrentChainId()
-  const { tvl } = useTVL()
-  const tvlV1 = useTVLV1()
-  const tapys = useTokenApys()
-  const vcs = VAULTS_CONFIG[chainId]
-  const usdbVc = vcs.find((item) => item.assetTokenSymbol == 'USDB')
   const r = useRouter()
-
   return (
     <PageWrap>
       <div className='flex flex-col md:flex-row max-w-[1160px] mx-auto px-4 gap-10 md:gap-20 h-[calc(100vh-100px)] pt-[5vh] md:pt-[10vh] pb-8 md:justify-center'>
@@ -75,7 +65,7 @@ export default function Home() {
             Liquidity Utilization.
           </div>
           <div className='flex gap-5 mt-8 justify-start flex-wrap'>
-            <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => toLVault(r)}>
+            <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => isLNT ? toLntVault(r) : toLVault(r)}>
               Launch Dapp
             </BBtn>
             <BBtn hiddenBorder className='text-sm h-10 !w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>

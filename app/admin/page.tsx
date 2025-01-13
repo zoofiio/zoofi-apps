@@ -3,16 +3,16 @@
 import { ApproveAndTx } from '@/components/approve-and-tx'
 import { Expandable, GeneralAction, inputClassname, selectClassNames } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
-import { abiBVault, abiMockPriceFeed, abiPlainVault, abiProtocolSettings, abiPtyPool, abiVault, abiWandProtocol, abiZooProtocol } from '@/config/abi'
+import { abiBVault, abiLntVault, abiMockERC20, abiMockERC721, abiMockPriceFeed, abiPlainVault, abiProtocolSettings, abiPtyPool, abiVault, abiWandProtocol, abiZooProtocol } from '@/config/abi'
 import { PROTOCOL_SETTINGS_ADDRESS, VaultConfig, WAND_PROTOCOL_ADDRESS } from '@/config/swap'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useVaultsConfigs } from '@/hooks/useVaultsConfigs'
 import { useWandContractRead, useWandContractReads } from '@/hooks/useWand'
-import { cn } from '@/lib/utils'
+import { cn, parseEthers } from '@/lib/utils'
 import { useMemo } from 'react'
 import Select from 'react-select'
 import { useMeasure, useSetState } from 'react-use'
-import { Address, formatEther, formatUnits, parseUnits, stringToHex } from 'viem'
+import { Address, erc20Abi, erc721Abi, formatEther, formatUnits, isAddress, parseUnits, stringToHex } from 'viem'
 import { useAccount } from 'wagmi'
 
 type ParamItem = { label: string; value: string; units?: number /** def 10 */ }
@@ -33,6 +33,18 @@ const LVaultParams: ParamItem[] = [
 
 const BVaultParams: ParamItem[] = [
   { label: '产品周期', value: 'D', units: 0 },
+  { label: '初始定价', value: 'APRi' },
+  // { label: '保底定价', value: 'APRl' },
+  // { label: '衰减时长', value: 'T', units: 0 },
+  // { label: '价格变动系数', value: 'e1', units: 0 },
+  // { label: '斜率变动系数', value: 'e2', units: 0 },
+  { label: '赎回手续费', value: 'f1' },
+  { label: '利息佣金', value: 'f2' },
+]
+const LntVaultParams: ParamItem[] = [
+  { label: '产品周期', value: 'D', units: 0 },
+  { label: 'Nft质押Claim等待时间', value: 'NftDepositLeadingTime', units: 0 },
+  { label: 'Nft赎回等待时间', value: 'NftRedeemWaitingPeriod', units: 0 },
   { label: '初始定价', value: 'APRi' },
   // { label: '保底定价', value: 'APRl' },
   // { label: '衰减时长', value: 'T', units: 0 },
@@ -201,6 +213,36 @@ function SetTester({ vc }: { vc: VaultConfig }) {
   )
 }
 
+
+export function Erc20Approve() {
+  const [stat, setStat] = useSetState({
+    token: '',
+    spender: '',
+    amount: 0n
+  })
+  return <Expandable tit='Erc20Approve'>
+    <input type='text' placeholder='token' value={stat.token} onChange={(e) => setStat({ token: e.target.value })} className={cn(inputClassname)} />
+    <input type='text' placeholder='spender' value={stat.spender} onChange={(e) => setStat({ spender: e.target.value })} className={cn(inputClassname)} />
+    <input type='text' placeholder='amount' value={stat.amount.toString()} onChange={(e) => {
+      try {
+        setStat({ amount: parseEthers(e.target.value, 0) })
+      } catch (error) {
+      }
+    }} className={cn(inputClassname)} />
+    <ApproveAndTx
+      tx='Write'
+      disabled={!isAddress(stat.token) || !isAddress(stat.spender) || stat.amount <= 0n}
+      config={{
+        abi: erc20Abi,
+        address: stat.token as Address,
+        functionName: 'approve',
+        args: [stat.spender as Address, stat.amount],
+      }}
+      className='!mt-0 w-full flex items-center justify-center gap-4'
+    />
+  </Expandable>
+}
+
 const PValutParams: ParamItem[] = [{ label: '赎回手续费', value: 'C' }]
 
 export default function AdminPage() {
@@ -242,6 +284,24 @@ export default function AdminPage() {
               <GeneralAction tit='upsertParamConfig' abi={abiProtocolSettings} functionName='upsertParamConfig' address={current.data.protocolSettingsAddress} />
             </>
           )}
+          {
+            current.type == 'Lnt-Vault' && (
+              <>
+                <UpdateVaultParams vault={current.data.vault} paramList={LntVaultParams} protocoSettingAddress={current.data.protocolSettingsAddress} />
+                {['initialize', 'reInitialize', 'startEpoch1', 'updateNftDepositClaimableTime', 'depositNftVestingToken', 'withdrawNftVestingToken', 'addYtRewards',].map((functionName) => (
+                  <GeneralAction key={`lnt-vault-${functionName}`} abi={abiLntVault} functionName={functionName} address={current.data.vault} />
+                ))}
+                <GeneralAction tit='transferOwnership' abi={abiZooProtocol} functionName='transferOwnership' address={current.data.protocolAddress} />
+                <GeneralAction tit='upsertParamConfig' abi={abiProtocolSettings} functionName='upsertParamConfig' address={current.data.protocolSettingsAddress} />
+                {chain?.testnet && <>
+                  <GeneralAction tit='mintMockNFT' abi={abiMockERC721} functionName='safeMint' address={current.data.asset} />
+                  <GeneralAction tit='mintMockERC20' abi={abiMockERC20} functionName='mint' address={current.data.vestingToken} />
+                </>}
+
+              </>
+            )
+          }
+          <Erc20Approve />
         </div>
       </div>
     </PageWrap>

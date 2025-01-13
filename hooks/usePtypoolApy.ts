@@ -18,7 +18,7 @@ export function useUpdatePtypoolApy(prices: { [k: Address]: bigint }) {
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults, ['sliceLVaultsStore.lvaults'])
   useEffect(() => {
     console.info('updatePtypoolApy')
-    vcs.forEach((vc) => {
+    vcs?.forEach((vc) => {
       const vs = lvaults[vc.vault]
       if (vc.ptyPoolAboveAddress && vs && vs.sellPoolTotalStaking) {
         usePtypoolApy.getState().update({
