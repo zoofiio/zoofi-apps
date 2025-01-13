@@ -1,6 +1,7 @@
-import { isLNT } from '@/constants';
-import { providers } from 'ethers';
-import { Address, Chain, defineChain } from 'viem';
+import { isLNT, isPROD } from '@/constants'
+import { providers } from 'ethers'
+import _ from 'lodash'
+import { Address, Chain, defineChain } from 'viem'
 
 export const berachainTestnet = defineChain({
   id: 80084,
@@ -30,43 +31,40 @@ export const berachainTestnet = defineChain({
 
 export const sepolia = defineChain({
   id: 11_155_111,
-  name: "Sepolia",
-  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
+  name: 'Sepolia',
+  nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ["https://eth-sepolia.public.blastapi.io", "https://eth-sepolia.g.alchemy.com/v2/WddzdzI2o9S3COdT73d5w6AIogbKq4X-"],
+      http: ['https://eth-sepolia.public.blastapi.io', 'https://eth-sepolia.g.alchemy.com/v2/WddzdzI2o9S3COdT73d5w6AIogbKq4X-'],
     },
   },
   blockExplorers: {
     default: {
-      name: "Etherscan",
-      url: "https://sepolia.etherscan.io",
-      apiUrl: "https://api-sepolia.etherscan.io/api",
+      name: 'Etherscan',
+      url: 'https://sepolia.etherscan.io',
+      apiUrl: 'https://api-sepolia.etherscan.io/api',
     },
   },
   contracts: {
     multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 751532,
     },
-    ensRegistry: { address: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" },
+    ensRegistry: { address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e' },
     ensUniversalResolver: {
-      address: "0xc8Af999e38273D658BE1b921b88A9Ddf005769cC",
+      address: '0xc8Af999e38273D658BE1b921b88A9Ddf005769cC',
       blockCreated: 5_317_080,
     },
   },
   testnet: true,
-});
+})
 
 export const apiBatchConfig = { batchSize: 30, wait: 1500 }
 export const multicallBatchConfig = { batchSize: 100, wait: 1000 }
 
 export const beraChains = [berachainTestnet]
-export const SUPPORT_CHAINS: readonly [Chain, ...Chain[]] = (isLNT ? [sepolia] : [...beraChains]).filter(
-  (item) =>
-    // isPROD ? !item.testnet : true,
-    true,
-) as any
+export const lntChains = [sepolia]
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = _.filter(isLNT ? [...lntChains] : [...beraChains], (item) => (isPROD ? !(item as any).testnet : true)) as any
 
 export const refChainId: { id: number } = { id: isLNT ? sepolia.id : berachainTestnet.id }
 export const getCurrentChainId = () => {

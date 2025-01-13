@@ -214,7 +214,7 @@ function SetTester({ vc }: { vc: VaultConfig }) {
 }
 
 
-export function Erc20Approve() {
+function Erc20Approve() {
   const [stat, setStat] = useSetState({
     token: '',
     spender: '',
