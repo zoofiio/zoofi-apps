@@ -246,11 +246,12 @@ function Erc20Approve() {
 const PValutParams: ParamItem[] = [{ label: '赎回手续费', value: 'C' }]
 function InitReinit(props: { vault: Address }) {
   const { vault } = props;
-  // useWan
+  // @ts-ignore
   const { data } = useWandContractReads({
     contracts: [
       {
-        abi: abiLntVault, address: vault,
+        abi: abiLntVault,
+        address: vault,
         functionName: 'paramValue',
         args: [stringToHex('D', { size: 32 })]
       },
