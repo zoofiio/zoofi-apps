@@ -19,6 +19,7 @@ export type LntVaultConfig = {
   protocolAddress: Address
   protocolSettingsAddress: Address
   queryAddres: Address
+  nftStakingPool: Address
   onEnv?: TypeENV[]
 }
 export const ZooProtocolAddress = '0x896774931349919B71Ec251CCbA1C6AB1FEb45C4'
@@ -45,6 +46,7 @@ export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = {
       protocolAddress: ZooProtocolAddress,
       protocolSettingsAddress: ZooProtocolSettingsAddress,
       queryAddres: LNTQueryAddress[sepolia.id],
+      nftStakingPool: '0x73FA161A679020872356Eea8B6648F3D026228D1',
       onEnv: ['betalnt'],
     },
   ],

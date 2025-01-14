@@ -12,8 +12,8 @@ import { cn, parseEthers } from '@/lib/utils'
 import { useMemo } from 'react'
 import Select from 'react-select'
 import { useMeasure, useSetState } from 'react-use'
-import { Address, erc20Abi, erc721Abi, formatEther, formatUnits, isAddress, parseUnits, stringToHex } from 'viem'
-import { useAccount } from 'wagmi'
+import { Address, erc20Abi, erc721Abi, formatEther, formatUnits, isAddress, parseUnits, stringToBytes, stringToHex } from 'viem'
+import { useAccount, useReadContracts } from 'wagmi'
 
 type ParamItem = { label: string; value: string; units?: number /** def 10 */ }
 
@@ -244,6 +244,52 @@ function Erc20Approve() {
 }
 
 const PValutParams: ParamItem[] = [{ label: '赎回手续费', value: 'C' }]
+function InitReinit(props: { vault: Address }) {
+  const { vault } = props;
+  // useWan
+  const { data } = useWandContractReads({
+    contracts: [
+      {
+        abi: abiLntVault, address: vault,
+        functionName: 'paramValue',
+        args: [stringToHex('D', { size: 32 })]
+      },
+      {
+        abi: abiLntVault,
+        address: vault,
+        functionName: 'nftVtAmount',
+      },
+      {
+        abi: abiLntVault,
+        address: vault,
+        functionName: 'nftVestingEndTime',
+      },
+      {
+        abi: abiLntVault,
+        address: vault,
+        functionName: 'nftVestingDuration',
+      },
+      {
+        abi: abiLntVault,
+        address: vault,
+        functionName: 'ytSwapPaymentToken',
+      },
+      {
+        abi: abiLntVault,
+        address: vault,
+        functionName: 'ytSwapPrice',
+      },
+    ]
+  })
+  const { data: inited } = useWandContractRead({
+    abi: abiLntVault,
+    address: vault,
+    functionName: 'initialized'
+  })
+  const argsDef = data?.map(item => item.result?.toString() || '')
+  const functionName = inited ? 'reInitialize' : 'initialize'
+  return <GeneralAction key={`lnt-vault-init`} abi={abiLntVault} tit="InitOrReinit" txProps={{ disabled: typeof inited !== 'boolean' }} functionName={functionName} address={vault} argsDef={argsDef} />
+}
 
 export default function AdminPage() {
   const chainId = useCurrentChainId()
@@ -288,7 +334,8 @@ export default function AdminPage() {
             current.type == 'Lnt-Vault' && (
               <>
                 <UpdateVaultParams vault={current.data.vault} paramList={LntVaultParams} protocoSettingAddress={current.data.protocolSettingsAddress} />
-                {['initialize', 'reInitialize', 'startEpoch1', 'updateNftDepositClaimableTime', 'depositNftVestingToken', 'withdrawNftVestingToken', 'addYtRewards',].map((functionName) => (
+                <InitReinit vault={current.data.vault} />
+                {['startEpoch1', 'updateNftDepositClaimableTime', 'depositNftVestingToken', 'withdrawNftVestingToken', 'addYtRewards',].map((functionName) => (
                   <GeneralAction key={`lnt-vault-${functionName}`} abi={abiLntVault} functionName={functionName} address={current.data.vault} />
                 ))}
                 <GeneralAction tit='transferOwnership' abi={abiZooProtocol} functionName='transferOwnership' address={current.data.protocolAddress} />

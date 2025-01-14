@@ -1,5 +1,5 @@
 import VenomLine from '@/components/icons/VenomLine'
-import { abiLntVault, abiLntYtRewardsPool } from '@/config/abi'
+import { abiLntNftStakingPool, abiLntVault, abiLntYtRewardsPool } from '@/config/abi'
 import { LntVaultConfig, WriteConfirmations } from '@/config/lntvaults'
 import { DECIMAL } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
@@ -26,6 +26,8 @@ import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { BBtn } from './ui/bbtn'
 import { Switch } from './ui/switch'
+import { useWandContractRead } from '@/hooks/useWand'
+import { useAccount } from 'wagmi'
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
     <div className='flex items-center gap-5'>
@@ -360,6 +362,8 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   const seletedNfts = nftList.filter(item => selectedNft[`${item.nftTokenId}`])
   const upForUserAction = useUpLntVaultForUserAction(vc)
   const balances = useBalances()
+  const epochDue = vd.epochCount > 0n ? (vd.current.startTime + vd.current.duration) * 1000n - BigInt(_.now()) : 0n
+  const waitTime = epochDue > vd.NftRedeemWaitingPeriod * 1000n ? epochDue : vd.NftRedeemWaitingPeriod * 1000n;
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='w-full text-start'>Licenses ID</div>
     <div className='w-[32rem] h-72 overflow-y-auto'>
@@ -394,7 +398,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
         enabled: tokenIds.length > 0,
         args: [tokenIds]
       }} />
-    <div>Wait Time: {fmtDuration(vd.NftRedeemWaitingPeriod * 1000n)}</div>
+    <div>Wait Time: {fmtDuration(waitTime)}</div>
     <div>Please claim Licenses in the ‘History Activities’ section.</div>
   </div>
 }
@@ -413,6 +417,16 @@ export function LntVesting({ vc }: { vc: LntVaultConfig }) {
   const vtTotalSupply = useTotalSupply(vc.vToken)
   const deposited = nfts.filter(item => item.stat == 'Deposited')
   const redeemed = nfts.filter(item => item.stat == 'Redeemed')
+  const { address } = useAccount()
+  const { data: earnedFee, refetch } = useWandContractRead({
+    query: {
+      enabled: Boolean(address) && Boolean(vd.current.ytSwapPaymentToken),
+    },
+    abi: abiLntNftStakingPool,
+    address: vc.nftStakingPool,
+    functionName: 'earned',
+    args: [address!, vd.current.ytSwapPaymentToken]
+  })
   const upForUserAction = useUpLntVaultForUserAction(vc)
   return <div className='flex flex-col gap-6'>
     <div className='grid grid-cols-1 lg:grid-cols-5 gap-5 text-sm font-medium'>
@@ -424,13 +438,16 @@ export function LntVesting({ vc }: { vc: LntVaultConfig }) {
         <div className='flex justify-between items-center'>
           Claimable Fees
           <CoinIcon symbol={vc.vestingSymbol} size={16} className='ml-auto' />
-          <span className='text-base font-semibold ml-1'>0.34</span>
+          <span className='text-base font-semibold ml-1'>{displayBalance(earnedFee)}</span>
           <ApproveAndTx
             className='w-20 ml-4'
-            disabled
             tx='Claim'
+            onTxSuccess={() => {
+              refetch()
+              upForUserAction()
+            }}
             confirmations={WriteConfirmations}
-            config={{ abi: abiLntVault, address: vc.vault, functionName: 'claimNftVestingToken', args: [1n] }}
+            config={{ abi: abiLntNftStakingPool, address: vc.nftStakingPool, functionName: 'getRewards' }}
           />
         </div>
         <div className='flex justify-between gap-5 items-center'>
@@ -613,7 +630,6 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
             />
           </div>
           <div className="text-sm  text-right opacity-60 ml-[10px]">{40}%</div>
-
         </div>
       </div>
     </div>

@@ -25,6 +25,7 @@ import abiLntVault from './LntVault';
 import abiLntYtRewardsPool from './LntYtRewardsPool';
 import abiMockERC20 from './MockERC20';
 import abiMockERC721 from './MockERC721';
+import abiLntNftStakingPool from './LntNftStakingPool';
 
 export {
   abiPriceFeed,
@@ -51,7 +52,8 @@ export {
   abiLntQuery,
   abiLntVault,
   abiLntYtRewardsPool,
-
+  abiLntNftStakingPool,
+  
   abiMockERC20,
   abiMockERC721,
 }

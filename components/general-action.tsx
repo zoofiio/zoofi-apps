@@ -1,11 +1,11 @@
-import { Abi, AbiFunction, AbiParameter, Address, stringToHex } from 'viem'
-import { ApproveAndTx } from './approve-and-tx'
 import { cn } from '@/lib/utils'
-import { ReactNode, useEffect, useState } from 'react'
-import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
+import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
 import Select from 'react-select'
 import { useSetState } from 'react-use'
+import { Abi, AbiFunction, AbiParameter, Address, stringToHex } from 'viem'
+import { ApproveAndTx } from './approve-and-tx'
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   menu: () => cn('bg-white dark:bg-black dark:border'),
@@ -65,36 +65,50 @@ export function GeneralAction({
   convertArg,
   txProps,
   onArgs,
+  argsDef
 }: {
   abi: Abi
   address: Address
   functionName: string
   tit?: string
   infos?: ReactNode
-
+  argsDef?: string[] | (() => Promise<string[]>)
   convertArg?: (arg: string, i: number, param: AbiParameter) => any
   onArgs?: (args: string[]) => void
   txProps?: Omit<Parameters<typeof ApproveAndTx>[0], 'tx' | 'config' | 'className'>
 }) {
   const abiItem = abi.find((item) => item.type == 'function' && item.name == functionName) as AbiFunction
-  const [{ args }, setState] = useSetState({ args: new Array(abiItem?.inputs?.length || 0).fill('') })
+  const inputsLength = abiItem?.inputs?.length || 0
+  const [{ args }, setState] = useSetState({ args: typeof argsDef !== 'function' && argsDef?.length == inputsLength && inputsLength > 0 ? argsDef : new Array(inputsLength).fill('') })
   useEffect(() => {
     onArgs && onArgs(args)
   }, [args])
+  const idRef = useRef(0)
+  useEffect(() => {
+    idRef.current++
+    const id = idRef.current;
+    Promise.resolve(argsDef).then((data) => typeof data == 'function' ? data() : data || [])
+      .then((data) => id == idRef.current && setState({ args: args.map((arg, index) => arg || data[index] || '') }))
+  }, [argsDef])
   if (!abiItem) return
   const disableExpand = !abiItem.inputs || abiItem.inputs.length == 0
 
   return (
     <Expandable tit={tit || functionName} disable={disableExpand}>
       {abiItem.inputs?.map((item, index) => (
-        <input
+        <div
+          className='relative'
           key={`input_${index}`}
-          type='text'
-          placeholder={item.name}
-          value={args[index]}
-          onChange={(e) => setState({ args: args.map((arg, argIndex) => (index == argIndex ? e.target.value : arg)) })}
-          className={cn(inputClassname)}
-        />
+        >
+          <div className='opacity-60 absolute top-1/2 left-2 -translate-y-1/2 text-xs'>{item.name}</div>
+          <input
+            type='text'
+            value={args[index]}
+            onChange={(e) => setState({ args: args.map((arg, argIndex) => (index == argIndex ? e.target.value : arg)) })}
+            className={cn(inputClassname)}
+          />
+
+        </div>
       ))}
       {infos}
       <ApproveAndTx

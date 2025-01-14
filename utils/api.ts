@@ -4,7 +4,8 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 
 let api: AxiosInstance
 const instance = () => {
-  const baseurl = isLOCL ? 'http://127.0.0.1:4000' : `https://beta-api.${DomainRef.value}`
+  // const baseurl = isLOCL ? 'http://127.0.0.1:4000' : `https://beta-api.${DomainRef.value}`
+  const baseurl = `https://beta-api.${DomainRef.value}`
   if (!api || api.defaults.baseURL !== baseurl) {
     api = axios.create({
       baseURL: baseurl,
