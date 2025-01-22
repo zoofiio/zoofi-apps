@@ -8,12 +8,13 @@ import { CoinIcon } from '@/components/icons/coinicon'
 import { IconProps } from '@/components/icons/types'
 import { PageWrap } from '@/components/page-wrap'
 import { BBtn } from '@/components/ui/bbtn'
-import { isLNT } from '@/constants'
+import { ENV, isLNT } from '@/constants'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useHover } from 'react-use'
 import { toLntVault, toLVault } from './routes'
+import LntPage from './lnt-vaults/page'
 
 type CardItemType = {
   icon: React.FunctionComponent<IconProps>
@@ -54,33 +55,36 @@ function CardItem(item: CardItemType) {
   ))
   return element
 }
-export default function Home() {
-  const r = useRouter()
-  return (
-    <PageWrap>
-      <div className='flex flex-col md:flex-row max-w-[1160px] mx-auto px-4 gap-10 md:gap-20 h-[calc(100vh-100px)] pt-[5vh] md:pt-[10vh] pb-8 md:justify-center'>
-        <div>
-          <div className='flex md:mt-10 text-[5vw] md:text-[min(2.5rem,2.7vw)] !leading-normal font-semibold text-slate-700 dark:text-slate-50'>
-            A Structured Protocol for Better <br />
-            Liquidity Utilization.
-          </div>
-          <div className='flex gap-5 mt-8 justify-start flex-wrap'>
-            <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => isLNT ? toLntVault(r) : toLVault(r)}>
-              Launch Dapp
-            </BBtn>
-            <BBtn hiddenBorder className='text-sm h-10 !w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>
-              <CoinIcon size={24} symbol='berachain' />
-              Built on Berachain
-            </BBtn>
-          </div>
-        </div>
 
-        <div className='flex flex-col gap-6'>
-          {cards.map((item) => (
-            <CardItem key={item.tit} {...item} />
-          ))}
+function MainUI() {
+  const r = useRouter()
+  return <PageWrap>
+    <div className='flex flex-col md:flex-row max-w-[1160px] mx-auto px-4 gap-10 md:gap-20 h-[calc(100vh-100px)] pt-[5vh] md:pt-[10vh] pb-8 md:justify-center'>
+      <div>
+        <div className='flex md:mt-10 text-[5vw] md:text-[min(2.5rem,2.7vw)] !leading-normal font-semibold text-slate-700 dark:text-slate-50'>
+          A Structured Protocol for Better <br />
+          Liquidity Utilization.
+        </div>
+        <div className='flex gap-5 mt-8 justify-start flex-wrap'>
+          <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => isLNT ? toLntVault(r) : toLVault(r)}>
+            Launch Dapp
+          </BBtn>
+          <BBtn hiddenBorder className='text-sm h-10 !w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>
+            <CoinIcon size={24} symbol='berachain' />
+            Built on Berachain
+          </BBtn>
         </div>
       </div>
-    </PageWrap>
-  )
+
+      <div className='flex flex-col gap-6'>
+        {cards.map((item) => (
+          <CardItem key={item.tit} {...item} />
+        ))}
+      </div>
+    </div>
+  </PageWrap>
+}
+
+export default function Home() {
+  return isLNT ? <LntPage /> : <MainUI />
 }
