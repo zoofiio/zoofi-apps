@@ -107,6 +107,18 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
       onEnv: ['beta'],
     },
+    {
+      vault: '0x12f5F1f53B419d1E5F3084E649001Ff091683ADc',
+      asset: '0x0001513F4a1f86da0f02e647609E9E2c630B3a14',
+      assetSymbol: 'WBERA-YEET',
+      pToken: '0x256938Bf1A340e6F80eAA35798b08a122783BEDF',
+      pTokenSymbol: 'pWBERA-YEET',
+      yTokenSymbol: 'yWBERA-YEET',
+      protocolAddress: ZooProtocolAddress,
+      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
+      onEnv: ['beta'],
+    },
   ],
 }
 
