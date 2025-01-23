@@ -677,7 +677,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
           </div>
         ),
       )}
-      {renderStat('Reward', 'iBGT', 'iBGT', true)}
+      {renderStat('Reward', vc.rewardSymbol || 'iBGT', vc.rewardSymbol || 'iBGT', true)}
       {renderChoseSide(
         'Panda',
         'Principal Panda',
