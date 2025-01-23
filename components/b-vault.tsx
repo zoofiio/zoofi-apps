@@ -93,8 +93,8 @@ export function BVaultClaim({ bvc }: { bvc: BVaultConfig }) {
         <div>
           <div className='text-black/60 dark:text-white/60 text-sm'>Available to Claim</div>
           <div className='flex gap-4 items-center whitespace-nowrap mt-2'>
-            <CoinIcon symbol={bvc.assetSymbol} size={24} />
-            <span className='font-semibold'>{bvc.assetSymbol}</span>
+            <CoinIcon symbol={bvc.yeetLiqSymbol || bvc.assetSymbol} size={24} />
+            <span className='font-semibold'>{bvc.yeetLiqSymbol || bvc.assetSymbol}</span>
             <span className='text-black/60 dark:text-white/60 '>{displayBalance(claimable)}</span>
           </div>
         </div>

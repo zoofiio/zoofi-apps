@@ -11,6 +11,7 @@ export type BVaultConfig = {
   yTokenSymbol: string
   protocolAddress: Address
   protocolSettingsAddress: Address
+  yeetLiqSymbol?: string
   bQueryAddres: Address
   lpPoolIdx?: number
   isOld?: boolean
@@ -126,6 +127,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       pToken: '0x890FDA8E5ce053D34aaA64B23d250f9AF04979e4',
       pTokenSymbol: 'pWBERA-YEET',
       yTokenSymbol: 'yWBERA-YEET',
+      yeetLiqSymbol: 'LIQ-TRI-YEET',
       protocolAddress: ZooProtocolAddress,
       protocolSettingsAddress: ZooProtocolSettingsAddress,
       bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
