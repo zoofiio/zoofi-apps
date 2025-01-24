@@ -13,7 +13,7 @@ import { useLoadBVaults } from '@/hooks/useLoads'
 import { tabToSearchParams } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useBoundStore } from '@/providers/useBoundStore'
-import { useBVault, useEpochesData } from '@/providers/useBVaultsData'
+import { useBVault, useBVaultEpoches, useEpochesData } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import { Grid } from '@tremor/react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -39,7 +39,7 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
       return true
     },
   })
-  const epoches = useEpochesData(bvc.vault)
+  const epoches = useBVaultEpoches(bvc.vault)
   useQuery({
     queryKey: ['UpdateUserData', bvc, epoches, address],
     queryFn: async () => {
@@ -80,12 +80,12 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
   const data =
     showAddReward && isBETA
       ? [
-          ...odata,
-          {
-            tab: 'Add Reward',
-            content: <BVaultAddReward bvc={bvc} />,
-          },
-        ]
+        ...odata,
+        {
+          tab: 'Add Reward',
+          content: <BVaultAddReward bvc={bvc} />,
+        },
+      ]
       : odata
   const ctab = data.find((item) => tabToSearchParams(item.tab) == currentTab)?.tab
   const r = useRouter()

@@ -6,7 +6,7 @@ import { getBexPoolURL } from '@/config/network'
 import { LP_TOKENS } from '@/config/tokens'
 import { DECIMAL } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { cn, FMT, fmtBn, fmtDate, fmtDuration, fmtPercent, getBigint, handleError, parseEthers, tabToSearchParams } from '@/lib/utils'
+import { cn, FMT, fmtBn, fmtDate, fmtDuration, fmtPercent, getBigint, handleError, parseEthers, shortStr, tabToSearchParams } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useStore } from '@/providers/useBoundStore'
 import { useBVault, useBVaultApy, useBVaultBoost, useCalcClaimable, useEpochesData, useUpBVaultForUserAction } from '@/providers/useBVaultsData'
@@ -364,7 +364,7 @@ function BribeTit(p: { name: string }) {
   return (
     <div className='flex items-center justify-start pl-5 gap-3'>
       <CoinIcon symbol='GreenDot' size={14} />
-      <span className='text-sm font-medium'>{p.name}</span>
+      <Tip node={<span className='text-sm font-medium'>{shortStr(p.name, 6, 0)}</span>}>{p.name.length > 6 ? p.name : null}</Tip>
     </div>
   )
 }
