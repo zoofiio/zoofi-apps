@@ -26,6 +26,7 @@ import { CoinIcon } from './icons/coinicon'
 import { ThemeMode } from './theme-mode'
 import { sepolia } from 'viem/chains'
 import { Tip } from './ui/tip'
+import { BVAULTS_CONFIG } from '@/config/bvaults'
 
 const NetName: { [k: number]: string } = {
   [berachainTestnet.id]: 'Berachain Bartio',
@@ -43,7 +44,7 @@ export function useShowAdmin() {
   const { address } = useAccount()
   const { data: owner } = useWandContractRead({
     abi: abiVault,
-    address: isLNT ? LNTVAULTS_CONFIG[chainId]?.[0]?.vault : VAULTS_CONFIG[chainId]?.[0]?.vault,
+    address: isLNT ? LNTVAULTS_CONFIG[chainId]?.[0]?.vault : BVAULTS_CONFIG[chainId]?.[0]?.vault,
     functionName: 'owner',
     query: { enabled: !!address },
   })
