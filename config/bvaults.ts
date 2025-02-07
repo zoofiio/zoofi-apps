@@ -34,7 +34,7 @@ export const CrocQueryAddress: { [k: number]: Address } = {
 
 export const HONEY_Address: { [k: number]: Address } = {
   [berachainTestnet.id]: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03',
-  [berachain.id]: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03',
+  [berachain.id]: '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce',
 }
 export const BQueryAddress: { [k: number]: Address } = {
   [berachainTestnet.id]: '0xDf1126d3627b7f5D2a44d978A7180AcbD3c34aB6',

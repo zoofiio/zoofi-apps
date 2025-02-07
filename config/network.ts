@@ -115,4 +115,4 @@ export const BEX_URLS: { [k: number]: string } = {
   [berachainTestnet.id]: 'https://bartio.bex.berachain.com',
   [berachain.id]: 'https://hub.berachain.com',
 }
-export const getBexPoolURL = (pool: Address) => `${BEX_URLS[getCurrentChainId()]}/pool/${pool}000000000000000000000001/details`
+export const getBexPoolURL = (pool: Address) => `${BEX_URLS[getCurrentChainId()]}/pools/${pool}000000000000000000000001/details`
