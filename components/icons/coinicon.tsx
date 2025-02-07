@@ -21,6 +21,7 @@ const SupportICONS: { [k: string]: string } = {
   greenCycle: 'greenCycle.png',
   GreenDot: 'GreenDot.svg',
   'HONEY-USDC': 'HONEY-USDC.svg',
+  'USDC-HONEY': 'HONEY-USDC.svg',
   'HONEY-WBERA': 'HONEY-WBERA.webp',
   'HONEY-WBTC': 'HONEY-WBTC.svg',
   'HONEY-WETH': 'HONEY-WETH.svg',
@@ -48,6 +49,7 @@ const SupportICONS: { [k: string]: string } = {
   xiBGT: 'xiBGT.svg',
   yiRED: 'yiRED.svg',
   ZUSD: 'ZUSD.svg',
+  
 }
 
 export function CoinIcon({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number; url?: string }) {

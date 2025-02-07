@@ -640,7 +640,10 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   const lpBaseTvlBn = (lpBase * lpBasePrice) / DECIMAL
   const lpQuoteTvlBn = (lpQuote * lpQuotePrice) / DECIMAL
   // console.info('lpTypes', lpBaseTvlBn, lpQuoteTvlBn , lpQuoteTvlBn == lpBaseTvlBn)
-  const lpTvlBn = lpBaseTvlBn + lpQuoteTvlBn
+  let lpTvlBn = lpBaseTvlBn + lpQuoteTvlBn
+  if (lpTvlBn === 0n) {
+    lpTvlBn = bvd.lockedAssetTotal;
+  }
   const [fmtBoost] = useBVaultBoost(vc.vault)
   const [fmtApy] = useBVaultApy(vc.vault)
   const epochName = `Epoch ${(bvd?.epochCount || 0n).toString()}`
