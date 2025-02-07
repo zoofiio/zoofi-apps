@@ -703,7 +703,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
 
 export function BVaultCardComming({ symbol }: { symbol: string }) {
   return (
-    <div className={cn('card cursor-pointer !p-0 grid grid-cols-2 overflow-hidden h-[367px]', {})}>
+    <div className={cn('card cursor-pointer !p-0 grid grid-cols-2 overflow-hidden h-[419px]', {})}>
       <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center h-20')}>
         <CoinIcon symbol={symbol} size={44} />
         <div>

@@ -224,7 +224,7 @@ function BoostItem() {
 
           .map((epoch) => ({
             ...epoch,
-            ...myShare(epoch.bribes),
+            ...myShare(epoch.bribes||[]),
             epochInfo: epochInfo(bvc.vault, parseInt(epoch.epochId.toString())),
             settled: s.sliceBVaultsStore.epoches[`${bvc.vault}_${parseInt(epoch.epochId.toString())}`]?.settled || false,
           }))
@@ -312,14 +312,15 @@ export default function Dashboard() {
   useLoadBVaults()
   useLoadUserLVaults()
   useLoadUserBVaults()
+  const chainId = useCurrentChainId()
   return (
     <PageWrap>
       <div className='w-full max-w-[1200px] px-4 mx-auto flex flex-col gap-5 md:pb-8'>
-        <InterestItem />
+        {chainId !== 80094 && <InterestItem />}
         <LeverageItem />
         <PrincipalItem />
         <BoostItem />
-        <StakedPoolsItem />
+        {chainId !== 80094 && <StakedPoolsItem />}
       </div>
     </PageWrap>
   )

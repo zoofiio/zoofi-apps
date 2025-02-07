@@ -17,7 +17,7 @@ const ENV: TypeENV = (process.env.NEXT_PUBLIC_ENV as any) || 'prod'
 const isTEST = ENV == 'test'
 const isBETA = ENV.includes('beta')
 const isLNT = ENV.includes('lnt')
-const isPROD = !ENV
+const isPROD = !ENV || ENV == 'prod'
 const isLOCL = process.env.NODE_ENV == 'development'
 console.info(process.env.NODE_ENV)
 export { TWITTER_LINK, DISCORD_LINK, DOC_LINK, DECIMAL, DECIMAL_PRICE, Day1, ENV, isTEST, isBETA, isPROD, isLNT, isLOCL, YEAR_SECONDS }

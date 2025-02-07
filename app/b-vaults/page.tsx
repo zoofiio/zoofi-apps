@@ -130,6 +130,17 @@ export default function Vaults() {
                   <BVaultCardComming symbol='HONEY-WETH' />
                 </>
               )}
+              {bvcs.length == 1 && (
+                <>
+                  <BVaultCardComming symbol='HONEY-WBTC' />
+                  <BVaultCardComming symbol='HONEY-WETH' />
+                </>
+              )}
+              {bvcs.length == 2 && (
+                <>
+                  <BVaultCardComming symbol='HONEY-WETH' />
+                </>
+              )}
             </Grid>
           </>
         ) : (

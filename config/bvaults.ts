@@ -151,10 +151,10 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
     {
       vault: '0x33C42E171cFD7Ec85D3dB34D7f6d3D8121f64E63',
       asset: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621',
-      assetSymbol: 'USDC-HONEY',
+      assetSymbol: 'HONEY-USDC',
       pToken: '0x70B851f6877D16D6D5aD546B17d06281b8aBDd4b',
-      pTokenSymbol: 'pUSDC-HONEY',
-      yTokenSymbol: 'yUSDC-HONEY',
+      pTokenSymbol: 'pHONEY-USDC',
+      yTokenSymbol: 'yHONEY-USDC',
       protocolAddress: ZooProtocolAddress[berachain.id],
       protocolSettingsAddress: ZooProtocolSettingsAddress[berachain.id],
       bQueryAddres: BQueryAddress[berachain.id],
