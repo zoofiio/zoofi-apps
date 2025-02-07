@@ -211,12 +211,12 @@ function BoostItem() {
   const data: ReactNode[][] = useMemo(() => {
     const s = useBoundStore.getState()
     const epochInfo = (vault: Address, id: number) => s.sliceBVaultsStore.epoches[`${vault}_${id}`]
-    const myShare = (bribes: Exclude<UserBVaultsStore['epoches'][Address], undefined>[number]['bribes']) => {
-      const fb = bribes.find((b) => b.bribeAmount > 0n)
-      if (!fb || fb.bribeTotalAmount == 0n) return { myShare: '0.0%', myShareBn: 0n }
-      const myShareBn = (fb.bribeAmount * DECIMAL) / fb.bribeTotalAmount
-      return { myShare: fmtPercent(myShareBn, 18), myShareBn }
-    }
+    // const myShare = (bribes: Exclude<UserBVaultsStore['epoches'][Address], undefined>[number]['bribes']) => {
+    //   const fb = bribes.find((b) => b.bribeAmount > 0n)
+    //   if (!fb || fb.bribeTotalAmount == 0n) return { myShare: '0.0%', myShareBn: 0n }
+    //   const myShareBn = (fb.bribeAmount * DECIMAL) / fb.bribeTotalAmount
+    //   return { myShare: fmtPercent(myShareBn, 18), myShareBn }
+    // }
     const datas = bvcs
       .map((bvc) => {
         const epochs = s.sliceUserBVaults.epoches[bvc.vault] || []
@@ -224,11 +224,11 @@ function BoostItem() {
 
           .map((epoch) => ({
             ...epoch,
-            ...myShare(epoch.bribes||[]),
+            // ...myShare(epoch.bribes||[]),
             epochInfo: epochInfo(bvc.vault, parseInt(epoch.epochId.toString())),
             settled: s.sliceBVaultsStore.epoches[`${bvc.vault}_${parseInt(epoch.epochId.toString())}`]?.settled || false,
           }))
-          .filter((item) => !!item.epochInfo && item.myShareBn > 0n)
+          .filter((item) => !!item.epochInfo)
         return { bvc, epochsData }
       })
       .filter((item) => item.epochsData.length)

@@ -118,7 +118,7 @@ export default function Vaults() {
         {!currentVc ? (
           <>
             <div className='page-title'>B-Vaults</div>
-            <Noti data='A pendle-like product with more innovation.' />
+            <Noti data='A Pendle-like Yield Tokenization Protocol Tailored for Proof-of-Liquidity (POL).' />
             <Grid numItems={1} numItemsMd={2} numItemsLg={3} className='gap-5 mt-4'>
               {bvcs.map((item, index) => (
                 <BVaultCard key={`group_vault_item_${index}`} vc={item} />
@@ -126,13 +126,13 @@ export default function Vaults() {
               {bvcs.length == 0 && (
                 <>
                   <BVaultCardComming symbol='HONEY-USDC' />
-                  <BVaultCardComming symbol='HONEY-WBTC' />
+                  <BVaultCardComming symbol='HONEY-WBERA' />
                   <BVaultCardComming symbol='HONEY-WETH' />
                 </>
               )}
               {bvcs.length == 1 && (
                 <>
-                  <BVaultCardComming symbol='HONEY-WBTC' />
+                  <BVaultCardComming symbol='HONEY-WBERA' />
                   <BVaultCardComming symbol='HONEY-WETH' />
                 </>
               )}
