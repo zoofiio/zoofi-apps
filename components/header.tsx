@@ -25,6 +25,7 @@ import ConnectBtn from './connet-btn'
 import { CoinIcon } from './icons/coinicon'
 import { ThemeMode } from './theme-mode'
 import { sepolia } from 'viem/chains'
+import { Tip } from './ui/tip'
 
 const NetName: { [k: number]: string } = {
   [berachainTestnet.id]: 'Berachain Bartio',
@@ -74,8 +75,8 @@ export function Header() {
       ...(ENV.includes("lnt") ? [
         { href: '/lnt-vaults', label: 'LNT-Vaults', icon: LuBox },
       ] : [
-        { href: '/l-vaults', label: 'L-Vaults', icon: LuBox },
         { href: '/b-vaults', label: 'B-Vaults', icon: LuBox },
+        { href: '/l-vaults', label: 'L-Vaults', icon: LuBox, disable: true },
         { href: '/portfolio', label: 'Portfolio', icon: LuUserCircle },
         { href: '/dashboard', label: 'Dashboard', icon: LuLineChart },
       ]),
@@ -113,17 +114,29 @@ export function Header() {
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content className='z-50 bg-white p-1 border border-slate-200 shadow-lg rounded-md dark:bg-gray-800 dark:border-gray-700'>
-                {links.map(({ href, label, icon }) => {
+                {links.map(({ href, label, icon, disable }) => {
                   const Icon = icon
                   return (
                     <DropdownMenu.Item key={label}>
-                      <Link
-                        className='flex items-center text-slate-500 text-sm font-medium gap-1 px-3 py-2 rounded-sm hover:bg-slate-50 dark:text-slate-50 dark:hover:bg-gray-700/30'
-                        href={href}
-                      >
-                        <Icon />
-                        {label}
-                      </Link>
+                      {disable ?
+                        <Tip node={
+                          <Link
+                            className='flex items-center text-slate-500 text-sm font-medium gap-1 px-3 py-2 rounded-sm hover:bg-slate-50 dark:text-slate-50 dark:hover:bg-gray-700/30'
+                            href={'javascript:void(0);'}
+                          >
+                            <Icon />
+                            {label}
+                          </Link>
+                        }>
+                          Coming Soon
+                        </Tip>
+                        : <Link
+                          className='flex items-center text-slate-500 text-sm font-medium gap-1 px-3 py-2 rounded-sm hover:bg-slate-50 dark:text-slate-50 dark:hover:bg-gray-700/30'
+                          href={href}
+                        >
+                          <Icon />
+                          {label}
+                        </Link>}
                     </DropdownMenu.Item>
                   )
                 })}
@@ -135,8 +148,19 @@ export function Header() {
         {/* Render App routes */}
         {pathname !== '/' ? (
           <div className='hidden lg:flex flex-1 px-5 items-center gap-10'>
-            {links.map(({ href, label, icon }) => {
+            {links.map(({ href, label, icon, disable }) => {
               const Icon = icon
+              if (disable) return <Tip node={
+                <Link
+                  className='text-sm font-medium flex gap-1 items-center transition-all active:translate-y-1 text-slate-700 dark:text-slate-50 opacity-50'
+                  href={'javascript:void(0);'}
+                >
+                  <Icon />
+                  {label}
+                </Link>
+              }>
+                Coming Soon
+              </Tip>
 
               return (
                 <Link

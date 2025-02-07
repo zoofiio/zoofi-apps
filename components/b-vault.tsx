@@ -171,7 +171,7 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
           <div className='text-xs font-medium flex justify-end items-center'>
             {isLP && (
               <Link target='_blank' className='underline' href={getBexPoolURL(bvc.asset)}>
-                Get LP on BEX
+                Get LP on Beraswap
               </Link>
             )}
           </div>

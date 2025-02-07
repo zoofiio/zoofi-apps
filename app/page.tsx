@@ -56,6 +56,8 @@ function CardItem(item: CardItemType) {
   return element
 }
 
+const investors = ['binance', 'ventures', 'certik', 'signum', 'definancex', 'okventures', 'bigbrain', 'pragma', 'cms', 'dorahacks']
+
 function MainUI() {
   const r = useRouter()
   return <PageWrap>
@@ -74,9 +76,13 @@ function MainUI() {
             Built on Berachain
           </BBtn>
         </div>
+        <div className='mt-8 text-xl font-semibold text-[#7B7B7B]'>Investors & Backers</div>
+        <div className='mt-5 flex gap-10 items-center flex-wrap max-w-[37.5rem]'>
+          {investors.map(item => (<img className={cn('object-contain', item == 'pragma' ? 'w-[4.375rem]':'w-20')} src={`/investors/${item}.png`} key={item} />))}
+        </div>
       </div>
 
-      <div className='flex flex-col gap-6'>
+      <div className='flex flex-col gap-6 min-w-[18.75rem]'>
         {cards.map((item) => (
           <CardItem key={item.tit} {...item} />
         ))}
