@@ -27,7 +27,7 @@ export function useVaultLeverageRatio(vc: VaultConfig) {
 
 export function useValutsLeverageRatio() {
   const chainId = useCurrentChainId()
-  const vcs = VAULTS_CONFIG[chainId]
+  const vcs = VAULTS_CONFIG[chainId]||[]
   const leverageMap: { [k: Address]: number } = useMemoOfChainId(() => proxyGetDef({}, 0))
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults)
   vcs?.forEach((vc) => {

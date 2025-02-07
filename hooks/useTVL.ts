@@ -47,7 +47,7 @@ export function useTVLV1() {
 
 export function useTVL() {
   const chainId = useCurrentChainId()
-  const vcs = VAULTS_CONFIG[chainId]
+  const vcs = VAULTS_CONFIG[chainId] || []
   const bvcs = BVAULTS_CONFIG[chainId].filter((item) => (item.onEnv || []).includes(ENV))
   // const pvcs = PLAIN_VAULTS_CONFIG[chainId] || []
   const { prices } = useContext(FetcherContext)

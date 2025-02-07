@@ -1,5 +1,5 @@
 import { Address } from 'viem'
-import { berachainTestnet } from './network'
+import { berachain, berachainTestnet } from './network'
 import { TypeENV } from './env'
 
 export type BVaultConfig = {
@@ -18,17 +18,27 @@ export type BVaultConfig = {
   isOld?: boolean
   onEnv?: TypeENV[]
 }
-export const ZooProtocolAddress = '0xF86a9a53D963B7a845F3496a97d0dB11cEc3c4E0'
-export const ZooProtocolSettingsAddress = '0x97d82C639835F4EfaCC366fdE78CA0c4EC2a2A83'
+
+export const ZooProtocolAddress: { [k: number]: Address } = {
+  [berachainTestnet.id]: '0x8685CE9Db06D40CBa73e3d09e6868FE476B5dC89',
+  [berachain.id]: '0xc0fA386aE92f18A783476d09121291A1972C30Dc',
+}
+export const ZooProtocolSettingsAddress: { [k: number]: Address } = {
+  [berachainTestnet.id]: '0x97d82C639835F4EfaCC366fdE78CA0c4EC2a2A83',
+  [berachain.id]: '0x8c6E434Bb1C51728BdCc250255c1F654471d85eB',
+}
 export const CrocQueryAddress: { [k: number]: Address } = {
   [berachainTestnet.id]: '0x8685CE9Db06D40CBa73e3d09e6868FE476B5dC89',
+  [berachain.id]: '0x8685CE9Db06D40CBa73e3d09e6868FE476B5dC89',
 }
 
 export const HONEY_Address: { [k: number]: Address } = {
   [berachainTestnet.id]: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03',
+  [berachain.id]: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03',
 }
 export const BQueryAddress: { [k: number]: Address } = {
   [berachainTestnet.id]: '0xDf1126d3627b7f5D2a44d978A7180AcbD3c34aB6',
+  [berachain.id]: '0x6E603014ACE3Ae06F34Ffe259106Af77c056d913',
 }
 
 export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
@@ -53,8 +63,8 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       pToken: '0x575287Cd8CB9A49e0EE00Bf0C71Eac337Ab8FeBa',
       pTokenSymbol: 'pHONEY-BERA',
       yTokenSymbol: 'yHONEY-BERA',
-      protocolAddress: ZooProtocolAddress,
-      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      protocolAddress: ZooProtocolAddress[berachainTestnet.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachainTestnet.id],
       bQueryAddres: BQueryAddress[berachainTestnet.id],
       isOld: true,
       onEnv: ['beta'],
@@ -66,8 +76,8 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       pToken: '0x19f4cE524268a01bfAFf8B433110d8304b096be0',
       pTokenSymbol: 'pHONEY-BERA',
       yTokenSymbol: 'yHONEY-BERA',
-      protocolAddress: ZooProtocolAddress,
-      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      protocolAddress: ZooProtocolAddress[berachainTestnet.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachainTestnet.id],
       bQueryAddres: BQueryAddress[berachainTestnet.id],
       isOld: true,
       onEnv: ['beta'],
@@ -79,8 +89,8 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       pToken: '0x0C2553919748093b0760EA825C85dc5a72142932',
       pTokenSymbol: 'pHONEY-BERA',
       yTokenSymbol: 'yHONEY-BERA',
-      protocolAddress: ZooProtocolAddress,
-      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      protocolAddress: ZooProtocolAddress[berachainTestnet.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachainTestnet.id],
       bQueryAddres: BQueryAddress[berachainTestnet.id],
       isOld: true,
       onEnv: ['beta', 'test'],
@@ -92,8 +102,8 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       pToken: '0x02FEDe9cf47c3D8aCE52613C2a45bC588D4e0516',
       pTokenSymbol: 'pHONEY-BERA',
       yTokenSymbol: 'yHONEY-BERA',
-      protocolAddress: ZooProtocolAddress,
-      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      protocolAddress: ZooProtocolAddress[berachainTestnet.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachainTestnet.id],
       bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
       onEnv: ['beta'],
     },
@@ -104,8 +114,8 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       pToken: '0x05425F978a87DC80827f6c4a104FCbc6E9021ecc',
       pTokenSymbol: 'pHONEY-BERA',
       yTokenSymbol: 'yHONEY-BERA',
-      protocolAddress: ZooProtocolAddress,
-      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      protocolAddress: ZooProtocolAddress[berachainTestnet.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachainTestnet.id],
       bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
       onEnv: ['beta'],
     },
@@ -117,8 +127,8 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       pTokenSymbol: 'pWBERA-YEET',
       yTokenSymbol: 'yWBERA-YEET',
       rewardSymbol: 'WBERA-YEET',
-      protocolAddress: ZooProtocolAddress,
-      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      protocolAddress: ZooProtocolAddress[berachainTestnet.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachainTestnet.id],
       bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
       onEnv: ['beta'],
     },
@@ -131,14 +141,24 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       yTokenSymbol: 'yWBERA-YEET',
       yeetLiqSymbol: 'LIQ-TRI-YEET',
       rewardSymbol: 'LIQ-TRI-YEET',
-      protocolAddress: ZooProtocolAddress,
-      protocolSettingsAddress: ZooProtocolSettingsAddress,
+      protocolAddress: ZooProtocolAddress[berachainTestnet.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachainTestnet.id],
       bQueryAddres: '0xEE723BD0bC2449678d37177B7D93cc69D1af4B6F',
       onEnv: ['beta'],
     },
   ],
-}
-
-export const CALC_LIQ: { [k: number]: Address } = {
-  [berachainTestnet.id]: '0xa6b985dDa4D24B66fd4Ac2041395a82DcAdfD877',
+  [berachain.id]: [
+    {
+      vault: '0x33C42E171cFD7Ec85D3dB34D7f6d3D8121f64E63',
+      asset: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621',
+      assetSymbol: 'USDC-HONEY',
+      pToken: '0x70B851f6877D16D6D5aD546B17d06281b8aBDd4b',
+      pTokenSymbol: 'pUSDC-HONEY',
+      yTokenSymbol: 'yUSDC-HONEY',
+      protocolAddress: ZooProtocolAddress[berachain.id],
+      protocolSettingsAddress: ZooProtocolSettingsAddress[berachain.id],
+      bQueryAddres: BQueryAddress[berachain.id],
+      onEnv: ['beta','test','prod'],
+    }
+  ],
 }

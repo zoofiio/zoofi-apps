@@ -1,15 +1,14 @@
-import { isLOCL } from '@/constants'
+import { isLOCL, isPROD } from '@/constants'
 import { DomainRef } from '@/hooks/useConfigDomain'
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 
 let api: AxiosInstance
 const instance = () => {
   // const baseurl = isLOCL ? 'http://127.0.0.1:4000' : `https://beta-api.${DomainRef.value}`
-  const baseurl = `https://beta-api.${DomainRef.value}`
+  const baseurl = isPROD? `https://api.${DomainRef.value}`: `https://beta-api.${DomainRef.value}`
   if (!api || api.defaults.baseURL !== baseurl) {
     api = axios.create({
       baseURL: baseurl,
-      // baseURL: `https://beta-api.${DomainRef.value}`,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',

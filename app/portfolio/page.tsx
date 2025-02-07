@@ -89,7 +89,7 @@ function InterestItem() {
 }
 function LeverageItem() {
   const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId]
+  const lvcs = VAULTS_CONFIG[chainId]||[]
   const balances = useBalances()
 
   const data: ReactNode[][] = useMemo(() => {
@@ -286,7 +286,7 @@ function BoostItem() {
 }
 function StakedPoolsItem() {
   const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId]
+  const lvcs = VAULTS_CONFIG[chainId]||[]
   const lStore = useBoundStore.getState().sliceLVaultsStore
   const datas: ReactNode[][] = useMemo(() => {
     const totalStakedUsb = lvcs.map((lvc) => lStore.user[lvc.vault]?.buyPool_userStakingBalance || 0n).reduce((sum, item) => sum + item, 0n)

@@ -77,8 +77,10 @@ function MainUI() {
           </BBtn>
         </div>
         <div className='mt-8 text-xl font-semibold text-[#7B7B7B]'>Investors & Backers</div>
-        <div className='mt-5 flex gap-10 items-center flex-wrap max-w-[37.5rem]'>
-          {investors.map(item => (<img className={cn('object-contain', item == 'pragma' ? 'w-[4.375rem]':'w-20')} src={`/investors/${item}.png`} key={item} />))}
+        <div className='mt-5 flex gap-y-5 gap-x-10 items-center flex-wrap max-w-[37.5rem]'>
+          {investors.map(item => (<div className='w-20 flex justify-center items-center' key={item}>
+            <img className={cn('object-contain', item == 'pragma' ? 'w-[4.375rem]' : 'w-20')} src={`/investors/${item}.png`} />
+          </div>))}
         </div>
       </div>
 

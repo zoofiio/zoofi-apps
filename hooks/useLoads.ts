@@ -13,10 +13,10 @@ import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 
 export function useLoadLVaults() {
   const chainId = useCurrentChainId()
-  const vcs = VAULTS_CONFIG[chainId]
+  const vcs = VAULTS_CONFIG[chainId]||[]
   const { address } = useAccount()
   const tokens = useMemo(() => {
-    return _.chain(VAULTS_CONFIG[chainId])
+    return _.chain(VAULTS_CONFIG[chainId]||[])
       .map((vc) => [vc.assetTokenAddress, vc.xTokenAddress])
       .flatten()
       .concat([USB_ADDRESS[chainId]])
@@ -134,7 +134,7 @@ export function useLoadLntVaults() {
 export function useLoadUserLVaults() {
   const { address } = useAccount()
   const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId]
+  const lvcs = VAULTS_CONFIG[chainId]||[]
   useQuery({
     queryKey: ['UpdateAllUserLVaults', chainId, address, lvcs],
     queryFn: async () => {

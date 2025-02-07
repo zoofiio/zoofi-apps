@@ -18,7 +18,7 @@ export function useTokenApys() {
   const apys = usePtypoolApy()
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults, ['sliceLVaultsStore.lvaults'])
   useMemo(() => {
-    const vcs = VAULTS_CONFIG[chainId]
+    const vcs = VAULTS_CONFIG[chainId]||[]
     const usbApyPoolBuy = getBigint(apys[vcs[0].ptyPoolBelowAddress as any], 'staking')
     // 0.06504987 Points/Block/ETH
     tokenapys[USB_ADDRESS[chainId]] = usbApr.apr

@@ -65,7 +65,7 @@ function TVLItem() {
 function LVaultsItem() {
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults, ['sliceLVaultsStore.lvaults'])
   const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId]
+  const lvcs = VAULTS_CONFIG[chainId]||[]
   const { prices } = useContext(FetcherContext)
   const data: ReactNode[][] = useMemo(() => {
     return lvcs.map((lvc) => [
@@ -157,7 +157,7 @@ export default function Dashboard() {
     <PageWrap>
       <div className='w-full max-w-[1200px] px-4 mx-auto flex flex-col gap-5 md:pb-8'>
         <TVLItem />
-        <LVaultsItem />
+        {/* <LVaultsItem /> */}
         <BVaultsItem />
       </div>
     </PageWrap>

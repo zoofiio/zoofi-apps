@@ -68,7 +68,7 @@ function LVaultPage({ vc, tab }: { vc: VaultConfig; tab?: string }) {
 
 export default function Vaults() {
   const chainId = useCurrentChainId()
-  const vcs = VAULTS_CONFIG[chainId]
+  const vcs = VAULTS_CONFIG[chainId]||[]
   // const pvcs = PLAIN_VAULTS_CONFIG[chainId] || []
   // const groupsVcs = useMemo(() => Object.values(_.groupBy(vcs, 'assetTokenSymbol')), [vcs])
   const params = useSearchParams()

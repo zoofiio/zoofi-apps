@@ -14,7 +14,7 @@ export const usePtypoolApy = create<Apys & { update: (data: Partial<Apys>) => vo
 
 export function useUpdatePtypoolApy(prices: { [k: Address]: bigint }) {
   const chainId = useCurrentChainId()
-  const vcs = VAULTS_CONFIG[chainId]
+  const vcs = VAULTS_CONFIG[chainId]||[]
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults, ['sliceLVaultsStore.lvaults'])
   useEffect(() => {
     console.info('updatePtypoolApy')

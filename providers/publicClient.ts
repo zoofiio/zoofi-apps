@@ -1,12 +1,19 @@
 import { apiBatchConfig, getCurrentChainId, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
 import { useReadingCountStore } from '@/hooks/useWrapPublicClient'
-import { createPublicClient, http, PublicClient } from 'viem'
+import _ from 'lodash';
+import { Chain, createPublicClient, http, PublicClient } from 'viem'
 
 const pcMaps: { [id: number]: { pcs: PublicClient[]; current: number } } = {}
+function getRpcurls(chain: Chain){
+  const keys = _.keys(chain.rpcUrls)
+  return _.flatten(keys.map(item => chain.rpcUrls[item].http))
+}
 function createPCS(chainId: number) {
   const chain = SUPPORT_CHAINS.find((c) => c.id == chainId)!
-  if (!chain || chain.rpcUrls.default.http.length == 0) throw `No Chain for chianId:${chainId}`
-  const pcs = chain.rpcUrls.default.http.map((url) => {
+  if (!chain) throw `No Chain for chianId:${chainId}`
+  const rpcls = getRpcurls(chain) 
+  if(rpcls.length == 0) throw `No Chain rpc for chianId:${chainId}`
+  const pcs = rpcls.map((url) => {
     const pc = createPublicClient({
       batch: { multicall: multicallBatchConfig },
       chain: SUPPORT_CHAINS.find((c) => c.id == chainId)!,

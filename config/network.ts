@@ -31,29 +31,31 @@ export const berachainTestnet = defineChain({
 
 export const berachain = defineChain({
   id: 80094,
-  name: "Berachain",
+  name: 'Berachain',
   nativeCurrency: {
     decimals: 18,
-    name: "BERA Token",
-    symbol: "BERA",
+    name: 'BERA Token',
+    symbol: 'BERA',
   },
   rpcUrls: {
-    default: { http: ["https://berachain.g.alchemy.com/v2/YU6TIvn1RpD1wyHrDMpt4Yt6_bJYmOtk", "https://rpc.berachain.com"] },
+    default: { http: ['https://rpc.berachain.com'] },
+    // "https://berachain-mainnet.g.alchemy.com/v2/-yCJ0Aq6OmJoAtLknbSiImqfoPCzQCxe"
+    alchemy: { http: ['https://berachain-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'] },
   },
   blockExplorers: {
     default: {
-      name: "Etherscan",
-      url: "https://berascan.com/",
+      name: 'Etherscan',
+      url: 'https://berascan.com/',
     },
   },
   contracts: {
-    multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11", blockCreated: 109269 },
+    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11', blockCreated: 109269 },
   },
   testnet: false,
   fees: {
     baseFeeMultiplier: 1.4,
   },
-});
+})
 
 export const sepolia = defineChain({
   id: 11_155_111,
@@ -111,5 +113,6 @@ export const refEthersProvider: {
 
 export const BEX_URLS: { [k: number]: string } = {
   [berachainTestnet.id]: 'https://bartio.bex.berachain.com',
+  [berachain.id]: 'https://hub.berachain.com',
 }
-export const getBexPoolURL = (pool: Address) => `${BEX_URLS[getCurrentChainId()]}/pool/${pool}`
+export const getBexPoolURL = (pool: Address) => `${BEX_URLS[getCurrentChainId()]}/pool/${pool}000000000000000000000001/details`
