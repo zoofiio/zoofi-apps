@@ -254,11 +254,11 @@ function BoostItem() {
           <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYTokenSyntyetic)}</div>
         ))}
       </div>,
-      <div key={'my share'}>
-        {epochsData.map((epoch) => (
-          <div key={epoch.epochId.toString()}>{epoch.myShare}</div>
-        ))}
-      </div>,
+      // <div key={'my share'}>
+      //   {epochsData.map((epoch) => (
+      //     <div key={epoch.epochId.toString()}>{epoch.myShare}</div>
+      //   ))}
+      // </div>,
       <div key={'status'}>
         {epochsData.map((epoch) => (
           <div key={epoch.epochId.toString()}>
@@ -278,7 +278,7 @@ function BoostItem() {
   return (
     <PortfolioItem
       title={<IconTitle tit='Boost Venom' icon='VenomLine' />}
-      tHeader={['', 'Epoch', 'Amount', 'Time Weighted Points', 'My Share', 'Status']}
+      tHeader={['', 'Epoch', 'YT Balance', 'YT Points', 'Status']}
       tData={data}
       tableProps={{ cellClassName: (_index, celIndex) => (celIndex == 0 ? 'flex flex-col' : 'leading-[30px]') }}
     />
@@ -320,7 +320,7 @@ export default function Dashboard() {
         <LeverageItem />
         <PrincipalItem />
         <BoostItem />
-        {chainId !== 80094 && <StakedPoolsItem />}
+        {chainId !== 80094 &&<StakedPoolsItem />}
       </div>
     </PageWrap>
   )
