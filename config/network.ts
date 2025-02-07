@@ -29,6 +29,32 @@ export const berachainTestnet = defineChain({
   },
 })
 
+export const berachain = defineChain({
+  id: 80094,
+  name: "Berachain",
+  nativeCurrency: {
+    decimals: 18,
+    name: "BERA Token",
+    symbol: "BERA",
+  },
+  rpcUrls: {
+    default: { http: ["https://berachain.g.alchemy.com/v2/YU6TIvn1RpD1wyHrDMpt4Yt6_bJYmOtk", "https://rpc.berachain.com"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Etherscan",
+      url: "https://berascan.com/",
+    },
+  },
+  contracts: {
+    multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11", blockCreated: 109269 },
+  },
+  testnet: false,
+  fees: {
+    baseFeeMultiplier: 1.4,
+  },
+});
+
 export const sepolia = defineChain({
   id: 11_155_111,
   name: 'Sepolia',
@@ -62,11 +88,11 @@ export const sepolia = defineChain({
 export const apiBatchConfig = { batchSize: 30, wait: 1500 }
 export const multicallBatchConfig = { batchSize: 100, wait: 1000 }
 
-export const beraChains = [berachainTestnet]
+export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia]
 export const SUPPORT_CHAINS: [Chain, ...Chain[]] = _.filter(isLNT ? [...lntChains] : [...beraChains], (item) => (isPROD ? !(item as any).testnet : true)) as any
 
-export const refChainId: { id: number } = { id: isLNT ? sepolia.id : berachainTestnet.id }
+export const refChainId: { id: number } = { id: isLNT ? sepolia.id : isPROD ? berachain.id : berachainTestnet.id }
 export const getCurrentChainId = () => {
   return refChainId.id
 }

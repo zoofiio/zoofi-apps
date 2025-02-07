@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useHover } from 'react-use'
-import { toLntVault, toLVault } from './routes'
+import { toBVault, toLntVault, toLVault } from './routes'
 import LntPage from './lnt-vaults/page'
 
 type CardItemType = {
@@ -68,7 +68,7 @@ function MainUI() {
           Liquidity Utilization.
         </div>
         <div className='flex gap-5 mt-8 justify-start flex-wrap'>
-          <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => isLNT ? toLntVault(r) : toLVault(r)}>
+          <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => isLNT ? toLntVault(r) : toBVault(r)}>
             Launch Dapp
           </BBtn>
           <BBtn hiddenBorder className='text-sm h-10 !w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>
