@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.8.9",
+    "@berachain-foundation/berancer-sdk": "^0.33.2",
     "@crocswap-libs/sdk": "^1.0.5",
     "@radix-ui/react-dialog": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.5",

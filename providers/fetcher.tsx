@@ -39,7 +39,7 @@ export const FetcherProvider = ({ children }: { children: ReactNode }): JSX.Elem
   const usbApr = useUSBApr()
   useUpdatePtypoolApy(prices)
   useQuery({
-    queryKey: ['updateDefTokenList'],
+    queryKey: ['updateDefTokenList', chainId],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       await useBoundStore.getState().sliceTokenStore.updateDefTokenList()

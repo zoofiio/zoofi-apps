@@ -8,7 +8,7 @@ import _ from 'lodash'
 import { Address, erc20Abi } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
-import { getNftTokenIdsByUser, getNftTokensIdsByUser } from '@/config/api'
+import { getBeraTokensPrices, getNftTokenIdsByUser, getNftTokensIdsByUser } from '@/config/api'
 
 export type TokenItem = {
   address: Address
@@ -110,13 +110,22 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
       const chain = getCurrentChain()
       if (chain.id === berachainTestnet.id) {
         await updateLPTokensStatForTest(mLps)
+      } else if (chain.id === berachain.id) {
+        const map = await getBeraTokensPrices()
+        set({ prices: { ...get().prices, ...map } })
       }
     }
     return {}
   }
 
   const updateDefTokenList = async () => {
-    const list = await fetch('https://raw.githubusercontent.com/berachain/default-lists/main/src/tokens/bartio/defaultTokenList.json')
+    const urls: { [k: number]: string } = {
+      [berachain.id]: 'https://hub.berachain.com/internal-env/defaultTokenList.json',
+      [berachainTestnet.id]: 'https://raw.githubusercontent.com/berachain/default-lists/main/src/tokens/bartio/defaultTokenList.json',
+    }
+    const tokenUrl = urls[getCurrentChainId()]
+    if (!tokenUrl) return []
+    const list = await fetch(tokenUrl)
       .then((res) => res.json())
       .then((data) => {
         return (data.tokens as any[])
@@ -129,13 +138,13 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
             url: ((item.logoURI as string) || '').replace('https://https://', 'https://'),
           }))
       })
-    localStorage.setItem('catchedDefTokenList', JSON.stringify(list))
+    localStorage.setItem('catchedDefTokenList_' + getCurrentChainId(), JSON.stringify(list))
     set({ defTokenList: list })
     return list
   }
   const getCatchedDefTokenList = () => {
     try {
-      return JSON.parse(localStorage.getItem('catchedDefTokenList') || '[]') as TokenItem[]
+      return JSON.parse(localStorage.getItem('catchedDefTokenList_' + getCurrentChainId()) || '[]') as TokenItem[]
     } catch (error) {
       return []
     }

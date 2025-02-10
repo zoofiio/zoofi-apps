@@ -101,9 +101,9 @@ export function useTVL() {
 
           const bvd = bvaults[bvc.vault]
           const lpEnable = isLP && bvd && bvd.lpLiq && bvd.lpBase && bvd.lpQuote && tprices[isLP.base] && tprices[isLP.quote]
-          // const price = lpEnable ? (tprices[isLP.base] * bvd.lpBase! + tprices[isLP.quote] * bvd.lpQuote!) / bvd.lpLiq! : 0n
+          const price = lpEnable ? (tprices[isLP.base] * bvd.lpBase! + tprices[isLP.quote] * bvd.lpQuote!) / bvd.lpLiq! : tprices[bvc.asset] || DECIMAL
           // const amount = lpEnable ? bvd.lpLiq! : 0n
-          const price = tprices[bvc.asset] || DECIMAL
+          // const price = tprices[bvc.asset] || DECIMAL
           const amount = bvd?.lpLiq || bvd?.lockedAssetTotal || 0n
           return {
             name: bvc.assetSymbol,

@@ -106,10 +106,17 @@ function BVaultsItem() {
   const data: ReactNode[][] = useMemo(() => {
     const datas = bvcs.map((bvc) => {
       const totalDeposit = getBigint(bvaults, [bvc.vault, 'lockedAssetTotal'])
-      const totalDepositUsd = (totalDeposit * getBigint(prices, [bvc.asset])) / DECIMAL
+
+      let totalDepositUsd = (totalDeposit * getBigint(prices, [bvc.asset])) / DECIMAL
       const lp = LP_TOKENS[bvc.asset]
+      if (lp) {
+        const base = getBigint(bvaults, [bvc.vault, 'lpBase']);
+        const quote = getBigint(bvaults, [bvc.vault, 'lpQuote']);
+        totalDepositUsd = (base * getBigint(prices, [lp.base]) + quote * getBigint(prices, [lp.quote])) / DECIMAL
+      }
       const [baseSymbol, quoteSymbol] = lp ? bvc.assetSymbol.split('-') : ['', '']
       const totalLeftWidth = Math.max(22 + displayBalance(totalDeposit).length * 5, displayBalance(totalDepositUsd).length * 5 + 5)
+
       return { bvc, totalDeposit, totalDepositUsd, totalLeftWidth, lp, baseSymbol, quoteSymbol }
     })
     const totalLeftWidth = datas.reduce((max, item) => Math.max(max, item.totalLeftWidth), 0) + 20

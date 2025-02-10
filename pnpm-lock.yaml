@@ -11,6 +11,9 @@ dependencies:
   '@apollo/client':
     specifier: ^3.8.9
     version: 3.8.9(graphql@16.8.1)(react-dom@18.2.0)(react@18.2.0)
+  '@berachain-foundation/berancer-sdk':
+    specifier: ^0.33.2
+    version: 0.33.2(typescript@5.1.6)(zod@3.22.4)
   '@crocswap-libs/sdk':
     specifier: ^1.0.5
     version: 1.0.5
@@ -1744,6 +1747,20 @@ packages:
       '@babel/helper-string-parser': 7.24.1
       '@babel/helper-validator-identifier': 7.24.5
       to-fast-properties: 2.0.0
+    dev: false
+
+  /@berachain-foundation/berancer-sdk@0.33.2(typescript@5.1.6)(zod@3.22.4):
+    resolution: {integrity: sha512-Ao5aU4JEAr9GvZahIpnKb0ciNKa3z0POriC5bDwcLO6t5o8S9CX3qni0mTP7F4AaUtIi5VweOsev+oVzRQh2qw==}
+    engines: {node: '>=18.x'}
+    dependencies:
+      decimal.js-light: 2.5.1
+      lodash.clonedeep: 4.5.0
+      viem: 2.19.3(typescript@5.1.6)(zod@3.22.4)
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
     dev: false
 
   /@chainlink/contracts@0.6.1(ethers@5.7.2):
@@ -8962,6 +8979,10 @@ packages:
       p-locate: 5.0.0
     dev: false
 
+  /lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
+    dev: false
+
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
     dev: false
@@ -11464,6 +11485,7 @@ packages:
 
   /sudo-prompt@9.2.1:
     resolution: {integrity: sha512-Mu7R0g4ig9TUuGSxJavny5Rv0egCEtpZRNMrZaYS1vxkiIxGiGUwoezU3LazIQ+KE04hTrTfNPgxU5gzi7F5Pw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     dev: false
 
   /superstruct@1.0.3:
