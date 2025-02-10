@@ -32,10 +32,10 @@ const boundStore = sliceStores(
   {}, // restore data
 )
 
-const wrapDevtools = devtools(boundStore, { name: 'BoundStore', store: 'BoundStore', enabled: true })
-export type BoundStoreType = ReturnType<typeof wrapDevtools>
+// const wrapDevtools = devtools(boundStore, { name: 'BoundStore', store: 'BoundStore', enabled: true })
+export type BoundStoreType = ReturnType<typeof boundStore>
 
-export const useBoundStore = create<BoundStoreType>(wrapDevtools as any)
+export const useBoundStore = create<BoundStoreType>(boundStore)
 
 type KKeys<T> = Extract<keyof T, string | number | bigint>
 type LKeys<T, K extends KKeys<T>> = T[K] extends any[] ? K : `${K}.${KKeys<T[K]>}`

@@ -1,5 +1,7 @@
 'use client'
-
+;(BigInt.prototype as any).toJSON = function () {
+  return this.toString()
+}
 import { Header } from '@/components/header'
 import { isBETA } from '@/constants'
 import { useConfigDomain } from '@/hooks/useConfigDomain'

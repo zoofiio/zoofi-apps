@@ -1,4 +1,7 @@
 'use client'
+;(BigInt.prototype as any).toJSON = function () {
+  return this.toString()
+}
 
 import BeraLine from '@/components/icons/BeraLine'
 import BullLine from '@/components/icons/BullLine'

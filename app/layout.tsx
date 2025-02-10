@@ -1,3 +1,6 @@
+;(BigInt.prototype as any).toJSON = function () {
+  return this.toString()
+}
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '@rainbow-me/rainbowkit/styles.css'
