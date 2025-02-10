@@ -27,7 +27,7 @@ import abiMockERC20 from './MockERC20';
 import abiMockERC721 from './MockERC721';
 import abiLntNftStakingPool from './LntNftStakingPool';
 import abiBeraVault from './BeraVault';
-
+import abiBeraLP from './BeraLP'
 export {
   abiPriceFeed,
   abiPtyPool,
@@ -57,5 +57,6 @@ export {
   
   abiMockERC20,
   abiMockERC721,
-  abiBeraVault
+  abiBeraVault,
+  abiBeraLP
 }

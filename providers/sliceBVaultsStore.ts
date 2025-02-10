@@ -1,4 +1,4 @@
-import { abiBeraVault, abiBQuery, abiBQueryOld } from '@/config/abi'
+import { abiBeraLP, abiBeraVault, abiBQuery, abiBQueryOld } from '@/config/abi'
 import { getBvaultsPtSynthetic } from '@/config/api'
 import { BVaultConfig } from '@/config/bvaults'
 import _ from 'lodash'
@@ -65,30 +65,7 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
         args: [LP_TOKENS[lp]!.poolId!],
       }),
       pc.readContract({
-        abi: [
-          {
-            type: 'function',
-            name: 'getActualSupply',
-            stateMutability: 'view',
-            inputs: [],
-            outputs: [
-              {
-                type: 'uint256',
-              },
-            ],
-          },
-          {
-            type: 'function',
-            name: 'totalSupply',
-            stateMutability: 'view',
-            inputs: [],
-            outputs: [
-              {
-                type: 'uint256',
-              },
-            ],
-          },
-        ],
+        abi: abiBeraLP,
         address: lp,
         functionName: LP_TOKENS[lp].isStable ? 'getActualSupply' : 'totalSupply',
       }),
@@ -98,8 +75,10 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     bvd.lpLiq = bvd.lockedAssetTotal
     const shareLp = (bvd.lpLiq * DECIMAL) / totalSupply
     console.info('updateBvaultForLP:', tokens, balances, totalSupply, bvd.lpLiq)
-    bvd.lpBase = toDecimal18((balances[0] * shareLp) / DECIMAL, LP_TOKENS[lp]!.baseDecimal)
-    bvd.lpQuote = toDecimal18((balances[2] * shareLp) / DECIMAL, LP_TOKENS[lp]!.quoteDecimal)
+    const baseIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.base)
+    const quoteIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.quote)
+    bvd.lpBase = toDecimal18((balances[baseIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.baseDecimal)
+    bvd.lpQuote = toDecimal18((balances[quoteIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.quoteDecimal)
   }
   const updateBvaults = async (bvcs: BVaultConfig[]) => {
     const pc = getPC()

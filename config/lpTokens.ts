@@ -7,9 +7,9 @@ export const LP_TOKENS: { [k: Address]: { poolType: bigint; base: Address; quote
   '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621': {
     isStable: true,
     poolType: 36000n,
-    base: '0x549943e04f40284185054145c6E4e9568C1D3241',
-    baseDecimal: 6,
-    quote: '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce',
+    base: '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce',
+    quoteDecimal: 6,
+    quote: '0x549943e04f40284185054145c6E4e9568C1D3241',
     poolId: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621000000000000000000000001',
   },
 }
