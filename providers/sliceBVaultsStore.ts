@@ -1,10 +1,14 @@
-import { abiBQuery, abiBQueryOld } from '@/config/abi'
+import { abiBeraVault, abiBQuery, abiBQueryOld } from '@/config/abi'
 import { getBvaultsPtSynthetic } from '@/config/api'
 import { BVaultConfig } from '@/config/bvaults'
 import _ from 'lodash'
-import { Address } from 'viem'
+import { Address, erc20Abi } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
+import { berachain, getCurrentChainId } from '@/config/network'
+import { LP_TOKENS } from '@/config/lpTokens'
+import { DECIMAL } from '@/constants'
+import { toDecimal18 } from '@/lib/utils'
 
 export type BVaultEpochDTO = {
   epochId: bigint
@@ -50,6 +54,53 @@ export type BVaultsStore = {
   updateYTokenSythetic: (bvcs?: BVaultConfig[]) => Promise<BVaultsStore['yTokenSythetic']>
 }
 export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) => {
+  const updateBvaultForLP = async (vc: BVaultConfig, map: BVaultsStore['bvaults']) => {
+    const pc = getPC()
+    const lp = vc.asset
+    const [[tokens, balances], totalSupply] = await Promise.all([
+      pc.readContract({
+        abi: abiBeraVault,
+        address: '0x4Be03f781C497A489E3cB0287833452cA9B9E80B',
+        functionName: 'getPoolTokens',
+        args: [LP_TOKENS[lp]!.poolId!],
+      }),
+      pc.readContract({
+        abi: [
+          {
+            type: 'function',
+            name: 'getActualSupply',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [
+              {
+                type: 'uint256',
+              },
+            ],
+          },
+          {
+            type: 'function',
+            name: 'totalSupply',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [
+              {
+                type: 'uint256',
+              },
+            ],
+          },
+        ],
+        address: lp,
+        functionName: LP_TOKENS[lp].isStable ? 'getActualSupply' : 'totalSupply',
+      }),
+    ])
+
+    const bvd = map[vc.vault]!
+    bvd.lpLiq = bvd.lockedAssetTotal
+    const shareLp = (bvd.lpLiq * DECIMAL) / totalSupply
+    console.info('updateBvaultForLP:', tokens, balances, totalSupply, bvd.lpLiq)
+    bvd.lpBase = toDecimal18((balances[0] * shareLp) / DECIMAL, LP_TOKENS[lp]!.baseDecimal)
+    bvd.lpQuote = toDecimal18((balances[2] * shareLp) / DECIMAL, LP_TOKENS[lp]!.quoteDecimal)
+  }
   const updateBvaults = async (bvcs: BVaultConfig[]) => {
     const pc = getPC()
     const datas = await Promise.all(
@@ -60,6 +111,9 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
       ),
     )
     const map = _.filter(datas, (item) => item != null).reduce<BVaultsStore['bvaults']>((map, item) => ({ ...map, [item.vault]: item.item }), {})
+    if (berachain.id == getCurrentChainId()) {
+      await Promise.all(bvcs.map((bvc) => (LP_TOKENS[bvc.asset]?.poolId ? updateBvaultForLP(bvc, map) : Promise.resolve(0))))
+    }
     set({ bvaults: { ...get().bvaults, ...map } })
     return map
   }

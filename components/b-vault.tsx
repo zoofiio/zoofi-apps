@@ -3,7 +3,7 @@ import VenomLine from '@/components/icons/VenomLine'
 import { abiAdhocBribesPool, abiBVault, abiRedeemPool, abiStakingBribesPool } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
 import { getBexPoolURL } from '@/config/network'
-import { LP_TOKENS } from '@/config/tokens'
+import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, FMT, fmtBn, fmtDate, fmtDuration, fmtPercent, getBigint, handleError, parseEthers, shortStr, tabToSearchParams } from '@/lib/utils'
@@ -32,6 +32,7 @@ import { Switch } from './ui/switch'
 import { Tip } from './ui/tip'
 import { itemClassname, renderChoseSide, renderStat, renderToken } from './vault-card-ui'
 import { toBVault } from '@/app/routes'
+import { GetLP } from './get-lp'
 
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
@@ -168,13 +169,7 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
       content: (
         <div className='flex flex-col gap-1'>
           <AssetInput asset={bvc.assetSymbol} amount={inputAsset} balance={assetBalance} setAmount={setInputAsset} />
-          <div className='text-xs font-medium flex justify-end items-center'>
-            {isLP && (
-              <Link target='_blank' className='underline' href={getBexPoolURL(bvc.asset)}>
-                Get LP on Beraswap
-              </Link>
-            )}
-          </div>
+          <GetLP address={bvc.asset} />
           <div className='text-xs font-medium text-center'>{`Receive 1 ${pTokenSymbolShort} for every ${assetSymbolShort}`}</div>
           <ApproveAndTx
             className='mx-auto mt-4'
@@ -325,6 +320,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   return (
     <div className='card !p-4 flex flex-col h-[24.25rem] gap-1'>
       <AssetInput asset={bvc.assetSymbol} amount={inputAsset} balance={assetBalance} setAmount={setInputAsset} />
+      <GetLP address={bvc.asset} />
       <div className='text-base font-bold my-2'>Receive</div>
       <AssetInput asset={bvc.yTokenSymbol} assetIcon='Venom' loading={isFetchingSwap && !!inputAsset} readonly disable checkBalance={false} amount={outputYTokenFmt} />
       <div className='text-xs font-medium  flex justify-between select-none'>
@@ -539,7 +535,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
             <span className='text-xs dark:text-white/60'>Epoch {(current?.epochId || 1n).toString()}</span>
           </div>
           <div className='flex-1 overflow-y-auto flex flex-col gap-4 font-semibold text-sm'>
-            <div className='flex gap-20 items-end font-semibold'>
+            <div className='flex gap-8 items-end font-semibold'>
               <span className='text-sm'>YT Balance</span>
               <span className='text-xs dark:text-white/60'>{displayBalance(userBalanceYToken)}</span>
             </div>
@@ -567,7 +563,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
             </div>
             <div className='flex items-center relative'>
               <span className='text-sm'>YT Points</span>
-              <span className=' dark:text-white/60 ml-16'>{displayBalance(userBalanceYTokenSyntyetic)}</span>
+              <span className=' dark:text-white/60 ml-10'>{displayBalance(userBalanceYTokenSyntyetic)}</span>
               <div className='flex flex-col gap-1 absolute left-1/2 top-0'>
                 <span className='dark:text-white/60'>Claimable</span>
                 <span>{displayBalance(userClaimableYTokenSyntyetic)}</span>

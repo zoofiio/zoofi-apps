@@ -1,8 +1,8 @@
-import { abiCrocQuery } from '@/config/abi'
+import { abiBeraVault, abiCrocQuery } from '@/config/abi'
 import { CrocQueryAddress, HONEY_Address } from '@/config/bvaults'
-import { getCurrentChainId } from '@/config/network'
+import { berachain, berachainTestnet, getCurrentChain, getCurrentChainId, SUPPORT_CHAINS } from '@/config/network'
 import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
-import { LP_TOKENS } from '@/config/tokens'
+import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL } from '@/constants'
 import _ from 'lodash'
 import { Address, erc20Abi } from 'viem'
@@ -63,46 +63,54 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     return map
   }
 
-  const updateTokenPrices = async (tokens: Address[]) => {
+  const updateLPTokensStatForTest = async (mLps: Address[]) => {
     const pc = getPC()
+    const lpPrices = await Promise.all(
+      mLps.map((lp) =>
+        Promise.all([
+          pc.readContract({
+            abi: abiCrocQuery,
+            address: CrocQueryAddress[getCurrentChainId()],
+            functionName: 'queryPrice',
+            args: [LP_TOKENS[lp].base, LP_TOKENS[lp].quote, BigInt(LP_TOKENS[lp].poolType)],
+          }),
+          pc.readContract({
+            abi: abiCrocQuery,
+            address: CrocQueryAddress[getCurrentChainId()],
+            functionName: 'queryLiquidity',
+            args: [LP_TOKENS[lp].base, LP_TOKENS[lp].quote, BigInt(LP_TOKENS[lp].poolType)],
+          }),
+        ]),
+      ),
+    )
+    const map: TokenStore['prices'] = {
+      [HONEY_Address[getCurrentChainId()]]: DECIMAL,
+    }
+    /*
+     */
+    mLps.forEach((lp, i) => {
+      const base = LP_TOKENS[lp].base
+      const quote = LP_TOKENS[lp].quote
+      const price = lpPrices[i][0]
+      const priceFixDecimals = quote == '0xd6d83af58a19cd14ef3cf6fe848c9a4d21e5727c' ? 10n ** 6n : 1n
+      map[lp] = price / priceFixDecimals ** 2n
+      map[quote] = (((price * 10n ** 9n) / (18446744073709551616n * priceFixDecimals)) ** 2n * map[base]) / DECIMAL
+    })
+    console.info('lpPrics:', map)
+    set({ prices: { ...get().prices, ...map } })
+  }
+
+  const updateTokenPrices = async (tokens: Address[]) => {
     const groups = _.groupBy(tokens, (token) => (LP_TOKENS[token] ? 'lp' : 'token'))
     const mLps = groups['lp'] || []
     // const mTokens = groups['token'] || []
     if (mLps.length !== 0) {
       console.info('mlps;', tokens, mLps)
-      const lpPrices = await Promise.all(
-        mLps.map((lp) =>
-          Promise.all([
-            pc.readContract({
-              abi: abiCrocQuery,
-              address: CrocQueryAddress[getCurrentChainId()],
-              functionName: 'queryPrice',
-              args: [LP_TOKENS[lp].base, LP_TOKENS[lp].quote, BigInt(LP_TOKENS[lp].poolType)],
-            }),
-            pc.readContract({
-              abi: abiCrocQuery,
-              address: CrocQueryAddress[getCurrentChainId()],
-              functionName: 'queryLiquidity',
-              args: [LP_TOKENS[lp].base, LP_TOKENS[lp].quote, BigInt(LP_TOKENS[lp].poolType)],
-            }),
-          ]),
-        ),
-      )
-      const map: TokenStore['prices'] = {
-        [HONEY_Address[getCurrentChainId()]]: DECIMAL,
+      // for testnet
+      const chain = getCurrentChain()
+      if (chain.id === berachainTestnet.id) {
+        await updateLPTokensStatForTest(mLps)
       }
-      /*
-       */
-      mLps.forEach((lp, i) => {
-        const base = LP_TOKENS[lp].base
-        const quote = LP_TOKENS[lp].quote
-        const price = lpPrices[i][0]
-        const priceFixDecimals = quote == '0xd6d83af58a19cd14ef3cf6fe848c9a4d21e5727c' ? 10n ** 6n : 1n
-        map[lp] = price / priceFixDecimals ** 2n
-        map[quote] = (((price * 10n ** 9n) / (18446744073709551616n * priceFixDecimals)) ** 2n * map[base]) / DECIMAL
-      })
-      console.info('lpPrics:', map)
-      set({ prices: { ...get().prices, ...map } })
     }
     return {}
   }
@@ -146,7 +154,10 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     balances: {},
     updateTokensBalance,
 
-    prices: {},
+    prices: {
+      '0x549943e04f40284185054145c6E4e9568C1D3241': DECIMAL,
+      '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce': DECIMAL,
+    },
     updateTokenPrices,
 
     defTokenList: getCatchedDefTokenList(),

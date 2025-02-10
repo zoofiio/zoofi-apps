@@ -2,6 +2,7 @@ import { isLNT, isPROD } from '@/constants'
 import { providers } from 'ethers'
 import _ from 'lodash'
 import { Address, Chain, defineChain } from 'viem'
+import { LP_TOKENS } from './lpTokens'
 
 export const berachainTestnet = defineChain({
   id: 80084,
@@ -103,6 +104,10 @@ export const setCurrentChainId = (id: number) => {
   if (SUPPORT_CHAINS.find((item) => item.id == id)) refChainId.id = id
 }
 
+export const getCurrentChain = () => {
+  return SUPPORT_CHAINS.find((item) => item.id == getCurrentChainId())!
+}
+
 export function isBerachain() {
   return !!beraChains.find((item) => item.id == getCurrentChainId())
 }
@@ -115,4 +120,11 @@ export const BEX_URLS: { [k: number]: string } = {
   [berachainTestnet.id]: 'https://bartio.bex.berachain.com',
   [berachain.id]: 'https://hub.berachain.com',
 }
-export const getBexPoolURL = (pool: Address) => `${BEX_URLS[getCurrentChainId()]}/pools/${pool}000000000000000000000001/details`
+export const getBexPoolURL = (pool: Address) => {
+  if (getCurrentChainId() == berachainTestnet.id) {
+    return `${BEX_URLS[getCurrentChainId()]}/pool/${pool}`
+  } else if (berachain.id) {
+    return `${BEX_URLS[getCurrentChainId()]}/pools/${LP_TOKENS[pool].poolId}/deposit/`
+  }
+  return ''
+}

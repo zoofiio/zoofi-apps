@@ -6,6 +6,7 @@ const SupportICONS: { [k: string]: string } = {
   BERA: 'BERA.svg',
   balance: 'balance.png',
   berachain: 'berachain.svg',
+  berahub: 'berahub.svg',
   bg_home: 'bg_home.svg',
   blackLine: 'blackLine.svg',
   Bull: 'Bull.svg',

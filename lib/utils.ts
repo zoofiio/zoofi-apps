@@ -5,6 +5,7 @@ import _, { get } from 'lodash'
 import { toast } from 'sonner'
 import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
 import dayjs from 'dayjs'
+import { DECIMAL } from '@/constants'
 
 export type UnwrapPromise<T> = T extends Promise<infer S> ? S : T
 export type UnPromise<T> = T extends () => Promise<infer U> ? U : UnwrapPromise<T>
@@ -166,6 +167,7 @@ export const divMultipBn = (src: bigint, multip: bigint, multipDecimal?: bigint 
 export const divMultipOtherBn = (src: bigint, multip: bigint, multipDecimal?: bigint | number) =>
   decimalBn(multipDecimal || 10n) - multip > 0n ? (src * decimalBn(multipDecimal || 10n)) / (decimalBn(multipDecimal || 10n) - multip) : 0n
 
+export const toDecimal18 = (src: bigint, srcDecimals: number = 18) => (srcDecimals !== 18 ? (src * DECIMAL) / decimalBn(srcDecimals) : src)
 export const fmtBn = (bn: bigint, decimals: bigint | number = 18, autoDecimals?: boolean) => {
   const res = formatUnits(bn, typeof decimals == 'bigint' ? parseInt(decimals.toString()) : decimals)
   if (!autoDecimals) return res

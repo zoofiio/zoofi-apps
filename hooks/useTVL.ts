@@ -10,7 +10,7 @@ import { getBigint } from '@/lib/utils'
 import { useBoundStore, useStore } from '@/providers/useBoundStore'
 import _ from 'lodash'
 import { BVAULTS_CONFIG } from '@/config/bvaults'
-import { LP_TOKENS } from '@/config/tokens'
+import { LP_TOKENS } from '@/config/lpTokens'
 
 export function useTVLV1() {
   const chainId = useCurrentChainId()
