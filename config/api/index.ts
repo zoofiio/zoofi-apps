@@ -71,7 +71,10 @@ export const getBeraTokensPrices = (
       }
       const priceMap: { [k: Address]: bigint } = {}
       for (const token of tokens) {
-        priceMap[token] = parseEthers(priceDataMap[token.toLowerCase() as Address].price.toFixed(6))
+        const pd = priceDataMap[token.toLowerCase() as Address]
+        if(pd){
+          priceMap[token] = parseEthers(pd.price.toFixed(6))
+        }
       }
       return priceMap
     })
