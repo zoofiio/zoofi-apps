@@ -2,7 +2,7 @@ import { abiBeraLP, abiBeraVault, abiBQuery, abiBQueryOld } from '@/config/abi'
 import { getBvaultsPtSynthetic } from '@/config/api'
 import { BVaultConfig } from '@/config/bvaults'
 import _ from 'lodash'
-import { Address, erc20Abi } from 'viem'
+import { Address, erc20Abi, PublicClient } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
 import { berachain, getCurrentChainId } from '@/config/network'
@@ -54,8 +54,7 @@ export type BVaultsStore = {
   updateYTokenSythetic: (bvcs?: BVaultConfig[]) => Promise<BVaultsStore['yTokenSythetic']>
 }
 export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) => {
-  const updateBvaultForLP = async (vc: BVaultConfig, map: BVaultsStore['bvaults']) => {
-    const pc = getPC()
+  const getBvaultLpData = async (pc: PublicClient, vc: BVaultConfig) => {
     const lp = vc.asset
     const [[tokens, balances], totalSupply] = await Promise.all([
       pc.readContract({
@@ -70,29 +69,56 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
         functionName: LP_TOKENS[lp].isStable ? 'getActualSupply' : 'totalSupply',
       }),
     ])
-
-    const bvd = map[vc.vault]!
-    bvd.lpLiq = bvd.lockedAssetTotal
-    const shareLp = (bvd.lpLiq * DECIMAL) / totalSupply
-    console.info('updateBvaultForLP:', tokens, balances, totalSupply, bvd.lpLiq)
     const baseIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.base)
     const quoteIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.quote)
-    bvd.lpBase = toDecimal18((balances[baseIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.baseDecimal)
-    bvd.lpQuote = toDecimal18((balances[quoteIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.quoteDecimal)
+
+    return {
+      lp,
+      vault: vc.vault,
+      baseBalance: balances[baseIndex],
+      quoteBalance: balances[quoteIndex],
+      totalSupply,
+    }
+    // const bvd = map[vc.vault]!
+    // bvd.lpLiq = bvd.lockedAssetTotal
+    // const shareLp = (bvd.lpLiq * DECIMAL) / totalSupply
+    // console.info('updateBvaultForLP:', tokens, balances, totalSupply, bvd.lpLiq)
+    // const baseIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.base)
+    // const quoteIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.quote)
+    // bvd.lpBase = toDecimal18((balances[baseIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.baseDecimal)
+    // bvd.lpQuote = toDecimal18((balances[quoteIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.quoteDecimal)
+    // return
   }
   const updateBvaults = async (bvcs: BVaultConfig[]) => {
+    const start = _.now()
+    console.info('timeStart:updateBvaults', start)
     const pc = getPC()
-    const datas = await Promise.all(
-      bvcs.map((bvc) =>
-        pc
-          .readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVault', args: [bvc.vault] })
-          .then((item) => ({ vault: bvc.vault, item })),
+    const [datas, lpdatas] = await Promise.all([
+      Promise.all(
+        bvcs.map((bvc) =>
+          pc
+            .readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVault', args: [bvc.vault] })
+            .then((item) => ({ vault: bvc.vault, item })),
+        ),
       ),
-    )
+      berachain.id == getCurrentChainId()
+        ? Promise.all(bvcs.map((bvc) => (LP_TOKENS[bvc.asset]?.poolId ? getBvaultLpData(pc, bvc) : Promise.resolve(null))))
+        : Promise.resolve(null),
+    ])
+    console.info('timeEND:updateBvaults', _.now() - start)
     const map = _.filter(datas, (item) => item != null).reduce<BVaultsStore['bvaults']>((map, item) => ({ ...map, [item.vault]: item.item }), {})
-    if (berachain.id == getCurrentChainId()) {
-      await Promise.all(bvcs.map((bvc) => (LP_TOKENS[bvc.asset]?.poolId ? updateBvaultForLP(bvc, map) : Promise.resolve(0))))
+    if (lpdatas) {
+      for (const lpdata of lpdatas) {
+        if (lpdata) {
+          const bvd = map[lpdata.vault]!
+          bvd.lpLiq = bvd.lockedAssetTotal
+          const shareLp = (bvd.lpLiq * DECIMAL) / lpdata.totalSupply
+          bvd.lpBase = toDecimal18((lpdata.baseBalance * shareLp) / DECIMAL, LP_TOKENS[lpdata.lp]!.baseDecimal)
+          bvd.lpQuote = toDecimal18((lpdata.quoteBalance * shareLp) / DECIMAL, LP_TOKENS[lpdata.lp]!.quoteDecimal)
+        }
+      }
     }
+
     set({ bvaults: { ...get().bvaults, ...map } })
     return map
   }

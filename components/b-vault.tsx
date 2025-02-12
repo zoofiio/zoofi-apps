@@ -560,7 +560,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
               />
             </div>
             <div className='flex items-center relative'>
-              <span className='text-sm'>YT Points</span>
+              <span className='text-sm'>YT Points <Tip>YT Points are calculated based on the duration of YT holding and apply to some uncertain rewards, such as airdrops.</Tip></span>
               <span className=' dark:text-white/60 ml-10'>{displayBalance(userBalanceYTokenSyntyetic, undefined, 23)}</span>
               <div className='flex flex-col gap-1 absolute left-1/2 top-0'>
                 <span className='dark:text-white/60'>Claimable</span>

@@ -13,10 +13,10 @@ import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 
 export function useLoadLVaults() {
   const chainId = useCurrentChainId()
-  const vcs = VAULTS_CONFIG[chainId]||[]
+  const vcs = VAULTS_CONFIG[chainId] || []
   const { address } = useAccount()
   const tokens = useMemo(() => {
-    return _.chain(VAULTS_CONFIG[chainId]||[])
+    return _.chain(VAULTS_CONFIG[chainId] || [])
       .map((vc) => [vc.assetTokenAddress, vc.xTokenAddress])
       .flatten()
       .concat([USB_ADDRESS[chainId]])
@@ -52,10 +52,9 @@ export function useLoadBVaults() {
   const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((vc) => (vc.onEnv || []).includes(ENV)), [chainId, ENV])
   // useUpdateBVaultsData(bvcs)
   useQuery({
-    queryKey: [bvcs],
+    queryKey: ["UpdateBVaults",bvcs],
     queryFn: async () => {
-      await useBoundStore.getState().sliceBVaultsStore.updateBvaults(bvcs)
-      await useBoundStore.getState().sliceBVaultsStore.updateYTokenSythetic(bvcs)
+      await Promise.all([useBoundStore.getState().sliceBVaultsStore.updateBvaults(bvcs), useBoundStore.getState().sliceBVaultsStore.updateYTokenSythetic(bvcs)])
       return true
     },
   })
@@ -71,8 +70,9 @@ export function useLoadBVaults() {
   useQuery({
     queryKey: ['UpdateBvautlsTokens', tokens],
     queryFn: async () => {
-      await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens)
-      await useBoundStore.getState().sliceTokenStore.updateTokenPrices(tokens)
+      await Promise.all([useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens), useBoundStore.getState().sliceTokenStore.updateTokenPrices(tokens)])
+      // await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens)
+      // await useBoundStore.getState().sliceTokenStore.updateTokenPrices(tokens)
       return true
     },
     throwOnError(error, query) {
@@ -91,10 +91,10 @@ export function useLoadBVaults() {
 }
 export function useLoadLntVaults() {
   const chainId = useCurrentChainId()
-  const vcs = useMemo(() => LNTVAULTS_CONFIG[chainId]?.filter((vc) => (vc.onEnv || []).includes(ENV)) ||[], [chainId, ENV])
+  const vcs = useMemo(() => LNTVAULTS_CONFIG[chainId]?.filter((vc) => (vc.onEnv || []).includes(ENV)) || [], [chainId, ENV])
   // useUpdateBVaultsData(bvcs)
   useQuery({
-    queryKey: ["UpdateLntVaults",vcs],
+    queryKey: ['UpdateLntVaults', vcs],
     queryFn: async () => {
       await useBoundStore.getState().sliceLntVaultsStore.updateLntVaults(vcs)
       return true
@@ -134,7 +134,7 @@ export function useLoadLntVaults() {
 export function useLoadUserLVaults() {
   const { address } = useAccount()
   const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId]||[]
+  const lvcs = VAULTS_CONFIG[chainId] || []
   useQuery({
     queryKey: ['UpdateAllUserLVaults', chainId, address, lvcs],
     queryFn: async () => {
