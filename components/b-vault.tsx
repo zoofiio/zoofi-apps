@@ -561,10 +561,10 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
             </div>
             <div className='flex items-center relative'>
               <span className='text-sm'>YT Points</span>
-              <span className=' dark:text-white/60 ml-10'>{displayBalance(userBalanceYTokenSyntyetic, 23)}</span>
+              <span className=' dark:text-white/60 ml-10'>{displayBalance(userBalanceYTokenSyntyetic, undefined, 23)}</span>
               <div className='flex flex-col gap-1 absolute left-1/2 top-0'>
                 <span className='dark:text-white/60'>Claimable</span>
-                <span>{displayBalance(userClaimableYTokenSyntyetic, 23)}</span>
+                <span>{displayBalance(userClaimableYTokenSyntyetic, undefined, 23)}</span>
               </div>
               <ApproveAndTx
                 className='w-28 ml-auto'

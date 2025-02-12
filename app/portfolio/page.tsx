@@ -89,7 +89,7 @@ function InterestItem() {
 }
 function LeverageItem() {
   const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId]||[]
+  const lvcs = VAULTS_CONFIG[chainId] || []
   const balances = useBalances()
 
   const data: ReactNode[][] = useMemo(() => {
@@ -251,7 +251,7 @@ function BoostItem() {
       </div>,
       <div key={'time weighted'}>
         {epochsData.map((epoch) => (
-          <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYTokenSyntyetic, 23)}</div>
+          <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYTokenSyntyetic, undefined, 23)}</div>
         ))}
       </div>,
       // <div key={'my share'}>
@@ -286,7 +286,7 @@ function BoostItem() {
 }
 function StakedPoolsItem() {
   const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId]||[]
+  const lvcs = VAULTS_CONFIG[chainId] || []
   const lStore = useBoundStore.getState().sliceLVaultsStore
   const datas: ReactNode[][] = useMemo(() => {
     const totalStakedUsb = lvcs.map((lvc) => lStore.user[lvc.vault]?.buyPool_userStakingBalance || 0n).reduce((sum, item) => sum + item, 0n)
@@ -320,7 +320,7 @@ export default function Dashboard() {
         <LeverageItem />
         <PrincipalItem />
         <BoostItem />
-        {chainId !== 80094 &&<StakedPoolsItem />}
+        {chainId !== 80094 && <StakedPoolsItem />}
       </div>
     </PageWrap>
   )
