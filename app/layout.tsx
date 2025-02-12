@@ -22,11 +22,11 @@ export const metadata: Metadata = {
   openGraph: {
     ...baseMeta,
     type: 'website',
-    images: '/Welcome.jpg'
+    images: 'https://zoofi.io/Welcome.jpg'
   },
   twitter: {
     ...baseMeta,
-    images: '/Welcome.jpg'
+    images: 'https://zoofi.io/Welcome.jpg'
   },
   
 }
