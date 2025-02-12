@@ -710,7 +710,7 @@ export function BVaultCardComming({ symbol }: { symbol: string }) {
         </div>
       </div>
       <div className={cn(itemClassname, 'col-span-2')}>
-        <div className='text-xs font-semibold leading-[12px] whitespace-nowrap'>New Vault Comming Soon...</div>
+        <div className='text-xs font-semibold leading-[12px] whitespace-nowrap'>New Vault Coming Soon...</div>
       </div>
     </div>
   )
