@@ -1,4 +1,4 @@
-;(BigInt.prototype as any).toJSON = function () {
+; (BigInt.prototype as any).toJSON = function () {
   return this.toString()
 }
 import type { Metadata } from 'next'
@@ -12,9 +12,23 @@ import './globals.css'
 import PageLayout from './pagelayout'
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
+const baseMeta = {
   title: 'Zoo Finance',
   description: 'A Structured Protocol for Better Liquidity Utilization',
+}
+
+export const metadata: Metadata = {
+  ...baseMeta,
+  openGraph: {
+    ...baseMeta,
+    type: 'website',
+    images: '/Welcome.jpg'
+  },
+  twitter: {
+    ...baseMeta,
+    images: '/Welcome.jpg'
+  },
+  
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
