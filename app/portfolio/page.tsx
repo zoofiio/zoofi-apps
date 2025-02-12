@@ -251,7 +251,7 @@ function BoostItem() {
       </div>,
       <div key={'time weighted'}>
         {epochsData.map((epoch) => (
-          <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYTokenSyntyetic)}</div>
+          <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYTokenSyntyetic, 23)}</div>
         ))}
       </div>,
       // <div key={'my share'}>
