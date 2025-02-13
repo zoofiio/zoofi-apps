@@ -88,8 +88,8 @@ export const sepolia = defineChain({
   testnet: true,
 })
 
-export const apiBatchConfig = { batchSize: 30, wait: 1500 }
-export const multicallBatchConfig = { batchSize: 100, wait: 1000 }
+export const apiBatchConfig = { batchSize: 30, wait: 300 }
+export const multicallBatchConfig = { batchSize: 100, wait: 300 }
 
 export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia]
