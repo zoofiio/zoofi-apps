@@ -81,7 +81,8 @@ export function calcBVaultBoost(vault: Address) {
   // const boost = bvd && bvd.current.assetTotalSwapAmount > 0n ? (bvd.lockedAssetTotal * 100n) / bvd.current.assetTotalSwapAmount : 100000n
 
   console.info('calcBootst:', displayBalance(ytAssetPriceBnReverse), displayBalance(oneYTYieldOfAsset))
-  const boost = (oneYTYieldOfAsset * ytAssetPriceBnReverse) / DECIMAL
+  // const boost = (oneYTYieldOfAsset * ytAssetPriceBnReverse) / DECIMAL
+  const boost = ytAssetPriceBnReverse
   return boost
 }
 export function useBVaultBoost(vault: Address): [string, bigint] {
