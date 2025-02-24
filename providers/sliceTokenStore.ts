@@ -167,6 +167,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     prices: {
       '0x549943e04f40284185054145c6E4e9568C1D3241': DECIMAL,
       '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce': DECIMAL,
+      '0x688e72142674041f8f6Af4c808a4045cA1D6aC82': DECIMAL,
     },
     updateTokenPrices,
 
