@@ -78,7 +78,7 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
     },
   ]
   const data =
-    showAddReward && isBETA
+    showAddReward
       ? [
         ...odata,
         {
