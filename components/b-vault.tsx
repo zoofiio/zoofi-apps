@@ -43,7 +43,7 @@ function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
 
 const maxClassname = 'max-w-4xl mx-auto w-full'
 
-export function BVaultRedeem({ bvc }: { bvc: BVaultConfig }) {
+export function BVaultRedeem({ bvc, byClosed }: { bvc: BVaultConfig, byClosed?: boolean }) {
   const [inputPToken, setInputPToken] = useState('')
   const inputPTokenBn = parseEthers(inputPToken)
   const bvd = useBVault(bvc.vault)
@@ -66,8 +66,8 @@ export function BVaultRedeem({ bvc }: { bvc: BVaultConfig }) {
         }}
         disabled={(epoch && inputPTokenBn <= 0n) || inputPTokenBn > pTokenBalance}
         config={{
-          abi: bvd.closed ? abiBVault : abiRedeemPool,
-          address: bvd.closed ? bvc.vault : epoch?.redeemPool || zeroAddress,
+          abi: bvd.closed && byClosed ? abiBVault : abiRedeemPool,
+          address: bvd.closed && byClosed ? bvc.vault : epoch?.redeemPool || zeroAddress,
           functionName: 'redeem',
           args: [inputPTokenBn],
         }}

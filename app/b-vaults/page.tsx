@@ -63,15 +63,18 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
     },
   })
   const odata = [
-    {
-      tab: bvd.closed ? 'Redeem' : 'Principal Panda',
-      content: bvd.closed ? (
-        <div className='max-w-xl mx-auto pt-8 w-full'>
-          <BVaultRedeem bvc={bvc} />
+    ...(bvd.closed ? [
+      {
+        tab: 'Redeem',
+        content: <div className='max-w-xl mx-auto pt-8 w-full'>
+          <BVaultRedeem bvc={bvc} byClosed />
         </div>
-      ) : (
-        <BVaultP bvc={bvc} />
-      ),
+      }
+    ] : []),
+    {
+      tab: 'Principal Panda',
+      content: <BVaultP bvc={bvc} />
+      ,
     },
     {
       tab: 'Boost Venom',
