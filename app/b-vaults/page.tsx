@@ -66,7 +66,7 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
     {
       tab: bvd.closed ? 'Redeem' : 'Principal Panda',
       content: bvd.closed ? (
-        <div className='max-w-4xl mx-auto pt-8'>
+        <div className='max-w-xl mx-auto pt-8 w-full'>
           <BVaultRedeem bvc={bvc} />
         </div>
       ) : (

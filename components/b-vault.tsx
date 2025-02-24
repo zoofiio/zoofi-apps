@@ -54,9 +54,9 @@ export function BVaultRedeem({ bvc }: { bvc: BVaultConfig }) {
   return (
     <div className={cn('flex flex-col gap-1')}>
       <AssetInput asset={bvc.pTokenSymbol} assetIcon='Panda' amount={inputPToken} balance={pTokenBalance} setAmount={setInputPToken} />
-      <div className='text-xs font-medium text-center'>
+      {!bvd.closed && <div className='text-xs font-medium text-center'>
         {waitTimeFmt} <Tip>Wait to claim after the Epoch ends.</Tip>
-      </div>
+      </div>}
       <ApproveAndTx
         className='mx-auto mt-6'
         tx='Request'
