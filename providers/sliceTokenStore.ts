@@ -138,6 +138,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
             url: ((item.logoURI as string) || '').replace('https://https://', 'https://'),
           }))
       })
+      .catch((e) => [] as TokenItem[])
     localStorage.setItem('catchedDefTokenList_' + getCurrentChainId(), JSON.stringify(list))
     set({ defTokenList: list })
     return list

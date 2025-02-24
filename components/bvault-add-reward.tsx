@@ -21,6 +21,8 @@ import { CoinIcon } from './icons/coinicon'
 import { PulseTokenItem } from './pulse-ui'
 import { SimpleDialog } from './simple-dialog'
 import { BBtn } from './ui/bbtn'
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { berachain } from '@/config/network'
 
 const defTokens: TokenItem[] = [
   { symbol: 'HONEY', name: 'HONEY Token', address: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03', decimals: 18, },
@@ -32,14 +34,21 @@ const defTokens: TokenItem[] = [
   { symbol: 'WBTC', name: 'Wrapped Bitcoin', address: '0x2577D24a26f8FA19c1058a8b0106E2c7303454a4', decimals: 18, },
   { symbol: 'WETH', name: 'Wrapped Ether', address: '0xE28AfD8c634946833e89ee3F122C06d7C537E8A8', decimals: 18, },
 ]
+const beraTokens: TokenItem[] = [
+  { symbol: 'iBGT', name: 'Infrared BGT', address: '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b', decimals: 18 },
+  { symbol: 'HONEY', name: 'HONEY Token', address: '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce', decimals: 18 },
+  { symbol: 'USDC', name: 'USDC Token', address: '0x549943e04f40284185054145c6E4e9568C1D3241', decimals: 6 },
+  { symbol: 'WBERA', name: 'Wrapped Bera', address: '0x6969696969696969696969696969696969696969', decimals: 18 },
+]
 
 function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[]; hiddenNative?: boolean; onSelect?: (item: TokenItem) => void }) {
+  const chainId = useCurrentChainId()
   const defTokenList = useStore((s) => s.sliceTokenStore.defTokenList)
   const originTokens = useMemo(() => {
-    const list = !_.isEmpty(tokens) ? tokens! : !_.isEmpty(defTokenList) ? defTokenList! : defTokens
+    const list = !_.isEmpty(tokens) ? tokens! : !_.isEmpty(defTokenList) ? defTokenList! : chainId == berachain.id ? beraTokens : defTokens
     if (hiddenNative) return list.filter((item) => item.address !== zeroAddress && item.address !== NATIVE_TOKEN_ADDRESS)
     return list
-  }, [tokens, defTokenList, hiddenNative])
+  }, [tokens, defTokenList, hiddenNative, chainId])
 
   const [input, setInput] = useState('')
   const balances = useBalances()
@@ -54,7 +63,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
         if (t) return [t]
         const pc = getPC()
         const address = input as Address
-        const [symbol,decimals] = await Promise.all([
+        const [symbol, decimals] = await Promise.all([
           pc.readContract({ abi: erc20Abi, address, functionName: 'symbol' }),
           pc.readContract({ abi: erc20Abi, address, functionName: 'decimals' }),
         ])
@@ -142,7 +151,7 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
     mutationFn: async () => {
       if (disableAdd) return
       const pc = getPC()
-      if(bvc.isOld){
+      if (bvc.isOld) {
         const tokens = await pc.readContract({ abi: abiBVault, address: bvc.vault, functionName: 'bribeTokens', args: [bvd.epochCount] })
         console.info('tokens:', tokens, stoken.address)
         if (!tokens.find((item) => item.toLowerCase() == stoken.address.toLowerCase())) {
