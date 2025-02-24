@@ -9,6 +9,8 @@ import { formatUnits } from 'viem'
 import { CoinIcon } from './icons/coinicon'
 import { useThemeState } from './theme-mode'
 import { Spinner } from './spinner'
+import { useMeasure } from 'react-use'
+import _ from 'lodash'
 
 export function AssetInput({
   asset = 'ETH',
@@ -28,7 +30,7 @@ export function AssetInput({
   disable,
   hasInput = false,
   options,
-  onChange = () => {},
+  onChange = () => { },
   defaultValue,
   balanceClassName = '',
   loading,
@@ -63,6 +65,7 @@ export function AssetInput({
     checkBalance && typeof balance !== 'undefined' && parseEthers(typeof amount == 'number' ? amount + '' : amount || '', decimals) > (typeof balance == 'bigint' ? balance : 0n)
   const isDark = useThemeState((t) => t.theme == 'dark')
   const isError = balanceInsufficient
+  const [coinSymbolRef, { width: coinSymbolWidth }] = useMeasure<HTMLDivElement>()
   return (
     <div
       className='relative w-full'
@@ -75,7 +78,7 @@ export function AssetInput({
           {price && <div className='text-neutral-500 dark:text-slate-50/70 text-xs max-w-full overflow-hidden'>{price}</div>}
           {exchange && <div className='text-slate-500 dark:text-slate-50/70 text-xs max-w-full overflow-hidden'>~${exchange}</div>}
         </div>
-        <div className='absolute flex items-center gap-2 w-fit top-1/2 left-4 -translate-y-1/2'>
+        <div className='absolute flex items-center gap-2 w-fit top-1/2 left-4 -translate-y-1/2' ref={coinSymbolRef}>
           <CoinIcon size={24} symbol={assetIcon || asset} url={assetURL} className='rounded-full' />
           <div className={clsx('relative', price || exchange ? '-top-[6px]' : '')}>
             {hasInput ? (
@@ -128,6 +131,7 @@ export function AssetInput({
           ref={inputRef}
           type='number'
           disabled={disable}
+          style={{ paddingLeft: `${_.round((coinSymbolWidth + 32) / 16)}rem` }}
           className={clsx(
             readonly ? 'bg-slate-50 cursor-not-allowed dark:bg-slate-800' : 'bg-white dark:bg-transparent',
             {
@@ -135,7 +139,7 @@ export function AssetInput({
               'border-red-400 !border-2 focus:border-red-400': isError,
               'border-slate-400  focus:border-primary': !isError && !selected,
             },
-            'w-full h-14 text-right pr-4 pl-[8rem] font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-none dark:text-slate-50',
+            'w-full h-14 text-right pr-4 font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-none dark:text-slate-50',
           )}
           placeholder='0.000'
           maxLength={36}
@@ -144,7 +148,7 @@ export function AssetInput({
           title=''
           readOnly={readonly}
         />
-        {loading && <Spinner className='absolute right-24 top-[1.125rem]'/>}
+        {loading && <Spinner className='absolute right-24 top-[1.125rem]' />}
       </div>
 
       {balance != undefined && (
