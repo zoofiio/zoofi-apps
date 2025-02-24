@@ -149,18 +149,6 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
   ],
   [berachain.id]: [
     {
-      vault: '0x33C42E171cFD7Ec85D3dB34D7f6d3D8121f64E63',
-      asset: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621',
-      assetSymbol: 'HONEY-USDC',
-      pToken: '0x70B851f6877D16D6D5aD546B17d06281b8aBDd4b',
-      pTokenSymbol: 'pHONEY-USDC',
-      yTokenSymbol: 'yHONEY-USDC',
-      protocolAddress: '0xc0fA386aE92f18A783476d09121291A1972C30Dc',
-      protocolSettingsAddress: '0x8c6E434Bb1C51728BdCc250255c1F654471d85eB',
-      bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta','test','prod'],
-    },
-    {
       vault: '0x6686bDfF3ad20AE45E811c2451DfeE8AA0f338C0',
       asset: '0xdE04c469Ad658163e2a5E860a03A86B52f6FA8C8',
       assetSymbol: 'HONEY-BYUSD',
@@ -170,7 +158,19 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: ZooProtocolAddress[berachain.id],
       protocolSettingsAddress: ZooProtocolSettingsAddress[berachain.id],
       bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta','test'],
-    }
+      onEnv: ['beta', 'test', 'prod'],
+    },
+    {
+      vault: '0x33C42E171cFD7Ec85D3dB34D7f6d3D8121f64E63',
+      asset: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621',
+      assetSymbol: 'HONEY-USDC',
+      pToken: '0x70B851f6877D16D6D5aD546B17d06281b8aBDd4b',
+      pTokenSymbol: 'pHONEY-USDC',
+      yTokenSymbol: 'yHONEY-USDC',
+      protocolAddress: '0xc0fA386aE92f18A783476d09121291A1972C30Dc',
+      protocolSettingsAddress: '0x8c6E434Bb1C51728BdCc250255c1F654471d85eB',
+      bQueryAddres: BQueryAddress[berachain.id],
+      onEnv: ['beta', 'test', 'prod'],
+    },
   ],
 }

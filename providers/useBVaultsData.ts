@@ -95,6 +95,7 @@ export function calcBVaultPTApy(vault: Address) {
   const bvd = s.sliceBVaultsStore.bvaults[vault]
   const pTokenSynthetic = getBigint(s.sliceBVaultsStore.yTokenSythetic, [vault])
   const apy = bvd && bvd.current.assetTotalSwapAmount && pTokenSynthetic ? (bvd.current.assetTotalSwapAmount * YEAR_SECONDS * BigInt(1e10)) / pTokenSynthetic : 0n
+  // console.info('apy:',vault, )
   return apy
 }
 export function useBVaultApy(vault: Address): [string, bigint] {

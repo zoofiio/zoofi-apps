@@ -165,7 +165,7 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
     {
       tab: 'Buy',
       content: (
-        <div className='flex flex-col gap-1'>
+        <div className='flex flex-col gap-1 w-full max-w-xl'>
           <AssetInput asset={bvc.assetSymbol} amount={inputAsset} balance={assetBalance} setAmount={setInputAsset} />
           <GetLP address={bvc.asset} />
           <div className='text-xs font-medium text-center'>{`Receive 1 ${pTokenSymbolShort} for every ${assetSymbolShort}`}</div>
