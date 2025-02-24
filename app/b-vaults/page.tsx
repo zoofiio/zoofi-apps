@@ -70,12 +70,13 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
           <BVaultRedeem bvc={bvc} byClosed />
         </div>
       }
-    ] : []),
-    {
-      tab: 'Principal Panda',
-      content: <BVaultP bvc={bvc} />
-      ,
-    },
+    ] : [
+      {
+        tab: 'Principal Panda',
+        content: <BVaultP bvc={bvc} />,
+      }
+    ])
+    ,
     {
       tab: 'Boost Venom',
       content: <BVaultB bvc={bvc} />,
