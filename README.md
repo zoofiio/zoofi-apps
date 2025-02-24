@@ -10,3 +10,5 @@ First, run the development server:
 ```bash
 pnpm dev
 ```
+
+v0.0.1
