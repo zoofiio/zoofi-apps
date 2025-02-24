@@ -1,7 +1,7 @@
 'use client'
-;(BigInt.prototype as any).toJSON = function () {
-  return this.toString()
-}
+  ; (BigInt.prototype as any).toJSON = function () {
+    return this.toString()
+  }
 
 import BeraLine from '@/components/icons/BeraLine'
 import BullLine from '@/components/icons/BullLine'
@@ -74,10 +74,14 @@ function MainUI() {
           <BBtn className='text-sm !w-[150px] !mx-0  mt-0' onClick={() => isLNT ? toLntVault(r) : toBVault(r)}>
             Launch Dapp
           </BBtn>
-          <BBtn hiddenBorder className='text-sm h-10 !w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>
+          {/* <BBtn hiddenBorder className='text-sm h-10 !w-[193px] flex justify-center items-center gap-2' onClick={() => open('https://www.berachain.com', '_blank')}>
             <CoinIcon size={24} symbol='berachain' />
             Built on Berachain
-          </BBtn>
+          </BBtn> */}
+          <div className='text-black/60 dark:text-white/60 flex items-center gap-2'>
+            <CoinIcon symbol='Fire' size={21} />
+            <span className='underline underline-offset-[3px]'>B-Vault is now live on Berachain</span>
+          </div>
         </div>
         <div className='mt-8 text-xl font-semibold text-[#7B7B7B]'>Investors & Backers</div>
         <div className='mt-5 flex gap-y-5 gap-x-10 items-center flex-wrap max-w-[37.5rem]'>

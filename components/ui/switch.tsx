@@ -17,7 +17,7 @@ export function Switch(p: { checked?: boolean; onChange?: (check?: boolean) => v
       onClick={() => p.onChange?.(!p.checked)}
     >
       <div
-        className={cn('transition-all h-full w-[1.5em] absolute top-0 rounded-[0.4em]', !p.checked ? 'left-[1em]' : '-left-[1px]')}
+        className={cn('transition-all h-full w-[1.5em] absolute top-0 rounded-[0.4em]', p.checked ? 'left-[1em]' : '-left-[1px]')}
         style={{
           background: !p.checked
             ? '#3B4144'

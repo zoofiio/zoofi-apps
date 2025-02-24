@@ -25,7 +25,7 @@ import { ApproveAndTx } from './approve-and-tx'
 import { AssetInput } from './asset-input'
 import BvaultEpochYtPrices from './bvault-epoch-ytprices'
 import { GetLP } from './get-lp'
-import { CoinIcon } from './icons/coinicon'
+import { CoinIcon, DoubleCoinIcon } from './icons/coinicon'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { Switch } from './ui/switch'
@@ -647,7 +647,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   return (
     <div className={cn('card !p-0 grid grid-cols-2 overflow-hidden', {})}>
       <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center')}>
-        <CoinIcon symbol={vc.assetSymbol} size={44} />
+        {Boolean(lp) ? <DoubleCoinIcon symbol1={token1} symbol2={token2} size={28} /> : <CoinIcon symbol={vc.assetSymbol} size={44} />}
         <div>
           <div className=' text-lg font-semibold whitespace-nowrap'>{vc.assetSymbol}</div>
           <div className=' text-sm font-medium'>{vc.assetSymbol.includes('-') ? 'LP Token' : ''}</div>
@@ -696,10 +696,16 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
 }
 
 export function BVaultCardComming({ symbol }: { symbol: string }) {
+  const [token1, token2] = (symbol || '').split('-')
+
   return (
     <div className={cn('card cursor-pointer !p-0 grid grid-cols-2 overflow-hidden h-[419px]', {})}>
       <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center h-20')}>
-        <CoinIcon symbol={symbol} size={44} />
+        {
+          symbol && <>
+            {Boolean(token2) ? <DoubleCoinIcon symbol1={token1} symbol2={token2} size={28} /> : <CoinIcon symbol={symbol} size={44} />}
+          </>
+        }
         <div>
           <div className=' text-lg font-semibold whitespace-nowrap'>{symbol}</div>
           <div className=' text-sm font-medium'>{symbol.includes('-') ? 'LP Token' : ''}</div>

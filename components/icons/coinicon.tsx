@@ -50,10 +50,11 @@ const SupportICONS: { [k: string]: string } = {
   xiBGT: 'xiBGT.svg',
   yiRED: 'yiRED.svg',
   ZUSD: 'ZUSD.svg',
-  
+  BYUSD: 'BYUSD.webp',
+  Fire: 'Fire.png'
 }
 
-export function CoinIcon({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number; url?: string }) {
+export function CoinIconImpl({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number; url?: string }) {
   const supportIcon = SupportICONS[symbol]
   const src = `${BASE_PATH}/${supportIcon}`
   if (!supportIcon && !url) {
@@ -67,4 +68,21 @@ export function CoinIcon({ symbol, size = 48, url, ...p }: { symbol: string; cla
     )
   }
   return <img {...p} className={cn(p.className)} width={size} height={size} src={supportIcon ? src : url} alt={symbol} />
+}
+
+
+const ignoreDouble = ['logo-alt', 'status-green', 'status-red']
+export function DoubleCoinIcon({ symbol1, symbol2, size = 48, url1, url2, className }: { symbol1: string, symbol2: string, className?: string, size?: number, url1?: string, url2?: string }) {
+  return <div className={cn('flex items-center', className)}>
+    <CoinIconImpl symbol={symbol1} size={size} url={url1} />
+    <CoinIconImpl symbol={symbol2} size={size} url={url2} style={{ marginLeft: `-${Math.round(size * 0.6)}px` }} />
+  </div>
+}
+
+export function CoinIcon({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number; url?: string }) {
+  if (symbol.includes('-') && !ignoreDouble.includes(symbol)) {
+    const [token1, token2] = symbol.split('-')
+    return <DoubleCoinIcon {...p} symbol1={token1} symbol2={token2} size={size} />
+  }
+  return <CoinIconImpl {...p} symbol={symbol} size={size} url={url} />
 }
