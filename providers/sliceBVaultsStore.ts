@@ -107,6 +107,16 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     ])
     console.info('timeEND:updateBvaults', _.now() - start)
     const map = _.filter(datas, (item) => item != null).reduce<BVaultsStore['bvaults']>((map, item) => ({ ...map, [item.vault]: item.item }), {})
+    await Promise.all(
+      bvcs
+        .filter((vc) => map[vc.vault]?.closed)
+        .map((vc) =>
+          pc.readContract({ abi: erc20Abi, functionName: 'balanceOf', address: vc.asset, args: [vc.vault] }).then((balance) => {
+            map[vc.vault]!.lockedAssetTotal = balance
+            
+          }),
+        ),
+    )
     if (lpdatas) {
       for (const lpdata of lpdatas) {
         if (lpdata) {
@@ -118,8 +128,8 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
         }
       }
     }
-
     set({ bvaults: { ...get().bvaults, ...map } })
+
     return map
   }
 

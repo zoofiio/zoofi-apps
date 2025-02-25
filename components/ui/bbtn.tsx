@@ -63,9 +63,11 @@ export function BBtn(p: ButtonHTMLAttributes<HTMLButtonElement> & { borderWidth?
     <button
       {...props}
       ref={btnRef}
-      style={{ background: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%,rgba(27, 205, 89, 0.2) 0%,rgba(179, 232, 84, 0.2) 100%)' }}
+      // background: radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.8) 0%, rgba(179, 232, 84, 0.8) 100%);
+      // style={{ background: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%,rgba(27, 205, 89, 0.2) 0%,rgba(179, 232, 84, 0.2) 100%)' }}
       className={cn(
-        'group/bbtn relative px-3 cursor-pointer w-full transition-all leading-[2.375] ring-0 text-base text-black dark:text-white font-medium h-10 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed',
+        'group/bbtn relative px-3 cursor-pointer w-full transition-all leading-[2.375] ring-0 text-base text-black dark:text-white font-medium h-10 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed bg-btn  dark:bg-btndark',
+        { 'hover:bg-btnhover dark:hover:bg-btndarkhover': !p.disabled },
         className,
       )}
     >
@@ -74,7 +76,10 @@ export function BBtn(p: ButtonHTMLAttributes<HTMLButtonElement> & { borderWidth?
           className='absolute w-full h-full left-0 top-0 flex justify-center items-center rounded-lg overflow-hidden'
           style={{ visibility: btnRef.current ? 'visible' : 'hidden', clipPath }}
         >
-          <div className={cn('w-[200%] aspect-square shrink-0', { 'group-hover/bbtn:animate-spin-slow': !p.disabled })} style={{ background: borderBg }} />
+          <div className={cn('w-[200%] aspect-square shrink-0', {
+            // group-hover/bbtn:animate-spin-slow 
+            'dark:group-hover/bbtn:opacity-60': !p.disabled
+          })} style={{ background: borderBg }} />
         </div>
       )}
       {busy && <Spinner />}

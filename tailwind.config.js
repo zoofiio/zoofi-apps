@@ -23,11 +23,11 @@ module.exports = {
         s1: 'radial-gradient(97.67% 126.32% at 50% 0%, #010214 25.78%, #7A61BC 99.83%)',
         s2: 'linear-gradient(90deg, #C2B7FD 0%, #9580F7 100%)',
         
-        btndark: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, #204C33 0%, #3E5232 100%),radial-gradient(122.5% 122.5% at 52.9% 16.25%, #15D264 0%, #2CBD35 36.26%, #DCF45D 92.54%)',
-        btn: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, #D1F5DE 0%, #F0FADD 100%),radial-gradient(122.5% 122.5% at 52.9% 16.25%, #15D264 0%, #2CBD35 36.26%, #DCF45D 92.54%)',
+        btn: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.5) 0%, rgba(179, 232, 84, 0.5) 100%)',
+        btnhover: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.8) 0%, rgba(179, 232, 84, 0.8) 100%)',
+        btndark: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.2) 0%, rgba(179, 232, 84, 0.2) 100%)',
+        btndarkhover: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.12) 0%, rgba(179, 232, 84, 0.12) 100%)',
         btndis: 'linear-gradient(180deg, rgba(159, 179, 159, 0.2) 0%, rgba(190, 255, 186, 0.2) 100%)'
-
-        
       },
       animation: {
         'spin-slow': 'spin 2s cubic-bezier(1, 0, 0, 1) infinite'

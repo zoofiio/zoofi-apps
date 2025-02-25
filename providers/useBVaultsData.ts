@@ -58,13 +58,14 @@ export function useEpochesData(vault: Address) {
 
 export function useCalcClaimable(vault: Address) {
   const epoches = useEpochesData(vault)
+  const bvd = useBVault(vault)
   return useMemo(() => {
-    const fitlerEpoches = epoches.filter((item) => item.claimableAssetBalance && item.settled)
+    const fitlerEpoches = epoches.filter((item) => item.claimableAssetBalance > 10n && (item.settled || bvd.closed))
     return {
       ids: fitlerEpoches.map((item) => item.epochId),
       claimable: fitlerEpoches.reduce((sum, item) => sum + item.claimableAssetBalance, 0n),
     }
-  }, [epoches])
+  }, [epoches, bvd.closed])
 }
 
 export function calcBVaultBoost(vault: Address) {

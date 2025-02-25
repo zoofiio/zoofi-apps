@@ -1,26 +1,26 @@
 'use client'
 
-import { BVaultB, BVaultCard, BVaultCardComming, BVaultP, BVaultRedeem } from '@/components/b-vault'
+import { BVaultB, BVaultCard, BVaultCardComming, BVaultP, BVaultRedeemAll } from '@/components/b-vault'
 import { BVaultAddReward } from '@/components/bvault-add-reward'
 import { Noti } from '@/components/noti'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleTabs } from '@/components/simple-tabs'
 import { abiBVault } from '@/config/abi'
 import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
-import { ENV, isBETA } from '@/constants'
+import { ENV } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLoadBVaults } from '@/hooks/useLoads'
 import { tabToSearchParams } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useBoundStore } from '@/providers/useBoundStore'
-import { useBVault, useBVaultEpoches, useEpochesData } from '@/providers/useBVaultsData'
+import { useBVault, useBVaultEpoches } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import { Grid } from '@tremor/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useMemo } from 'react'
+import { isAddressEqual } from 'viem'
 import { useAccount } from 'wagmi'
 import { toBVault } from '../routes'
-import { isAddressEqual } from 'viem'
 
 function StrongSpan({ children }: { children: ReactNode }) {
   return <span className='font-extrabold'>{children}</span>
@@ -67,7 +67,7 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
       {
         tab: 'Redeem',
         content: <div className='max-w-xl mx-auto pt-8 w-full'>
-          <BVaultRedeem bvc={bvc} byClosed />
+          <BVaultRedeemAll bvc={bvc} />
         </div>
       }
     ] : [
