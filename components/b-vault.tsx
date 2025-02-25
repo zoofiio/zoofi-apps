@@ -110,10 +110,10 @@ export function BVaultRedeemAll({ bvc }: { bvc: BVaultConfig }) {
         <CoinIcon symbol={bvc.assetSymbol} size={30}/> {bvc.assetSymbol}
       </div>
       <div className='whitespace-nowrap'>
-        Balance: {formatEther(pTokenBalance)}
+        Balance: {displayBalance(pTokenBalance)}
       </div>
       <div className='whitespace-nowrap'>
-        Claimable: {formatEther(claimable)}
+        Claimable: {displayBalance(claimable)}
       </div>
       <BBtn className='mx-auto mt-6' busy={isPending} disabled={disableRedeemAll} onClick={mutate as any}>Redeem All</BBtn>
     </div>
