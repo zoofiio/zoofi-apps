@@ -131,7 +131,7 @@ export function AssetInput({
           ref={inputRef}
           type='number'
           disabled={disable}
-          style={{ paddingLeft: `${_.round((coinSymbolWidth + 32) / 16)}rem` }}
+          style={{ paddingLeft: `${_.round((coinSymbolWidth + 32) / 16, 3)}rem` }}
           className={clsx(
             readonly ? 'bg-slate-50 cursor-not-allowed dark:bg-slate-800' : 'bg-white dark:bg-transparent',
             {
