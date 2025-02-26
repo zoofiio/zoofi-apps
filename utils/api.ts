@@ -10,7 +10,7 @@ const instance = () => {
 
   const chain = SUPPORT_CHAINS.find((item) => item.id == getCurrentChainId())
 
-  const baseurl = (isPROD || !chain?.testnet) ? `https://api.${DomainRef.value}` : `https://beta-api.${DomainRef.value}`
+  const baseurl = isPROD || !chain?.testnet ? `https://api.${DomainRef.value}` : `https://beta-api.${DomainRef.value}`
   if (!api || api.defaults.baseURL !== baseurl) {
     api = axios.create({
       baseURL: baseurl,
@@ -76,9 +76,9 @@ export async function post<T>(url: `/${string}`, data: any = {}, config: AxiosRe
 // export function put(url: string, data: any) {
 //   return instance.put(url, data);
 // }
-
-export default {
+const apis = {
   get,
   post,
   // put,
 }
+export default apis
