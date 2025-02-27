@@ -326,7 +326,6 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
   )
 }
 
-const DAY1 = BigInt(60 * 60 * 24);
 function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const isLP = bvc.assetSymbol.includes('-')
   const pTokenSymbolShort = isLP ? 'PT' : bvc.pTokenSymbol
@@ -344,7 +343,10 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
     queryFn: () => getPC().readContract({ abi: abiBVault, address: bvc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
   })
   const { data: perReturnsIBGT } = useReturnsIBGT(bvc)
-  const perDayReturnsIBGTByYT = bvd.current.yTokenAmountForSwapYT > 0n ? perReturnsIBGT * DECIMAL * DAY1 / bvd.current.yTokenAmountForSwapYT : 0n
+  const endTime = bvd.current.duration + bvd.current.startTime;
+  const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
+  const expectYTAmount = bvd.current.yTokenAmountForSwapYT + 1000n;
+  const returnsIBGTBy1000YT = perReturnsIBGT * DECIMAL * remainDur * 1000n / expectYTAmount
   const [priceSwap, togglePriceSwap] = useToggle(false)
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const outputYTokenForInput = getBigint(result, '1')
@@ -374,7 +376,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
         <div className='flex gap-2 items-center'>{`Price Impact: ${fmtPercent(priceImpact, 10, 2)}`}</div>
       </div>
       {bvc.rewardSymbol == 'iBGT' && <div className='self-center my-auto text-xs font-medium text-black/80 dark:text-white/80'>
-        1 {yTokenSymbolShort} Est. Returns: {<span className='font-extrabold text-base'>{displayBalance(perDayReturnsIBGTByYT) + ' iBGT'}</span>} {<Tip className='text-lg'>The current static returns, This value will be dilutedas the number of YT buyers increases.</Tip>}
+        1000 {yTokenSymbolShort} Est. Returns: {<span className='font-extrabold text-base'>{displayBalance(returnsIBGTBy1000YT) + ' iBGT'}</span>} {<Tip className='text-lg'>The current static returns, This value will be dilutedas the number of YT buyers increases.</Tip>}
       </div>}
       {/* <div className='text-xs font-medium text-black/80 dark:text-white/80'>
         1 {yTokenSymbolShort} represents the yield {<span className='font-extrabold text-base'>at least</span>} 1 {assetSymbolShort} until the end of Epoch.

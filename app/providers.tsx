@@ -32,6 +32,7 @@ const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 }}})
 export function Providers({ children }: { children: React.ReactNode }) {
   const [config, setConfig] = React.useState<ReturnType<typeof createConfig>>()
   React.useEffect(() => {
+    const isTgMini = Boolean((window as any).Telegram?.WebApp)
     const storage = createStorage({
       storage: {
         getItem: (key) => window.localStorage.getItem(key),
