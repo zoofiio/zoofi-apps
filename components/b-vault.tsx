@@ -340,6 +340,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   useDebounce(() => setCalcSwapKey(['calcSwap', bvc.vault, inputAssetBn, chainId]), 300, ['calcSwap', bvc.vault, inputAssetBn, chainId])
   const { data: result, isFetching: isFetchingSwap } = useQuery({
     queryKey: calcSwapKey,
+    enabled: inputAssetBn > 0n,
     queryFn: () => getPC().readContract({ abi: abiBVault, address: bvc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
   })
   const { data: perReturnsIBGT } = useReturnsIBGT(bvc)
@@ -347,15 +348,17 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
   const expectYTAmount = bvd.current.yTokenAmountForSwapYT + 1000n;
   const returnsIBGTBy1000YT = perReturnsIBGT * DECIMAL * remainDur * 1000n / expectYTAmount
+
   const [priceSwap, togglePriceSwap] = useToggle(false)
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
-  const outputYTokenForInput = getBigint(result, '1')
+  const outputYTokenForInput = inputAssetBn > 0n ? getBigint(result, '1') : 0n
   const ytAssetPriceBn = vualtYTokenBalance > 0n ? (bvd.Y * DECIMAL) / vualtYTokenBalance : 0n
   const ytAssetPriceBnReverse = ytAssetPriceBn > 0n ? (DECIMAL * DECIMAL) / ytAssetPriceBn : 0n
   const priceStr = priceSwap
     ? `1 ${assetSymbolShort}=${displayBalance(ytAssetPriceBnReverse)} ${yTokenSymbolShort}`
     : `1 ${yTokenSymbolShort}=${displayBalance(ytAssetPriceBn)} ${assetSymbolShort}`
 
+  const returnsIBGTByAfterYT = perReturnsIBGT * DECIMAL * remainDur * 1000n / (expectYTAmount + outputYTokenForInput)
   const afterYtAssetPrice = vualtYTokenBalance > outputYTokenForInput ? ((bvd.Y + inputAssetBn) * DECIMAL) / (vualtYTokenBalance - outputYTokenForInput) : 0n
   const outputYTokenFmt = fmtBn(outputYTokenForInput, undefined, true)
   const priceImpact = afterYtAssetPrice > ytAssetPriceBn && ytAssetPriceBn > 0n ? ((afterYtAssetPrice - ytAssetPriceBn) * BigInt(1e10)) / ytAssetPriceBn : 0n
@@ -375,8 +378,12 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
         </div>
         <div className='flex gap-2 items-center'>{`Price Impact: ${fmtPercent(priceImpact, 10, 2)}`}</div>
       </div>
-      {bvc.rewardSymbol == 'iBGT' && <div className='self-center my-auto text-xs font-medium text-black/80 dark:text-white/80'>
-        1000 {yTokenSymbolShort} Est. Returns: {<span className='font-extrabold text-base'>{displayBalance(returnsIBGTBy1000YT) + ' iBGT'}</span>} {<Tip className='text-lg'>The current static returns, This value will be diluted as the number of YT buyers increases.</Tip>}
+      {bvc.rewardSymbol == 'iBGT' && <div className='self-center my-auto text-xs font-medium text-black/80 dark:text-white/80 whitespace-nowrap'>
+        1000 {yTokenSymbolShort} Est. Returns: {
+          <span className='font-extrabold text-base relative'>
+            {displayBalance(returnsIBGTBy1000YT) + ' iBGT'}
+            {outputYTokenForInput > 0n && <span className='absolute top-full left-0 text-red-400'>{displayBalance(returnsIBGTByAfterYT) + ' iBGT'}</span>}
+          </span>} {<Tip className='text-lg'>The current static returns, This value will be diluted as the number of YT buyers increases.</Tip>}
       </div>}
       {/* <div className='text-xs font-medium text-black/80 dark:text-white/80'>
         1 {yTokenSymbolShort} represents the yield {<span className='font-extrabold text-base'>at least</span>} 1 {assetSymbolShort} until the end of Epoch.
