@@ -1,7 +1,7 @@
 'use client'
-;(BigInt.prototype as any).toJSON = function () {
-  return this.toString()
-}
+  ; (BigInt.prototype as any).toJSON = function () {
+    return this.toString()
+  }
 import * as React from 'react'
 
 import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
@@ -27,12 +27,13 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 }}})
+const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 } } })
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [config, setConfig] = React.useState<ReturnType<typeof createConfig>>()
   React.useEffect(() => {
-    const isTgMini = Boolean((window as any).Telegram?.WebApp)
+    // const isTgMini = Boolean((window as any).Telegram?.WebApp?.platform) && (window as any).Telegram?.WebApp?.platform !== 'unknown'
+    const isTgMini = true
     const storage = createStorage({
       storage: {
         getItem: (key) => window.localStorage.getItem(key),
@@ -55,6 +56,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         projectId: walletConnectProjectId,
       },
     )
+    
 
     setConfig(
       createConfig({

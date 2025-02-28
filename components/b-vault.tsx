@@ -376,7 +376,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
         <div className='flex gap-2 items-center'>{`Price Impact: ${fmtPercent(priceImpact, 10, 2)}`}</div>
       </div>
       {bvc.rewardSymbol == 'iBGT' && <div className='self-center my-auto text-xs font-medium text-black/80 dark:text-white/80'>
-        1000 {yTokenSymbolShort} Est. Returns: {<span className='font-extrabold text-base'>{displayBalance(returnsIBGTBy1000YT) + ' iBGT'}</span>} {<Tip className='text-lg'>The current static returns, This value will be dilutedas the number of YT buyers increases.</Tip>}
+        1000 {yTokenSymbolShort} Est. Returns: {<span className='font-extrabold text-base'>{displayBalance(returnsIBGTBy1000YT) + ' iBGT'}</span>} {<Tip className='text-lg'>The current static returns, This value will be diluted as the number of YT buyers increases.</Tip>}
       </div>}
       {/* <div className='text-xs font-medium text-black/80 dark:text-white/80'>
         1 {yTokenSymbolShort} represents the yield {<span className='font-extrabold text-base'>at least</span>} 1 {assetSymbolShort} until the end of Epoch.
