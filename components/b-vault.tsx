@@ -378,13 +378,20 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
         </div>
         <div className='flex gap-2 items-center'>{`Price Impact: ${fmtPercent(priceImpact, 10, 2)}`}</div>
       </div>
-      {bvc.rewardSymbol == 'iBGT' && <div className='self-center my-auto text-xs font-medium text-black/80 dark:text-white/80 whitespace-nowrap'>
-        1000 {yTokenSymbolShort} Est. Returns: {
-          <span className='font-extrabold text-base relative'>
-            {displayBalance(returnsIBGTBy1000YT) + ' iBGT'}
-            {outputYTokenForInput > 0n && <span className='absolute top-full left-0 text-red-400'>{displayBalance(returnsIBGTByAfterYT) + ' iBGT'}</span>}
-          </span>} {<Tip className='text-lg'>The current static returns, This value will be diluted as the number of YT buyers increases.</Tip>}
-      </div>}
+      <div className='self-center my-auto'>
+        {bvc.rewardSymbol == 'iBGT' && <div className=' text-xs font-medium text-black/80 dark:text-white/80 whitespace-nowrap'>
+          1000 {yTokenSymbolShort} Est. Returns: {
+            <span className='font-extrabold text-base relative'>
+              {displayBalance(returnsIBGTBy1000YT) + ' iBGT'}
+            </span>} {<Tip className='text-lg'>The current static returns, This value will be diluted as the number of YT buyers increases.</Tip>}
+        </div>}
+        {bvc.rewardSymbol == 'iBGT' && outputYTokenForInput > 0n && <div className=' text-xs font-medium text-red-400 whitespace-nowrap -translate-x-[1.6875rem]'>
+          Impacted Returns Change: {
+            <span className='font-extrabold text-base relative'>
+              {displayBalance(returnsIBGTByAfterYT) + ' iBGT'}
+            </span>}
+        </div>}
+      </div>
       {/* <div className='text-xs font-medium text-black/80 dark:text-white/80'>
         1 {yTokenSymbolShort} represents the yield {<span className='font-extrabold text-base'>at least</span>} 1 {assetSymbolShort} until the end of Epoch.
       </div> */}
