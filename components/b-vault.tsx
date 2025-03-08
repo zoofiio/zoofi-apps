@@ -15,7 +15,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { ProgressBar } from '@tremor/react'
 import _ from 'lodash'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { RiLoopLeftFill } from 'react-icons/ri'
 import { useDebounce, useMeasure, useToggle } from 'react-use'
 import { List, ListRowProps } from 'react-virtualized'
@@ -556,6 +556,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
   const onRowClick = (index: number) => {
     setCurrentEpochId(epoches[index]?.epochId)
   }
+  useEffect(() => { epochesData.length && setCurrentEpochId(epoches[0]?.epochId || epochesData[0]?.epochId) }, [epochesData.length])
   const sBribes = current?.sBribes || []
   const aBribes = current?.aBribes || []
 
