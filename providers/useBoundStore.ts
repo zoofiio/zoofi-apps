@@ -1,12 +1,11 @@
 import _ from 'lodash'
 import { useMemo } from 'react'
 import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
 import { sliceBVaultsStore } from './sliceBVaultsStore'
+import { sliceLntVaultsStore } from './sliceLntVaultsStore'
 import { sliceLVaultsStore } from './sliceLVaultsStore'
 import { sliceTokenStore } from './sliceTokenStore'
 import { sliceUserBVaults } from './sliceUserBVaults'
-import { sliceLntVaultsStore } from './sliceLntVaultsStore'
 
 type SliceType<T> = { [k in keyof T]: (set: (data: Partial<T[k]>) => void, get: () => T[k], init?: Partial<T[k]>) => T[k] }
 

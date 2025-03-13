@@ -568,7 +568,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
       <div key={key} style={style} className='cursor-pointer' onClick={() => onRowClick(index)}>
         <div className={cn('h-[56px] card !rounded-lg !px-5 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
           <div className='text-sm'>Epoch {epoches[index].epochId.toString()}</div>
-          <div className='text-xs dark:text-white/60 mt-1'>{fTime}</div>
+          <div className='text-xs opacity-60 mt-1'>{fTime}</div>
         </div>
       </div>
     )
@@ -595,12 +595,12 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
         <div className='flex flex-col gap-2 w-full'>
           <div className='flex gap-6 items-end font-semibold'>
             <span className='text-sm'>Rewards</span>
-            <span className='text-xs dark:text-white/60'>Epoch {(current?.epochId || 1n).toString()}</span>
+            <span className='text-xs opacity-60'>Epoch {(current?.epochId || 1n).toString()}</span>
           </div>
           <div className='flex-1 overflow-y-auto flex flex-col gap-4 font-semibold text-sm'>
-            <div className='flex gap-8 items-end font-semibold'>
+            <div className='flex gap-12 items-end font-semibold'>
               <span className='text-sm'>YT Balance</span>
-              <span className='text-xs dark:text-white/60'>{displayBalance(userBalanceYToken)}</span>
+              <span className='text-sm opacity-60'>{displayBalance(userBalanceYToken)}</span>
             </div>
 
             <div className='flex flex-col gap-5 justify-start relative pt-8 items-center'>
@@ -609,7 +609,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
                 <div className='absolute left-1/2'>{displayBalance(item.bribeAmount)}</div>
               </div>)}
               <span className='absolute left-0 top-0'>Berachain Emission</span>
-              <span className='absolute left-1/2 top-0 dark:text-white/60'>Claimable</span>
+              <span className='absolute left-1/2 top-0 opacity-60'>Claimable</span>
               <ApproveAndTx
                 className='absolute w-28 top-0 right-0'
                 tx='Claim'
@@ -626,9 +626,9 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
             </div>
             <div className='flex items-center relative'>
               <span className='text-sm'>YT Points <Tip>YT Points are calculated based on the duration of YT holding and apply to some uncertain rewards, such as airdrops.</Tip></span>
-              <span className=' dark:text-white/60 ml-10'>{displayBalance(userBalanceYTokenSyntyetic, undefined, 23)}</span>
+              <span className=' opacity-60 ml-10'>{displayBalance(userBalanceYTokenSyntyetic, undefined, 23)}</span>
               <div className='flex flex-col gap-1 absolute left-1/2 top-0'>
-                <span className='dark:text-white/60'>Claimable</span>
+                <span className='opacity-60'>Claimable</span>
                 <span>{displayBalance(userClaimableYTokenSyntyetic, undefined, 23)}</span>
               </div>
               <ApproveAndTx
@@ -651,7 +651,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
                 <div className='absolute left-1/2'>{displayBalance(item.bribeAmount)}</div>
               </div>)}
               <span className='absolute left-0 top-0'>Additional Incentives</span>
-              <span className='absolute left-1/2 top-0 dark:text-white/60'>Claimable</span>
+              <span className='absolute left-1/2 top-0 opacity-60'>Claimable</span>
               <ApproveAndTx
                 className='absolute w-28 top-0 right-0'
                 tx='Claim'
