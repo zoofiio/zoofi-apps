@@ -2,7 +2,7 @@ import { useApproves, useNftApproves } from '@/hooks/useApprove'
 import { useWrapContractWrite } from '@/hooks/useWrapContractWrite'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt } from 'viem'
 
 import { BBtn } from './ui/bbtn'
 
@@ -40,10 +40,10 @@ export function ApproveAndTx<
   skipSimulate?: boolean
   disabled?: boolean
   confirmations?: number
-  onTxSuccess?: () => void
+  onTxSuccess?: (txr: TransactionReceipt) => void
   onApproveSuccess?: () => void
 }) {
-  const { write: doTx, isDisabled, isLoading: isTxLoading } = useWrapContractWrite(config as any, { onSuccess: () => onTxSuccess && onTxSuccess(), autoToast: toast, skipSimulate, confirmations })
+  const { write: doTx, isDisabled, isLoading: isTxLoading } = useWrapContractWrite(config as any, { onSuccess: (txr) => onTxSuccess && onTxSuccess(txr), autoToast: toast, skipSimulate, confirmations })
   const txDisabled = disabled || isDisabled || isTxLoading || config.enabled === false
   const { approve, shouldApprove, loading: isApproveLoading, isSuccess: isApproveSuccess } = useApproves(approves || {}, spender, requestAmount)
   const onApproveSuccessRef = useRef<() => void>()
@@ -102,10 +102,10 @@ export function NftApproveAndTx<
   skipSimulate?: boolean
   disabled?: boolean
   confirmations?: number
-  onTxSuccess?: () => void
+  onTxSuccess?: (txr: TransactionReceipt) => void
   onApproveSuccess?: () => void
 }) {
-  const { write: doTx, isDisabled, isLoading: isTxLoading } = useWrapContractWrite(config as any, { onSuccess: () => onTxSuccess && onTxSuccess(), autoToast: toast, skipSimulate, confirmations })
+  const { write: doTx, isDisabled, isLoading: isTxLoading } = useWrapContractWrite(config as any, { onSuccess: (txr) => onTxSuccess && onTxSuccess(txr), autoToast: toast, skipSimulate, confirmations })
   const txDisabled = disabled || isDisabled || isTxLoading || config.enabled === false
 
   const { approve, shouldApprove, loading: isApproveLoading, isSuccess: isApproveSuccess } = useNftApproves(approves ?? {}, spender)

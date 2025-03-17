@@ -2,7 +2,7 @@ import { getErrorMsg } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt } from 'viem'
 import { useWalletClient } from 'wagmi'
 
 export function useWrapContractWrite<
@@ -19,7 +19,7 @@ export function useWrapContractWrite<
     confirmations?: number
     skipSimulate?: boolean
     autoToast?: boolean
-    onSuccess?: () => void
+    onSuccess?: (txr: TransactionReceipt) => void
   },
 ) {
   const { autoToast = true, onSuccess } = opts || {}
@@ -41,12 +41,12 @@ export function useWrapContractWrite<
         req = res.request as any
       }
       const hash = await wc.writeContract(req)
-      const txr = await pc.waitForTransactionReceipt({ hash , confirmations: opts?.confirmations })
+      const txr = await pc.waitForTransactionReceipt({ hash, confirmations: opts?.confirmations })
       if (txr.status !== 'success') {
         throw 'Transaction reverted'
       }
       setIsSuccess(true)
-      onSuccess && onSuccess()
+      onSuccess && onSuccess(txr)
       autoToast && toast.success('Transaction success')
       // wt.update()
     } catch (error) {
