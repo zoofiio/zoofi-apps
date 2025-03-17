@@ -74,13 +74,14 @@ function DeployContractByLntFactory({
 export default function Page() {
     const [inputLntVaultErc721, setInputLntErc721] = useState('0x9c3290f3c8a1e2994ce93f53e1a179c4e5d997aa')
     const [inputErc721, setInputErc721] = useState('0x0e98853C1d978e9dB40aE6B13c56E8103D33d9aA')
-    const [inputErc20, setInputErc20] = useState('')
+    const [inputErc20, setInputErc20] = useState('0x2A596F1eF3DC14Cb53DC67290F7851d35A32557e')
     const [infos, setInfos] = useSetState({
         'LntMarket': '0x5565924978aF004BAB0aa004d11F8C660D43DcAC',
         'LntMarketFactory': '0x7De98312C36eB9977CB1277CEd28705048565e49',
         'LntMarketRouter': '0xA59d576650e0f206EdC03060553CdCbB64f1B4a6',
         'LntContractFactory': '0x8c895d8AD89fFc193AFEF715645379C07bF169B9',
-        "ERC721": '0x0e98853C1d978e9dB40aE6B13c56E8103D33d9aA',
+        "MockERC721": '0x0e98853C1d978e9dB40aE6B13c56E8103D33d9aA',
+        "MockERC20": '0x2A596F1eF3DC14Cb53DC67290F7851d35A32557e',
         'Decimal18': '000000000000000000'
     })
 
