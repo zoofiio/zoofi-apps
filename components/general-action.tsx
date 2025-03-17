@@ -1,11 +1,16 @@
-import { cn } from '@/lib/utils'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { cn, handleError } from '@/lib/utils'
+import { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
 import Select from 'react-select'
 import { useSetState } from 'react-use'
 import { Abi, AbiFunction, AbiParameter, Address, stringToHex } from 'viem'
 import { ApproveAndTx } from './approve-and-tx'
+import { useMutation } from '@tanstack/react-query'
+import { BBtn } from './ui/bbtn'
+import { twMerge } from 'tailwind-merge'
+import { getPC } from '@/providers/publicClient'
+import { toString } from 'lodash'
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   menu: () => cn('bg-white dark:bg-black dark:border'),
@@ -90,8 +95,16 @@ export function GeneralAction({
     Promise.resolve(argsDef).then((data) => typeof data == 'function' ? data() : data || [])
       .then((data) => id == idRef.current && setState({ args: args.map((arg, index) => arg || data[index] || '') }))
   }, [argsDef])
+  const { data, mutate: doRead, isPending: isReadLoading } = useMutation({
+    mutationFn: async () => {
+      return await getPC().readContract({ abi, address, functionName, ...(args.length ? { args: convertArgs(args, abiItem.inputs, convertArg) } : {}) })
+    },
+    onError: handleError
+  })
+  const readInfos = typeof data == 'object' ? JSON.stringify(data, undefined, 2) : toString(data)
   if (!abiItem) return
-  const disableExpand = !abiItem.inputs || abiItem.inputs.length == 0
+  const isWrite = abiItem.stateMutability.includes("payable")
+  const disableExpand = (!abiItem.inputs || abiItem.inputs.length == 0) && isWrite
 
   return (
     <Expandable tit={tit || functionName} disable={disableExpand}>
@@ -100,7 +113,7 @@ export function GeneralAction({
           className='relative'
           key={`input_${index}`}
         >
-          <div className='opacity-60 absolute top-1/2 left-2 -translate-y-1/2 text-xs'>{item.name}</div>
+          <div className='opacity-60 absolute top-1/2 left-2 -translate-y-1/2 text-xs'>{item.name}({item.type})</div>
           <input
             type='text'
             value={args[index]}
@@ -111,19 +124,60 @@ export function GeneralAction({
         </div>
       ))}
       {infos}
-      <ApproveAndTx
-        {...(txProps || {})}
-        tx='Write'
-        config={
-          {
-            abi,
-            address,
-            functionName,
-            ...(args.length ? { args: convertArgs(args, abiItem.inputs, convertArg) } : {}),
-          } as any
-        }
-        className={cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
-      />
+      {readInfos}
+      {
+        isWrite ?
+          <ApproveAndTx
+            {...(txProps || {})}
+            tx='Write'
+            config={
+              {
+                abi,
+                address,
+                functionName,
+                ...(args.length ? { args: convertArgs(args, abiItem.inputs, convertArg) } : {}),
+              } as any
+            }
+            className={cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
+          /> :
+          <BBtn
+            className={twMerge('flex items-center justify-center gap-4', cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full'))}
+            onClick={() => doRead()}
+            busy={isReadLoading}
+            busyShowContent={true}
+            disabled={false}>
+            Read
+          </BBtn>
+      }
     </Expandable>
   )
+}
+
+
+export function ContractAll({ abi, address }: { abi: Abi, address: Address }) {
+  const [reads, writes] = useMemo(() => {
+    const reads = []
+    const writes = []
+    for (const item of abi) {
+      if (item.type == 'function') {
+        const isWrite = item.stateMutability.includes('payable')
+        if (isWrite) {
+          writes.push(item)
+        } else {
+          reads.push(item)
+        }
+      }
+    }
+    return [reads, writes]
+  }, [abi])
+  return <div className='grid grid-cols-2 gap-4'>
+    <div className='flex flex-col gap-2'>
+      <div className='font-bold text-2xl'>Read</div>
+      {reads.map((item, i) => <GeneralAction key={`read_${i}`} abi={[item]} address={address} functionName={item.name} />)}
+    </div>
+    <div className='flex flex-col gap-2'>
+      <div className='font-bold text-2xl'>Write</div>
+      {writes.map((item, i) => <GeneralAction key={`write_${i}`} abi={[item]} address={address} functionName={item.name} />)}
+    </div>
+  </div>
 }

@@ -77,6 +77,7 @@ export function Header() {
     const links = [
       ...(ENV.includes("lnt") ? [
         { href: '/lnt-vaults', label: 'LNT-Vaults', icon: LuBox },
+        { href: '/lnts', label: 'LNTS', icon: LuBox },
       ] : [
         { href: '/b-vaults', label: 'B-Vaults', icon: LuBox },
         { href: '/l-vaults', label: 'L-Vaults', icon: LuBox, disable: true },
