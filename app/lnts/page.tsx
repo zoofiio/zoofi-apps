@@ -4,7 +4,7 @@ import { ApproveAndTx } from "@/components/approve-and-tx";
 import { ContractAll, Expandable, inputClassname } from "@/components/general-action";
 import { PageWrap } from "@/components/page-wrap";
 import { SimpleTabs } from "@/components/simple-tabs";
-import { abiLntErc721, abiLntFactory, abiLntMarketRouter, abiMockERC721 } from "@/config/abi";
+import { abiLntErc721, abiLntFactory, abiLntMarketRouter, abiMockERC20, abiMockERC721 } from "@/config/abi";
 import { codeLNTVaultERC721, codeVT } from "@/config/codes";
 import { cn } from "@/lib/utils";
 import { Fragment, useMemo, useState } from "react";
@@ -145,7 +145,7 @@ export default function Page() {
                                     onChange={(e) => setInputErc20(e.target.value)}
                                 />
                             </div>
-                            {isAddress(inputErc20) && <ContractAll abi={abiMockERC721} address={inputErc20} />}
+                            {isAddress(inputErc20) && <ContractAll abi={abiMockERC20} address={inputErc20} />}
                         </Fragment>
                     }
                 ]}
