@@ -89,7 +89,7 @@ export default function Page() {
                     // { tab: 'WETH', content: <ContractAll abi={abiWETH} address="0xDE59aEe3AdBEAF561347beadA174D0ce5023f0e4" /> },
                     {
                         tab: 'LntContractFactory', content: <Fragment>
-                            <div className='font-bold text-2xl'>Wrapped Depoly</div>
+                            <div className='font-bold text-2xl'>Wrapped Deploy</div>
                             <DeployContractByLntFactory tit="Deploy LntVaultERC721" code={codeLNTVaultERC721} types={[{ type: 'address', name: 'owner' }]} />
                             <DeployContractByLntFactory tit="Deploy VT" code={codeVT} types={[{ type: 'address', name: 'vault' }, { type: 'string', name: 'name' }, { type: 'string', name: 'symbol' }]} />
                             <ContractAll abi={abiLntFactory} address="0x8c895d8AD89fFc193AFEF715645379C07bF169B9" />
