@@ -112,7 +112,7 @@ export default function Page() {
                     {
                         tab: 'ERC721', content: <Fragment>
                             <div className='relative'>
-                                <div className='opacity-60 absolute top-1/2 left-2 -translate-y-1/2 text-xs'>LntVaultERC721 Address:</div>
+                                <div className='opacity-60 absolute top-1/2 left-2 -translate-y-1/2 text-xs'>ERC721 Address:</div>
                                 <input
                                     type='text'
                                     className={inputClassname}
