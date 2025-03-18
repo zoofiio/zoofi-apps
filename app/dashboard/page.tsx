@@ -17,6 +17,8 @@ import { displayBalance } from '@/utils/display'
 import { TableCell as _TableCell } from '@tremor/react'
 
 import { ReactNode, useContext, useMemo } from 'react'
+import { useBvaultROI } from '@/hooks/useBVaultROI'
+import { Address } from 'viem'
 
 const TableCell = (p: React.TdHTMLAttributes<HTMLTableCellElement> & React.RefAttributes<HTMLTableCellElement>) => {
   return <_TableCell {...p} className={`!p-3 w-max ${p.className}`} />
@@ -97,6 +99,11 @@ function LVaultsItem() {
   }, [lvaults, lvcs, prices])
   return <DashItem title='L-Vault' tHeader={['Vaults', 'Total Deposit', `${USBSymbol} Debt`, 'AAR', 'Status', 'Discount Offer']} tData={data} />
 }
+
+function BVaultROI({ vault }: { vault: Address }) {
+  const { roi } = useBvaultROI(vault)
+  return <>{fmtPercent(roi, 18, 2)}</>
+}
 function BVaultsItem() {
   const chainId = useCurrentChainId()
   const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((item) => (item.onEnv || []).includes(ENV)), [chainId])
@@ -152,10 +159,11 @@ function BVaultsItem() {
         <span>Epoch {getBigint(bvaults, [bvc.vault, 'epochCount']).toString()}</span>
       </div>,
       fmtPercent(calcBVaultPTApy(bvc.vault), 10),
-      `${displayBalance(calcBVaultBoost(bvc.vault), 2)}X`,
+      <BVaultROI key={'roi'} vault={bvc.vault} />,
+      //  `${displayBalance(calcBVaultBoost(bvc.vault), 2)}X`,
     ])
   }, [bvcs, bvaults, prices])
-  return <DashItem title='B-Vault' tHeader={['Vaults', 'Total Deposit', 'Status', 'PT APY', 'YT Boost']} tData={data} />
+  return <DashItem title='B-Vault' tHeader={['Vaults', 'Total Deposit', 'Status', 'PT APY', 'YT ROI']} tData={data} />
 }
 export default function Dashboard() {
   useLoadLVaults()

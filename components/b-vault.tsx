@@ -35,6 +35,7 @@ import { BBtn } from './ui/bbtn'
 import { WriteConfirmations } from '@/config/lntvaults'
 import { toast } from 'sonner'
 import { useReturnsIBGT } from '@/hooks/useReturnsIBGT'
+import { useBvaultROI } from '@/hooks/useBVaultROI'
 
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
@@ -288,6 +289,7 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
     const progress = ((now - epoch.startTime) * 100n) / ep.duration
     return parseInt(progress.toString())
   }
+  const { roi, restakingIncomesApy, additionalRoi } = useBvaultROI(bvc.vault)
   return (
     <div className='card !p-0 overflow-hidden flex flex-col'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
@@ -299,11 +301,20 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
       </div>
       <div className='flex flex-col justify-between p-5 gap-5 flex-1'>
         <div className='flex justify-between items-baseline gap-4 flex-wrap'>
-          <div className='text-base font-semibold flex gap-5 items-end'>
-            <span className='text-4xl font-medium'>{fmtBoost}x</span>
-            {'Yield Boosted'}
+          <div className='text-xs flex gap-2 items-end'>
+            {/* <span className='text-4xl font-medium'>{fmtBoost}x</span> */}
+            {/* {'Yield Boosted'} */}
+            <Tip
+              node={<span className='text-2xl font-medium underline underline-offset-2 relative top-0.5'>{fmtPercent(roi, 18, 2)}</span>}
+            >
+              <div>Berachain Emission: {fmtPercent(restakingIncomesApy, 18, 2)}</div>
+              <div>Additional airdrops: {fmtPercent(additionalRoi, 18, 2)}</div>
+              <br />
+              <div>YT Spent: -100%</div>
+            </Tip>
+            {'Est.ROI in remaining days'}
           </div>
-          <span className='text-xs'>
+          <span className='text-xs relative top-[3.9375rem]'>
             1{yTokenSymbolShort} = Yield of {displayBalance(oneYTYieldOfAsset, 2)} {assetSymbolShort}
           </span>
         </div>
@@ -343,11 +354,11 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
     enabled: inputAssetBn > 0n,
     queryFn: () => getPC().readContract({ abi: abiBVault, address: bvc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
   })
-  const { data: perReturnsIBGT } = useReturnsIBGT(bvc)
-  const endTime = bvd.current.duration + bvd.current.startTime;
-  const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
-  const expectYTAmount = bvd.current.yTokenAmountForSwapYT + 1000n;
-  const returnsIBGTBy1000YT = perReturnsIBGT * DECIMAL * remainDur * 1000n / expectYTAmount
+  // const { data: perReturnsIBGT } = useReturnsIBGT(bvc.vault)
+  // const endTime = bvd.current.duration + bvd.current.startTime;
+  // const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
+  // const expectYTAmount = bvd.current.yTokenAmountForSwapYT + 1000n;
+  // const returnsIBGTBy1000YT = perReturnsIBGT * DECIMAL * remainDur * 1000n / expectYTAmount
 
   const [priceSwap, togglePriceSwap] = useToggle(false)
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
@@ -358,13 +369,13 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
     ? `1 ${assetSymbolShort}=${displayBalance(ytAssetPriceBnReverse)} ${yTokenSymbolShort}`
     : `1 ${yTokenSymbolShort}=${displayBalance(ytAssetPriceBn)} ${assetSymbolShort}`
 
-  const returnsIBGTByAfterYT = perReturnsIBGT * DECIMAL * remainDur * 1000n / (expectYTAmount + outputYTokenForInput)
+  // const returnsIBGTByAfterYT = perReturnsIBGT * DECIMAL * remainDur * 1000n / (expectYTAmount + outputYTokenForInput)
   const afterYtAssetPrice = vualtYTokenBalance > outputYTokenForInput ? ((bvd.Y + inputAssetBn) * DECIMAL) / (vualtYTokenBalance - outputYTokenForInput) : 0n
   const outputYTokenFmt = fmtBn(outputYTokenForInput, undefined, true)
   const priceImpact = afterYtAssetPrice > ytAssetPriceBn && ytAssetPriceBn > 0n ? ((afterYtAssetPrice - ytAssetPriceBn) * BigInt(1e10)) / ytAssetPriceBn : 0n
   // console.info('result:', inputAssetBn, result, fmtBn(afterYtAssetPrice), fmtBn(ytAssetPriceBn))
   const upForUserAction = useUpBVaultForUserAction(bvc)
-
+  const { roi, roiChange } = useBvaultROI(bvc.vault, outputYTokenForInput)
   return (
     <div className='card !p-4 flex flex-col h-[24.25rem] gap-1'>
       <AssetInput asset={bvc.assetSymbol} amount={inputAsset} balance={assetBalance} setAmount={setInputAsset} />
@@ -378,7 +389,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
         </div>
         <div className='flex gap-2 items-center'>{`Price Impact: ${fmtPercent(priceImpact, 10, 2)}`}</div>
       </div>
-      <div className='self-center my-auto'>
+      {/* <div className='self-center my-auto'>
         {bvc.rewardSymbol == 'iBGT' && <div className=' text-xs font-medium text-black/80 dark:text-white/80 whitespace-nowrap'>
           1000 {yTokenSymbolShort} Est. Returns: {
             <span className='font-extrabold text-base relative'>
@@ -391,10 +402,10 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
               {displayBalance(returnsIBGTByAfterYT) + ' iBGT'}
             </span>}
         </div>}
-      </div>
-      {/* <div className='text-xs font-medium text-black/80 dark:text-white/80'>
-        1 {yTokenSymbolShort} represents the yield {<span className='font-extrabold text-base'>at least</span>} 1 {assetSymbolShort} until the end of Epoch.
       </div> */}
+      {outputYTokenForInput > 0n && <div className='text-xs font-medium text-center my-auto text-black/80 dark:text-white/80'>
+        Implied ROI Change: {fmtPercent(roi, 18, 2)} {'->'} <span className={cn({ 'text-red-400': (roi - roiChange) >= BigInt(1e17) })}>{fmtPercent(roiChange, 18, 2)}</span>
+      </div>}
       <ApproveAndTx
         className='mx-auto mt-auto'
         tx='Buy'
@@ -708,7 +719,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   const epochName = `Epoch ${(bvd?.epochCount || 0n).toString()}`
   const settleTime = bvd.epochCount == 0n ? '-- -- --' : fmtDate((bvd.current.startTime + bvd.current.duration) * 1000n, FMT.DATE2)
   const settleDuration = bvd.epochCount == 0n ? '' : fmtDuration((bvd.current.startTime + bvd.current.duration) * 1000n - BigInt(_.now()))
-
+  const { roi } = useBvaultROI(vc.vault)
   return (
     <div className={cn('card !p-0 grid grid-cols-2 overflow-hidden', {})}>
       <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center')}>
@@ -745,8 +756,10 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
         'Principal Panda',
         fmtApy,
         'Venom',
+        // 'Boost Venom',
+        // `${fmtBoost}x`,
         'Boost Venom',
-        `${fmtBoost}x`,
+        `${fmtPercent(roi, 18, 2)}`, // `${fmtBoost}x`,
         (e) => {
           e.stopPropagation()
           toBVault(r, vc.vault, 'principal_panda')

@@ -5,10 +5,10 @@ import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
 import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL } from '@/constants'
 import _ from 'lodash'
-import { Address, erc20Abi } from 'viem'
+import { Address, erc20Abi, parseAbi } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
-import { getBeraTokensPrices, getNftTokenIdsByUser, getNftTokensIdsByUser } from '@/config/api'
+import { getBeraTokensPrices, getIBGTPrice, getNftTokenIdsByUser, getNftTokensIdsByUser } from '@/config/api'
 
 export type TokenItem = {
   address: Address
@@ -112,7 +112,8 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
         await updateLPTokensStatForTest(mLps)
       } else if (chain.id === berachain.id) {
         const map = await getBeraTokensPrices()
-        set({ prices: { ...get().prices, ...map } })
+        const iBGTprice = await getIBGTPrice()
+        set({ prices: { ...get().prices, ...map, '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b': iBGTprice } })
       }
     }
     return {}
