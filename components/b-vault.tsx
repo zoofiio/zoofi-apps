@@ -677,7 +677,9 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
                 }}
               />
             </div>}
-
+            <div className='text-center text-sm font-medium flex items-center flex-nowrap justify-center whitespace-nowrap mt-auto gap-1'>
+              Additional Airdrops: 500 <CoinIcon symbol='BERA' size={16} /> BERA <Tip>Will be distributed based on YT points after Epoch ends</Tip>
+            </div>
           </div>
         </div>
       </div>

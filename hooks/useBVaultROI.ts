@@ -25,19 +25,17 @@ export function useYTPoints(vault: Address) {
 export function calcRestakingApy(underlyingApy: bigint, ptTotal: bigint, remainTime: bigint, ytAmount: bigint, ytPrice: bigint, ibgtPrice: bigint) {
   const S = (underlyingApy * ibgtPrice) / 1000n / DECIMAL
   const restakingIncomesApy = ytPrice > 0n ? (S * DECIMAL) / ytPrice : 0n
-  // const finApy = ibgtPrice > 0n ? (restakingIncomesApy * DECIMAL) / ibgtPrice : 0n
   return restakingIncomesApy
 }
 
-export function calcAdditionalApy(ytPoints: bigint, ytAmount: bigint, remainTime: bigint, ytPrice: bigint, ibgtPrice: bigint) {
-  const YTp = ytPoints + ytAmount * remainTime
-  const A = 0n * DECIMAL
+export function calcAdditionalApy(ytPoints: bigint, ytAmount: bigint, remainTime: bigint, ytPrice: bigint, beraPrice: bigint) {
+  const YTp = ytPoints > 0n && ytAmount > 0n ? ytPoints + ytAmount * remainTime : 0n
+  const A = 500n * beraPrice
   const B = YTp > 0n ? (A * DECIMAL) / YTp : 0n
   const P = DECIMAL * remainTime
   const I = (B * P) / DECIMAL
   const additionalRoi = ytPrice > 0n ? (I * DECIMAL) / ytPrice : 0n
-  const finRoi = ibgtPrice > 0n ? (additionalRoi * DECIMAL) / ibgtPrice : 0n
-  return finRoi
+  return additionalRoi
 }
 
 export function useBvaultROI(vault: Address, ytchange: bigint = 0n) {
@@ -49,16 +47,20 @@ export function useBvaultROI(vault: Address, ytchange: bigint = 0n) {
   const returnsIBGTBy1000YT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / expectYTAmount
 
   // restaking incomes
-  const [, ptApy] = useBVaultApy(vault)
-  const ptApy18 = ptApy * BigInt(1e8)
+  // const [, ptApy] = useBVaultApy(vault)
+  // const ptApy18 = ptApy * BigInt(1e8)
 
   const iBGTPrice =
     useStore((s) => s.sliceTokenStore.prices['0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b'], [`sliceTokenStore.prices.0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b`]) || 0n
-  console.info('ibgtPrice:', formatEther(iBGTPrice))
+
+  const beraPrice =
+    useStore((s) => s.sliceTokenStore.prices['0x6969696969696969696969696969696969696969'], [`sliceTokenStore.prices.0x6969696969696969696969696969696969696969`]) || 0n
+
+  console.info('Prices:', formatEther(iBGTPrice), formatEther(beraPrice))
   const ytAmount = bvd.current.yTokenAmountForSwapYT
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const remainTime = bvd.current.duration + bvd.current.startTime - BigInt(_.round(_.now() / 1000))
-  const returnsIBGTByAfterYT = perReturnsIBGT * DECIMAL * remainDur * 1000n / (expectYTAmount + ytchange)
+  const returnsIBGTByAfterYT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / (expectYTAmount + ytchange)
   const ptTotal = bvd.pTokenTotal
   const ytAssetPriceBn = vualtYTokenBalance > 0n ? (bvd.Y * DECIMAL) / vualtYTokenBalance : 0n
   const ytPriceChanged = vualtYTokenBalance > 0n ? (bvd.Y * DECIMAL) / (vualtYTokenBalance - ytchange) : 0n
@@ -67,13 +69,13 @@ export function useBvaultROI(vault: Address, ytchange: bigint = 0n) {
 
   // aditional airdrops
   const { data: ytPoints } = useYTPoints(vault)
-  const additionalRoi = calcAdditionalApy(ytPoints, ytAmount, remainTime, ytAssetPriceBn, iBGTPrice)
-  const additionalRoiChanged = ytchange > 0n ? calcAdditionalApy(ytPoints, ytAmount + ytchange, remainTime, ytPriceChanged, iBGTPrice) : 0n
+  const additionalRoi = calcAdditionalApy(ytPoints, ytAmount, remainTime, ytAssetPriceBn, beraPrice)
+  const additionalRoiChanged = ytchange > 0n ? calcAdditionalApy(ytPoints, ytAmount + ytchange, remainTime, ytPriceChanged, beraPrice) : 0n
   return {
-    roi: restakingIncomesApy > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
-    // roi: restakingIncomesApy > 0n && additionalRoi > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
-    roiChange: restakingChangedApy > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
-    // roiChange: restakingChangedApy > 0n && additionalRoiChanged > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
+    // roi: restakingIncomesApy > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
+    roi: restakingIncomesApy > 0n && additionalRoi > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
+    // roiChange: restakingChangedApy > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
+    roiChange: restakingChangedApy > 0n && additionalRoiChanged > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
     restakingIncomesApy,
     additionalRoi,
   }
