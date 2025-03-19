@@ -7,6 +7,7 @@ export type BVaultConfig = {
   asset: Address
   assetSymbol: string
   pToken: Address
+  pTokenV2?: boolean
   pTokenSymbol: string
   yTokenSymbol: string
   protocolAddress: Address
@@ -152,6 +153,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       vault: '0xBC8015241A8445ADd39DE75477D0AC46F5884F55',
       asset: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621',
       pToken: '0xF3D282eAbCC4DC7c1e7FB9082b89e1e0760fA666',
+      pTokenV2: true,
       assetSymbol: 'HONEY-USDC',
       pTokenSymbol: 'pUSDCeHONEY',
       yTokenSymbol: 'yUSDCeHONEY',
@@ -165,6 +167,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       vault: '0xA6C0413f620cD8487Dac7C1770335ee169934826',
       asset: '0xdd70a5ef7d8cfe5c5134b5f9874b09fb5ce812b4',
       pToken: '0xC26B5F9dC7d61B6703004D642B7EF808FBA7BbEc',
+      pTokenV2: true,
       assetSymbol: 'WBERA-WETH',
       pTokenSymbol: 'pWBERAWETH',
       yTokenSymbol: 'yWBERAWETH',

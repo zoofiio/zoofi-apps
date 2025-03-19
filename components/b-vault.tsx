@@ -184,7 +184,7 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
   const assetSymbolShort = isLP ? 'LP' : bvc.assetSymbol
   const bvd = useBVault(bvc.vault)
   const assetBalance = useStore((s) => s.sliceTokenStore.balances[bvc.asset] || 0n, [`sliceTokenStore.balances.${bvc.asset}`])
-  const [fmtApy] = useBVaultApy(bvc.vault)
+  const [fmtApy] = useBVaultApy(bvc)
   const { data: walletClient } = useWalletClient()
   const upForUserAction = useUpBVaultForUserAction(bvc)
   const onAddPToken = () => {
@@ -718,7 +718,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
     lpTvlBn = bvd.lockedAssetTotal;
   }
   const [fmtBoost] = useBVaultBoost(vc.vault)
-  const [fmtApy] = useBVaultApy(vc.vault)
+  const [fmtApy] = useBVaultApy(vc)
   const epochName = `Epoch ${(bvd?.epochCount || 0n).toString()}`
   const settleTime = bvd.epochCount == 0n ? '-- -- --' : fmtDate((bvd.current.startTime + bvd.current.duration) * 1000n, FMT.DATE2)
   const settleDuration = bvd.epochCount == 0n ? '' : fmtDuration((bvd.current.startTime + bvd.current.duration) * 1000n - BigInt(_.now()))

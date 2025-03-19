@@ -158,7 +158,7 @@ function BVaultsItem() {
         {greenPoint}
         <span>Epoch {getBigint(bvaults, [bvc.vault, 'epochCount']).toString()}</span>
       </div>,
-      fmtPercent(calcBVaultPTApy(bvc.vault), 10),
+      fmtPercent(calcBVaultPTApy(bvc), 10),
       <BVaultROI key={'roi'} vc={bvc} />,
       //  `${displayBalance(calcBVaultBoost(bvc.vault), 2)}X`,
     ])
