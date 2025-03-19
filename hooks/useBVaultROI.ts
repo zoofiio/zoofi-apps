@@ -27,7 +27,7 @@ export function useYTPoints(vault: Address) {
 export function calcRestakingApy(returnsIBGTByAfterYT: bigint, ptTotal: bigint, remainTime: bigint, ytAmount: bigint, ytPrice: bigint, ibgtPrice: bigint) {
   const S = (returnsIBGTByAfterYT * ibgtPrice) / 1000n / DECIMAL
   const restakingIncomesApy = ytPrice > 0n ? (S * DECIMAL) / ytPrice : 0n
-  return restakingIncomesApy
+  return restakingIncomesApy > 5n * DECIMAL ? 0n : restakingIncomesApy
 }
 
 // export const additionBERA = 400n
@@ -63,13 +63,15 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const returnsIBGTByAfterYT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / (expectYTAmount + ytchange)
   const ptTotal = bvd.pTokenTotal
   const ytAssetPriceBn = vualtYTokenBalance > 0n ? (bvd.Y * DECIMAL) / vualtYTokenBalance : 0n
-  const ytPriceChanged = vualtYTokenBalance - ytchange > 0n ? (bvd.Y * DECIMAL) / (vualtYTokenBalance - ytchange) : 0n
-  const restakingIncomesApy = calcRestakingApy(returnsIBGTBy1000YT, ptTotal, remainDur, ytAmount, ytAssetPriceBn, iBGTPrice)
+  const ytAssetPriceChanged = vualtYTokenBalance - ytchange > 0n ? (bvd.Y * DECIMAL) / (vualtYTokenBalance - ytchange) : 0n
+  const ytPriceBn = (ytAssetPriceBn * lpPrice) / DECIMAL
+  const ytPriceChanged = (ytAssetPriceChanged * lpPrice) / DECIMAL
+  const restakingIncomesApy = calcRestakingApy(returnsIBGTBy1000YT, ptTotal, remainDur, ytAmount, ytPriceBn, iBGTPrice)
   const restakingChangedApy = ytchange > 0n ? calcRestakingApy(returnsIBGTByAfterYT, ptTotal, remainDur, ytAmount + ytchange, ytPriceChanged, iBGTPrice) : 0n
   const additionalBera = additionalConfig[`${vc.vault}_${bvd.epochCount}_BERA`] ?? 0
   // aditional airdrops
   const { data: ytPoints, isLoading: isLoading3 } = useYTPoints(vc.vault)
-  const additionalRoi = calcAdditionalApy(additionalBera, ytPoints, ytAmount, remainDur, ytAssetPriceBn, beraPrice)
+  const additionalRoi = calcAdditionalApy(additionalBera, ytPoints, ytAmount, remainDur, ytPriceBn, beraPrice)
   const additionalRoiChanged = ytchange > 0n ? calcAdditionalApy(additionalBera, ytPoints, ytAmount + ytchange, remainDur, ytPriceChanged, beraPrice) : 0n
   const isLoading = isLoading1 || isLoading2 || isLoading3
   return {
