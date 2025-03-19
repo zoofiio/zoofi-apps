@@ -9,6 +9,7 @@ import { Address } from 'viem'
 import { useAccount } from 'wagmi'
 import { BVaultEpochDTO } from './sliceBVaultsStore'
 import { BoundStoreType, useBoundStore, useStore } from './useBoundStore'
+import { LP_TOKENS } from '@/config/lpTokens'
 
 export function useResetBVaultsData() {
   const chainId = useCurrentChainId()
@@ -133,4 +134,14 @@ export function useUpBVaultForUserAction(bvc: BVaultConfig, onUserAction?: () =>
       1000,
     )
   }
+}
+
+export function calcLPPrice(vault: Address, lp: Address) {
+  const lpt = LP_TOKENS[lp]
+  if (!lpt) return 0n
+  const bvd = useBoundStore.getState().sliceBVaultsStore.bvaults[vault]
+  if (!bvd) return 0n
+  const prices = useBoundStore.getState().sliceTokenStore.prices
+  const lpTotalUSD36 = bvd.lpBase * getBigint(prices, lpt.base, 0n) + bvd.lpQuote * getBigint(prices, lpt.quote)
+  return bvd.lpLiq > 0n ? lpTotalUSD36 / bvd.lpLiq : 0n
 }

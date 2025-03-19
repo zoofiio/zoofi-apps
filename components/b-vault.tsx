@@ -289,7 +289,7 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
     const progress = ((now - epoch.startTime) * 100n) / ep.duration
     return parseInt(progress.toString())
   }
-  const { roi, restakingIncomesApy, additionalRoi } = useBvaultROI(bvc.vault)
+  const { roi, restakingIncomesApy, additionalRoi } = useBvaultROI(bvc)
   return (
     <div className='card !p-0 overflow-hidden flex flex-col'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
@@ -375,7 +375,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const priceImpact = afterYtAssetPrice > ytAssetPriceBn && ytAssetPriceBn > 0n ? ((afterYtAssetPrice - ytAssetPriceBn) * BigInt(1e10)) / ytAssetPriceBn : 0n
   // console.info('result:', inputAssetBn, result, fmtBn(afterYtAssetPrice), fmtBn(ytAssetPriceBn))
   const upForUserAction = useUpBVaultForUserAction(bvc)
-  const { roi, roiChange } = useBvaultROI(bvc.vault, outputYTokenForInput)
+  const { roi, roiChange } = useBvaultROI(bvc, outputYTokenForInput)
   return (
     <div className='card !p-4 flex flex-col h-[24.25rem] gap-1'>
       <AssetInput asset={bvc.assetSymbol} amount={inputAsset} balance={assetBalance} setAmount={setInputAsset} />
@@ -722,7 +722,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   const epochName = `Epoch ${(bvd?.epochCount || 0n).toString()}`
   const settleTime = bvd.epochCount == 0n ? '-- -- --' : fmtDate((bvd.current.startTime + bvd.current.duration) * 1000n, FMT.DATE2)
   const settleDuration = bvd.epochCount == 0n ? '' : fmtDuration((bvd.current.startTime + bvd.current.duration) * 1000n - BigInt(_.now()))
-  const { roi } = useBvaultROI(vc.vault)
+  const { roi } = useBvaultROI(vc)
   return (
     <div className={cn('card !p-0 grid grid-cols-2 overflow-hidden', {})}>
       <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center')}>

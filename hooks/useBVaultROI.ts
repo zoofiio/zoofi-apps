@@ -2,12 +2,13 @@ import { abiAdhocBribesPool } from '@/config/abi'
 import { DECIMAL, YEAR_SECONDS } from '@/constants'
 import { getPC } from '@/providers/publicClient'
 import { useBoundStore, useStore } from '@/providers/useBoundStore'
-import { useBVault, useBVaultApy } from '@/providers/useBVaultsData'
+import { calcLPPrice, useBVault, useBVaultApy } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
 import { Address, formatEther, parseEther } from 'viem'
 import { useReturnsIBGT } from './useReturnsIBGT'
 import { useGetAdditionalConfig } from './useGetConfigs'
+import { BVaultConfig } from '@/config/bvaults'
 
 export function useYTPoints(vault: Address) {
   const bvd = useBVault(vault)
@@ -40,9 +41,9 @@ export function calcAdditionalApy(additionBERA: number, ytPoints: bigint, ytAmou
   return additionalRoi
 }
 
-export function useBvaultROI(vault: Address, ytchange: bigint = 0n) {
-  const bvd = useBVault(vault)
-  const { data: perReturnsIBGT, isLoading: isLoading1 } = useReturnsIBGT(vault)
+export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
+  const bvd = useBVault(vc.vault)
+  const { data: perReturnsIBGT, isLoading: isLoading1 } = useReturnsIBGT(vc.vault)
   const { data: additionalConfig, isLoading: isLoading2 } = useGetAdditionalConfig()
   const endTime = bvd.current.duration + bvd.current.startTime
   const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
@@ -55,18 +56,19 @@ export function useBvaultROI(vault: Address, ytchange: bigint = 0n) {
   const beraPrice =
     useStore((s) => s.sliceTokenStore.prices['0x6969696969696969696969696969696969696969'], [`sliceTokenStore.prices.0x6969696969696969696969696969696969696969`]) || 0n
 
-  console.info('Prices:', formatEther(iBGTPrice), formatEther(beraPrice))
+  const lpPrice = calcLPPrice(vc.vault, vc.asset)
+  console.info('Prices:', formatEther(iBGTPrice), formatEther(beraPrice), formatEther(lpPrice))
   const ytAmount = bvd.current.yTokenAmountForSwapYT
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const returnsIBGTByAfterYT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / (expectYTAmount + ytchange)
   const ptTotal = bvd.pTokenTotal
   const ytAssetPriceBn = vualtYTokenBalance > 0n ? (bvd.Y * DECIMAL) / vualtYTokenBalance : 0n
-  const ytPriceChanged = (vualtYTokenBalance - ytchange) > 0n ? (bvd.Y * DECIMAL) / (vualtYTokenBalance - ytchange) : 0n
+  const ytPriceChanged = vualtYTokenBalance - ytchange > 0n ? (bvd.Y * DECIMAL) / (vualtYTokenBalance - ytchange) : 0n
   const restakingIncomesApy = calcRestakingApy(returnsIBGTBy1000YT, ptTotal, remainDur, ytAmount, ytAssetPriceBn, iBGTPrice)
   const restakingChangedApy = ytchange > 0n ? calcRestakingApy(returnsIBGTByAfterYT, ptTotal, remainDur, ytAmount + ytchange, ytPriceChanged, iBGTPrice) : 0n
-  const additionalBera = additionalConfig[`${vault}_${bvd.epochCount}_BERA`] ?? 0
+  const additionalBera = additionalConfig[`${vc.vault}_${bvd.epochCount}_BERA`] ?? 0
   // aditional airdrops
-  const { data: ytPoints, isLoading: isLoading3 } = useYTPoints(vault)
+  const { data: ytPoints, isLoading: isLoading3 } = useYTPoints(vc.vault)
   const additionalRoi = calcAdditionalApy(additionalBera, ytPoints, ytAmount, remainDur, ytAssetPriceBn, beraPrice)
   const additionalRoiChanged = ytchange > 0n ? calcAdditionalApy(additionalBera, ytPoints, ytAmount + ytchange, remainDur, ytPriceChanged, beraPrice) : 0n
   const isLoading = isLoading1 || isLoading2 || isLoading3
