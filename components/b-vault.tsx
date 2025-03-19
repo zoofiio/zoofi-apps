@@ -35,7 +35,7 @@ import { BBtn } from './ui/bbtn'
 import { WriteConfirmations } from '@/config/lntvaults'
 import { toast } from 'sonner'
 import { useReturnsIBGT } from '@/hooks/useReturnsIBGT'
-import { useBvaultROI } from '@/hooks/useBVaultROI'
+import { additionBERA, useBvaultROI } from '@/hooks/useBVaultROI'
 
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
@@ -678,7 +678,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
               />
             </div>}
             <div className='text-center text-sm font-medium flex items-center flex-nowrap justify-center whitespace-nowrap mt-auto gap-1'>
-              Additional Airdrops: 500 <CoinIcon symbol='BERA' size={16} /> BERA <Tip>Will be distributed based on YT points after Epoch ends</Tip>
+              Additional Airdrops: {additionBERA.toString()} <CoinIcon symbol='BERA' size={16} /> BERA <Tip>Will be distributed based on YT points after Epoch ends</Tip>
             </div>
           </div>
         </div>

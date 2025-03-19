@@ -28,9 +28,10 @@ export function calcRestakingApy(underlyingApy: bigint, ptTotal: bigint, remainT
   return restakingIncomesApy
 }
 
+export const additionBERA = 400n
 export function calcAdditionalApy(ytPoints: bigint, ytAmount: bigint, remainTime: bigint, ytPrice: bigint, beraPrice: bigint) {
   const YTp = ytPoints > 0n && ytAmount > 0n ? ytPoints + ytAmount * remainTime : 0n
-  const A = 500n * beraPrice
+  const A = additionBERA * beraPrice
   const B = YTp > 0n ? (A * DECIMAL) / YTp : 0n
   const P = DECIMAL * remainTime
   const I = (B * P) / DECIMAL
