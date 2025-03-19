@@ -1,4 +1,3 @@
-import { BVaultConfig } from '@/config/bvaults'
 import api from '@/utils/api'
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'viem'

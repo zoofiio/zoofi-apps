@@ -149,6 +149,32 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
   ],
   [berachain.id]: [
     {
+      vault: '0xBC8015241A8445ADd39DE75477D0AC46F5884F55',
+      asset: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621',
+      pToken: '0xF3D282eAbCC4DC7c1e7FB9082b89e1e0760fA666',
+      assetSymbol: 'HONEY-USDC',
+      pTokenSymbol: 'pUSDCeHONEY',
+      yTokenSymbol: 'yUSDCeHONEY',
+      rewardSymbol: 'iBGT',
+      protocolAddress: '0x9Cfd768c1047D20456ab7333E135c16eFD0AE4D2',
+      protocolSettingsAddress: '0x1C77a85D47974fEa7C8391317326335E35Ee3644',
+      bQueryAddres: BQueryAddress[berachain.id],
+      onEnv: ['beta', 'test'],
+    },
+    {
+      vault: '0xA6C0413f620cD8487Dac7C1770335ee169934826',
+      asset: '0xdd70a5ef7d8cfe5c5134b5f9874b09fb5ce812b4',
+      pToken: '0xC26B5F9dC7d61B6703004D642B7EF808FBA7BbEc',
+      assetSymbol: 'WBERA-WETH',
+      pTokenSymbol: 'pWBERAWETH',
+      yTokenSymbol: 'yWBERAWETH',
+      rewardSymbol: 'iBGT',
+      protocolAddress: '0x9Cfd768c1047D20456ab7333E135c16eFD0AE4D2',
+      protocolSettingsAddress: '0x1C77a85D47974fEa7C8391317326335E35Ee3644',
+      bQueryAddres: BQueryAddress[berachain.id],
+      onEnv: ['beta', 'test'],
+    },
+    {
       vault: '0x6686bDfF3ad20AE45E811c2451DfeE8AA0f338C0',
       asset: '0xdE04c469Ad658163e2a5E860a03A86B52f6FA8C8',
       pToken: '0x83f933af46458102cf54Eabe441DBB659a1B2eA5',
@@ -176,3 +202,57 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
     },
   ],
 }
+
+/**
+ * {
+ 
+  "USDC.e-HONEY_InfraredBribeVaultV2": {
+    "address": "0xBC8015241A8445ADd39DE75477D0AC46F5884F55",
+    "args": [
+      "0x9Cfd768c1047D20456ab7333E135c16eFD0AE4D2",
+      "0x1C77a85D47974fEa7C8391317326335E35Ee3644",
+      "0x23786891643D007c93aC04b6566050f82eACe0c7",
+      "0x793d33981daA3777e6192e3489d0CA65D2CC74a6",
+      "0x1419515d3703d8F2cc72Fa6A341685E4f8e7e8e1",
+      "0xf961a8f6d8c69e7321e78d254ecafbcc3a637621",
+      "Zoo pUSDC.e-HONEY",
+      "pUSDCeHONEY"
+    ]
+  },
+  "USDC.e-HONEY_InfraredBribeVaultV2_PTokenV2": {
+    "contract": "zoo-bribe-vault/contracts/tokens/PTokenV2.sol:PTokenV2",
+    "address": "0xF3D282eAbCC4DC7c1e7FB9082b89e1e0760fA666",
+    "args": [
+      "0x9Cfd768c1047D20456ab7333E135c16eFD0AE4D2",
+      "0x1C77a85D47974fEa7C8391317326335E35Ee3644",
+      "Zoo pUSDC.e-HONEY",
+      "pUSDCeHONEY",
+      18
+    ]
+  },
+  "WBERA-WETH_InfraredBribeVaultV2": {
+    "address": "0xA6C0413f620cD8487Dac7C1770335ee169934826",
+    "args": [
+      "0x9Cfd768c1047D20456ab7333E135c16eFD0AE4D2",
+      "0x1C77a85D47974fEa7C8391317326335E35Ee3644",
+      "0x23786891643D007c93aC04b6566050f82eACe0c7",
+      "0x793d33981daA3777e6192e3489d0CA65D2CC74a6",
+      "0x0dF14916796854d899576CBde69a35bAFb923c22",
+      "0xdd70a5ef7d8cfe5c5134b5f9874b09fb5ce812b4",
+      "Zoo pWBERA-WETH",
+      "pWBERAWETH"
+    ]
+  },
+  "WBERA-WETH_InfraredBribeVaultV2_PTokenV2": {
+    "contract": "zoo-bribe-vault/contracts/tokens/PTokenV2.sol:PTokenV2",
+    "address": "0xC26B5F9dC7d61B6703004D642B7EF808FBA7BbEc",
+    "args": [
+      "0x9Cfd768c1047D20456ab7333E135c16eFD0AE4D2",
+      "0x1C77a85D47974fEa7C8391317326335E35Ee3644",
+      "Zoo pWBERA-WETH",
+      "pWBERAWETH",
+      18
+    ]
+  }
+}
+ */

@@ -3,8 +3,10 @@ import PandaLine from '@/components/icons/PandaLine'
 import VenomLine from '@/components/icons/VenomLine'
 import { abiAdhocBribesPool, abiBVault, abiRedeemPool, abiStakingBribesPool } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
+import { WriteConfirmations } from '@/config/lntvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL } from '@/constants'
+import { useBvaultROI } from '@/hooks/useBVaultROI'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, FMT, fmtBn, fmtDate, fmtDuration, fmtPercent, getBigint, handleError, parseEthers, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
@@ -19,7 +21,8 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { RiLoopLeftFill } from 'react-icons/ri'
 import { useDebounce, useMeasure, useToggle } from 'react-use'
 import { List, ListRowProps } from 'react-virtualized'
-import { formatEther, zeroAddress } from 'viem'
+import { toast } from 'sonner'
+import { zeroAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
 import { ApproveAndTx } from './approve-and-tx'
 import { AssetInput } from './asset-input'
@@ -28,14 +31,11 @@ import { GetLP } from './get-lp'
 import { CoinIcon, DoubleCoinIcon } from './icons/coinicon'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
+import { BBtn } from './ui/bbtn'
 import { Switch } from './ui/switch'
 import { Tip } from './ui/tip'
 import { itemClassname, renderChoseSide, renderStat, renderToken } from './vault-card-ui'
-import { BBtn } from './ui/bbtn'
-import { WriteConfirmations } from '@/config/lntvaults'
-import { toast } from 'sonner'
-import { useReturnsIBGT } from '@/hooks/useReturnsIBGT'
-import { additionBERA, useBvaultROI } from '@/hooks/useBVaultROI'
+import { useGetAdditionalConfig } from '@/hooks/useGetConfigs'
 
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
@@ -570,7 +570,8 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
   useEffect(() => { epochesData.length && setCurrentEpochId(epoches[0]?.epochId || epochesData[0]?.epochId) }, [epochesData.length])
   const sBribes = current?.sBribes || []
   const aBribes = current?.aBribes || []
-
+  const { data: additionalConfig } = useGetAdditionalConfig()
+  const additionalBERA = additionalConfig[`${bvc.vault}_${currentEpochId || 0}_BERA`] ?? 0
   const upForUserAction = useUpBVaultForUserAction(bvc)
   function rowRender({ key, style, index }: ListRowProps) {
     const itemEpoch = epoches[index]
@@ -677,9 +678,9 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
                 }}
               />
             </div>}
-            <div className='text-center text-sm font-medium flex items-center flex-nowrap justify-center whitespace-nowrap mt-auto gap-1'>
-              Additional Airdrops: {additionBERA.toString()} <CoinIcon symbol='BERA' size={16} /> BERA <Tip>Will be distributed based on YT points after Epoch ends</Tip>
-            </div>
+            {additionalBERA > 0 && <div className='text-center text-sm font-medium flex items-center flex-nowrap justify-center whitespace-nowrap mt-auto gap-1'>
+              Additional Airdrops: {additionalBERA} <CoinIcon symbol='BERA' size={16} /> BERA <Tip>Will be distributed based on YT points after Epoch ends</Tip>
+            </div>}
           </div>
         </div>
       </div>
