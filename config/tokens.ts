@@ -28,4 +28,3 @@ export const getTokens = (chainId: number, filterNative = true) => {
     .filter((item) => (filterNative ? item.symbol !== ETHSymbol : true))
 }
 
-

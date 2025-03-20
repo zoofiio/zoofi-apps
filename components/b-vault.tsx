@@ -571,7 +571,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
   const sBribes = current?.sBribes || []
   const aBribes = current?.aBribes || []
   const { data: additionalConfig } = useGetAdditionalConfig()
-  const additionalBERA = additionalConfig[`${bvc.vault}_${currentEpochId || 0}_BERA`] ?? 0
+  const additional = additionalConfig[`${bvc.vault}`]?.[parseInt((currentEpochId || 0n).toString())]
   const upForUserAction = useUpBVaultForUserAction(bvc)
   function rowRender({ key, style, index }: ListRowProps) {
     const itemEpoch = epoches[index]
@@ -679,7 +679,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
               />
             </div>}
             <div className='text-center text-sm font-medium flex items-center flex-nowrap justify-center whitespace-nowrap mt-auto gap-1'>
-              Additional Airdrops: {additionalBERA > 0 ? <>{additionalBERA} <CoinIcon symbol='BERA' size={16} /> BERA <Tip>Will be distributed based on YT points after Epoch ends</Tip></> : 'TBD'}
+              Additional Airdrops: {additional ? <>{additional.amount} <CoinIcon symbol={additional.token} size={16} /> {additional.token} <Tip>Will be distributed based on YT points after Epoch ends</Tip></> : 'TBD'}
             </div>
           </div>
         </div>

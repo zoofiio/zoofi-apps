@@ -7,8 +7,9 @@ import { calcLPPrice, useBVault } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import _ from 'lodash'
 import { Address, formatEther, parseEther } from 'viem'
-import { useGetAdditionalConfig } from './useGetConfigs'
+import { AdditionalSupportTokens, useGetAdditionalConfig } from './useGetConfigs'
 import { useReturnsIBGT } from './useReturnsIBGT'
+import { getBigint } from '@/lib/utils'
 
 export function useYTPoints(vault: Address) {
   const bvd = useBVault(vault)
@@ -31,9 +32,9 @@ export function calcRestakingApy(returnsIBGTByAfterYT: bigint, ptTotal: bigint, 
 }
 
 // export const additionBERA = 400n
-export function calcAdditionalApy(additionBERA: number, ytPoints: bigint, ytAmount: bigint, remainTime: bigint, ytPrice: bigint, beraPrice: bigint) {
+export function calcAdditionalApy(additionalUSD: bigint, ytPoints: bigint, ytAmount: bigint, remainTime: bigint, ytPrice: bigint) {
   const YTp = ytPoints > 0n && ytAmount > 0n ? ytPoints + ytAmount * remainTime : 0n
-  const A = additionBERA > 0 ? (parseEther(additionBERA.toFixed(6)) * beraPrice) / DECIMAL : 0n
+  const A = additionalUSD
   const B = YTp > 0n ? (A * DECIMAL) / YTp : 0n
   const P = DECIMAL * remainTime
   const I = (B * P) / DECIMAL
@@ -49,15 +50,14 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
   const expectYTAmount = bvd.current.yTokenAmountForSwapYT + 1000n
   const returnsIBGTBy1000YT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / expectYTAmount
-  
+
   const iBGTPrice =
     useStore((s) => s.sliceTokenStore.prices['0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b'], [`sliceTokenStore.prices.0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b`]) || 0n
 
-  const beraPrice =
-    useStore((s) => s.sliceTokenStore.prices['0x6969696969696969696969696969696969696969'], [`sliceTokenStore.prices.0x6969696969696969696969696969696969696969`]) || 0n
+  const prices = useStore((s) => s.sliceTokenStore.prices, [`sliceTokenStore.prices`]) || 0n
 
   const lpPrice = calcLPPrice(vc.vault, vc.asset)
-  console.info('Prices:', formatEther(iBGTPrice), formatEther(beraPrice), formatEther(lpPrice))
+  console.info('Prices:', formatEther(iBGTPrice), formatEther(lpPrice))
   const ytAmount = bvd.current.yTokenAmountForSwapYT
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const returnsIBGTByAfterYT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / (expectYTAmount + ytchange)
@@ -68,11 +68,17 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const ytPriceChanged = (ytAssetPriceChanged * lpPrice) / DECIMAL
   const restakingIncomesApy = calcRestakingApy(returnsIBGTBy1000YT, ptTotal, remainDur, ytAmount, ytPriceBn, iBGTPrice)
   const restakingChangedApy = ytchange > 0n ? calcRestakingApy(returnsIBGTByAfterYT, ptTotal, remainDur, ytAmount + ytchange, ytPriceChanged, iBGTPrice) : 0n
-  const additionalBera = additionalConfig[`${vc.vault}_${bvd.epochCount}_BERA`] ?? 0
+  const additional = additionalConfig[`${vc.vault}`]?.[parseInt(bvd.epochCount.toString())]
+
+  const additionalUSD =
+    !additional || !additional.token || !additional.amount
+      ? 0n
+      : (getBigint(prices, AdditionalSupportTokens[additional.token]) * parseEther(additional.amount.toFixed(6))) / DECIMAL
   // aditional airdrops
   const { data: ytPoints, isLoading: isLoading3 } = useYTPoints(vc.vault)
-  const additionalRoi = calcAdditionalApy(additionalBera, ytPoints, ytAmount, remainDur, ytPriceBn, beraPrice)
-  const additionalRoiChanged = ytchange > 0n ? calcAdditionalApy(additionalBera, ytPoints, ytAmount + ytchange, remainDur, ytPriceChanged, beraPrice) : 0n
+
+  const additionalRoi = calcAdditionalApy(additionalUSD, ytPoints, ytAmount, remainDur, ytPriceBn)
+  const additionalRoiChanged = ytchange > 0n ? calcAdditionalApy(additionalUSD, ytPoints, ytAmount + ytchange, remainDur, ytPriceChanged) : 0n
   const isLoading = isLoading1 || isLoading2 || isLoading3
   return {
     // roi: restakingIncomesApy > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
