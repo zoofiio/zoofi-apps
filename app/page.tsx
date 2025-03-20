@@ -78,10 +78,10 @@ function MainUI() {
             <CoinIcon size={24} symbol='berachain' />
             Built on Berachain
           </BBtn> */}
-          <div className='text-black/60 dark:text-white/60 flex items-center gap-2'>
+          {/* <div className='text-black/60 dark:text-white/60 flex items-center gap-2'>
             <CoinIcon symbol='Fire' size={21} />
             <span className='underline underline-offset-[3px]'>B-Vault is now live on Berachain</span>
-          </div>
+          </div> */}
         </div>
         <div className='mt-8 text-xl font-semibold text-[#7B7B7B]'>Investors & Backers</div>
         <div className='mt-5 flex gap-y-5 gap-x-10 items-center flex-wrap max-w-[37.5rem]'>
