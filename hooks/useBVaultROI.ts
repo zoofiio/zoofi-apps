@@ -82,9 +82,9 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const isLoading = isLoading1 || isLoading2 || isLoading3
   return {
     // roi: restakingIncomesApy > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
-    roi: !isLoading ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
+    roi: !isLoading && ytAmount > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
     // roiChange: restakingChangedApy > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
-    roiChange: !isLoading ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
+    roiChange: !isLoading && ytAmount > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
     restakingIncomesApy,
     additionalRoi,
   }

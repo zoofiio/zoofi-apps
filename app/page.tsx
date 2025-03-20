@@ -18,6 +18,7 @@ import React from 'react'
 import { useHover } from 'react-use'
 import { toBVault, toLntVault, toLVault } from './routes'
 import LntPage from './lnt-vaults/page'
+// import { LntLandingPage } from '@/components/lnt-landing-page';
 
 type CardItemType = {
   icon: React.FunctionComponent<IconProps>

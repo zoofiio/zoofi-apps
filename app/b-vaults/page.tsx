@@ -10,18 +10,19 @@ import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
 import { ENV } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLoadBVaults } from '@/hooks/useLoads'
-import { tabToSearchParams } from '@/lib/utils'
+import { cn, tabToSearchParams } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { useBoundStore } from '@/providers/useBoundStore'
+import { useBoundStore, useStore } from '@/providers/useBoundStore'
 import { useBVault, useBVaultEpoches } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import { Grid } from '@tremor/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ReactNode, useMemo } from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 import { isAddressEqual } from 'viem'
 import { useAccount } from 'wagmi'
 import { toBVault } from '../routes'
-
+import { FaSpinner } from 'react-icons/fa6'
+import Select from 'react-select'
 function StrongSpan({ children }: { children: ReactNode }) {
   return <span className='font-extrabold'>{children}</span>
 }
@@ -107,6 +108,8 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
   )
 }
 
+type VaultsFilterType = 'Active' | 'All' | 'Closed'
+const vaultsFilters: { label: VaultsFilterType, value: VaultsFilterType }[] = [{ label: 'Active', value: 'Active' }, { label: 'All', value: 'All' }, { label: 'Closed', value: 'Closed' }]
 export default function Vaults() {
   const chainId = useCurrentChainId()
   const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((vc) => vc.onEnv && vc.onEnv.includes(ENV)), [chainId, ENV])
@@ -116,16 +119,39 @@ export default function Vaults() {
   const currentTab = SupportTabs.includes(paramsTab as any) ? (paramsTab as (typeof SupportTabs)[number]) : ''
   const currentVc = bvcs.find((item) => item.vault == paramsVault)
   // useUpdateBVaultsData(bvcs)
-  useLoadBVaults()
+  const { loading } = useLoadBVaults()
+  const [currentFilter, setFilter] = useState(vaultsFilters[0])
+  const bvaults = useStore(s => s.sliceBVaultsStore.bvaults, ['sliceBVaultsStore.bvaults'])
+  const fVcs = useMemo(() => {
+    if (loading) return bvcs
+    if (currentFilter.label == 'All') return bvcs
+    if (currentFilter.label == 'Active') return bvcs.filter(vc => !Boolean(bvaults[vc.vault]?.closed))
+    return bvcs.filter(vc => Boolean(bvaults[vc.vault]?.closed))
+  }, [loading, bvaults, currentFilter, bvcs])
   return (
     <PageWrap>
       <div className='w-full max-w-[1232px] px-4 mx-auto md:pb-8'>
         {!currentVc ? (
           <>
             <div className='page-title'>B-Vaults</div>
-            <Noti data='A Pendle-like Yield Tokenization Protocol Tailored for Proof-of-Liquidity (POL).' />
-            <Grid numItems={1} numItemsMd={2} numItemsLg={3} className='gap-5 mt-4'>
-              {bvcs.map((item, index) => (
+            <div className='flex flex-wrap gap-5 w-full items-center justify-between'>
+              <Noti className='w-auto' data='A Pendle-like Yield Tokenization Protocol Tailored for Proof-of-Liquidity (POL).' />
+              <Select
+                onChange={(value) => value && setFilter(value)}
+                value={currentFilter}
+                classNames={{
+                  menu: () => cn('bg-white dark:bg-black dark:border'),
+                  option: (props) => cn('cursor-pointer', { '!bg-primary/50': props.isFocused, '!bg-primary': props.isSelected }),
+                  control: () => 'bg-white dark:bg-black !border-primary/70 !shadow-none cursor-pointer',
+                  singleValue: () => 'dark:text-white',
+                }}
+                options={vaultsFilters} />
+            </div>
+
+            {loading ? <div className='w-full flex items-center justify-center pt-40'>
+              <FaSpinner className='animate-spin text-4xl opacity-80' />
+            </div> : <Grid numItems={1} numItemsMd={2} numItemsLg={3} className='gap-5 mt-4'>
+              {fVcs.map((item, index) => (
                 <BVaultCard key={`group_vault_item_${index}`} vc={item} />
               ))}
               {bvcs.length == 0 && (
@@ -146,7 +172,8 @@ export default function Vaults() {
                   <BVaultCardComming symbol='HONEY-WETH' />
                 </>
               )}
-            </Grid>
+            </Grid>}
+
           </>
         ) : (
           <BVaultPage bvc={currentVc} currentTab={currentTab} />
