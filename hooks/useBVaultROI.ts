@@ -28,7 +28,7 @@ export function useYTPoints(vault: Address) {
 export function calcRestakingApy(returnsIBGTByAfterYT: bigint, ptTotal: bigint, remainTime: bigint, ytAmount: bigint, ytPrice: bigint, ibgtPrice: bigint) {
   const S = (returnsIBGTByAfterYT * ibgtPrice) / 1000n / DECIMAL
   const restakingIncomesApy = ytPrice > 0n ? (S * DECIMAL) / ytPrice : 0n
-  return restakingIncomesApy > 5n * DECIMAL ? 0n : restakingIncomesApy
+  return restakingIncomesApy > 100n * DECIMAL ? 0n : restakingIncomesApy
 }
 
 // export const additionBERA = 400n
@@ -57,7 +57,7 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const prices = useStore((s) => s.sliceTokenStore.prices, [`sliceTokenStore.prices`]) || 0n
 
   const lpPrice = calcLPPrice(vc.vault, vc.asset)
-  console.info('Prices:', formatEther(iBGTPrice), formatEther(lpPrice))
+  console.info('Prices:',vc.assetSymbol, formatEther(iBGTPrice), formatEther(lpPrice))
   const ytAmount = bvd.current.yTokenAmountForSwapYT
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const returnsIBGTByAfterYT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / (expectYTAmount + ytchange)
@@ -68,8 +68,8 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const ytPriceChanged = (ytAssetPriceChanged * lpPrice) / DECIMAL
   const restakingIncomesApy = calcRestakingApy(returnsIBGTBy1000YT, ptTotal, remainDur, ytAmount, ytPriceBn, iBGTPrice)
   const restakingChangedApy = ytchange > 0n ? calcRestakingApy(returnsIBGTByAfterYT, ptTotal, remainDur, ytAmount + ytchange, ytPriceChanged, iBGTPrice) : 0n
+  console.info('restakingapy:',vc.assetSymbol, formatEther(restakingIncomesApy),formatEther(returnsIBGTBy1000YT),formatEther(ytAssetPriceBn), formatEther(ytPriceBn))
   const additional = additionalConfig[`${vc.vault}`]?.[parseInt(bvd.epochCount.toString())]
-
   const additionalUSD =
     !additional || !additional.token || !additional.amount
       ? 0n
