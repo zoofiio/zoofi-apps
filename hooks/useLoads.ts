@@ -10,6 +10,7 @@ import { Address } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCurrentChainId } from './useCurrentChainId'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
+import { useGetAdditionalConfig } from './useGetConfigs'
 
 export function useLoadLVaults() {
   const chainId = useCurrentChainId()
@@ -88,7 +89,8 @@ export function useLoadBVaults() {
       return true
     },
   })
-  return { loading: isLoading1 || isLoading2 || isLoading3 }
+  const { isLoading: isLoading4 } = useGetAdditionalConfig()
+  return { loading: isLoading1 || isLoading2 || isLoading3 || isLoading4 }
 }
 export function useLoadLntVaults() {
   const chainId = useCurrentChainId()

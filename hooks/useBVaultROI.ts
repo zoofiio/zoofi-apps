@@ -57,7 +57,7 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const prices = useStore((s) => s.sliceTokenStore.prices, [`sliceTokenStore.prices`]) || 0n
 
   const lpPrice = calcLPPrice(vc.vault, vc.asset)
-  console.info('Prices:',vc.assetSymbol, formatEther(iBGTPrice), formatEther(lpPrice))
+  console.info('Prices:', vc.assetSymbol, formatEther(iBGTPrice), formatEther(lpPrice))
   const ytAmount = bvd.current.yTokenAmountForSwapYT
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const returnsIBGTByAfterYT = (perReturnsIBGT * DECIMAL * remainDur * 1000n) / (expectYTAmount + ytchange)
@@ -68,7 +68,7 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const ytPriceChanged = (ytAssetPriceChanged * lpPrice) / DECIMAL
   const restakingIncomesApy = calcRestakingApy(returnsIBGTBy1000YT, ptTotal, remainDur, ytAmount, ytPriceBn, iBGTPrice)
   const restakingChangedApy = ytchange > 0n ? calcRestakingApy(returnsIBGTByAfterYT, ptTotal, remainDur, ytAmount + ytchange, ytPriceChanged, iBGTPrice) : 0n
-  console.info('restakingapy:',vc.assetSymbol, formatEther(restakingIncomesApy),formatEther(returnsIBGTBy1000YT),formatEther(ytAssetPriceBn), formatEther(ytPriceBn))
+  console.info('restakingapy:', vc.assetSymbol, formatEther(restakingIncomesApy), formatEther(returnsIBGTBy1000YT), formatEther(ytAssetPriceBn), formatEther(ytPriceBn))
   const additional = additionalConfig[`${vc.vault}`]?.[parseInt(bvd.epochCount.toString())]
   const additionalUSD =
     !additional || !additional.token || !additional.amount
@@ -82,9 +82,9 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n) {
   const isLoading = isLoading1 || isLoading2 || isLoading3
   return {
     // roi: restakingIncomesApy > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
-    roi: !isLoading && ytAmount > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
+    roi: !isLoading && ytAmount > 0n && returnsIBGTBy1000YT > 0n ? restakingIncomesApy + additionalRoi - DECIMAL : 0n,
     // roiChange: restakingChangedApy > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
-    roiChange: !isLoading && ytAmount > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
+    roiChange: !isLoading && ytAmount > 0n && returnsIBGTBy1000YT > 0n ? restakingChangedApy + additionalRoiChanged - DECIMAL : 0n,
     restakingIncomesApy,
     additionalRoi,
   }
