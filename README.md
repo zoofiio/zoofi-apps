@@ -11,4 +11,4 @@ First, run the development server:
 pnpm dev
 ```
 
-v0.0.1
+v0.0.2
