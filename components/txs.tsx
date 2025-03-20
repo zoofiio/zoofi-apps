@@ -63,7 +63,7 @@ export function TXS({
       >
         <div className='card flex flex-col gap-4'>
           {
-            configs.map((cf, i) => <div className='flex items-center justify-between px-4 py-2 rounded-lg bg-black/20 dark:bg-white/20 text-base'>
+            configs.map((cf, i) => <div key={`txs_${i}`} className='flex items-center justify-between px-4 py-2 rounded-lg bg-black/20 dark:bg-white/20 text-base'>
               {cf.name}
               {itemStat[i] === 'loading' && <FaSpinner className='text-xl' />}
               {itemStat[i] === 'finish' && <FaCircleCheck className='text-xl text-green-500' />}
