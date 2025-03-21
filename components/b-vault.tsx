@@ -314,11 +314,13 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
             </Tip>
             {'Est.ROI in remaining days'}
           </div>
-          <span className='text-xs relative top-[3.9375rem]'>
+        </div>
+        <div className='flex items-center gap-4 flex-wrap justify-between'>
+          <TupleTxt tit='Circulation amount' sub={<>{displayBalance(bvd.current.yTokenAmountForSwapYT)}</>} />
+          <span className='text-xs'>
             1{yTokenSymbolShort} = Yield of {displayBalance(oneYTYieldOfAsset, 2)} {assetSymbolShort}
           </span>
         </div>
-        <TupleTxt tit='Circulation amount' sub={<>{displayBalance(bvd.current.yTokenAmountForSwapYT)}</>} />
         {epoch && (
           <div className='dark:text-white/60 text-xs whitespace-nowrap gap-1 flex w-full flex-col'>
             <div className='flex justify-between items-center'>

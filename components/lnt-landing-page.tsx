@@ -3,7 +3,7 @@ const mBtnClassName = 'text-[1em]'
 
 
 function AnimSvg() {
-    return <svg width="767" height="651" viewBox="0 0 767 651" fill="none" xmlns="http://www.w3.org/2000/svg">
+    return <svg width="867" height="651" viewBox="0 0 867 651" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M97.0107 337.498V409.93L399.194 612L705.529 409.93V337.498L399.194 540.491L97.0107 337.498Z" fill="black" stroke="white" />
         <path d="M706.451 338.882L402.423 146.5L96.5488 338.882L402.423 542.337L706.451 338.882Z" fill="white" stroke="white" />
         <path d="M399.655 510.965L142.223 337.959L399.655 175.104L661.239 337.959L399.655 510.965Z" fill="black" stroke="black" />
@@ -168,7 +168,7 @@ function AnimSvg() {
         <path d="M397.348 268.802C384.536 268.802 374.181 264.749 374.181 259.902C374.181 254.967 384.536 251.001 397.348 251.089C397.523 251.089 397.699 251.089 397.874 251.089C397.348 251.089 396.909 251.089 396.383 251.089C383.571 251.089 373.128 255.055 373.128 259.902C373.128 264.837 383.483 268.802 396.383 268.802C396.909 268.802 397.348 268.802 397.874 268.802C397.787 268.802 397.611 268.802 397.348 268.802Z" fill="white" />
         <path d="M395.594 251.089C408.406 251.089 418.761 255.143 418.761 259.99C418.761 264.925 408.406 268.89 395.594 268.802C395.418 268.802 395.243 268.802 395.067 268.802C395.594 268.802 396.033 268.802 396.559 268.802C409.371 268.802 419.814 264.837 419.814 259.99C419.814 255.055 409.459 251.089 396.559 251.089C396.033 251.089 395.594 251.089 395.067 251.089C395.155 251.089 395.331 251.089 395.594 251.089Z" fill="white" />
         <path d="M396.472 267.48C385.239 267.48 376.552 264.132 376.552 259.902C376.552 255.672 385.327 252.411 396.56 252.411C407.792 252.411 416.48 255.76 416.48 259.99C416.392 264.22 407.616 267.48 396.472 267.48ZM396.472 253.733C385.327 253.733 377.78 256.906 377.78 259.902C377.78 262.898 385.239 266.159 396.384 266.159C407.529 266.159 415.076 262.986 415.076 259.99C415.163 256.994 407.616 253.733 396.472 253.733Z" fill="#E27817" />
-        <mask id="mask0_5437_5176" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="284" y="273" width="232" height="58">
+        <mask id="mask0_5437_5176" style={{ maskType: 'luminance'}} maskUnits="userSpaceOnUse" x="284" y="273" width="232" height="58">
             <path d="M399.921 330.841C463.879 330.841 515.728 317.972 515.728 302.096C515.728 286.22 463.879 273.35 399.921 273.35C335.962 273.35 284.113 286.22 284.113 302.096C284.113 317.972 335.962 330.841 399.921 330.841Z" fill="white" />
         </mask>
         <g mask="url(#mask0_5437_5176)">
@@ -472,7 +472,7 @@ function Section1() {
         <div className="flex items-center">
             <div className="flex flex-col gap-8">
                 <div className="text-[4em] font-bold">{lightText('L')}iquid {lightText('N')}ode {lightText('T')}oken</div>
-                <div className="whitespace-pre-wrap text-[2.75em] font-bold">
+                <div className="whitespace-pre-wrap text-[2.75em] leading-none">
                     All-in-one Liquidity Solution for{'\n'}
                     Initial Node Offering
                 </div>
@@ -480,9 +480,7 @@ function Section1() {
                     <button className={mBtnClassName}>Start</button>
                 </div>
             </div>
-            <div>
-
-            </div>
+            <AnimSvg/>
         </div>
     </section>
 }
