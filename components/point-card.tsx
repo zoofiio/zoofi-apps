@@ -100,7 +100,7 @@ export function PointCard({ symbol, symbolPrice, iconSymbol, tit, sub, total, li
       className='card overflow-hidden !p-0 text-base flex flex-col'
     >
       <div className='flex md:flex-wrap items-center p-4 gap-2 dark:text-black' style={{ background: bgMap[`${symbol}_${theme}`] || bgMap[symbol] }}>
-        <MIcon showBg className='text-[2.625rem] shrink-0 dark:text-white text-black' />
+        <MIcon showbg={true} className='text-[2.625rem] shrink-0 dark:text-white text-black' />
         <div>
           <div className='font-semibold'>{symbol}</div>
           <div className='font-medium text-xs'>{symbolPrice}</div>

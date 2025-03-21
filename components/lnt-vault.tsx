@@ -55,7 +55,7 @@ export function LntVaultYInfo({ vc }: { vc: LntVaultConfig }) {
   return (
     <div className='card !p-0 overflow-hidden flex flex-col'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
-        <VenomLine className='text-[3.375rem]' showBg />
+        <VenomLine className='text-[3.375rem]' showbg={true} />
         <div className='flex flex-col gap-2'>
           <div className='text-xl text-black font-semibold'>{vc.yTokenSymbol}</div>
           <div className='text-xs text-black/60 font-medium'>Yield token</div>

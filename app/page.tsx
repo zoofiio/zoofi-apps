@@ -48,7 +48,7 @@ const cards: CardItemType[] = [
 function CardItem(item: CardItemType) {
   const [element] = useHover((isHover) => (
     <div key={item.tit} className={cn('card flex items-center gap-5 py-4', item.className)}>
-      <item.icon showBg={isHover} showOutline className={cn('text-[3.375rem] ', isHover ? 'text-white' : 'text-black dark:text-white')} />
+      <item.icon showbg={isHover} showOutline className={cn('text-[3.375rem] ', isHover ? 'text-white' : 'text-black dark:text-white')} />
       <div className='flex flex-col gap-3'>
         <span style={{ color: isHover ? item.hoverTextColor : '' }} className={cn('font-semibold text-xl', 'text-black dark:text-white')}>
           {item.tit}

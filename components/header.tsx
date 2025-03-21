@@ -154,7 +154,7 @@ export function Header() {
           <div className='hidden lg:flex flex-1 px-5 items-center gap-10'>
             {links.map(({ href, label, icon, disable }) => {
               const Icon = icon
-              if (disable) return <Tip node={
+              if (disable) return <Tip key={label} node={
                 <Link
                   className='text-sm font-medium flex gap-1 items-center transition-all active:translate-y-1 text-slate-700 dark:text-slate-50 opacity-50'
                   href={'javascript:void(0);'}

@@ -65,7 +65,7 @@ export const renderChoseSide = (
       <div className='grid grid-cols-2 gap-4 w-full px-4'>
         <BtnWrap className={cn('h-[4.25rem] w-full relative')} onClick={onClickLeft as any}>
           <div className='flex gap-2 items-center p-4 w-full h-[4.25rem] absolute left-0 top-0'>
-            <LeftIcon className='text-4xl' showBg />
+            <LeftIcon className='text-4xl' showbg={true} />
             <div className='flex flex-col items-start gap-2'>
               <div className='text-[#64748B] dark:text-slate-50/60 text-xs font-semibold leading-[12px] whitespace-nowrap'>{leftTitle}</div>
               <span className=' text-[14px] leading-[14px] font-medium'>{leftSub}</span>
@@ -74,7 +74,7 @@ export const renderChoseSide = (
         </BtnWrap>
         <BtnWrap className={cn('h-[4.25rem] w-full relative')} onClick={onClickRight as any}>
           <div className='flex flex-row-reverse gap-2 items-center p-4 w-full h-[4.25rem] absolute left-0 top-0'>
-            <RightIcon className='text-4xl' showBg />
+            <RightIcon className='text-4xl' showbg={true} />
             <div className='flex flex-col items-end gap-2'>
               <div className='text-[#64748B] dark:text-slate-50/60 text-xs font-semibold leading-[12px] whitespace-nowrap'>{rightTitle}</div>
               <span className=' text-[14px] leading-[14px] font-medium'>{rightSub}</span>

@@ -1,6 +1,6 @@
 import { IconProps } from './types'
 
-export default function Icon(p: IconProps) {
+export default function Icon({ showbg, showOutline, isHover ,...p}: IconProps) {
   return (
     <svg {...p} width='1em' height='1em' viewBox='0 0 54 54' fill='none' xmlns='http://www.w3.org/2000/svg'>
       <defs>
@@ -11,8 +11,8 @@ export default function Icon(p: IconProps) {
       </defs>
       <path
         d='M53.5 27C53.5 41.6355 41.6355 53.5 27 53.5C12.3645 53.5 0.5 41.6355 0.5 27C0.5 12.3645 12.3645 0.5 27 0.5C41.6355 0.5 53.5 12.3645 53.5 27Z'
-        stroke={p.showOutline ? 'currentColor' : 'transparent'}
-        fill={p.showBg ? 'url(#paint0_linear_44_1600)' : 'none'}
+        stroke={showOutline ? 'currentColor' : 'transparent'}
+        fill={showbg ? 'url(#paint0_linear_44_1600)' : 'none'}
       />
       <path
         fillRule='evenodd'

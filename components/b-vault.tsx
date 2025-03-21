@@ -161,7 +161,7 @@ export function BVaultClaim({ bvc }: { bvc: BVaultConfig }) {
         <div className='text-black/60 dark:text-white/60 mb-4'>Pending Requests</div>
         {
           <div className='flex items-center gap-4'>
-            <PandaLine showBg className='text-2xl' />
+            <PandaLine showbg={true} className='text-2xl' />
             <span className='font-semibold'>{bvc.pTokenSymbol}</span>
             <span className='text-black/60 dark:text-white/60'>{displayBalance(redeemingBalance)}</span>
             <div className='ml-auto text-xs text-black/60 dark:text-white/60 '>
@@ -247,7 +247,7 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
     <div className={cn('flex flex-col gap-5', maxClassname, 'max-w-xl')}>
       <div className='card !p-0 overflow-hidden w-full'>
         <div className='flex p-5 bg-[#A3D395] gap-5'>
-          <PandaLine className='text-[3.375rem]' showBg />
+          <PandaLine className='text-[3.375rem]' showbg={true} />
           <div className='flex flex-col gap-2'>
             <div className='text-xl text-black font-semibold'>{bvc.pTokenSymbol}</div>
             <div className='text-xs text-black/60 font-medium'>Interest bearing rebase principal token</div>
@@ -293,7 +293,7 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
   return (
     <div className='card !p-0 overflow-hidden flex flex-col'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
-        <VenomLine className='text-[3.375rem]' showBg />
+        <VenomLine className='text-[3.375rem]' showbg={true} />
         <div className='flex flex-col gap-2'>
           <div className='text-xl text-black font-semibold'>{bvc.yTokenSymbol}</div>
           <div className='text-xs text-black/60 font-medium'>Yield token</div>

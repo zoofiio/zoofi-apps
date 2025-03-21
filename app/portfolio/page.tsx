@@ -59,7 +59,7 @@ function IconTitle(p: { icon: keyof typeof IconMap; tit: string }) {
   const Micon = IconMap[p.icon]
   return (
     <div className='flex text-2xl leading-none font-semibold items-center gap-4'>
-      <Micon className='text-[2rem]' showBg />
+      <Micon className='text-[2rem]' showbg={true} />
       <span>{p.tit}</span>
     </div>
   )
