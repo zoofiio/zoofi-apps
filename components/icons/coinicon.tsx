@@ -1,3 +1,5 @@
+'use client'
+
 import { BASE_PATH } from '@/config/env'
 import { cn } from '@/lib/utils'
 import { CSSProperties } from 'react'
@@ -51,7 +53,10 @@ const SupportICONS: { [k: string]: string } = {
   yiRED: 'yiRED.svg',
   ZUSD: 'ZUSD.svg',
   BYUSD: 'BYUSD.webp',
-  Fire: 'Fire.png'
+  Fire: 'Fire.png',
+  Lnfi: 'lnfi.png',
+  Reppo: 'Reppo.png',
+  Enreach: 'Enreach.svg',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number; url?: string }) {
