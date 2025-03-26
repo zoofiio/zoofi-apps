@@ -6,6 +6,9 @@ import { useSetState } from 'react-use'
 import { Address } from 'viem'
 import { useCurrentChainId } from './useCurrentChainId'
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
+import { useQueries, useQuery } from '@tanstack/react-query'
+import { getPC } from '@/providers/publicClient'
+import { abiBQuery, abiBVault } from '@/config/abi'
 
 type OptionItem<T, type> = { label: string; value: Address; data: T; type: type }
 type OptionsItem = OptionItem<VaultConfig, 'L-Vault'> | OptionItem<PlainVaultConfig, 'P-Vault'> | OptionItem<BVaultConfig, 'B-Vault'> | OptionItem<LntVaultConfig, 'Lnt-Vault'>
@@ -44,6 +47,13 @@ export function useVaultsConfigs() {
 
     return [...vcsOpt, ...pvcsOpt, ...bvcsOpt, ...lntvcsOpt].map((item) => ({ ...item, label: `${item.label}(${item.type}:${item.data.vault})` }))
   }, [vcs, pvcs, bvcs, lntvcs])
+
+  useQuery({
+    queryKey: ['queryBvualts', bvcs],
+    queryFn: async () => {
+      const closedPromise = Promise.all(bvcs.map((vc) => getPC().readContract({ abi: abiBVault, functionName: 'closed', address: vc.vault })))
+    },
+  })
   const [{ current }, setState] = useSetState<{ current: OptionsItem }>({
     current: options[0],
   })

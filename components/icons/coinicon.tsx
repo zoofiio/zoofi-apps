@@ -59,12 +59,12 @@ const SupportICONS: { [k: string]: string } = {
   Enreach: 'Enreach.svg',
 }
 
-export function CoinIconImpl({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number; url?: string }) {
+export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
   const supportIcon = SupportICONS[symbol]
   const src = `${BASE_PATH}/${supportIcon}`
   if (!supportIcon && !url) {
     return (
-      <svg {...p} width={size} height={size} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+      <svg {...p}  width={size} height={size} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <text className='fill-primary/60' width='20' x='12' y='12' textAnchor='middle' fontSize={12} dominantBaseline='middle'>
           {symbol.slice(0, 2)}
         </text>
@@ -72,19 +72,19 @@ export function CoinIconImpl({ symbol, size = 48, url, ...p }: { symbol: string;
       </svg>
     )
   }
-  return <img {...p} className={cn(p.className)} width={size} height={size} src={supportIcon ? src : url} alt={symbol} />
+  return <img {...p} style={{ width: size, height: size, ...(style || {}) }} className={cn(p.className)} width={size} height={size} src={supportIcon ? src : url} alt={symbol} />
 }
 
 
 const ignoreDouble = ['logo-alt', 'status-green', 'status-red']
-export function DoubleCoinIcon({ symbol1, symbol2, size = 48, url1, url2, className }: { symbol1: string, symbol2: string, className?: string, size?: number, url1?: string, url2?: string }) {
+export function DoubleCoinIcon({ symbol1, symbol2, size = 48, url1, url2, className }: { symbol1: string, symbol2: string, className?: string, size?: number | string, url1?: string, url2?: string }) {
   return <div className={cn('flex items-center', className)}>
     <CoinIconImpl symbol={symbol1} size={size} url={url1} />
-    <CoinIconImpl symbol={symbol2} size={size} url={url2} style={{ marginLeft: `-${Math.round(size * 0.6)}px` }} />
+    <CoinIconImpl symbol={symbol2} size={size} url={url2} style={{ marginLeft: `-30%` }} />
   </div>
 }
 
-export function CoinIcon({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number; url?: string }) {
+export function CoinIcon({ symbol, size = 48, url, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
   if (symbol.includes('-') && !ignoreDouble.includes(symbol)) {
     const [token1, token2] = symbol.split('-')
     return <DoubleCoinIcon {...p} symbol1={token1} symbol2={token2} size={size} />

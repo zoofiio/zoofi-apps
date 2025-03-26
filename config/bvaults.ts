@@ -216,7 +216,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: '0xd75Dc0496826FF0C13cE6D6aA5Bf8D64126E4fF1',
       protocolSettingsAddress: '0x45a47E8013425AF3e6e71f1aa24e3B8c523386EA',
       bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta', 'test'],
+      onEnv: ['beta', 'test', 'prod'],
     },
     {
       vault: '0x6686bDfF3ad20AE45E811c2451DfeE8AA0f338C0',
