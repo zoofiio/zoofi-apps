@@ -14,8 +14,8 @@ import { toString } from 'lodash'
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   menu: () => cn('bg-white dark:bg-black dark:border'),
-  option: (props) => cn({ '!bg-primary/50': props.isFocused, '!bg-primary': props.isSelected }),
-  control: () => 'bg-white dark:bg-black !min-h-[58px] !border-primary/70 !shadow-none',
+  option: (props) => cn({ '!bg-primary/30': props.isFocused, '!bg-primary/60': props.isSelected }),
+  control: () => 'bg-white dark:bg-black !min-h-[58px] !border-primary/30 !shadow-none',
   singleValue: () => 'dark:text-white',
 }
 export const inputClassname = 'bg-white dark:bg-transparent border-primary/70 w-full h-14 text-right pr-4 font-bold text-sm border focus:border-2  rounded-md outline-none '

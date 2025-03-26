@@ -9,6 +9,7 @@ import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { getPC } from '@/providers/publicClient'
 import { abiBQuery, abiBVault } from '@/config/abi'
+import { fmtDate, shortStr } from '@/lib/utils'
 
 type OptionItem<T, type> = { label: string; value: Address; data: T; type: type }
 type OptionsItem = OptionItem<VaultConfig, 'L-Vault'> | OptionItem<PlainVaultConfig, 'P-Vault'> | OptionItem<BVaultConfig, 'B-Vault'> | OptionItem<LntVaultConfig, 'Lnt-Vault'>
@@ -45,18 +46,40 @@ export function useVaultsConfigs() {
       type: 'Lnt-Vault',
     }))
 
-    return [...vcsOpt, ...pvcsOpt, ...bvcsOpt, ...lntvcsOpt].map((item) => ({ ...item, label: `${item.label}(${item.type}:${item.data.vault})` }))
+    return [...vcsOpt, ...pvcsOpt, ...bvcsOpt, ...lntvcsOpt].map((item) => ({ ...item, label: `${item.label}     (${item.type}: ${shortStr(item.data.vault)})` }))
   }, [vcs, pvcs, bvcs, lntvcs])
-
-  useQuery({
+  const bsQuery = useQuery({
     queryKey: ['queryBvualts', bvcs],
     queryFn: async () => {
-      const closedPromise = Promise.all(bvcs.map((vc) => getPC().readContract({ abi: abiBVault, functionName: 'closed', address: vc.vault })))
+      const pc = getPC()
+      const closedPromise = Promise.all(bvcs.map((vc) => pc.readContract({ abi: abiBVault, functionName: 'closed', address: vc.vault })))
+      const epochCountPromise = Promise.all(bvcs.map((vc) => pc.readContract({ abi: abiBVault, functionName: 'epochIdCount', address: vc.vault })))
+
+      const [closed, epochcount] = await Promise.all([closedPromise, epochCountPromise])
+      const currentEpoch = await Promise.all(
+        bvcs.map((vc, i) =>
+          epochcount[i] > 0n ? pc.readContract({ abi: abiBVault, functionName: 'epochInfoById', address: vc.vault, args: [epochcount[i]] }) : Promise.resolve(undefined),
+        ),
+      )
+      const data: { [k: Address]: string } = {}
+      for (let index = 0; index < bvcs.length; index++) {
+        const vc = bvcs[index]
+        if (epochcount[index] > 0n) {
+          data[vc.vault] = `${closed[index] ? 'Closed' : 'Active'}    Epoch${epochcount[index]}   (${fmtDate(currentEpoch[index]!.startTime * 1000n)})`
+        } else {
+          data[vc.vault] = 'UnStart'
+        }
+      }
+      return data
     },
   })
+  const stateOptions = useMemo(() => {
+    if (!bsQuery.data) return []
+    return options.map((item) => (item.type === 'B-Vault' ? { ...item, label: `${item.label} ${bsQuery.data[item.data.vault]}` } : item))
+  }, [options, bsQuery.data])
   const [{ current }, setState] = useSetState<{ current: OptionsItem }>({
     current: options[0],
   })
 
-  return { current, setState, options }
+  return { current, setState, options, bsQuery, stateOptions }
 }

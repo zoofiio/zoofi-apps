@@ -10,6 +10,7 @@ import { useVaultsConfigs } from '@/hooks/useVaultsConfigs'
 import { useWandContractRead, useWandContractReads } from '@/hooks/useWand'
 import { cn, parseEthers } from '@/lib/utils'
 import { useMemo } from 'react'
+import { FaSpinner } from 'react-icons/fa6'
 import Select from 'react-select'
 import { useMeasure, useSetState } from 'react-use'
 import { Address, erc20Abi, erc721Abi, formatEther, formatUnits, isAddress, parseUnits, stringToBytes, stringToHex } from 'viem'
@@ -294,12 +295,14 @@ function InitReinit(props: { vault: Address }) {
 
 export default function AdminPage() {
   const chainId = useCurrentChainId()
-  const { current, setState, options } = useVaultsConfigs()
+  const { current, setState, stateOptions: options, bsQuery: { isLoading } } = useVaultsConfigs()
   const { chain } = useAccount()
   return (
     <PageWrap>
       <div className='w-full flex'>
-        <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
+        {isLoading ? <div className='flex w-full justify-center items-center h-screen'>
+          <FaSpinner className='text-3xl animate-spin' />
+        </div> : <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
           <Select classNames={selectClassNames} defaultValue={options[0]} options={options} onChange={(e) => e && setState({ current: e as any })} />
           {current.type == 'L-Vault' && (
             <>
@@ -350,7 +353,7 @@ export default function AdminPage() {
             )
           }
           <Erc20Approve />
-        </div>
+        </div>}
       </div>
     </PageWrap>
   )

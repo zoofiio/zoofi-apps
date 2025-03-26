@@ -83,35 +83,24 @@ function Section4() {
 }
 
 const faqs = [
+    { q: 'What is an Initial Node Offering (INO)?', a: 'Initial Node Offering (INO) is a modern cryptocurrency fundraising model where blockchain projects sell node licenses to participants. These licenses grant holders the right to operate or delegate nodes, which validate transactions, secure the network, and maintain decentralization. INOs prioritize regulatory compliance (via KYC/AML checks), community-driven network participation, and long-term value creation. Unlike speculative models like ICOs, INOs incentivize active contributors through rewards (e.g., fee sharing, tokens), fostering sustainable growth and decentralized governance while aligning stakeholders with the project’s operational success.' },
+    { q: 'What is Liquid Node Token (LNT)?', a: 'Liquid Node Token, is a solution designed to solve liquidity and accessibility issues in Initial Node Offerings (INO). It transforms long-term income of node licenses into tradable tokens, enabling instant liquidity and lowering participation barriers. LNT bridges the gap between long-term node commitments and short-term liquidity needs, making INOs more attractive to both retail and institutional investors, it pioneers a new standard for node-based fundraising—combining decentralization, compliance, and market-driven efficiency.' },
+    { q: 'How Does LNT Work?', a: 'Users deposit their Node licenses into the LNT Vault. The Vault calculates and issues VT (Vesting Tokens) based on the vesting schedule and expected future rewards associated with the Node license. Simultaneously, the Vault generates a YT (Yield Token) for the user.' },
+    { q: 'What is VT (Vesting Token)?', a: 'VT (Vesting Token) represents the future value of the node license (e.g., tokens unlocked over years). Tradable instantly as an ERC20 token.' },
+    { q: 'What is YT (Yiled Token)?', a: 'YT (Yield Token) represents excess returns (e.g., fees, airdrops). Traded via a Dutch auction-style AMM for short-term speculation.' },
     {
-        q: 'What is Verio?', a: `All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering`
+        q: 'How to stabilize VT Value?', a: <>
+            LNT solution establishes a VT/T liquidity pool where node licenses continuously earn T tokens (native rewards), which are used to buy back and burn VT from the market, reducing supply.<br />
+            Additionally, VT holders can redeem their tokens 1:1 for T once the vesting period ends, ensuring its value aligns with the underlying asset. This dual mechanism balances market-driven buybacks and guaranteed redemption, promoting VT’s price stability and long-term confidence.
+        </>
     },
     {
-        q: 'What is Verio?', a: `All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering`
-    },
-    {
-        q: 'What is Verio?', a: `All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering`
-    },
-    {
-        q: 'What is Verio?', a: `All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering`
-    },
-    {
-        q: 'What is Verio?', a: `All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering
-All-in-one Liquidity Solution for Initial Node Offering`
+        q: 'Is LNT Safe? What Are the Risks?', a: <>
+            LNT’s contracts are audited by Certik, a top-tier blockchain security firm. However, risks still exist:<br />
+            Smart Contract Risk:Despite rigorous audits by Certik, vulnerabilities in the protocol’s code could theoretically be exploited.<br />
+            Slashing Risk:Validators (node operators) might face penalties (slashing) for downtime or malicious behavior. LNT mitigates this by distributing node operations across multiple professional operators to reduce single points of failure.<br />
+            LNT Token Price Risk:The exchange rate between LNT tokens (e.g., VT/YT) and their underlying assets (e.g., node rewards) could fluctuate on DEXs, creating arbitrage gaps or volatility.
+        </>
     },
 ]
 
