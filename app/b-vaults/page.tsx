@@ -120,7 +120,11 @@ export default function Vaults() {
   const currentVc = bvcs.find((item) => item.vault == paramsVault)
   // useUpdateBVaultsData(bvcs)
   const { loading } = useLoadBVaults()
-  const [currentFilter, setFilter] = useState(vaultsFilters[0])
+  const [currentFilter, setFilter] = useState(vaultsFilters.find(item => item.value === sessionStorage.getItem('bvualts-filter')) ?? vaultsFilters[0])
+  const wrapSetFilter = (nf: (typeof vaultsFilters)[number]) => {
+    setFilter(nf)
+    sessionStorage.setItem("bvualts-filter", nf.value)
+  }
   const bvaults = useStore(s => s.sliceBVaultsStore.bvaults, ['sliceBVaultsStore.bvaults'])
   const fVcs = useMemo(() => {
     if (loading) return bvcs
@@ -137,7 +141,7 @@ export default function Vaults() {
             <div className='flex flex-wrap gap-5 w-full items-center justify-between'>
               <Noti className='w-auto' data='A Pendle-like Yield Tokenization Protocol Tailored for Proof-of-Liquidity (POL).' />
               <Select
-                onChange={(value) => value && setFilter(value)}
+                onChange={(value) => value && wrapSetFilter(value)}
                 value={currentFilter}
                 classNames={{
                   menu: () => cn('bg-white dark:bg-black dark:border'),
