@@ -17,7 +17,8 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useHover } from 'react-use'
 import { toBVault, toLntVault, toLVault } from './routes'
-import LntPage from './lnt-vaults/page'
+// import LntPage from './lnt-vaults/page'
+import { LntLandingPage } from '@/components/lnt-landing-page';
 // import { LntLandingPage } from '@/components/lnt-landing-page';
 
 type CardItemType = {
@@ -102,5 +103,5 @@ function MainUI() {
 }
 
 export default function Home() {
-  return isLNT ? <LntPage /> : <MainUI />
+  return isLNT ? <LntLandingPage /> : <MainUI />
 }

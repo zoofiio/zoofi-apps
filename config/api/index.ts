@@ -3,6 +3,7 @@ import api from '../../utils/api'
 import axios from 'axios'
 import { parseEthers } from '@/lib/utils'
 import { DECIMAL } from '@/constants'
+import _ from 'lodash'
 
 export const getBvaultEpochYtPrices = (vault: Address, epochId: bigint) => api.get<{ price: string; time: number }[]>(`/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
 export const getLntVaultEpochYtPrices = (vault: Address, epochId: bigint) => api.get<{ price: string; time: number }[]>(`/api/lntvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -83,6 +84,14 @@ export const getBeraTokensPrices = (
 export const getIBGTPrice = () =>
   axios
     .post<{
+      reward_tokens: {
+        address: Address
+        decimals: number
+        image: string
+        name: string
+        price: number
+        symbol: string
+      }[]
       underlying_tokens: {
         address: Address
         decimals: number
@@ -92,5 +101,5 @@ export const getIBGTPrice = () =>
         symbol: string
       }[]
     }>('https://api.zoofi.io/api/third/ibgt')
-    .then((res) => res.data.underlying_tokens?.find((item) => item.symbol === 'iBGT'))
+    .then((res) => _.concat(res.data.underlying_tokens, res.data.reward_tokens)?.find((item) => item.symbol === 'iBGT'))
     .then((data) => (data ? parseEthers(data.price.toFixed(6)) : DECIMAL))
