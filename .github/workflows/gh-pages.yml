@@ -1,12 +1,13 @@
 name: Github Pages
 on:
   workflow_dispatch:
+    inputs:
+      jos:
+        required: true
+        type: choice
+        options: ['prod', 'test', 'beta', 'betalnt', 'all']
   push:
-    branches:
-      - dev
-      - main
-      - beta
-      - test
+    branches: ['dev','main']
 
 jobs:
   release:
@@ -25,7 +26,7 @@ jobs:
 
       - name: Install dependencies & build
         run: |
-          pnpm install --frozen-lockfile    
+          pnpm install --frozen-lockfile
           pnpm build
 
       - name: Deploy Gh-Pages 🚀

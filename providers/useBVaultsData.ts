@@ -95,14 +95,17 @@ export function useBVaultBoost(vault: Address): [string, bigint] {
 export function calcBVaultPTApy(vc: BVaultConfig) {
   const s = useBoundStore.getState()
   const bvd = s.sliceBVaultsStore.bvaults[vc.vault]
-  const pTokenSynthetic = getBigint(s.sliceBVaultsStore.yTokenSythetic, [vc.vault])
+  let pTokenSynthetic = getBigint(s.sliceBVaultsStore.yTokenSythetic, [vc.vault])
+  
+
   let apy = 0n
   if (vc.pTokenV2) {
     apy = bvd && bvd.ptRebaseRate && bvd.pTokenTotal ? ((bvd.ptRebaseRate / DECIMAL) * YEAR_SECONDS * BigInt(1e10)) / bvd.pTokenTotal / DECIMAL : 0n
   } else {
+    if(pTokenSynthetic == 0n) pTokenSynthetic = getBigint(s.sliceTokenStore.totalSupply, vc.pToken as string) * (bvd?.current.duration || 0n)
     apy = bvd && bvd.current.assetTotalSwapAmount && pTokenSynthetic ? (bvd.current.assetTotalSwapAmount * YEAR_SECONDS * BigInt(1e10)) / pTokenSynthetic : 0n
   }
-  console.info('apy:', vc.vault, apy, vc.pTokenV2, bvd?.ptRebaseRate, bvd?.pTokenTotal)
+  console.info('apy:', vc.vault, apy, vc.pTokenV2, bvd?.ptRebaseRate, bvd?.pTokenTotal, pTokenSynthetic)
   return apy
 }
 export function useBVaultApy(vc: BVaultConfig): [string, bigint] {

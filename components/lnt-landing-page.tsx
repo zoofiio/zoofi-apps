@@ -27,7 +27,7 @@ function Section1() {
                 Initial Node Offering
             </div>
             <div>
-                <BtnB onClick={() => r.push('/lnt-vaults')}>Start</BtnB>
+                <BtnB onClick={() => r.push('/pre-deposit')}>Start</BtnB>
             </div>
         </div>
         <AnimSvg />

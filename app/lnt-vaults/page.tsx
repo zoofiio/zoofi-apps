@@ -73,7 +73,7 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
 
 export default function Vaults() {
   const chainId = useCurrentChainId()
-  const vcs = LNTVAULTS_CONFIG[chainId].filter(item => item.onEnv ? item.onEnv.includes(ENV) : true)
+  const vcs = (LNTVAULTS_CONFIG[chainId]||[]).filter(item => item.onEnv ? item.onEnv.includes(ENV) : true)
   // const pvcs = PLAIN_VAULTS_CONFIG[chainId] || []
   // const groupsVcs = useMemo(() => Object.values(_.groupBy(vcs, 'assetTokenSymbol')), [vcs])
   const params = useSearchParams()
