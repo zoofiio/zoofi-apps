@@ -55,8 +55,8 @@ const SupportICONS: { [k: string]: string } = {
   BYUSD: 'BYUSD.webp',
   Fire: 'Fire.png',
   Lnfi: 'lnfi.png',
-  Reppo: 'Reppo.png',
-  Enreach: 'Enreach.svg',
+  Reppo: 'reppo.png',
+  Enreach: 'enreach.svg',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {

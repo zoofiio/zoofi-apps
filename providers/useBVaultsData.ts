@@ -92,17 +92,21 @@ export function useBVaultBoost(vault: Address): [string, bigint] {
   return [displayBalance(boost, 0), boost]
 }
 
-export function calcBVaultPTApy(vc: BVaultConfig) {
+export function getYTokenSynthetic(vc: BVaultConfig) {
   const s = useBoundStore.getState()
   const bvd = s.sliceBVaultsStore.bvaults[vc.vault]
   let pTokenSynthetic = getBigint(s.sliceBVaultsStore.yTokenSythetic, [vc.vault])
-  
-
+  if (pTokenSynthetic == 0n) pTokenSynthetic = getBigint(s.sliceTokenStore.totalSupply, vc.pToken as string) * (bvd?.current.duration || 0n)
+  return pTokenSynthetic
+}
+export function calcBVaultPTApy(vc: BVaultConfig) {
+  const s = useBoundStore.getState()
+  const bvd = s.sliceBVaultsStore.bvaults[vc.vault]
+  let pTokenSynthetic = getYTokenSynthetic(vc)
   let apy = 0n
   if (vc.pTokenV2) {
     apy = bvd && bvd.ptRebaseRate && bvd.pTokenTotal ? ((bvd.ptRebaseRate / DECIMAL) * YEAR_SECONDS * BigInt(1e10)) / bvd.pTokenTotal / DECIMAL : 0n
   } else {
-    if(pTokenSynthetic == 0n) pTokenSynthetic = getBigint(s.sliceTokenStore.totalSupply, vc.pToken as string) * (bvd?.current.duration || 0n)
     apy = bvd && bvd.current.assetTotalSwapAmount && pTokenSynthetic ? (bvd.current.assetTotalSwapAmount * YEAR_SECONDS * BigInt(1e10)) / pTokenSynthetic : 0n
   }
   console.info('apy:', vc.vault, apy, vc.pTokenV2, bvd?.ptRebaseRate, bvd?.pTokenTotal, pTokenSynthetic)
