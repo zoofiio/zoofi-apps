@@ -6,7 +6,7 @@ import * as React from 'react'
 
 import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
 import { RainbowKitProvider, connectorsForWallets, darkTheme, lightTheme } from '@rainbow-me/rainbowkit'
-import { bitgetWallet, coinbaseWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets'
+import { bitgetWallet, coinbaseWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet, binanceWallet } from '@rainbow-me/rainbowkit/wallets'
 import { WagmiProvider, createConfig, createStorage } from 'wagmi'
 
 const walletConnectProjectId = 'abf1f323cd9ff9f6a27167188d993168'
@@ -48,7 +48,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       [
         {
           groupName: 'Recommended',
-          wallets: [injectedWallet, metaMaskWallet, coinbaseWallet, okxWallet, bitgetWallet, tokenPocketWallet, gateWallet, walletConnectWallet],
+          wallets: [injectedWallet, metaMaskWallet, coinbaseWallet, binanceWallet, okxWallet, bitgetWallet, tokenPocketWallet, gateWallet, walletConnectWallet],
         },
       ],
       {
@@ -56,7 +56,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         projectId: walletConnectProjectId,
       },
     )
-    
+
 
     setConfig(
       createConfig({
