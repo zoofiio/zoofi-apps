@@ -3,6 +3,7 @@ import { providers } from 'ethers'
 import _ from 'lodash'
 import { Address, Chain, defineChain } from 'viem'
 import { LP_TOKENS } from './lpTokens'
+import { base as baseMainnet } from 'viem/chains'
 
 export const berachainTestnet = defineChain({
   id: 80084,
@@ -88,11 +89,21 @@ export const sepolia = defineChain({
   testnet: true,
 })
 
+export const base = defineChain({
+  ...baseMainnet,
+  rpcUrls: {
+    ...baseMainnet.rpcUrls,
+    alchemy: {
+      http: ['https://base-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'],
+    },
+  },
+})
+
 export const apiBatchConfig = { batchSize: 30, wait: 300 }
 export const multicallBatchConfig = { batchSize: 100, wait: 300 }
 
 export const beraChains = [berachainTestnet, berachain]
-export const lntChains = [sepolia]
+export const lntChains = [sepolia, base]
 export const SUPPORT_CHAINS: [Chain, ...Chain[]] = _.filter(isLNT ? [...lntChains] : [...beraChains], (item) => (isPROD ? !(item as any).testnet : true)) as any
 
 export const refChainId: { id: number } = { id: isLNT ? sepolia.id : isPROD ? berachain.id : berachainTestnet.id }

@@ -1,11 +1,18 @@
-import { HTMLAttributes, ReactNode } from "react"
-import { CoinIcon } from "./icons/coinicon"
-import { displayBalance } from "@/utils/display"
-import { fmtDate } from "@/lib/utils"
+import { abiPreDeposit, usePreDepositByUser, usePreDepositData } from "@/hooks/usePreDeposit";
+import { cn, fmtDate } from "@/lib/utils";
+import { useBoundStore } from "@/providers/useBoundStore";
+import { displayBalance } from "@/utils/display";
+import _ from "lodash";
+import { HTMLAttributes, ReactNode, useMemo, useRef } from "react";
+import { useSetState } from "react-use";
+import { Address, encodeFunctionData } from "viem";
+import { useAccount } from "wagmi";
+import { NftApproveAndTx } from "./approve-and-tx";
+import { SimpleDialog } from "./simple-dialog";
 
 function BtnB(p: HTMLAttributes<HTMLButtonElement>) {
     const { children, ...props } = p;
-    return <button {...props} className="text-[1em] p-[.75em] w-[12.5em] rounded-[.5em]  cursor-pointer border dark:border-white border-black btn-b">
+    return <button {...props} className="text-[1em] p-[.75em] w-[12.5em] rounded-[.5em]  cursor-pointer border dark:border-white border-black btn-b disabled:opacity-60">
         {children}
     </button >
 }
@@ -35,6 +42,11 @@ export type NodeLicense = {
     salesStartTime?: number
     tokenTGE?: string
     net: string
+    preDeposit?: {
+        nft: Address,
+        prelnt: Address,
+        withdrawTime?: number
+    }
 
 }
 
@@ -102,7 +114,98 @@ function OutSvg() {
 }
 
 
+function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () => void }) {
+    const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
+    const tokenIds = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+    const data = useMemo(() => {
+        const ids = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+        return ids.map(id => encodeFunctionData({ abi: abiPreDeposit, functionName: 'deposit', args: [id] }))
+    }, [selectedNft])
+    const pre = node.preDeposit!
+    // const nfts = useNftBalance(pre.nft)
+    const { data: { nfts }, refetch } = usePreDepositByUser(node)
+    return <div className='flex flex-col gap-5 items-center p-5'>
+        <div className='w-full text-start'>Licenses ID</div>
+
+        <div className='w-[32rem] h-72 overflow-y-auto'>
+            <div className='w-full gap-2 grid grid-cols-4 '>
+                {nfts.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
+                    <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
+                    #{id.toString()}
+                </div>))}
+            </div>
+        </div>
+        <NftApproveAndTx tx='Deposit'
+            approves={{ [pre.nft]: true }}
+            spender={pre.prelnt}
+            confirmations={5}
+            onTxSuccess={() => {
+                const nStat: { [id: string]: boolean } = {}
+                tokenIds.forEach((id) => {
+                    nStat[id.toString()] = false
+                })
+                setSelectNft(nStat)
+                onSuccess()
+                refetch()
+                // upForUserAction()
+                // useBoundStore.getState().sliceTokenStore.updateNftBalance([pre.nft], address!)
+            }}
+            config={{
+                abi: abiPreDeposit,
+                address: pre.prelnt,
+                functionName: 'multicall',
+                enabled: tokenIds.length > 0,
+                args: [data]
+            }} />
+    </div>
+}
+function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () => void }) {
+    const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
+    const tokenIds = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+    const data = useMemo(() => {
+        const ids = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+        return ids.map(id => encodeFunctionData({ abi: abiPreDeposit, functionName: 'withdraw', args: [id] }))
+    }, [selectedNft])
+    const { data: { deposited } } = usePreDepositByUser(node)
+    const pre = node.preDeposit!
+    const { address } = useAccount()
+    return <div className='flex flex-col gap-5 items-center p-5'>
+        <div className='w-full text-start'>Licenses ID</div>
+
+        <div className='w-[32rem] h-72 overflow-y-auto'>
+            <div className='w-full gap-2 grid grid-cols-4 '>
+                {deposited.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
+                    <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
+                    #{id.toString()}
+                </div>))}
+            </div>
+        </div>
+        <NftApproveAndTx tx='Withdraw'
+            confirmations={5}
+            onTxSuccess={() => {
+                const nStat: { [id: string]: boolean } = {}
+                tokenIds.forEach((id) => {
+                    nStat[id.toString()] = false
+                })
+                setSelectNft(nStat)
+                onSuccess()
+                // upForUserAction()
+                useBoundStore.getState().sliceTokenStore.updateNftBalance([pre.nft], address!)
+            }}
+            config={{
+                abi: abiPreDeposit,
+                address: pre.prelnt,
+                functionName: 'multicall',
+                enabled: tokenIds.length > 0,
+                args: [data]
+            }} />
+    </div>
+}
 export function PrePool({ data }: { data: NodeLicense }) {
+    const depositRef = useRef<HTMLButtonElement>(null)
+    const withdrawRef = useRef<HTMLButtonElement>(null)
+    const { data: { totalDeposit }, refetch: reFetData } = usePreDepositData(data)
+    const { data: { deposited, nfts }, refetch: reFetUser } = usePreDepositByUser(data)
     return <div style={{
         backdropFilter: 'blur(20px)'
     }} className="bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5" >
@@ -115,7 +218,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
             <div className="flex flex-col gap-2">
                 <div className="opacity-60 text-xs font-medium">Total Deposited</div>
                 <div className="text-sm font-medium">
-                    <span className="text-2xl font-bold mr-2">{2389}</span>
+                    <span className="text-2xl font-bold mr-2">{totalDeposit.toString()}</span>
                     Licenses
                 </div>
             </div>
@@ -125,16 +228,33 @@ export function PrePool({ data }: { data: NodeLicense }) {
         <div className="flex gap-5 flex-1">
             {/* deposit */}
             <div className="flex-1 flex flex-col justify-between items-center h-full pb-5">
-                <div className="self-start">In-Wallet: 12</div>
+                <div className="self-start">In-Wallet: {nfts.length}</div>
                 <InSvg />
-                <BtnB>Deposit</BtnB>
+                <SimpleDialog
+                    triggerRef={depositRef}
+                    triggerProps={{ className: 'flex-1', disabled: !data.preDeposit }}
+                    trigger={
+                        <BtnB>Deposit</BtnB>
+                    }
+                >
+                    <LntPreDeposit node={data} onSuccess={() => { depositRef.current?.click(); reFetData(); reFetUser() }} />
+                </SimpleDialog>
+
             </div>
             <div className="bg-[#4A5546] w-[1px] h-full shrink-0" />
             {/* withdraw */}
             <div className="flex-1 flex flex-col justify-between items-center h-full pb-5">
-                <div className="self-end">Deposited: 12</div>
+                <div className="self-end">Deposited: {deposited.length}</div>
                 <OutSvg />
-                <BtnB>Withdraw</BtnB>
+                <SimpleDialog
+                    triggerRef={withdrawRef}
+                    triggerProps={{ className: 'flex-1', disabled: !data.preDeposit || (data.preDeposit.withdrawTime || 0) > _.now() }}
+                    trigger={
+                        <BtnB>Withdraw</BtnB>
+                    }
+                >
+                    <LntPreWithdraw node={data} onSuccess={() => { withdrawRef.current?.click(); reFetData(); reFetUser() }} />
+                </SimpleDialog>
             </div>
         </div>
     </div>

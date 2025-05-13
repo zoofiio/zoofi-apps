@@ -208,3 +208,13 @@ export async function retry<T>(fn: () => Promise<T>, count: number = 3, wait: nu
 }
 
 export const tabToSearchParams = (tab: string) => tab.toLowerCase().replaceAll(' ', '_')
+
+export async function promiseAll<ObjTask extends { [k: string]: Promise<any> }>(objTask: ObjTask) {
+  const keys: (keyof ObjTask)[] = Object.keys(objTask)
+  const datas = await Promise.all(keys.map((item) => objTask[item]))
+  const data: any = {} as any
+  keys.forEach((key, i) => {
+    data[key] = datas[i] as any
+  })
+  return data as { [k in keyof ObjTask]: UnwrapPromise<ObjTask[k]> }
+}

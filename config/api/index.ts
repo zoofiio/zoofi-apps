@@ -103,3 +103,31 @@ export const getIBGTPrice = () =>
     }>('https://api.zoofi.io/api/third/ibgt')
     .then((res) => _.concat(res.data.underlying_tokens, res.data.reward_tokens)?.find((item) => item.symbol === 'iBGT'))
     .then((data) => (data ? parseEthers(data.price.toFixed(6)) : DECIMAL))
+
+export const getNftsByAlchemy = async (nft: Address, owner: Address) => {
+  let pageKey: string | undefined = undefined
+  const getNfts = (pageSize: number = 100) =>
+    axios
+      .get<{
+        ownedNfts: {
+          tokenId: string
+        }[]
+        totalCount: number
+        pageKey?: string
+      }>(`https://base-mainnet.g.alchemy.com/nft/v3/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX/getNFTsForOwner?owner=${owner}&contractAddresses[]=${nft}&pageSize=${pageSize}`, {
+        params: pageKey ? { pageKey } : {},
+      })
+      .then((res) => {
+        return {
+          pageKey: res.data.pageKey,
+          nfts: res.data.ownedNfts.map((item) => item.tokenId),
+        }
+      })
+  let res: string[] = []
+  while (true) {
+    const { pageKey, nfts } = await getNfts()
+    res = res.concat(nfts)
+    if (!pageKey) break
+  }
+  return res
+}
