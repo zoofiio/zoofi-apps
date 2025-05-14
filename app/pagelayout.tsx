@@ -2,14 +2,12 @@
 ;(BigInt.prototype as any).toJSON = function () {
   return this.toString()
 }
-import { Header } from '@/components/header'
-import { isBETA } from '@/constants'
-import { useConfigDomain } from '@/hooks/useConfigDomain'
-import { useReadingCount } from '@/hooks/useWrapPublicClient'
-import { ReactNode } from 'react'
-import { Toaster } from 'sonner'
-import { Providers } from './providers'
-import { cn } from '@/lib/utils'
+import { isBETA } from '@/constants';
+import { useConfigDomain } from '@/hooks/useConfigDomain';
+import { useReadingCount } from '@/hooks/useWrapPublicClient';
+import { cn } from '@/lib/utils';
+import { ReactNode } from 'react';
+import { Toaster } from 'sonner';
 // background: linear-gradient(105.67deg, #02050E 14.41%, #1D2F23 98.84%);
 
 function PageLoading() {
@@ -27,10 +25,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <Providers>
-        <Header />
-        {children}
-      </Providers>
+      {children}
       <Toaster position='top-right' offset={70} />
       {/* <BetaFlag /> */}
       <PageLoading />

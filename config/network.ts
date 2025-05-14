@@ -104,7 +104,8 @@ export const multicallBatchConfig = { batchSize: 100, wait: 300 }
 
 export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia, base]
-export const SUPPORT_CHAINS: [Chain, ...Chain[]] = _.filter(isLNT ? [...lntChains] : [...beraChains], (item) => (isPROD ? !(item as any).testnet : true)) as any
+// allapps chanis
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [sepolia, base, berachain]
 
 export const refChainId: { id: number } = { id: isLNT ? sepolia.id : isPROD ? berachain.id : berachainTestnet.id }
 export const getCurrentChainId = () => {

@@ -1,18 +1,78 @@
+import { NodeLicense } from "@/config/prelnt";
 import { abiPreDeposit, usePreDepositByUser, usePreDepositData } from "@/hooks/usePreDeposit";
 import { cn, fmtDate } from "@/lib/utils";
 import { useBoundStore } from "@/providers/useBoundStore";
 import { displayBalance } from "@/utils/display";
 import _ from "lodash";
-import { HTMLAttributes, ReactNode, useMemo, useRef } from "react";
+import Link from "next/link";
+import { ButtonHTMLAttributes, HTMLAttributes, ReactNode, useMemo, useRef } from "react";
 import { useSetState } from "react-use";
-import { Address, encodeFunctionData } from "viem";
+import { encodeFunctionData } from "viem";
 import { useAccount } from "wagmi";
 import { NftApproveAndTx } from "./approve-and-tx";
+import { CoinIcon } from "./icons/coinicon";
 import { SimpleDialog } from "./simple-dialog";
 
-function BtnB(p: HTMLAttributes<HTMLButtonElement>) {
+
+
+export const nodelicense: NodeLicense[] = [
+    //   {
+    //     name: 'Lnfi',
+    //     tit: 'Lnfi Network',
+    //     about:
+    //       'LNFI Network appears to be a platform that brings together Bitcoin, the Lightning Network, and Nostr to create a financialization layer called LightningFi. This layer is designed to manage Taproot Assets, which are tokens issued on the Bitcoin blockchain, allowing for efficient and scalable asset transfers.',
+    //     totalNodes: 100000n,
+    //     totalTokenSupply: 10000000000000n,
+    //     nodeMining: 'Node Mining: 26% ~ 2years',
+    //     net: 'Ethereum',
+    //   },
+    {
+        name: 'Reppo Network',
+        // tit: 'Reppo Network',
+        tit: (<div>Reppo <span className="text-red-400">Preminum Solver Node</span></div>),
+        infos: [
+            'Price: 0.17ETH',
+            'Sales Link:',
+            <Link key={'link'} href={'https://repposolvers.xyz/'} target="_blank">https://repposolvers.xyz/</Link>
+        ],
+        about:
+            'Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.',
+        totalNodes: 100000n,
+        totalTokenSupply: 10000000000000n,
+        nodeMining: 'Node Mining: 26% ~ 2years',
+        net: 'Base',
+        preDeposit: {
+            nft: '0x1a245cfA2515089017792D92E9d68B8F8b3691eE',
+            prelnt: '0x4CED9DB83b0ea160CFbA7B4deB03628994aE17a6',
+            withdrawTime: 1759881600000
+        },
+    },
+    {
+        name: 'Reppo Network',
+        // tit: 'Reppo Network',
+        tit: (<div>Reppo <span className="text-yellow-300">Standard Solver Node</span></div>),
+        infos: [
+            'Price: 0.08ETH',
+            'Sales Link:',
+            <Link key={'link'} href={'https://repposolvers.xyz/'} target="_blank">https://repposolvers.xyz/</Link>
+        ],
+        about:
+            'Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.',
+        totalNodes: 100000n,
+        totalTokenSupply: 10000000000000n,
+        nodeMining: 'Node Mining: 26% ~ 2years',
+        net: 'Base',
+        preDeposit: {
+            nft: '0x8A1BCBd935c9c7350013786D5d1118832F10e149',
+            prelnt: '0xd1C2b89E9444088288ADaEC513BBA68B2fe5296a',
+            withdrawTime: 1759881600000
+        },
+    },
+]
+
+function BtnB(p: ButtonHTMLAttributes<HTMLButtonElement>) {
     const { children, ...props } = p;
-    return <button {...props} className="text-[1em] p-[.75em] w-[12.5em] rounded-[.5em]  cursor-pointer border dark:border-white border-black btn-b disabled:opacity-60">
+    return <button {...props} className="text-[1em] p-[.75em] w-[12.5em] rounded-[.5em]  cursor-pointer border dark:border-white border-black btn-b disabled:opacity-60 disabled:cursor-not-allowed">
         {children}
     </button >
 }
@@ -32,23 +92,6 @@ export function NodeLicenseImage(p: { icon: ReactNode }) {
     </div>
 }
 
-export type NodeLicense = {
-    name: string
-    tit: string
-    about: string
-    totalNodes: bigint
-    totalTokenSupply: bigint
-    nodeMining: string
-    salesStartTime?: number
-    tokenTGE?: string
-    net: string
-    preDeposit?: {
-        nft: Address,
-        prelnt: Address,
-        withdrawTime?: number
-    }
-
-}
 
 const nlImages: { [k: string]: { src: string, width: string, height: string } } = {
     'Lnfi': { src: '/lnfi.png', width: '50', height: '20' },
@@ -59,14 +102,17 @@ export function NodeLicenseInfo({ data }: { data: NodeLicense }) {
         backdropFilter: 'blur(20px)'
     }} className="bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-[25rem]" >
         <div className="flex gap-7">
-            <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} />
-            <div className="flex flex-col whitespace-nowrap gap-1 text-sm font-medium">
+            {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
+            <CoinIcon symbol="ReppoNft" size={161} />
+            <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
                 <div className="text-base font-semibold">{data.tit}</div>
+                {data.infos.map((item, i) => <div key={`info_${i}`}>{item}</div>)}
+                {/* <div className="text-base font-semibold">{data.tit}</div>
                 <div>Total No. of Nodes: {displayBalance(data.totalNodes, 0, 0)}</div>
                 <div>Total Token Supply: {displayBalance(data.totalTokenSupply, 0, 0)}</div>
                 <div>Node Mining: {data.nodeMining}</div>
                 <div>Sales start time: {data.salesStartTime ? fmtDate(data.salesStartTime) : 'TBD'}</div>
-                <div>Token TGE: {data.tokenTGE ? data.tokenTGE : 'TBD'}</div>
+                <div>Token TGE: {data.tokenTGE ? data.tokenTGE : 'TBD'}</div> */}
             </div>
         </div>
         <div className="bg-[#4A5546] h-[1px] w-full shrink-0"></div>
@@ -234,7 +280,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
                     triggerRef={depositRef}
                     triggerProps={{ className: 'flex-1', disabled: !data.preDeposit }}
                     trigger={
-                        <BtnB>Deposit</BtnB>
+                        <BtnB disabled={!data.preDeposit}>Deposit</BtnB>
                     }
                 >
                     <LntPreDeposit node={data} onSuccess={() => { depositRef.current?.click(); reFetData(); reFetUser() }} />
@@ -250,7 +296,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
                     triggerRef={withdrawRef}
                     triggerProps={{ className: 'flex-1', disabled: !data.preDeposit || (data.preDeposit.withdrawTime || 0) > _.now() }}
                     trigger={
-                        <BtnB>Withdraw</BtnB>
+                        <BtnB disabled={!data.preDeposit || (data.preDeposit.withdrawTime || 0) > _.now()}>Withdraw</BtnB>
                     }
                 >
                     <LntPreWithdraw node={data} onSuccess={() => { withdrawRef.current?.click(); reFetData(); reFetUser() }} />
@@ -262,8 +308,10 @@ export function PrePool({ data }: { data: NodeLicense }) {
 
 
 export function PreDeposit({ data }: { data: NodeLicense }) {
-    return <div className="gap-8 w-full grid grid-cols-[4fr_6fr]">
+    return <div className="gap-8 w-full grid grid-cols-[5fr_6fr]">
         <NodeLicenseInfo data={data} />
         <PrePool data={data} />
     </div>
 }
+
+

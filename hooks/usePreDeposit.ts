@@ -1,4 +1,4 @@
-import { NodeLicense } from '@/components/pre-deposit'
+
 import { getNftsByAlchemy } from '@/config/api'
 import { bnMin, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
@@ -6,6 +6,8 @@ import { useQuery } from '@tanstack/react-query'
 import { flatMap } from 'lodash'
 import { parseAbi } from 'viem'
 import { useAccount } from 'wagmi'
+import { useCurrentChainId } from './useCurrentChainId'
+import { NodeLicense } from '@/config/prelnt'
 
 export const abiPreDeposit = parseAbi([
   'function deposit(uint256 nftId) external',
@@ -17,12 +19,13 @@ export const abiPreDeposit = parseAbi([
   'function totalDeposit() external view returns (uint256)',
 ])
 export function usePreDepositData(node: NodeLicense) {
+  const chainId = useCurrentChainId()
   return useQuery({
-    queryKey: ['preDepositData:', node.preDeposit],
+    queryKey: ['preDepositData:',chainId, node.preDeposit],
     enabled: Boolean(node.preDeposit),
     initialData: { totalDeposit: 0n },
     queryFn: async () => {
-      const pc = getPC()
+      const pc = getPC(chainId)
       return promiseAll({
         totalDeposit: pc.readContract({ abi: abiPreDeposit, address: node.preDeposit!.prelnt, functionName: 'totalDeposit' }),
       })

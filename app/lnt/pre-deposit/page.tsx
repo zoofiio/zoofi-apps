@@ -1,8 +1,8 @@
 'use client'
 
 import { PageWrap } from "@/components/page-wrap"
-import { PreDeposit } from "@/components/pre-deposit"
-import { nodelicense } from "@/config/prelnt"
+import { nodelicense, PreDeposit } from "@/components/pre-deposit"
+
 
 export default function Page() {
     return <PageWrap>

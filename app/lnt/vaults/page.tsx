@@ -13,7 +13,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Grid } from '@tremor/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAccount } from 'wagmi'
-import { toLntVault } from '../routes'
+import { toLntVault } from '../../routes'
 import { useLntVault } from '@/providers/useLntVaultsData'
 
 

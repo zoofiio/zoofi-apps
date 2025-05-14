@@ -2,8 +2,8 @@
 
 import { GeneralAction } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
+import { nodelicense } from '@/components/pre-deposit'
 import { abiMockERC721 } from '@/config/abi'
-import { nodelicense } from '@/config/prelnt'
 
 export default function AdminPage() {
   const nodes = nodelicense.filter(item => item.preDeposit)

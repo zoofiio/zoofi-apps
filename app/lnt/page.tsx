@@ -2,4 +2,6 @@
 
 import { LntLandingPage } from "@/components/lnt-landing-page";
 
-export default LntLandingPage
+export default function Page() {
+    return <LntLandingPage />
+}

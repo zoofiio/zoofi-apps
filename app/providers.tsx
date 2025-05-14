@@ -2,25 +2,26 @@
   ; (BigInt.prototype as any).toJSON = function () {
     return this.toString()
   }
-import * as React from 'react'
+import * as React from 'react';
 
-import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
-import { RainbowKitProvider, connectorsForWallets, darkTheme, lightTheme } from '@rainbow-me/rainbowkit'
-import { bitgetWallet, coinbaseWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet, binanceWallet } from '@rainbow-me/rainbowkit/wallets'
-import { WagmiProvider, createConfig, createStorage } from 'wagmi'
+import { apiBatchConfig, multicallBatchConfig } from '@/config/network';
+import { RainbowKitProvider, connectorsForWallets, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
+import { binanceWallet, bitgetWallet, coinbaseWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
+import { WagmiProvider, createConfig, createStorage } from 'wagmi';
 
 const walletConnectProjectId = 'abf1f323cd9ff9f6a27167188d993168'
 // const ankrKey = 'e1a06837672f1dd89a4c70522941d3beebad120eafad005d79d77c42856d9310'
 const ankrKey = '5da55021cad3ac57391c3292c373dec3a32bf9eaae63b74d4138d5d4a17dd554'
 
-import NextAdapterApp from 'next-query-params/app'
-import { QueryParamProvider } from 'use-query-params'
+import NextAdapterApp from 'next-query-params/app';
+import { QueryParamProvider } from 'use-query-params';
 
-import { useThemeState } from '@/components/theme-mode'
-import { FetcherProvider } from '@/providers/fetcher'
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createClient, http } from 'viem'
+import { useThemeState } from '@/components/theme-mode';
+import { FetcherProvider } from '@/providers/fetcher';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Chain, createClient, http } from 'viem';
+import { mainnet } from 'viem/chains';
 
 const client = new ApolloClient({
   uri: 'https://api.studio.thegraph.com/query/45897/wand/version/latest',
@@ -29,7 +30,7 @@ const client = new ApolloClient({
 
 const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 } } })
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children, supportChains = [mainnet] }: { children: React.ReactNode, supportChains?: readonly [Chain, ...Chain[]] }) {
   const [config, setConfig] = React.useState<ReturnType<typeof createConfig>>()
   React.useEffect(() => {
     // const isTgMini = Boolean((window as any).Telegram?.WebApp?.platform) && (window as any).Telegram?.WebApp?.platform !== 'unknown'
@@ -62,7 +63,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       createConfig({
         connectors,
         storage,
-        chains: SUPPORT_CHAINS,
+        chains: supportChains,
         client: ({ chain }) =>
           createClient({
             chain,

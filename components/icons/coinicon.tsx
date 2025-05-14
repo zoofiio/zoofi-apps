@@ -57,6 +57,9 @@ const SupportICONS: { [k: string]: string } = {
   Lnfi: 'lnfi.png',
   Reppo: 'reppo.png',
   Enreach: 'enreach.svg',
+  Aethir: 'Aethir.svg',
+  Nodeops: 'Nodeops.svg',
+  ReppoNft: 'ReppoNft.png'
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
