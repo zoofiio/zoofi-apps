@@ -2,16 +2,16 @@ name: Github Pages
 on:
   workflow_dispatch:
     inputs:
-      jos:
+      job:
         required: true
         type: choice
-        options: ['prod', 'test']
+        options: ['prod', 'test', 'all']
   push:
-    branches: ['dev','main']
+    branches: ['dev', 'main']
 
 jobs:
   prod:
-    if: contains(github.event.head_commit.message, '[prod]') || contains(github.event.head_commit.message, '[all]')
+    if: contains(github.event.head_commit.message, '[prod]') || contains(github.event.head_commit.message, '[all]') || github.event.inputs.job == 'prod' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -36,7 +36,7 @@ jobs:
           publish_dir: ./out
           cname: app.zoofi.io
   test:
-    if: contains(github.event.head_commit.message, '[test]') || contains(github.event.head_commit.message, '[all]')
+    if: contains(github.event.head_commit.message, '[test]') || contains(github.event.head_commit.message, '[all]') || github.event.inputs.job == 'test' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -61,6 +61,5 @@ jobs:
         with:
           deploy_key: ${{ secrets.DK_TEST }}
           publish_dir: ./out
-          external_repository: zoofiio/zoofi-ui-site-test
+          external_repository: zoofiio/zoofi-apps-site-test
           cname: test.app.zoofi.io
-  
