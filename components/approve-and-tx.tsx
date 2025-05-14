@@ -5,6 +5,8 @@ import { twMerge } from 'tailwind-merge'
 import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt } from 'viem'
 
 import { BBtn } from './ui/bbtn'
+import { useAccount } from 'wagmi'
+import { useNetworkWrong } from '@/hooks/useCurrentChainId'
 
 export function ApproveAndTx<
   const abi extends Abi | readonly unknown[],
@@ -51,8 +53,8 @@ export function ApproveAndTx<
   useEffect(() => {
     onApproveSuccessRef.current && isApproveSuccess && onApproveSuccessRef.current()
   }, [isApproveSuccess])
-
-  const approveDisabled = disabled || !approve || isApproveLoading
+  const isNetWrong = useNetworkWrong()
+  const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
 
   if (shouldApprove)
     return (
@@ -114,8 +116,8 @@ export function NftApproveAndTx<
   useEffect(() => {
     onApproveSuccessRef.current && isApproveSuccess && onApproveSuccessRef.current()
   }, [isApproveSuccess])
-
-  const approveDisabled = disabled || !approve || isApproveLoading
+  const isNetWrong = useNetworkWrong()
+  const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
 
   if (shouldApprove)
     return (

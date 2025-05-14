@@ -50,12 +50,13 @@ const chunckCount = (count: bigint, chunk: bigint = 50n) => {
 }
 export function usePreDepositByUser(node: NodeLicense) {
   const { address } = useAccount()
+  const chainId = useCurrentChainId()
   return useQuery({
-    queryKey: ['preDepositDataByUser:', node.preDeposit, address],
+    queryKey: ['preDepositDataByUser:',chainId, node.preDeposit, address],
     enabled: Boolean(node.preDeposit) && Boolean(address),
     initialData: { deposited: [], nfts: [] },
     queryFn: async () => {
-      const pc = getPC()
+      const pc = getPC(chainId)
       const lnt = node.preDeposit!.prelnt
       const nft = node.preDeposit!.nft
       const user = address!

@@ -1,11 +1,10 @@
 import { NodeLicense } from "@/config/prelnt";
 import { abiPreDeposit, usePreDepositByUser, usePreDepositData } from "@/hooks/usePreDeposit";
-import { cn, fmtDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useBoundStore } from "@/providers/useBoundStore";
-import { displayBalance } from "@/utils/display";
 import _ from "lodash";
 import Link from "next/link";
-import { ButtonHTMLAttributes, HTMLAttributes, ReactNode, useMemo, useRef } from "react";
+import { ButtonHTMLAttributes, ReactNode, useMemo, useRef } from "react";
 import { useSetState } from "react-use";
 import { encodeFunctionData } from "viem";
 import { useAccount } from "wagmi";

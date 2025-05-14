@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt } from 'viem'
 import { useWalletClient } from 'wagmi'
+import { useCurrentChainId } from './useCurrentChainId'
 
 export function useWrapContractWrite<
   const abi extends Abi | readonly unknown[],
@@ -26,7 +27,8 @@ export function useWrapContractWrite<
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const { data: wc } = useWalletClient()
-  const isDisabled = !wc || !wc.account || isLoading || !config
+  const chainId = useCurrentChainId()
+  const isDisabled = !wc || !wc.account || isLoading || !config || wc.chain.id !== chainId
   // const wt = useWandTimestamp()
   const write = async () => {
     if (isDisabled) return
@@ -34,7 +36,7 @@ export function useWrapContractWrite<
     setIsSuccess(false)
     try {
       const mconfig: SimulateContractParameters<abi, functionName, args, Chain, chainOverride, accountOverride> = (typeof config == 'function' ? await config() : config) as any
-      const pc = getPC()
+      const pc = getPC(chainId)
       let req: any = { account: wc.account, ...mconfig }
       if (!opts?.skipSimulate) {
         const res = await pc.simulateContract(req as any)

@@ -6,11 +6,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Address, erc20Abi, erc721Abi } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
+import { useCurrentChainId } from './useCurrentChainId'
 
 const cacheAllowance: { [k: Address]: { [k: Address]: bigint } } = {}
 
 export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Address | undefined, reqBigAmount: bigint | false = 10000000000n * 10n ** 18n) => {
-  const { address, chainId } = useAccount()
+  const { address } = useAccount()
+   const chainId = useCurrentChainId()
   const { data: walletClient } = useWalletClient()
   const [isSuccess, setSuccess] = useState(false)
   const tokens = useMemo(() => Object.keys(needAllownce).filter((item) => item !== NATIVE_TOKEN_ADDRESS) as Address[], [needAllownce])
@@ -25,7 +27,7 @@ export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Add
       return
     }
     tokens.forEach((t) => {
-      getPC()
+      getPC(chainId)
         .readContract({ abi: erc20Abi, address: t, functionName: 'allowance', args: [address, spender] })
         .then((value) => updateAllownce(t, value || 0n))
         .catch(console.error)
@@ -50,7 +52,7 @@ export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Add
           functionName: 'approve',
           args: [spender, allowanceValue],
         })
-        txHash && (await getPC().waitForTransactionReceipt({ hash: txHash }))
+        txHash && (await getPC(chainId).waitForTransactionReceipt({ hash: txHash }))
         updateAllownce(token, allowanceValue)
       }
       toast.success('Approve success')
@@ -67,7 +69,8 @@ export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Add
 
 const cacheNftAllowance: { [spender: Address]: { [token: Address]: boolean } } = {}
 export const useNftApproves = (needAllownce: { [k: Address]: true }, spender: Address | undefined) => {
-  const { address, chainId } = useAccount()
+  const { address } = useAccount()
+  const chainId = useCurrentChainId()
   const { data: walletClient } = useWalletClient()
   const [isSuccess, setSuccess] = useState(false)
   const tokens = _.keys(needAllownce) as Address[]
@@ -82,7 +85,7 @@ export const useNftApproves = (needAllownce: { [k: Address]: true }, spender: Ad
       return
     }
     tokens.forEach((t) => {
-      getPC()
+      getPC(chainId)
         .readContract({ abi: erc721Abi, address: t, functionName: 'isApprovedForAll', args: [address, spender] })
         .then((value) => value !== allowance[t] && updateAllownce(t, value))
         .catch(console.error)
@@ -108,7 +111,7 @@ export const useNftApproves = (needAllownce: { [k: Address]: true }, spender: Ad
           functionName: 'setApprovalForAll',
           args: [spender, true],
         })
-        txHash && (await getPC().waitForTransactionReceipt({ hash: txHash }))
+        txHash && (await getPC(chainId).waitForTransactionReceipt({ hash: txHash }))
         updateAllownce(token, true)
       }
       toast.success('Approve success')
