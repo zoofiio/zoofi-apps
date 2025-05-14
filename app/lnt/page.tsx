@@ -1,7 +1,6 @@
 'use client'
 
-import { LntLandingPage } from "@/components/lnt-landing-page";
-
+import PreDepositPage from './pre-deposit/page';
 export default function Page() {
-    return <LntLandingPage />
+    return <PreDepositPage />
 }

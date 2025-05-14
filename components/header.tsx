@@ -68,7 +68,7 @@ export function useShowTester() {
 export function Header() {
   const pathname = usePathname()
   const { width } = useWindowSize(window.innerWidth, window.innerHeight)
-  const showLinks = pathname !== '/lnt'
+  const showLinks = true
   const hiddenTitle = showLinks && width < 1024
   // const modal = useModal()
   const chainId = useCurrentChainId()
