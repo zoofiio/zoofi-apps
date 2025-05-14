@@ -27,6 +27,7 @@ import { ThemeMode } from './theme-mode'
 import { sepolia } from 'viem/chains'
 import { Tip } from './ui/tip'
 import { BVAULTS_CONFIG } from '@/config/bvaults'
+import { IconType } from 'react-icons'
 
 const NetName: { [k: number]: string } = {
   [berachainTestnet.id]: 'Berachain Bartio',
@@ -65,6 +66,16 @@ export function useShowTester() {
   return !!isTester
 }
 
+type LinkItem = {
+  href: string,
+  hrefs?: string[],
+  label: string,
+  icon: IconType,
+  disable?: boolean,
+}
+const isActiveLink = (pathname: string, li: LinkItem) => {
+  return pathname === li.href || (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href)) || (li.hrefs ?? []).includes(pathname)
+}
 export function Header() {
   const pathname = usePathname()
   const { width } = useWindowSize(window.innerWidth, window.innerHeight)
@@ -76,14 +87,14 @@ export function Header() {
   const showAdmin = useShowAdmin()
   const showTester = useShowTester()
   const links = useMemo(() => {
-    const links =
+    const links: LinkItem[] =
       [
-        { href: '/lnt/pre-deposit', label: 'Pre-Deposit', icon: LuBox },
+        { href: '/lnt/pre-deposit', hrefs: ['/lnt'], label: 'Pre-Deposit', icon: LuBox },
         { href: '/lnt/portfolio', label: 'Portfolio', icon: LuUserCircle, disable: true },
         { href: '/lnt/dashboard', label: 'Dashboard', icon: LuLineChart, disable: true },
       ]
-    showAdmin && links.push({ href: '/admin', label: 'Admin', icon: LuSettings })
-      ; (showTester || showAdmin) && links.push({ href: '/tester', label: 'Tester', icon: LuSettings2 })
+    showAdmin && links.push({ href: '/admin', hrefs: [], label: 'Admin', icon: LuSettings })
+      ; (showTester || showAdmin) && links.push({ href: '/tester', hrefs: [], label: 'Tester', icon: LuSettings2 })
     return links
   }, [showAdmin, showTester])
 
@@ -153,7 +164,9 @@ export function Header() {
         {/* Render App routes */}
         {showLinks ? (
           <div className='hidden lg:flex flex-1 px-5 items-center gap-10'>
-            {links.map(({ href, label, icon, disable }) => {
+            {links.map((li) => {
+              const { href, label, icon, disable } = li
+              const isActive = isActiveLink(pathname, li)
               const Icon = icon
               if (disable) return <Tip key={label} node={
                 <Link
@@ -171,10 +184,10 @@ export function Header() {
                 <Link
                   className={clsx(
                     'text-sm font-medium flex gap-1 items-center transition-all active:translate-y-1',
-                    pathname === href ? 'text-slate-700 dark:text-slate-50' : 'text-slate-500 dark:text-slate-50/50',
+                    isActive ? 'text-slate-700 dark:text-slate-50' : 'text-slate-500 dark:text-slate-50/50',
                   )}
                   key={href}
-                  href={href}
+                  href={isActive ? 'javascript:void(0);' : href}
                 >
                   <Icon />
                   {label}
