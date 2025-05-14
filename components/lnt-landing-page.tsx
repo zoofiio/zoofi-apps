@@ -140,11 +140,6 @@ function Section5() {
 
 export function LntLandingPage() {
     return <div className="w-screen h-screen overflow-y-auto bg-black relative text-white">
-        <div className="h-[5.625rem] absolute top-0 flex items-center justify-start left-1/2 -translate-x-1/2 w-full max-w-[1440px] mx-auto px-5">
-            <Link href={'/lnt'} className='font-semibold flex pr-1 items-center text-base leading-7'>
-                <CoinIcon symbol='logo-alt' size={90} />
-            </Link>
-        </div>
         <div style={{ fontSize: 'min(1.11vw,16px)' }} className="w-full max-w-[1440px] overflow-hidden mx-auto relative">
             <Section1 />
             <Section2 />
