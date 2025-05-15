@@ -1,8 +1,9 @@
 'use client'
-;(BigInt.prototype as any).toJSON = function () {
-  return this.toString()
-}
-import { isBETA } from '@/constants';
+  ; (BigInt.prototype as any).toJSON = function () {
+    return this.toString()
+  }
+import { Menus } from '@/components/menus';
+import { isBETA, isLOCL } from '@/constants';
 import { useConfigDomain } from '@/hooks/useConfigDomain';
 import { useReadingCount } from '@/hooks/useWrapPublicClient';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,11 @@ export default function PageLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
+      {/* {
+        isLOCL ? <div className='grid w-screen h-screen overflow-auto flex-col xl:flex-row'>
+          <Menus/>
+        </div> : children
+      } */}
       {children}
       <Toaster position='top-right' offset={70} />
       {/* <BetaFlag /> */}

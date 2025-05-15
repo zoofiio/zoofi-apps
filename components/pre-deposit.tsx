@@ -100,7 +100,7 @@ export function NodeLicenseInfo({ data }: { data: NodeLicense }) {
     return <div style={{
         backdropFilter: 'blur(20px)'
     }} className="bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-[25rem]" >
-        <div className="flex gap-7">
+        <div className="flex gap-7 flex-wrap">
             {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
             <CoinIcon symbol="ReppoNft" size={161} />
             <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
@@ -169,9 +169,8 @@ function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () =
     const pre = node.preDeposit!
     // const nfts = useNftBalance(pre.nft)
     const { data: { nfts }, refetch } = usePreDepositByUser(node)
-    return <div className='flex flex-col gap-5 items-center p-5'>
+    return <div className='flex flex-col gap-5 items-center p-5 h-max'>
         <div className='w-full text-start'>Licenses ID</div>
-
         <div className='w-[32rem] h-72 overflow-y-auto'>
             <div className='w-full gap-2 grid grid-cols-4 '>
                 {nfts.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
@@ -253,7 +252,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
     const { data: { deposited, nfts }, refetch: reFetUser } = usePreDepositByUser(data)
     return <div style={{
         backdropFilter: 'blur(20px)'
-    }} className="bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5" >
+    }} className="bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-max" >
         {/* title */}
         <div className="flex justify-between items-center">
             <div className="flex flex-col gap-2">
@@ -270,9 +269,9 @@ export function PrePool({ data }: { data: NodeLicense }) {
         </div>
         <div className="bg-[#4A5546] h-[1px] w-full shrink-0" />
         {/* deposit withdraw */}
-        <div className="flex gap-5 flex-1">
+        <div className="flex gap-5 flex-1 flex-col sm:flex-row">
             {/* deposit */}
-            <div className="flex-1 flex flex-col justify-between items-center h-full pb-5">
+            <div className="flex-1 flex flex-col justify-between items-center h-full gap-5 pb-5">
                 <div className="self-start">In-Wallet: {nfts.length}</div>
                 <InSvg />
                 <SimpleDialog
@@ -286,9 +285,9 @@ export function PrePool({ data }: { data: NodeLicense }) {
                 </SimpleDialog>
 
             </div>
-            <div className="bg-[#4A5546] w-[1px] h-full shrink-0" />
+            <div className="bg-[#4A5546] h-[1px] w-full sm:w-[1px] sm:h-full shrink-0" />
             {/* withdraw */}
-            <div className="flex-1 flex flex-col justify-between items-center h-full pb-5">
+            <div className="flex-1 flex flex-col justify-between items-center h-full gap-5 pb-5">
                 <div className="self-end">Deposited: {deposited.length}</div>
                 <OutSvg />
                 <SimpleDialog
@@ -307,7 +306,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
 
 
 export function PreDeposit({ data }: { data: NodeLicense }) {
-    return <div className="gap-8 w-full grid grid-cols-[5fr_6fr]">
+    return <div className="gap-4 xl:gap-8 w-full grid xl:grid-cols-[5fr_6fr]">
         <NodeLicenseInfo data={data} />
         <PrePool data={data} />
     </div>
