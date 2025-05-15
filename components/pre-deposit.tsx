@@ -42,7 +42,7 @@ export const nodelicense: NodeLicense[] = [
         net: 'Base',
         preDeposit: {
             nft: '0x1a245cfA2515089017792D92E9d68B8F8b3691eE',
-            prelnt: '0x4CED9DB83b0ea160CFbA7B4deB03628994aE17a6',
+            prelnt: '0x58a4f5cecb69b85600b26092f0c0a73430ea8800',
             withdrawTime: 1759881600000
         },
     },
@@ -63,7 +63,7 @@ export const nodelicense: NodeLicense[] = [
         net: 'Base',
         preDeposit: {
             nft: '0x8A1BCBd935c9c7350013786D5d1118832F10e149',
-            prelnt: '0xd1C2b89E9444088288ADaEC513BBA68B2fe5296a',
+            prelnt: '0xaf021d48339e52edd84bab1221df9bac7f10cb69',
             withdrawTime: 1759881600000
         },
     },

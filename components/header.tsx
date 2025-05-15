@@ -1,9 +1,10 @@
 'use client'
 
 import { base, berachain, berachainTestnet, SUPPORT_CHAINS } from '@/config/network'
-import { DISCORD_LINK, DOC_LINK, ENV, isLNT, TWITTER_LINK } from '@/constants'
+import { DISCORD_LINK, DOC_LINK, isLNT, TWITTER_LINK } from '@/constants'
 
 import { abiMockPriceFeed, abiVault } from '@/config/abi'
+import { BVAULTS_CONFIG } from '@/config/bvaults'
 import { BASE_PATH } from '@/config/env'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { VAULTS_CONFIG } from '@/config/swap'
@@ -17,22 +18,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
+import { IconType } from 'react-icons'
 import { LuBox, LuLineChart, LuSettings, LuSettings2, LuUserCircle } from 'react-icons/lu'
 import { TbBook2, TbBrandDiscordFilled, TbBrandX, TbChevronDown } from 'react-icons/tb'
 import { useWindowSize } from 'react-use'
+import { sepolia } from 'viem/chains'
 import { useAccount, useConfig } from 'wagmi'
 import ConnectBtn from './connet-btn'
 import { CoinIcon } from './icons/coinicon'
 import { ThemeMode } from './theme-mode'
-import { sepolia } from 'viem/chains'
 import { Tip } from './ui/tip'
-import { BVAULTS_CONFIG } from '@/config/bvaults'
-import { IconType } from 'react-icons'
-
-const NetName: { [k: number]: string } = {
-  [berachainTestnet.id]: 'Berachain Bartio',
-  [berachain.id]: 'Berachain',
-}
 
 const NetIcon: { [k: number]: string } = {
   [berachainTestnet.id]: `${BASE_PATH}/berachain.svg`,
