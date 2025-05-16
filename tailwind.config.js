@@ -27,7 +27,9 @@ module.exports = {
         btnhover: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.8) 0%, rgba(179, 232, 84, 0.8) 100%)',
         btndark: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.2) 0%, rgba(179, 232, 84, 0.2) 100%)',
         btndarkhover: 'radial-gradient(76.25% 76.25% at 50.3% 23.75%, rgba(27, 205, 89, 0.12) 0%, rgba(179, 232, 84, 0.12) 100%)',
-        btndis: 'linear-gradient(180deg, rgba(159, 179, 159, 0.2) 0%, rgba(190, 255, 186, 0.2) 100%)'
+        btndis: 'linear-gradient(180deg, rgba(159, 179, 159, 0.2) 0%, rgba(190, 255, 186, 0.2) 100%)',
+
+        l1: 'linear-gradient(105.67deg, #02050E 14.41%, #1D2F23 98.84%)'
       },
       animation: {
         'spin-slow': 'spin 2s cubic-bezier(1, 0, 0, 1) infinite'

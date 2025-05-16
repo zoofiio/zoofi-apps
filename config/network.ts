@@ -1,9 +1,7 @@
-import { isLNT, isPROD } from '@/constants'
 import { providers } from 'ethers'
-import _ from 'lodash'
 import { Address, Chain, defineChain } from 'viem'
-import { LP_TOKENS } from './lpTokens'
 import { base as baseMainnet } from 'viem/chains'
+import { LP_TOKENS } from './lpTokens'
 
 export const berachainTestnet = defineChain({
   id: 80084,
@@ -106,6 +104,12 @@ export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia, base]
 // allapps chanis
 export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [sepolia, base, berachain, berachainTestnet]
+
+const refChainId = { chainId: SUPPORT_CHAINS[0].id }
+export function getCurrentChainId() {
+  return refChainId.chainId
+}
+
 
 export function isBerachain(id: number) {
   return !!beraChains.find((item) => item.id == id)

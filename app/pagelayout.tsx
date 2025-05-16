@@ -3,7 +3,7 @@
     return this.toString()
   }
 import { Menus } from '@/components/menus';
-import { isBETA, isLOCL } from '@/constants';
+import { isBETA } from '@/constants';
 import { useConfigDomain } from '@/hooks/useConfigDomain';
 import { useReadingCount } from '@/hooks/useWrapPublicClient';
 import { cn } from '@/lib/utils';
@@ -26,12 +26,15 @@ export default function PageLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {/* {
-        isLOCL ? <div className='grid w-screen h-screen overflow-auto flex-col xl:flex-row'>
-          <Menus/>
-        </div> : children
-      } */}
-      {children}
+      <div className='w-screen h-screen overflow-auto flex justify-center relative bg-[#eeeeee] dark:bg-l1'>
+        <div className='flex justify-center w-full max-w-[1400px] h-max relative'>
+          <Menus />
+          <div className='flex-1 relative h-max w-full'>
+            {children}
+          </div>
+        </div>
+      </div>
+      {/* {children} */}
       <Toaster position='top-right' offset={70} />
       {/* <BetaFlag /> */}
       <PageLoading />

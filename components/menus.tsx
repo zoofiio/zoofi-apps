@@ -1,22 +1,108 @@
-import { useMemo } from "react"
+import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { MouseEvent, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
+import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
+import { useClickAway, useToggle } from "react-use"
+import { CoinIcon } from "./icons/coinicon"
+import { FiChevronRight } from "react-icons/fi"
+import { usePathname, useRouter } from "next/navigation"
+import { Tip } from "./ui/tip"
 
 
 export type MenuItem = {
-    naem: string,
+    name: string,
     href: string,
-    hrefs?: string[]
     target?: '_blank' | '_self',
     disabled?: boolean,
     icon?: IconType
     subs?: MenuItem[]
 }
 
-
+const isActiveLink = (pathname: string, li: MenuItem) => {
+    const isActiveStatic = pathname === li.href
+    const isActiveAsParent = (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href))
+    return isActiveStatic || isActiveAsParent
+}
+function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?: number, expand?: boolean }) {
+    const [isExpand, toggleExpand] = useToggle(expand)
+    const isActive = isActiveLink(usePathname(), menu)
+    const onClickToggle = (e: MouseEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        toggleExpand()
+    }
+    const r = useRouter()
+    return <>
+        <div style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
+            onClick={() => {
+                !menu.disabled && r.push(menu.href)
+            }}
+            className={cn("text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed opacity-60': menu.disabled, "text-primary": isActive })}>
+            {menu.icon && <menu.icon />}
+            {menu.disabled ? <Tip node={menu.name}>Coming Soon</Tip> : menu.name}
+            {menu.subs && <FiChevronRight className={cn('cursor-pointer ml-auto', { "-rotate-90": isExpand })} onClick={onClickToggle} />}
+        </div>
+        {isExpand && menu.subs?.map((item, i) => <MenusItem key={`menusitem_${i}_${depth}`} menu={item} expand={false} depth={depth + 1} />)}
+    </>
+}
 
 export function Menus() {
-    const menus = useMemo(() => { }, [])
-    return <div className="flex flex-col gap-2 items-center ">
+    const menus = useMemo(() => {
+        return [
+            {
+                href: '/lnt',
+                name: "LNT",
+                subs: [
+                    { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuBox },
+                    { href: '/lnt/portfolio', name: 'Portfolio', icon: LuUserCircle, disabled: true },
+                    { href: '/lnt/dashboard', name: 'Dashboard', icon: LuLineChart, disabled: true },
+                ]
+            },
+            {
+                href: '/b-vaults',
+                name: "B-Vaults",
+                subs: [
+                    { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuUserCircle },
+                    { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuLineChart },
+                ],
+            }
+        ] as MenuItem[]
+    }, [])
+    const [open, toggleOpen] = useToggle(false)
+    const refMenus = useRef<HTMLDivElement>(null)
+    const refToggle = useRef<HTMLDivElement>(null)
 
-    </div>
+    useClickAway(refMenus, (e) => {
+        const { current: toggleEL } = refToggle
+        toggleEL && !toggleEL.contains(e.target as any) && toggleOpen(false)
+    })
+
+    return <>
+        <div className="flex fixed z-50 left-0 lg:hidden items-center px-4 h-[72px]">
+            <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
+                <CoinIcon symbol='logo-alt' size={90} />
+            </Link>
+            <div ref={refToggle}>
+                <LuMenu className="text-3xl cursor-pointer" onClick={() => toggleOpen(!open)} />
+            </div>
+        </div>
+        {/* for pc */}
+        <div ref={refMenus} className={cn("hidden h-screen lg:flex flex-col gap-8 items-center sticky top-0 w-[15rem] overflow-y-auto transition-all")}>
+            <div className="flex items-center justify-center gap-5 px-4 h-[72px]">
+                <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
+                    <CoinIcon symbol='logo-alt' size={90} />
+                </Link>
+            </div>
+            <div className={cn("flex-col gap-2 items-end flex w-full")}>
+                {menus.map(menu => <MenusItem menu={menu} />)}
+            </div>
+        </div>
+        {/* for mobile */}
+        <div ref={refMenus} className={cn("fixed z-50 flex lg:hidden flex-col gap-8 items-center top-[72px] w-[15rem] overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>
+            <div className={cn("flex-col gap-2 items-end flex w-full")}>
+                {menus.map(menu => <MenusItem menu={menu} />)}
+            </div>
+        </div>
+    </>
 }
