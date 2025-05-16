@@ -2,20 +2,20 @@
     ; (BigInt.prototype as any).toJSON = function () {
         return this.toString()
     }
-import { base, berachain, berachainTestnet } from "@/config/network";
-import { Providers } from "../providers";
-import { ReactNode } from "react";
 import { Header, LinkItem } from "@/components/header";
-import { LuBox, LuLineChart, LuUserCircle } from "react-icons/lu";
+import { berachain, berachainTestnet } from "@/config/network";
 import { isPROD } from "@/constants";
+import { ReactNode } from "react";
+import { LuBox, LuLineChart, LuUserCircle } from "react-icons/lu";
+import { Providers } from "../providers";
 const links: LinkItem[] = [
-    { href: '/b-vaults/pre-deposit', hrefs: ['/lnt'], label: 'Pre-Deposit', icon: LuBox },
-    { href: '/lnt/portfolio', label: 'Portfolio', icon: LuUserCircle, disable: true },
-    { href: '/lnt/dashboard', label: 'Dashboard', icon: LuLineChart, disable: true },
+    { href: '/b-vaults', label: 'B-Vaults', icon: LuBox, },
+    { href: '/b-vaults/portfolio', label: 'Portfolio', icon: LuUserCircle },
+    { href: '/b-vaults/dashboard', label: 'Dashboard', icon: LuLineChart },
 ]
 export default function Layout({ children }: { children: ReactNode }) {
     return <Providers supportChains={isPROD ? [berachain] : [berachainTestnet, berachain]}>
-        <Header links={[]} />
+        <Header links={links} />
         {children}
     </Providers>
 }

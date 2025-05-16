@@ -19,7 +19,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
 import { IconType } from 'react-icons'
-import { LuBox, LuLineChart, LuSettings, LuSettings2, LuUserCircle } from 'react-icons/lu'
 import { TbBook2, TbBrandDiscordFilled, TbBrandX, TbChevronDown } from 'react-icons/tb'
 import { useWindowSize } from 'react-use'
 import { sepolia } from 'viem/chains'
@@ -63,13 +62,14 @@ export function useShowTester() {
 
 export type LinkItem = {
   href: string,
-  hrefs?: string[],
   label: string,
   icon: IconType,
   disable?: boolean,
 }
 const isActiveLink = (pathname: string, li: LinkItem) => {
-  return pathname === li.href || (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href)) || (li.hrefs ?? []).includes(pathname)
+  const isActiveStatic = pathname === li.href
+  const isActiveAsParent = (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href))
+  return isActiveStatic || isActiveAsParent
 }
 export function Header({ links }: { links: LinkItem[] }) {
   const pathname = usePathname()
@@ -170,7 +170,7 @@ export function Header({ links }: { links: LinkItem[] }) {
                   isActive ? 'text-slate-700 dark:text-slate-50' : 'text-slate-500 dark:text-slate-50/50',
                 )}
                 key={href}
-                href={isActive ? 'javascript:void(0);' : href}
+                href={href}
               >
                 <Icon />
                 {label}

@@ -8,7 +8,7 @@ import { ReactNode } from "react";
 import { Header, LinkItem } from "@/components/header";
 import { LuBox, LuLineChart, LuUserCircle } from "react-icons/lu";
 const links: LinkItem[] = [
-    { href: '/lnt/pre-deposit', hrefs: ['/lnt'], label: 'Pre-Deposit', icon: LuBox },
+    { href: '/lnt/pre-deposit', label: 'Pre-Deposit', icon: LuBox },
     { href: '/lnt/portfolio', label: 'Portfolio', icon: LuUserCircle, disable: true },
     { href: '/lnt/dashboard', label: 'Dashboard', icon: LuLineChart, disable: true },
 ]
