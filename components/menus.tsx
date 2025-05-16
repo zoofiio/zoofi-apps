@@ -47,7 +47,8 @@ function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?:
     </>
 }
 
-export function Menus() {
+
+function MenusContent() {
     const menus = useMemo(() => {
         return [
             {
@@ -69,6 +70,12 @@ export function Menus() {
             }
         ] as MenuItem[]
     }, [])
+    return <div className={cn("flex-col gap-2 items-end flex w-full")}>
+        {menus.map((menu, i) => <MenusItem key={`menusitem_${i}`} menu={menu} />)}
+    </div>
+}
+export function Menus() {
+
     const [open, toggleOpen] = useToggle(false)
     const refMenus = useRef<HTMLDivElement>(null)
     const refToggle = useRef<HTMLDivElement>(null)
@@ -94,15 +101,11 @@ export function Menus() {
                     <CoinIcon symbol='logo-alt' size={90} />
                 </Link>
             </div>
-            <div className={cn("flex-col gap-2 items-end flex w-full")}>
-                {menus.map(menu => <MenusItem menu={menu} />)}
-            </div>
+            <MenusContent />
         </div>
         {/* for mobile */}
         <div ref={refMenus} className={cn("fixed z-50 flex lg:hidden flex-col gap-8 items-center top-[72px] w-[15rem] overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>
-            <div className={cn("flex-col gap-2 items-end flex w-full")}>
-                {menus.map(menu => <MenusItem menu={menu} />)}
-            </div>
+            <MenusContent />
         </div>
     </>
 }
