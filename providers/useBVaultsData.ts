@@ -119,20 +119,21 @@ export function useBVaultApy(vc: BVaultConfig): [string, bigint] {
 
 export function useUpBVaultForUserAction(bvc: BVaultConfig, onUserAction?: () => void) {
   const { address } = useAccount()
+  const chainId = useCurrentChainId()
   return () => {
     retry(
       async () => {
         onUserAction?.()
         if (!address) return
         await Promise.all([
-          useBoundStore.getState().sliceTokenStore.updateTokensBalance([bvc.asset, bvc.pToken], address),
-          useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply([bvc.asset, bvc.pToken]),
-          useBoundStore.getState().sliceBVaultsStore.updateBvaults([bvc]),
-          useBoundStore.getState().sliceBVaultsStore.updateYTokenSythetic([bvc]),
+          useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, [bvc.asset, bvc.pToken], address),
+          useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(chainId, [bvc.asset, bvc.pToken]),
+          useBoundStore.getState().sliceBVaultsStore.updateBvaults(chainId, [bvc]),
+          useBoundStore.getState().sliceBVaultsStore.updateYTokenSythetic(chainId, [bvc]),
         ])
 
         const bvd = useBoundStore.getState().sliceBVaultsStore.bvaults[bvc.vault]!
-        await useBoundStore.getState().sliceBVaultsStore.updateEpoches(bvc, bvd.epochCount > 1n ? [bvd.epochCount, bvd.epochCount - 1n] : [bvd.epochCount])
+        await useBoundStore.getState().sliceBVaultsStore.updateEpoches(chainId, bvc, bvd.epochCount > 1n ? [bvd.epochCount, bvd.epochCount - 1n] : [bvd.epochCount])
 
         const epoches: BVaultEpochDTO[] = []
         for (let epocheId = parseInt(bvd.epochCount.toString()); epocheId > 0; epocheId--) {
@@ -140,7 +141,7 @@ export function useUpBVaultForUserAction(bvc: BVaultConfig, onUserAction?: () =>
           epoches.push(epoch)
         }
         console.info('onUserAction:epoches', epoches)
-        await useBoundStore.getState().sliceUserBVaults.updateEpoches(bvc, address, epoches)
+        await useBoundStore.getState().sliceUserBVaults.updateEpoches(chainId,bvc, address, epoches)
       },
       3,
       1000,

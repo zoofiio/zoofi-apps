@@ -42,7 +42,7 @@ export const FetcherProvider = ({ children }: { children: ReactNode }): JSX.Elem
     queryKey: ['updateDefTokenList', chainId],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      await useBoundStore.getState().sliceTokenStore.updateDefTokenList()
+      await useBoundStore.getState().sliceTokenStore.updateDefTokenList(chainId)
       return true
     },
   })

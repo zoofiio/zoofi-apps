@@ -104,7 +104,7 @@ function LntVaultYTrans({ vc }: { vc: LntVaultConfig }) {
   const { data: result, isFetching: isFetchingSwap } = useQuery({
     queryKey: calcSwapKey,
     enabled: Boolean(vd.initialized),
-    queryFn: () => getPC().readContract({ abi: abiLntVault, address: vc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
+    queryFn: () => getPC(chainId).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
   })
   const [priceSwap, togglePriceSwap] = useToggle(false)
   const vualtYTokenBalance = vd.current.vaultYTokenBalance

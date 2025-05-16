@@ -8,6 +8,7 @@ import { LntVaultDTO, LntVaultEpochDTO, LntVaultUserNftStatDTO } from './sliceLn
 import { BoundStoreType, useBoundStore, useStore } from './useBoundStore'
 import { DECIMAL } from '@/constants'
 import { displayBalance } from '@/utils/display'
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 
 export function useResetBVaultsData() {
   const { address } = useAccount()
@@ -53,23 +54,24 @@ export function useLntEpochesData(vault: Address) {
 
 export function useUpLntVaultForUserAction(bvc: LntVaultConfig, onUserAction?: () => void) {
   const { address } = useAccount()
+  const chainId = useCurrentChainId()
   return () => {
     retry(
       async () => {
         onUserAction?.()
         if (!address) return
         await Promise.all([
-          useBoundStore.getState().sliceTokenStore.updateTokensBalance([bvc.vToken, bvc.vestingToken], address),
-          useBoundStore.getState().sliceTokenStore.updateNftBalance([bvc.asset], address),
-          useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply([bvc.vToken, bvc.vestingToken]),
-          useBoundStore.getState().sliceLntVaultsStore.updateLntVaults([bvc]),
-          useBoundStore.getState().sliceLntVaultsStore.updateUserNftStat(bvc, address),
+          useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, [bvc.vToken, bvc.vestingToken], address),
+          useBoundStore.getState().sliceTokenStore.updateNftBalance(chainId, [bvc.asset], address),
+          useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(chainId, [bvc.vToken, bvc.vestingToken]),
+          useBoundStore.getState().sliceLntVaultsStore.updateLntVaults(chainId, [bvc]),
+          useBoundStore.getState().sliceLntVaultsStore.updateUserNftStat(chainId, bvc, address),
         ])
 
         const bvd = useBoundStore.getState().sliceLntVaultsStore.vaults[bvc.vault]!
         if (bvd.epochCount > 0n) {
-          await useBoundStore.getState().sliceLntVaultsStore.updateEpoches(bvc, bvd.epochCount > 1n ? [bvd.epochCount, bvd.epochCount - 1n] : [bvd.epochCount])
-          await useBoundStore.getState().sliceLntVaultsStore.updateUserEpoches(bvc, address)
+          await useBoundStore.getState().sliceLntVaultsStore.updateEpoches(chainId, bvc, bvd.epochCount > 1n ? [bvd.epochCount, bvd.epochCount - 1n] : [bvd.epochCount])
+          await useBoundStore.getState().sliceLntVaultsStore.updateUserEpoches(chainId, bvc, address)
         }
       },
       3,

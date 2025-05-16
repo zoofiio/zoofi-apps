@@ -10,16 +10,18 @@ import { Address, formatEther, parseEther } from 'viem'
 import { AdditionalSupportTokens, useGetAdditionalConfig } from './useGetConfigs'
 import { useReturnsIBGT } from './useReturnsIBGT'
 import { getBigint } from '@/lib/utils'
+import { useCurrentChainId } from './useCurrentChainId'
 
 export function useYTPoints(vault: Address) {
   const bvd = useBVault(vault)
+  const chainId = useCurrentChainId()
   return useQuery({
     initialData: 0n,
     gcTime: 60 * 60 * 1000,
-    queryKey: ['ytPoints', vault, bvd.current.adhocBribesPool],
+    queryKey: ['ytPoints',chainId, vault, bvd.current.adhocBribesPool],
     enabled: Boolean(vault) && Boolean(bvd.current.adhocBribesPool),
     queryFn: async () => {
-      const pc = getPC()
+      const pc = getPC(chainId)
       return pc.readContract({ abi: abiAdhocBribesPool, address: bvd.current.adhocBribesPool, functionName: 'totalSupply' })
     },
   })

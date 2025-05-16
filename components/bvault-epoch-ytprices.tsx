@@ -9,6 +9,7 @@ import _ from 'lodash'
 import { useMemo } from 'react'
 import { useToggle } from 'react-use'
 import { formatEther } from 'viem'
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 
 const bnToNum = (bn: string) => _.round(parseFloat(formatEther(BigInt(bn))), 5)
 
@@ -19,8 +20,9 @@ const revertLog = (num: number) => _.round((Math.pow(10, num) - 1) / multip, 5)
 // const logTrans = (num: number) => _.round(Math.log10(num * 10000), 5)
 // const revertLog = (num: number) => _.round(Math.pow(10, num) / 10000, 5)
 export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfig; epochId: bigint }) {
+  const chainId = useCurrentChainId()
   const { data: prices } = useQuery({
-    queryKey: ['bvualt-epoch-yt-prices', bvc.vault, epochId],
+    queryKey: ['bvualt-epoch-yt-prices', chainId, bvc.vault, epochId],
     queryFn: () => getBvaultEpochYtPrices(bvc.vault, epochId),
     initialData: [],
   })
@@ -29,7 +31,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
     const data = prices.map((p) => [fmtDate(p.time * 1000, FMT.ALL), isLOG ? logTrans(bnToNum(p.price)) : bnToNum(p.price)])
     const valueFormater = (value: number) => (isLOG ? revertLog(value).toString() : value.toString())
     const calcMax = (v: any) => {
-    //    const max = value.max * 1.1
+      //    const max = value.max * 1.1
     }
     const options = {
       animation: true,
@@ -44,7 +46,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
         type: 'category',
         boundaryGap: false,
         axisLine: {
-            onZero: false,
+          onZero: false,
         }
       },
       yAxis: {
@@ -70,7 +72,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
       series: [
         {
           name: 'YT Price',
-          type: 'line', 
+          type: 'line',
           symbol: 'none',
           sampling: 'lttb',
           itemStyle: {

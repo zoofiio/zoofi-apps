@@ -61,7 +61,7 @@ export function useShowTester() {
   return !!isTester
 }
 
-type LinkItem = {
+export type LinkItem = {
   href: string,
   hrefs?: string[],
   label: string,
@@ -71,27 +71,15 @@ type LinkItem = {
 const isActiveLink = (pathname: string, li: LinkItem) => {
   return pathname === li.href || (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href)) || (li.hrefs ?? []).includes(pathname)
 }
-export function Header() {
+export function Header({ links }: { links: LinkItem[] }) {
   const pathname = usePathname()
   const { width } = useWindowSize(window.innerWidth, window.innerHeight)
-  const showLinks = true
-  const hiddenTitle = showLinks && width < 1024
+  const hiddenTitle = width < 1024
   // const modal = useModal()
   const chainId = useCurrentChainId()
   const { openChainModal } = useChainModal()
-  const showAdmin = useShowAdmin()
-  const showTester = useShowTester()
-  const links = useMemo(() => {
-    const links: LinkItem[] =
-      [
-        { href: '/lnt/pre-deposit', hrefs: ['/lnt'], label: 'Pre-Deposit', icon: LuBox },
-        { href: '/lnt/portfolio', label: 'Portfolio', icon: LuUserCircle, disable: true },
-        { href: '/lnt/dashboard', label: 'Dashboard', icon: LuLineChart, disable: true },
-      ]
-    showAdmin && links.push({ href: '/admin', hrefs: [], label: 'Admin', icon: LuSettings })
-      ; (showTester || showAdmin) && links.push({ href: '/tester', hrefs: [], label: 'Tester', icon: LuSettings2 })
-    return links
-  }, [showAdmin, showTester])
+  // const showAdmin = useShowAdmin()
+  // const showTester = useShowTester()
 
   const { chain, address } = useAccount()
   const { chains } = useConfig()
@@ -157,40 +145,40 @@ export function Header() {
         </div>
 
         {/* Render App routes */}
-        {showLinks ? (
-          <div className='hidden lg:flex flex-1 px-5 items-center gap-10'>
-            {links.map((li) => {
-              const { href, label, icon, disable } = li
-              const isActive = isActiveLink(pathname, li)
-              const Icon = icon
-              if (disable) return <Tip key={label} node={
-                <Link
-                  className='text-sm font-medium flex gap-1 items-center transition-all active:translate-y-1 text-slate-700 dark:text-slate-50 opacity-50'
-                  href={'javascript:void(0);'}
-                >
-                  <Icon />
-                  {label}
-                </Link>
-              }>
-                Coming Soon
-              </Tip>
 
-              return (
-                <Link
-                  className={clsx(
-                    'text-sm font-medium flex gap-1 items-center transition-all active:translate-y-1',
-                    isActive ? 'text-slate-700 dark:text-slate-50' : 'text-slate-500 dark:text-slate-50/50',
-                  )}
-                  key={href}
-                  href={isActive ? 'javascript:void(0);' : href}
-                >
-                  <Icon />
-                  {label}
-                </Link>
-              )
-            })}
-          </div>
-        ) : null}
+        <div className='hidden lg:flex flex-1 px-5 items-center gap-10'>
+          {links.map((li) => {
+            const { href, label, icon, disable } = li
+            const isActive = isActiveLink(pathname, li)
+            const Icon = icon
+            if (disable) return <Tip key={label} node={
+              <Link
+                className='text-sm font-medium flex gap-1 items-center transition-all active:translate-y-1 text-slate-700 dark:text-slate-50 opacity-50'
+                href={'javascript:void(0);'}
+              >
+                <Icon />
+                {label}
+              </Link>
+            }>
+              Coming Soon
+            </Tip>
+
+            return (
+              <Link
+                className={clsx(
+                  'text-sm font-medium flex gap-1 items-center transition-all active:translate-y-1',
+                  isActive ? 'text-slate-700 dark:text-slate-50' : 'text-slate-500 dark:text-slate-50/50',
+                )}
+                key={href}
+                href={isActive ? 'javascript:void(0);' : href}
+              >
+                <Icon />
+                {label}
+              </Link>
+            )
+          })}
+        </div>
+
 
         <div className='flex items-center gap-1 md:gap-4'>
           {/* Social networks */}
@@ -205,7 +193,7 @@ export function Header() {
               )
             })}
           </div>
-          {showDefNet && showLinks && (
+          {showDefNet && (
             <div
               className='flex items-center gap-2 text-sm text-slate-500 dark:text-slate-50 font-medium rounded-full cursor-pointer'
               onClick={() => openChainModal && openChainModal()}
@@ -214,7 +202,7 @@ export function Header() {
               <div className='hidden sm:block'>{currentChain.name}</div>
             </div>
           )}
-          {showLinks && <ConnectBtn />}
+          <ConnectBtn />
         </div>
       </header>
     </div>

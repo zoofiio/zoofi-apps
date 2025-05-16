@@ -22,15 +22,15 @@ export type UserBVaultsStore = {
     [k: Address]: BVaultUserDTO[] | undefined
   }
 
-  updateEpoches: (bvc: BVaultConfig, user: Address, epoches: BVaultEpochDTO[]) => Promise<UserBVaultsStore['epoches']>
+  updateEpoches: (chainId: number, bvc: BVaultConfig, user: Address, epoches: BVaultEpochDTO[]) => Promise<UserBVaultsStore['epoches']>
   reset: () => void
 }
 
 export const sliceUserBVaults: SliceFun<UserBVaultsStore> = (set, get, init) => {
-  const updateEpoches = async (bvc: BVaultConfig, user: Address, _epoches: BVaultEpochDTO[]) => {
+  const updateEpoches = async (chainId: number, bvc: BVaultConfig, user: Address, _epoches: BVaultEpochDTO[]) => {
     const epoches = _epoches.filter((e) => e.epochId > 0n)
     if (epoches.length == 0) return {}
-    const pc = getPC()
+    const pc = getPC(chainId)
     const endEpoches = await Promise.all(
       epoches.map((e) =>
         pc.readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpochUser', args: [bvc.vault, e.epochId, user] }),

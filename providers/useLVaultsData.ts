@@ -4,9 +4,8 @@ import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useMemoOfChainId } from '@/hooks/useMemoOfChain'
 import { aarToNumber, proxyGetDef, retry } from '@/lib/utils'
 import { Address } from 'viem'
-import { BoundStoreType, useBoundStore, useStore } from './useBoundStore'
 import { useAccount } from 'wagmi'
-import { getCurrentChainId } from '@/config/network'
+import { BoundStoreType, useBoundStore, useStore } from './useBoundStore'
 
 export const defLVault = proxyGetDef<Exclude<BoundStoreType['sliceLVaultsStore']['lvaults'][Address], undefined>>({ vaultMode: 0, discountEnable: false }, 0n)
 export const defUserLVault = proxyGetDef<Exclude<BoundStoreType['sliceLVaultsStore']['user'][Address], undefined>>({}, 0n)
@@ -27,7 +26,7 @@ export function useVaultLeverageRatio(vc: VaultConfig) {
 
 export function useValutsLeverageRatio() {
   const chainId = useCurrentChainId()
-  const vcs = VAULTS_CONFIG[chainId]||[]
+  const vcs = VAULTS_CONFIG[chainId] || []
   const leverageMap: { [k: Address]: number } = useMemoOfChainId(() => proxyGetDef({}, 0))
   const lvaults = useStore((s) => s.sliceLVaultsStore.lvaults)
   vcs?.forEach((vc) => {
@@ -88,17 +87,18 @@ export function useUSBApr() {
 
 export function useUpLVaultOnUserAction(vc: VaultConfig) {
   const { address } = useAccount()
+  const chainId = useCurrentChainId()
   return () => {
     retry(
       async () => {
         if (!address) return
         const lvs = useBoundStore.getState().sliceLVaultsStore
-        const tokens = [vc.assetTokenAddress, vc.xTokenAddress, USB_ADDRESS[getCurrentChainId()]]
+        const tokens = [vc.assetTokenAddress, vc.xTokenAddress, USB_ADDRESS[chainId]]
         await Promise.all([
-          lvs.updateLVaults([vc]),
-          lvs.updateUserLVault(vc, address),
-          useBoundStore.getState().sliceTokenStore.updateTokensBalance(tokens, address),
-          useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens),
+          lvs.updateLVaults(chainId, [vc]),
+          lvs.updateUserLVault(chainId, vc, address),
+          useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, tokens, address),
+          useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(chainId, tokens),
         ])
       },
       3,

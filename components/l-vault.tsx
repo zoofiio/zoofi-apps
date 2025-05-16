@@ -299,7 +299,7 @@ export function LVaultSimpleWrap({ vc }: { vc: VaultConfig }) {
           <div className='card text-[#64748B] w-full flex-1 dark:text-slate-50/60 text-xs font-medium leading-[12px] px-[30px] py-[23px] rounded-2xl'>
             <div className='flex items-center mb-[16px] whitespace-nowrap'>
               {cycle}
-              {leverage.toFixed(2)}x {isBerachain() && vc.isStable ? 'Blast Native Yield' : `Leveraged long on ${vc.assetTokenSymbol}`}
+              {leverage.toFixed(2)}x {isBerachain(chainId) && vc.isStable ? 'Blast Native Yield' : `Leveraged long on ${vc.assetTokenSymbol}`}
             </div>
             <div className='flex items-center mb-[16px] cursor-pointer whitespace-nowrap' onClick={onAddXtoken}>
               {cycle}Add {vc.xTokenSymbol} to wallet

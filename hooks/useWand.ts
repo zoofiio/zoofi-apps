@@ -6,6 +6,7 @@ import { Abi, ContractFunctionArgs, ContractFunctionName, ContractFunctionParame
 import { Config, ResolvedRegister, useReadContract, useReadContracts, useWalletClient, type UseReadContractParameters, type UseReadContractsParameters } from 'wagmi'
 import { ReadContractData, ReadContractsData } from 'wagmi/query'
 import { create } from 'zustand'
+import { useCurrentChainId } from './useCurrentChainId'
 export const useWandTimestamp = create<{ time: number; update: () => void }>((set) => ({
   time: _.now(),
   update: () => {
@@ -62,11 +63,12 @@ export function useMultiWriteContracts() {
   const { data: wc } = useWalletClient()
   const [finishCount, setFinishCount] = useState(0)
   const wt = useWandTimestamp()
+  const chainId = useCurrentChainId()
   const res = useMutation({
     mutationFn: async (tasks: TaskType[]) => {
       if (!wc || !wc.account) return
       let index = 0
-      const pc = getPC()
+      const pc = getPC(chainId)
       for (let task of tasks) {
         if (index >= finishCount) {
           task.prepare && (task = await task.prepare(task, pc, wc))
@@ -84,6 +86,7 @@ export function useMultiWriteContracts() {
 }
 
 export function useWandRead() {
+  const chainId = useCurrentChainId()
   const read = async <
     const abi extends Abi | readonly unknown[],
     functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
@@ -91,7 +94,7 @@ export function useWandRead() {
   >(
     params: ReadContractParameters<abi, functionName, args>,
   ) => {
-    return getPC().readContract(params)
+    return getPC(chainId).readContract(params)
   }
   return read
 }

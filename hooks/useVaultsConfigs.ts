@@ -1,15 +1,15 @@
+import { abiBVault } from '@/config/abi'
 import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
+import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { PLAIN_VAULTS_CONFIG, PlainVaultConfig, VaultConfig, VAULTS_CONFIG } from '@/config/swap'
 import { ENV } from '@/constants'
+import { fmtDate, shortStr } from '@/lib/utils'
+import { getPC } from '@/providers/publicClient'
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useSetState } from 'react-use'
 import { Address } from 'viem'
 import { useCurrentChainId } from './useCurrentChainId'
-import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
-import { useQueries, useQuery } from '@tanstack/react-query'
-import { getPC } from '@/providers/publicClient'
-import { abiBQuery, abiBVault } from '@/config/abi'
-import { fmtDate, shortStr } from '@/lib/utils'
 
 type OptionItem<T, type> = { label: string; value: Address; data: T; type: type }
 type OptionsItem = OptionItem<VaultConfig, 'L-Vault'> | OptionItem<PlainVaultConfig, 'P-Vault'> | OptionItem<BVaultConfig, 'B-Vault'> | OptionItem<LntVaultConfig, 'Lnt-Vault'>
@@ -49,9 +49,9 @@ export function useVaultsConfigs() {
     return [...vcsOpt, ...pvcsOpt, ...bvcsOpt, ...lntvcsOpt].map((item) => ({ ...item, label: `${item.label}     (${item.type}: ${shortStr(item.data.vault)})` }))
   }, [vcs, pvcs, bvcs, lntvcs])
   const bsQuery = useQuery({
-    queryKey: ['queryBvualts', bvcs],
+    queryKey: ['queryBvualts',chainId, bvcs],
     queryFn: async () => {
-      const pc = getPC()
+      const pc = getPC(chainId)
       const closedPromise = Promise.all(bvcs.map((vc) => pc.readContract({ abi: abiBVault, functionName: 'closed', address: vc.vault })))
       const epochCountPromise = Promise.all(bvcs.map((vc) => pc.readContract({ abi: abiBVault, functionName: 'epochIdCount', address: vc.vault })))
 

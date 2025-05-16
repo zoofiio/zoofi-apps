@@ -105,23 +105,10 @@ export const multicallBatchConfig = { batchSize: 100, wait: 300 }
 export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia, base]
 // allapps chanis
-export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [sepolia, base, berachain]
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [sepolia, base, berachain, berachainTestnet]
 
-export const refChainId: { id: number } = { id: isLNT ? sepolia.id : isPROD ? berachain.id : berachainTestnet.id }
-export const getCurrentChainId = () => {
-  return refChainId.id
-}
-
-export const setCurrentChainId = (id: number) => {
-  if (SUPPORT_CHAINS.find((item) => item.id == id)) refChainId.id = id
-}
-
-export const getCurrentChain = () => {
-  return SUPPORT_CHAINS.find((item) => item.id == getCurrentChainId())!
-}
-
-export function isBerachain() {
-  return !!beraChains.find((item) => item.id == getCurrentChainId())
+export function isBerachain(id: number) {
+  return !!beraChains.find((item) => item.id == id)
 }
 
 export const refEthersProvider: {
@@ -132,11 +119,11 @@ export const BEX_URLS: { [k: number]: string } = {
   [berachainTestnet.id]: 'https://bartio.bex.berachain.com',
   [berachain.id]: 'https://hub.berachain.com',
 }
-export const getBexPoolURL = (pool: Address) => {
-  if (getCurrentChainId() == berachainTestnet.id) {
-    return `${BEX_URLS[getCurrentChainId()]}/pool/${pool}`
+export const getBexPoolURL = (chainId: number, pool: Address) => {
+  if (chainId == berachainTestnet.id) {
+    return `${BEX_URLS[chainId]}/pool/${pool}`
   } else if (berachain.id) {
-    return `${BEX_URLS[getCurrentChainId()]}/pools/${LP_TOKENS[pool].poolId}/deposit/`
+    return `${BEX_URLS[chainId]}/pools/${LP_TOKENS[pool].poolId}/deposit/`
   }
   return ''
 }

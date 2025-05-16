@@ -11,6 +11,7 @@ import { BBtn } from './ui/bbtn'
 import { twMerge } from 'tailwind-merge'
 import { getPC } from '@/providers/publicClient'
 import { toString } from 'lodash'
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   menu: () => cn('bg-white dark:bg-black dark:border'),
@@ -99,9 +100,10 @@ export function GeneralAction({
     Promise.resolve(argsDef).then((data) => typeof data == 'function' ? data() : data || [])
       .then((data) => id == idRef.current && setState({ args: args.map((arg, index) => arg || data[index] || '') }))
   }, [argsDef])
+  const chaindId = useCurrentChainId()
   const { data, mutate: doRead, isPending: isReadLoading } = useMutation({
     mutationFn: async () => {
-      return await getPC().readContract({ abi, address, functionName, ...(args.length ? { args: convertArgs(args, abiItem.inputs, convertArg) } : {}) })
+      return await getPC(chaindId).readContract({ abi, address, functionName, ...(args.length ? { args: convertArgs(args, abiItem.inputs, convertArg) } : {}) })
     },
     onError: handleError
   })

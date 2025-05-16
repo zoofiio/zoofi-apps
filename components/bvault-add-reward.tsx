@@ -61,13 +61,13 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
       if (isAddress(input)) {
         const t = originTokens.find((item) => item.address == input)
         if (t) return [t]
-        const pc = getPC()
+        const pc = getPC(chainId)
         const address = input as Address
         const [symbol, decimals] = await Promise.all([
           pc.readContract({ abi: erc20Abi, address, functionName: 'symbol' }),
           pc.readContract({ abi: erc20Abi, address, functionName: 'decimals' }),
         ])
-        user && useBoundStore.getState().sliceTokenStore.updateTokensBalance([address], user)
+        user && useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId,[address], user)
         return [{ symbol, address, decimals }] as TokenItem[]
       } else {
         if (!input) return originTokens
@@ -87,7 +87,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
     queryKey: ['updateBalancesForUnknowToken', originTokens],
     enabled: !!user,
     queryFn: () =>
-      useBoundStore.getState().sliceTokenStore.updateTokensBalance(
+      useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId,
         originTokens.map((item) => item.address),
         user!,
       ),
@@ -147,10 +147,11 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
   const triggerRef = useRef<HTMLDivElement>(null)
   const wc = useWalletClient()
   const { address } = useAccount()
+  const chainId = useCurrentChainId()
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       if (disableAdd) return
-      const pc = getPC()
+      const pc = getPC(chainId)
       if (bvc.isOld) {
         const tokens = await pc.readContract({ abi: abiBVault, address: bvc.vault, functionName: 'bribeTokens', args: [bvd.epochCount] })
         console.info('tokens:', tokens, stoken.address)
@@ -174,7 +175,7 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
         const hash = await wc.data.writeContract({ abi: abiBVault, address: bvc.vault, functionName: 'addAdhocBribes', args: [stoken.address, inputBn] })
         await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
       }
-      useBoundStore.getState().sliceTokenStore.updateTokensBalance([stoken.address], address)
+      useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId,[stoken.address], address)
       setInput('')
       toast.success('Transaction success')
     },

@@ -10,9 +10,9 @@ export function useBVaultDatas() {
   const chainId = useCurrentChainId()
   const vcs = (BVAULTS_CONFIG[chainId] || []).filter((item) => item.onEnv && item.onEnv.includes(ENV))
   return useQuery({
-    queryKey: ['queryBVaults', vcs],
+    queryKey: ['queryBVaults',chainId, vcs],
     queryFn: async () => {
-      const pc = getPC()
+      const pc = getPC(chainId)
       const datas = await Promise.all(vcs.map((vc) => pc.readContract({ abi: abiBQuery2, code: codeBQuery2, functionName: 'queryBVault', args: [vc.vault] })))
       const map = _.mapKeys(datas, (_item, i) => vcs[i].vault)
       console.info('bvauts:data:', map)

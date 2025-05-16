@@ -1,14 +1,14 @@
-import { abiBeraVault, abiCrocQuery } from '@/config/abi'
+import { abiCrocQuery } from '@/config/abi'
+import { getBeraTokensPrices, getIBGTPrice, getNftTokensIdsByUser } from '@/config/api'
 import { CrocQueryAddress, HONEY_Address } from '@/config/bvaults'
-import { berachain, berachainTestnet, getCurrentChain, getCurrentChainId, SUPPORT_CHAINS } from '@/config/network'
-import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
 import { LP_TOKENS } from '@/config/lpTokens'
+import { berachain, berachainTestnet } from '@/config/network'
+import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
 import { DECIMAL } from '@/constants'
 import _ from 'lodash'
-import { Address, erc20Abi, parseAbi } from 'viem'
+import { Address, erc20Abi } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
-import { getBeraTokensPrices, getIBGTPrice, getNftTokenIdsByUser, getNftTokensIdsByUser } from '@/config/api'
 
 export type TokenItem = {
   address: Address
@@ -21,28 +21,28 @@ export type TokenStore = {
   totalSupply: { [k: Address]: bigint }
   prices: { [k: Address]: bigint }
 
-  updateTokenTotalSupply: (tokens: Address[]) => Promise<TokenStore['totalSupply']>
-  updateTokenPrices: (tokens: Address[]) => Promise<TokenStore['prices']>
+  updateTokenTotalSupply: (chainId: number, tokens: Address[]) => Promise<TokenStore['totalSupply']>
+  updateTokenPrices: (chainId: number, tokens: Address[]) => Promise<TokenStore['prices']>
 
   // ---------------------- For current user ------------------------
   balances: { [k: Address]: bigint }
-  updateTokensBalance: (tokens: Address[], user: Address) => Promise<TokenStore['balances']>
+  updateTokensBalance: (chainId: number, tokens: Address[], user: Address) => Promise<TokenStore['balances']>
 
   // tokenList
   defTokenList: TokenItem[]
-  updateDefTokenList: () => Promise<TokenItem[]>
+  updateDefTokenList: (chainId: number) => Promise<TokenItem[]>
 
   // nft
   nftBalance: {
     [k: Address]: bigint[]
   }
-  updateNftBalance: (tokens: Address[], user: Address) => Promise<TokenStore['nftBalance']>
+  updateNftBalance: (chainId: number, tokens: Address[], user: Address) => Promise<TokenStore['nftBalance']>
 }
 
 export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
-  const updateTokenTotalSupply = async (tokens: Address[]) => {
+  const updateTokenTotalSupply = async (chainId: number, tokens: Address[]) => {
     if (tokens.length == 0) return {}
-    const pc = getPC()
+    const pc = getPC(chainId)
     const datas = await Promise.all(
       tokens.map((token) => (token == NATIVE_TOKEN_ADDRESS ? Promise.resolve(0n) : pc.readContract({ abi: erc20Abi, address: token, functionName: 'totalSupply' }))),
     )
@@ -50,9 +50,9 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     set({ totalSupply: { ...get().totalSupply, ...map } })
     return map
   }
-  const updateTokensBalance = async (tokens: Address[], user: Address) => {
+  const updateTokensBalance = async (chainId: number, tokens: Address[], user: Address) => {
     if (tokens.length == 0) return {}
-    const pc = getPC()
+    const pc = getPC(chainId)
     const datas = await Promise.all(
       tokens.map((token) =>
         token == NATIVE_TOKEN_ADDRESS ? pc.getBalance({ address: user }) : pc.readContract({ abi: erc20Abi, address: token, functionName: 'balanceOf', args: [user] }),
@@ -63,20 +63,20 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     return map
   }
 
-  const updateLPTokensStatForTest = async (mLps: Address[]) => {
-    const pc = getPC()
+  const updateLPTokensStatForTest = async (chainId: number, mLps: Address[]) => {
+    const pc = getPC(chainId)
     const lpPrices = await Promise.all(
       mLps.map((lp) =>
         Promise.all([
           pc.readContract({
             abi: abiCrocQuery,
-            address: CrocQueryAddress[getCurrentChainId()],
+            address: CrocQueryAddress[chainId],
             functionName: 'queryPrice',
             args: [LP_TOKENS[lp].base, LP_TOKENS[lp].quote, BigInt(LP_TOKENS[lp].poolType)],
           }),
           pc.readContract({
             abi: abiCrocQuery,
-            address: CrocQueryAddress[getCurrentChainId()],
+            address: CrocQueryAddress[chainId],
             functionName: 'queryLiquidity',
             args: [LP_TOKENS[lp].base, LP_TOKENS[lp].quote, BigInt(LP_TOKENS[lp].poolType)],
           }),
@@ -84,7 +84,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
       ),
     )
     const map: TokenStore['prices'] = {
-      [HONEY_Address[getCurrentChainId()]]: DECIMAL,
+      [HONEY_Address[chainId]]: DECIMAL,
     }
     /*
      */
@@ -100,17 +100,16 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     set({ prices: { ...get().prices, ...map } })
   }
 
-  const updateTokenPrices = async (tokens: Address[]) => {
+  const updateTokenPrices = async (chainId: number, tokens: Address[]) => {
     const groups = _.groupBy(tokens, (token) => (LP_TOKENS[token] ? 'lp' : 'token'))
     const mLps = groups['lp'] || []
     // const mTokens = groups['token'] || []
     if (mLps.length !== 0) {
       console.info('mlps;', tokens, mLps)
       // for testnet
-      const chain = getCurrentChain()
-      if (chain.id === berachainTestnet.id) {
-        await updateLPTokensStatForTest(mLps)
-      } else if (chain.id === berachain.id) {
+      if (chainId === berachainTestnet.id) {
+        await updateLPTokensStatForTest(chainId, mLps)
+      } else if (chainId === berachain.id) {
         const map = await getBeraTokensPrices()
         const iBGTprice = await getIBGTPrice()
         set({ prices: { ...get().prices, ...map, '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b': iBGTprice } })
@@ -119,18 +118,18 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     return {}
   }
 
-  const updateDefTokenList = async () => {
+  const updateDefTokenList = async (chainId: number) => {
     const urls: { [k: number]: string } = {
       [berachain.id]: 'https://hub.berachain.com/internal-env/defaultTokenList.json',
       [berachainTestnet.id]: 'https://raw.githubusercontent.com/berachain/default-lists/main/src/tokens/bartio/defaultTokenList.json',
     }
-    const tokenUrl = urls[getCurrentChainId()]
+    const tokenUrl = urls[chainId]
     if (!tokenUrl) return []
     const list = await fetch(tokenUrl)
       .then((res) => res.json())
       .then((data) => {
         return (data.tokens as any[])
-          .filter((item) => item.chainId === getCurrentChainId())
+          .filter((item) => item.chainId === chainId)
           .map<TokenItem>((item) => ({
             symbol: item.symbol as string,
             address: item.address as Address,
@@ -140,19 +139,19 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
           }))
       })
       .catch((e) => [] as TokenItem[])
-    localStorage.setItem('catchedDefTokenList_' + getCurrentChainId(), JSON.stringify(list))
+    localStorage.setItem('catchedDefTokenList_' + chainId, JSON.stringify(list))
     set({ defTokenList: list })
     return list
   }
-  const getCatchedDefTokenList = () => {
+  const getCatchedDefTokenList = (chainId: number) => {
     try {
-      return JSON.parse(localStorage.getItem('catchedDefTokenList_' + getCurrentChainId()) || '[]') as TokenItem[]
+      return JSON.parse(localStorage.getItem('catchedDefTokenList_' + chainId) || '[]') as TokenItem[]
     } catch (error) {
       return []
     }
   }
 
-  const updateNftBalance = async (tokens: Address[], user: Address) => {
+  const updateNftBalance = async (chainId: number, tokens: Address[], user: Address) => {
     const data = await getNftTokensIdsByUser(tokens, user)
     const idsMap = _.mapValues(data, (item) => item.map((id) => BigInt(id)))
     set({ nftBalance: { ...get().nftBalance, ...idsMap } })
@@ -172,7 +171,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     },
     updateTokenPrices,
 
-    defTokenList: getCatchedDefTokenList(),
+    defTokenList: getCatchedDefTokenList(berachain.id),
     updateDefTokenList,
 
     nftBalance: {},

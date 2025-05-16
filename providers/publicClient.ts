@@ -1,4 +1,4 @@
-import { apiBatchConfig, getCurrentChainId, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
+import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
 import { useReadingCountStore } from '@/hooks/useWrapPublicClient'
 import _ from 'lodash'
 import { Chain, createPublicClient, http, PublicClient } from 'viem'
@@ -37,7 +37,7 @@ function createPCS(chainId: number) {
   })
   return pcs
 }
-export function getPC(chainId: number = getCurrentChainId(), index?: number) {
+export function getPC(chainId: number, index?: number) {
   if (!pcMaps[chainId]) {
     pcMaps[chainId] = { pcs: createPCS(chainId), current: 0 }
   }

@@ -69,13 +69,13 @@ export type LVaultsStore = {
         }
       | undefined
   }
-  updateLVaults: (lvcs: VaultConfig[]) => Promise<LVaultsStore['lvaults']>
-  updateUserLVault: (lvc: VaultConfig, user: Address) => Promise<LVaultsStore['user'][Address]>
+  updateLVaults: (chainId: number, lvcs: VaultConfig[]) => Promise<LVaultsStore['lvaults']>
+  updateUserLVault: (chainId: number,lvc: VaultConfig, user: Address) => Promise<LVaultsStore['user'][Address]>
 }
 
 export const sliceLVaultsStore: SliceFun<LVaultsStore> = (set, get, init = {}) => {
-  const updateLVaults = async (lvcs: VaultConfig[]) => {
-    const pc = getPC()
+  const updateLVaults = async (chainId: number, lvcs: VaultConfig[]) => {
+    const pc = getPC(chainId)
     if (lvcs.length == 0) return {}
 
     const datas = await Promise.all(
@@ -119,8 +119,8 @@ export const sliceLVaultsStore: SliceFun<LVaultsStore> = (set, get, init = {}) =
     return map
   }
 
-  const updateUserLVault = async (lvc: VaultConfig, user: Address) => {
-    const pc = getPC()
+  const updateUserLVault = async (chainId: number, lvc: VaultConfig, user: Address) => {
+    const pc = getPC(chainId)
     if (lvc.isStable) {
       return
     }

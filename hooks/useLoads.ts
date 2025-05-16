@@ -27,7 +27,7 @@ export function useLoadLVaults() {
   useQuery({
     queryKey: ['UpdateLvautlsTokens', tokens],
     queryFn: async () => {
-      await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens)
+      await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(chainId, tokens)
       return true
     },
   })
@@ -35,14 +35,14 @@ export function useLoadLVaults() {
     queryKey: ['UpdateUserLvautlsTokens', tokens, address],
     queryFn: async () => {
       if (!address) return false
-      await useBoundStore.getState().sliceTokenStore.updateTokensBalance(tokens, address)
+      await useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, tokens, address)
       return true
     },
   })
   useQuery({
     queryKey: ['UpdateLVautls', vcs],
     queryFn: async () => {
-      await useBoundStore.getState().sliceLVaultsStore.updateLVaults(vcs)
+      await useBoundStore.getState().sliceLVaultsStore.updateLVaults(chainId, vcs)
       return true
     },
   })
@@ -55,7 +55,7 @@ export function useLoadBVaults() {
   const { isLoading: isLoading1 } = useQuery({
     queryKey: ['UpdateBVaults', bvcs],
     queryFn: async () => {
-      await Promise.all([useBoundStore.getState().sliceBVaultsStore.updateBvaults(bvcs), useBoundStore.getState().sliceBVaultsStore.updateYTokenSythetic(bvcs)])
+      await Promise.all([useBoundStore.getState().sliceBVaultsStore.updateBvaults(chainId, bvcs), useBoundStore.getState().sliceBVaultsStore.updateYTokenSythetic(chainId, bvcs)])
       return true
     },
   })
@@ -71,9 +71,10 @@ export function useLoadBVaults() {
   const { isLoading: isLoading2 } = useQuery({
     queryKey: ['UpdateBvautlsTokens', tokens],
     queryFn: async () => {
-      await Promise.all([useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens), useBoundStore.getState().sliceTokenStore.updateTokenPrices(tokens)])
-      // await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens)
-      // await useBoundStore.getState().sliceTokenStore.updateTokenPrices(tokens)
+      await Promise.all([
+        useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(chainId, tokens),
+        useBoundStore.getState().sliceTokenStore.updateTokenPrices(chainId, tokens),
+      ])
       return true
     },
     throwOnError(error, query) {
@@ -85,7 +86,7 @@ export function useLoadBVaults() {
     queryKey: ['UpdateUserBvautlsTokens', tokens, address],
     queryFn: async () => {
       if (!address) return false
-      await useBoundStore.getState().sliceTokenStore.updateTokensBalance(tokens, address)
+      await useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, tokens, address)
       return true
     },
   })
@@ -99,7 +100,7 @@ export function useLoadLntVaults() {
   useQuery({
     queryKey: ['UpdateLntVaults', vcs],
     queryFn: async () => {
-      await useBoundStore.getState().sliceLntVaultsStore.updateLntVaults(vcs)
+      await useBoundStore.getState().sliceLntVaultsStore.updateLntVaults(chainId, vcs)
       return true
     },
   })
@@ -115,8 +116,8 @@ export function useLoadLntVaults() {
   useQuery({
     queryKey: ['UpdateLntvautlsTokens', tokens],
     queryFn: async () => {
-      await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(tokens)
-      await useBoundStore.getState().sliceTokenStore.updateTokenPrices(tokens)
+      await useBoundStore.getState().sliceTokenStore.updateTokenTotalSupply(chainId, tokens)
+      await useBoundStore.getState().sliceTokenStore.updateTokenPrices(chainId, tokens)
       return true
     },
     throwOnError(error, query) {
@@ -128,7 +129,7 @@ export function useLoadLntVaults() {
     queryKey: ['UpdateUserLntvautlsTokens', tokens, address],
     queryFn: async () => {
       if (!address) return false
-      await useBoundStore.getState().sliceTokenStore.updateTokensBalance(tokens, address)
+      await useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, tokens, address)
       return true
     },
   })
@@ -142,7 +143,7 @@ export function useLoadUserLVaults() {
     queryKey: ['UpdateAllUserLVaults', chainId, address, lvcs],
     queryFn: async () => {
       if (!address) return false
-      await Promise.all(lvcs.map((lvc) => useBoundStore.getState().sliceLVaultsStore.updateUserLVault(lvc, address)))
+      await Promise.all(lvcs.map((lvc) => useBoundStore.getState().sliceLVaultsStore.updateUserLVault(chainId, lvc, address)))
       return true
     },
   })
@@ -161,7 +162,7 @@ export function useLoadUserBVaults() {
       for (const bvc of bvcs) {
         if (!bvaults[bvc.vault]) return false
       }
-      await Promise.all(bvcs.map((bvc) => useBoundStore.getState().sliceBVaultsStore.updateEpoches(bvc)))
+      await Promise.all(bvcs.map((bvc) => useBoundStore.getState().sliceBVaultsStore.updateEpoches(chainId, bvc)))
       const getEpochesParams = (bvc: BVaultConfig) => {
         const bvd = useBoundStore.getState().sliceBVaultsStore.bvaults[bvc.vault]!
         const epoches: BVaultEpochDTO[] = []
@@ -171,7 +172,7 @@ export function useLoadUserBVaults() {
         }
         return epoches
       }
-      await Promise.all(bvcs.map((bvc) => useBoundStore.getState().sliceUserBVaults.updateEpoches(bvc, address, getEpochesParams(bvc))))
+      await Promise.all(bvcs.map((bvc) => useBoundStore.getState().sliceUserBVaults.updateEpoches(chainId, bvc, address, getEpochesParams(bvc))))
       return true
     },
   })

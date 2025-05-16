@@ -189,7 +189,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: '0x9F0956c33f45141a7D8D5751038ae0A71C562f87',
       protocolSettingsAddress: '0xE34e1C9FC5313D9ac4B121B5F93C51e619dd778A',
       bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta', 'prod'],
+      onEnv: ['test', 'prod'],
     },
     {
       vault: '0xE6d15592F337f54E8BD47e56BbB22aF12F0D4083',
@@ -203,7 +203,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: '0x9F0956c33f45141a7D8D5751038ae0A71C562f87',
       protocolSettingsAddress: '0xE34e1C9FC5313D9ac4B121B5F93C51e619dd778A',
       bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta', 'prod'],
+      onEnv: ['test', 'prod'],
     },
     {
       vault: '0x702B707c2F8dd26F4F1e51cF425035d355A02767',
@@ -216,7 +216,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: '0xd75Dc0496826FF0C13cE6D6aA5Bf8D64126E4fF1',
       protocolSettingsAddress: '0x45a47E8013425AF3e6e71f1aa24e3B8c523386EA',
       bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta', 'test', 'prod'],
+      onEnv: ['test', 'prod'],
     },
     {
       vault: '0x6686bDfF3ad20AE45E811c2451DfeE8AA0f338C0',
@@ -229,7 +229,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: ZooProtocolAddress[berachain.id],
       protocolSettingsAddress: ZooProtocolSettingsAddress[berachain.id],
       bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta', 'test', 'prod'],
+      onEnv: ['test', 'prod'],
     },
     {
       vault: '0x33C42E171cFD7Ec85D3dB34D7f6d3D8121f64E63',
@@ -242,7 +242,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = {
       protocolAddress: '0xc0fA386aE92f18A783476d09121291A1972C30Dc',
       protocolSettingsAddress: '0x8c6E434Bb1C51728BdCc250255c1F654471d85eB',
       bQueryAddres: BQueryAddress[berachain.id],
-      onEnv: ['beta', 'test', 'prod'],
+      onEnv: ['test', 'prod'],
     },
   ],
 }

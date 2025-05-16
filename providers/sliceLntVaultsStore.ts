@@ -74,14 +74,14 @@ export type LntVaultsStore = {
     [vault: Address]: LntVaultUserNftStatDTO[]
   }
 
-  updateLntVaults: (vcs: LntVaultConfig[]) => Promise<LntVaultsStore['vaults']>
-  updateEpoches: (vc: LntVaultConfig, ids?: bigint[]) => Promise<LntVaultsStore['epoches']>
-  updateUserEpoches: (vc: LntVaultConfig, user: Address) => Promise<LntVaultEpochUserDTO[]>
-  updateUserNftStat: (vc: LntVaultConfig, user: Address) => Promise<LntVaultsStore['userNftStat']>
+  updateLntVaults: (chainId: number, vcs: LntVaultConfig[]) => Promise<LntVaultsStore['vaults']>
+  updateEpoches: (chainId: number, vc: LntVaultConfig, ids?: bigint[]) => Promise<LntVaultsStore['epoches']>
+  updateUserEpoches: (chainId: number, vc: LntVaultConfig, user: Address) => Promise<LntVaultEpochUserDTO[]>
+  updateUserNftStat: (chainId: number, vc: LntVaultConfig, user: Address) => Promise<LntVaultsStore['userNftStat']>
 }
 export const sliceLntVaultsStore: SliceFun<LntVaultsStore> = (set, get, init = {}) => {
-  const updateLntVaults = async (vcs: LntVaultConfig[]) => {
-    const pc = getPC()
+  const updateLntVaults = async (chainId: number, vcs: LntVaultConfig[]) => {
+    const pc = getPC(chainId)
     const datas = await Promise.all(
       vcs.map((vc) => pc.readContract({ abi: abiLntQuery, address: vc.queryAddres, functionName: 'queryVault', args: [vc.vault] }).then((item) => ({ vault: vc.vault, item }))),
     )
@@ -94,10 +94,10 @@ export const sliceLntVaultsStore: SliceFun<LntVaultsStore> = (set, get, init = {
     return map
   }
 
-  const updateEpoches = async (vc: LntVaultConfig, ids?: bigint[]) => {
+  const updateEpoches = async (chainId: number, vc: LntVaultConfig, ids?: bigint[]) => {
     const mIds = ids || _.range(1, parseInt(((get().vaults[vc.vault]?.epochCount || 0n) + 1n).toString())).map((num) => BigInt(num))
     if (mIds.length == 0) return {}
-    const pc = getPC()
+    const pc = getPC(chainId)
     const datas = await Promise.all(
       mIds.map((epochId) => pc.readContract({ abi: abiLntQuery, address: vc.queryAddres, functionName: 'queryVaultEpoch', args: [vc.vault, epochId] })),
     )
@@ -106,8 +106,8 @@ export const sliceLntVaultsStore: SliceFun<LntVaultsStore> = (set, get, init = {
     return map
   }
 
-  const updateUserEpoches = async (vc: LntVaultConfig, user: Address) => {
-    const pc = getPC()
+  const updateUserEpoches = async (chainId: number, vc: LntVaultConfig, user: Address) => {
+    const pc = getPC(chainId)
     const mIds = _.range(1, parseInt(((get().vaults[vc.vault]?.epochCount || 0n) + 1n).toString())).map((num) => BigInt(num))
     if (mIds.length > 0) {
       const datas: LntVaultEpochUserDTO[] = (await Promise.all(
@@ -119,28 +119,31 @@ export const sliceLntVaultsStore: SliceFun<LntVaultsStore> = (set, get, init = {
     return []
   }
 
-  const updateUserNftStat = async (vc: LntVaultConfig, user: Address) => {
+  const updateUserNftStat = async (chainId: number, vc: LntVaultConfig, user: Address) => {
     const nftstat = await getLntVaultNftStatByUser(vc.vault, user)
-    const pc = getPC()
+    const pc = getPC(chainId)
     if (nftstat.length > 0) {
-      const datas = (await Promise.all(
-        nftstat.map(({ tokenId, stat, tx }) =>
-          pc
-            .readContract({ abi: abiLntVault, address: vc.vault, functionName: stat == 'Redeemed' ? 'nftRedeemInfo' : 'nftDepositInfo', args: [BigInt(tokenId)] })
-            .then<LntVaultUserNftStatDTO>((data) => {
-              const startTime: bigint = stat == 'Redeemed' ? (data as any).redeemTime : (data as any).depositTime
-              const claimableTime = data.claimableTime
-              return {
-                stat,
-                tx,
-                nftTokenId: data.nftTokenId,
-                startTime,
-                claimableTime,
-                claimed: data.claimed,
-              }
-            }).catch(_e =>  null),
-        ),
-      )).filter(Boolean)
+      const datas = (
+        await Promise.all(
+          nftstat.map(({ tokenId, stat, tx }) =>
+            pc
+              .readContract({ abi: abiLntVault, address: vc.vault, functionName: stat == 'Redeemed' ? 'nftRedeemInfo' : 'nftDepositInfo', args: [BigInt(tokenId)] })
+              .then<LntVaultUserNftStatDTO>((data) => {
+                const startTime: bigint = stat == 'Redeemed' ? (data as any).redeemTime : (data as any).depositTime
+                const claimableTime = data.claimableTime
+                return {
+                  stat,
+                  tx,
+                  nftTokenId: data.nftTokenId,
+                  startTime,
+                  claimableTime,
+                  claimed: data.claimed,
+                }
+              })
+              .catch((_e) => null),
+          ),
+        )
+      ).filter(Boolean)
       set({ userNftStat: { ...get().userNftStat, [vc.vault]: datas } })
       return datas
     }

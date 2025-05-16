@@ -89,11 +89,12 @@ export function BVaultRedeemAll({ bvc }: { bvc: BVaultConfig }) {
   const upForUserAction = useUpBVaultForUserAction(bvc)
   const { data: wc } = useWalletClient()
   const { ids, claimable } = useCalcClaimable(bvc.vault)
+  const chainId = useCurrentChainId()
   const { mutate, isPending } = useMutation({
     mutationKey: ['readeemAll', pTokenBalance, claimable, ids],
     mutationFn: async () => {
       if (!wc) throw 'Error';
-      const pc = getPC()
+      const pc = getPC(chainId)
       if (pTokenBalance > 10n) {
         await wc.writeContract({ abi: abiBVault, address: bvc.vault, functionName: 'redeem', args: [pTokenBalance] }).then(tx => pc.waitForTransactionReceipt({ hash: tx, confirmations: WriteConfirmations }))
       }
@@ -354,7 +355,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const { data: result, isFetching: isFetchingSwap } = useQuery({
     queryKey: calcSwapKey,
     enabled: inputAssetBn > 0n,
-    queryFn: () => getPC().readContract({ abi: abiBVault, address: bvc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
+    queryFn: () => getPC(chainId).readContract({ abi: abiBVault, address: bvc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
   })
   // const { data: perReturnsIBGT } = useReturnsIBGT(bvc.vault)
   // const endTime = bvd.current.duration + bvd.current.startTime;

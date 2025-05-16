@@ -94,7 +94,7 @@ function useMigrationQuery(show: boolean) {
           functionName: 'earnedStakingYields',
           args: [address as any],
         },
-      ].map((item) => getPC().readContract(item as any)),
+      ].map((item) => getPC(chainId).readContract(item as any)),
     )
     const earnEthx = getBigint(data, [7])
     const ethxBalance = getBigint(data, [0])
@@ -110,7 +110,7 @@ function useMigrationQuery(show: boolean) {
 
     const assetData = await Promise.all([
       bnGt(ethxBalance)
-        ? getPC().readContract({
+        ? getPC(chainId).readContract({
             abi: abiVaultQuery,
             address: VAULT_QUERY_ADDRESS[chainId],
             functionName: 'calcPairedRedeemAssetAmount',
@@ -118,7 +118,7 @@ function useMigrationQuery(show: boolean) {
           }).then((res) => res[1])
         : 0n,
       bnGt(usdbxBalance)
-        ? getPC().readContract({
+        ? getPC(chainId).readContract({
             abi: abiVaultQuery,
             address: VAULT_QUERY_ADDRESS[chainId],
             functionName: 'calcRedeemByMarginTokensFromStableVault',

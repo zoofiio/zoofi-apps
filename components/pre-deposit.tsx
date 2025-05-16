@@ -191,8 +191,6 @@ function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () =
                 setSelectNft(nStat)
                 onSuccess()
                 refetch()
-                // upForUserAction()
-                // useBoundStore.getState().sliceTokenStore.updateNftBalance([pre.nft], address!)
             }}
             config={{
                 abi: abiPreDeposit,
@@ -210,7 +208,7 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
         const ids = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
         return ids.map(id => encodeFunctionData({ abi: abiPreDeposit, functionName: 'withdraw', args: [id] }))
     }, [selectedNft])
-    const { data: { deposited } } = usePreDepositByUser(node)
+    const { data: { deposited } , refetch} = usePreDepositByUser(node)
     const pre = node.preDeposit!
     const { address } = useAccount()
     return <div className='flex flex-col gap-5 items-center p-5'>
@@ -233,8 +231,7 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
                 })
                 setSelectNft(nStat)
                 onSuccess()
-                // upForUserAction()
-                useBoundStore.getState().sliceTokenStore.updateNftBalance([pre.nft], address!)
+                refetch()
             }}
             config={{
                 abi: abiPreDeposit,

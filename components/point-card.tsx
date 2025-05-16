@@ -73,7 +73,7 @@ export function useVcPoints(vc: VaultConfig) {
     })
     const tit = 'Leverage the Bull'
     const sub =
-      vc.isStable && isBerachain() ? `~ ${levrages[vc.vault].toFixed(2)}x Berachain Native Yield` : `~ ${levrages[vc.vault].toFixed(2)}x Leveraged long on ${vc.assetTokenSymbol}`
+      vc.isStable && isBerachain(chainId) ? `~ ${levrages[vc.vault].toFixed(2)}x Berachain Native Yield` : `~ ${levrages[vc.vault].toFixed(2)}x Leveraged long on ${vc.assetTokenSymbol}`
     points.push({
       symbol: vc.xTokenSymbol,
       symbolPrice: `$${displayBalance(prices[vc.xTokenAddress])}`,
