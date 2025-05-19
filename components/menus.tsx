@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import { MouseEvent, useEffect, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
 import { FiChevronRight } from "react-icons/fi"
-import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
+import { LuBox, LuLineChart, LuLink, LuMenu, LuUserCircle } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
 import { CoinIcon } from "./icons/coinicon"
 import { Tip } from "./ui/tip"
@@ -61,7 +61,7 @@ function MenusContent() {
                 href: '/lnt',
                 name: "LNT-Vault",
                 subs: [
-                    { href: 'https://zoofi.io/lnt', name: 'About LNT', icon: LuBox, target: '_blank' },
+                    { href: 'https://zoofi.io/lnt', name: 'About LNT', icon: LuLink, target: '_blank' },
                     { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuBox },
                     { href: '/lnt', name: 'LNT-Vault', icon: LuBox, disabled: true },
                     { href: '/lnt/portfolio', name: 'Portfolio', icon: LuUserCircle, disabled: true },
