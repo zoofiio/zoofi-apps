@@ -18,8 +18,10 @@ export default function ConnectBtn() {
     if (chainId !== undefined && chainId !== null && !chains.find(item => item.id === chainId)) {
       console.info('needSwitchChainTo:', chains[0].id, chains.map(item => item.id))
       setSwitching(true)
-      setTimeout(async () => {
-        sc.switchChain({ chainId: chains[0].id })
+      setTimeout(() => {
+        Promise.race([sc.switchChainAsync({ chainId: chains[0].id }), new Promise((_reslove, reject) => setTimeout(() => reject('Timeout'), 3000))])
+          .catch(console.error)
+          .finally(() => setSwitching(false))
       }, 300)
     } else {
       setSwitching(false)

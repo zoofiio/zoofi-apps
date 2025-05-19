@@ -11,6 +11,7 @@ import { useBoundStore, useStore } from '@/providers/useBoundStore'
 import _ from 'lodash'
 import { BVAULTS_CONFIG } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
+import { Address } from 'viem'
 
 export function useTVLV1() {
   const chainId = useCurrentChainId()
@@ -57,7 +58,8 @@ export function useTVL() {
   const bvaults = useStore((s) => s.sliceBVaultsStore.bvaults)
   const tprices = useStore((s) => s.sliceTokenStore.prices)
 
-  const tvlItems = [{ name: USBSymbol, symbol: USBSymbol, address: USB_ADDRESS[chainId] }]
+  const tvlItems = ([] as { name: string; symbol: string; address: Address }[])
+    // const tvlItems = [{ name: USBSymbol, symbol: USBSymbol, address: USB_ADDRESS[chainId] }]
     .concat(
       vcs.map((v) => ({
         name: v.xTokenSymbol + v.version,

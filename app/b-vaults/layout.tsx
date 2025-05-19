@@ -9,7 +9,7 @@ import { ReactNode } from "react";
 import { Providers } from "../providers";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <Providers supportChains={isPROD ? [berachain] : [berachainTestnet, berachain]}>
+    return <Providers supportChains={isPROD ? [berachain] : [berachain, berachainTestnet,]}>
         <Header />
         {children}
     </Providers>

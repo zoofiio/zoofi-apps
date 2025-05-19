@@ -18,8 +18,8 @@ export function toLVault(r: ReturnType<typeof useRouter>, vault?: Address, tab?:
 }
 
 export function toLntVault(r: ReturnType<typeof useRouter>, vault?: Address, tab?: string) {
-  if (!vault) return r.push('/lnt-vaults')
-  let path = `/lnt-vaults?vault=${vault}`
+  if (!vault) return r.push('/lnt/vaults')
+  let path = `/lnt/vaults?vault=${vault}`
   tab && (path += `&tab=${tabToSearchParams(tab)}`)
   r.push(path)
 }

@@ -7,11 +7,12 @@ import { usePathname } from "next/navigation"
 import { MouseEvent, useEffect, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
 import { FiChevronRight } from "react-icons/fi"
-import { LuBox, LuLineChart, LuLink, LuMenu, LuUserCircle } from "react-icons/lu"
+import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
 import { CoinIcon } from "./icons/coinicon"
-import { Tip } from "./ui/tip"
+import { Demo } from "./noti"
 import { usePageLoad } from "./page-loading"
+import { Tip } from "./ui/tip"
 
 
 export type MenuItem = {
@@ -19,6 +20,7 @@ export type MenuItem = {
     href: string,
     target?: '_blank' | '_self',
     disabled?: boolean,
+    demo?: boolean,
     icon?: IconType
     subs?: MenuItem[]
 }
@@ -30,7 +32,8 @@ const isActiveLink = (pathname: string, li: MenuItem) => {
 }
 function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?: number, expand?: boolean }) {
     const [isExpand, toggleExpand] = useToggle(expand)
-    const isActive = isActiveLink(usePathname(), menu)
+    const pathname = usePathname()
+    const isActive = isActiveLink(pathname, menu)
     const onClickToggle = (e: MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
@@ -39,12 +42,9 @@ function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?:
     // const r = useRouter()
     return <>
         <Link target={menu.target} onClickCapture={() => {
-            (!menu.target || menu.target == '_self') && usePageLoad.setState({ isLoading: true })
+            (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
         }} href={menu.disabled ? 'javascript:void(0)' : menu.href} style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
-            // onClick={() => {
-            //     !menu.disabled && r.push(menu.href)
-            // }}
-            className={cn("text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed opacity-60': menu.disabled, "text-primary": isActive })}>
+            className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed opacity-60': menu.disabled, "text-primary": isActive })}>
             {menu.icon && <menu.icon />}
             {menu.disabled ? <Tip node={menu.name}>Coming Soon</Tip> : menu.name}
             {menu.subs && <FiChevronRight className={cn('cursor-pointer ml-auto', { "-rotate-90": isExpand })} onClick={onClickToggle} />}
@@ -61,9 +61,8 @@ function MenusContent() {
                 href: '/lnt',
                 name: "LNT-Vault",
                 subs: [
-                    { href: 'https://zoofi.io/lnt', name: 'About LNT', icon: LuLink, target: '_blank' },
                     { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuBox },
-                    { href: '/lnt', name: 'LNT-Vault', icon: LuBox, disabled: true },
+                    { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },
                     { href: '/lnt/portfolio', name: 'Portfolio', icon: LuUserCircle, disabled: true },
                     { href: '/lnt/dashboard', name: 'Dashboard', icon: LuLineChart, disabled: true },
                 ]

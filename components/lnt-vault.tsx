@@ -28,6 +28,8 @@ import { BBtn } from './ui/bbtn'
 import { Switch } from './ui/switch'
 import { useWandContractRead } from '@/hooks/useWand'
 import { useAccount } from 'wagmi'
+import { toLntVault } from '@/app/routes'
+import { Demo } from './noti'
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
     <div className='flex items-center gap-5'>
@@ -606,8 +608,11 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const itemTitClassname = "opacity-60 text-xs font-semibold"
   const vtTotalSupply = useTotalSupply(vc.vToken)
   return (
-    <div className={cn('card  overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => r.push(`/lnt-vaults?vault=${vc.vault}`)}>
-      <img src='/logo-alt.svg' />
+    <div className={cn('card  overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
+      <div className='flex items-center'>
+        <img src='/logo-alt.svg' />
+        <Demo />
+      </div>
       <div className={itemClassname}>
         <div className={itemTitClassname}>Total Delegated</div>
         <div>{displayBalance(vd?.nftCount, 0, 0)}</div>

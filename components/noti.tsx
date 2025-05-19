@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils'
-import React from 'react'
 import { AiFillNotification } from 'react-icons/ai'
 
 
@@ -12,4 +11,9 @@ export function Noti({ data, className }: { data: string, className?: string }) 
       <div className='text-sm ml-1 '>{data}</div>
     </div>
   )
+}
+
+
+export function Demo({ className }: { className?: string }) {
+  return <div className={cn('text-xs px-1.5 text-center py-[1px] rounded-full bg-red-500 text-slate-50', className)}>DEMO</div>
 }

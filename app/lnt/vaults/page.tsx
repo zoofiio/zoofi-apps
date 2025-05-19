@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAccount } from 'wagmi'
 import { toLntVault } from '../../routes'
 import { useLntVault } from '@/providers/useLntVaultsData'
+import { Demo } from '@/components/noti'
 
 
 function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
@@ -85,7 +86,7 @@ export default function Vaults() {
   return (
     <PageWrap>
 
-      <div className='w-full max-w-[1160px] px-4 mx-auto md:pb-8'>
+      <div className='w-full max-w-[1160px] px-4 mx-auto md:pb-8 relative'>
         {!currentVc ? (
           <>
             <div className='page-title'>LNT-Vaults</div>
@@ -97,7 +98,10 @@ export default function Vaults() {
             </Grid>
           </>
         ) : (
-          <LntVaultPage vc={currentVc} tab={paramsTab as string} />
+          <>
+            <Demo className='absolute top-3 right-5' />
+            <LntVaultPage vc={currentVc} tab={paramsTab as string} />
+          </>
         )}
       </div>
     </PageWrap>
