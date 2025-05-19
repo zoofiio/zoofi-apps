@@ -1,15 +1,17 @@
 'use client'
 
 import { cn } from "@/lib/utils"
+import { size } from "lodash"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { MouseEvent, useEffect, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
-import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
-import { useClickAway, useEffectOnce, useFirstMountState, useToggle } from "react-use"
-import { CoinIcon } from "./icons/coinicon"
 import { FiChevronRight } from "react-icons/fi"
-import { usePathname, useRouter } from "next/navigation"
+import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
+import { useClickAway, useToggle } from "react-use"
+import { CoinIcon } from "./icons/coinicon"
 import { Tip } from "./ui/tip"
+import { usePageLoad } from "./page-loading"
 
 
 export type MenuItem = {
@@ -22,8 +24,8 @@ export type MenuItem = {
 }
 
 const isActiveLink = (pathname: string, li: MenuItem) => {
-    const isActiveStatic = pathname === li.href
-    const isActiveAsParent = (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href))
+    const isActiveStatic = !li.disabled && pathname === li.href
+    const isActiveAsParent = (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href)) && size(li.subs) > 0
     return isActiveStatic || isActiveAsParent
 }
 function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?: number, expand?: boolean }) {
@@ -34,17 +36,19 @@ function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?:
         e.preventDefault()
         toggleExpand()
     }
-    const r = useRouter()
+    // const r = useRouter()
     return <>
-        <div style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
-            onClick={() => {
-                !menu.disabled && r.push(menu.href)
-            }}
+        <Link target={menu.target} onClickCapture={() => {
+            (!menu.target || menu.target == '_self') && usePageLoad.setState({ isLoading: true })
+        }} href={menu.disabled ? 'javascript:void(0)' : menu.href} style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
+            // onClick={() => {
+            //     !menu.disabled && r.push(menu.href)
+            // }}
             className={cn("text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed opacity-60': menu.disabled, "text-primary": isActive })}>
             {menu.icon && <menu.icon />}
             {menu.disabled ? <Tip node={menu.name}>Coming Soon</Tip> : menu.name}
             {menu.subs && <FiChevronRight className={cn('cursor-pointer ml-auto', { "-rotate-90": isExpand })} onClick={onClickToggle} />}
-        </div>
+        </Link>
         {isExpand && menu.subs?.map((item, i) => <MenusItem key={`menusitem_${i}_${depth}`} menu={item} expand={false} depth={depth + 1} />)}
     </>
 }
@@ -55,17 +59,20 @@ function MenusContent() {
         return [
             {
                 href: '/lnt',
-                name: "LNT",
+                name: "LNT-Vault",
                 subs: [
+                    { href: 'https://zoofi.io/lnt', name: 'About LNT', icon: LuBox, target: '_blank' },
                     { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuBox },
+                    { href: '/lnt', name: 'LNT-Vault', icon: LuBox, disabled: true },
                     { href: '/lnt/portfolio', name: 'Portfolio', icon: LuUserCircle, disabled: true },
                     { href: '/lnt/dashboard', name: 'Dashboard', icon: LuLineChart, disabled: true },
                 ]
             },
             {
                 href: '/b-vaults',
-                name: "B-Vaults",
+                name: "B-Vault",
                 subs: [
+                    { href: '/b-vaults', name: 'B-Vault', icon: LuBox },
                     { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuUserCircle },
                     { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuLineChart },
                 ],

@@ -102,9 +102,9 @@
 
 .top-loader {
   width: 100%;
-  height: 1px;
+  height: 3px;
   background: #1eca53;
-  animation: l2 1s infinite linear;
+  animation: l2 0.8s infinite linear;
 }
 @keyframes l2 {
   50% {

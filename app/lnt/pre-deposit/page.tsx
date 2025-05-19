@@ -12,7 +12,7 @@ export default function Page() {
                 <div className='page-title'>Pre-Deposit</div>
                 <div className="w-full flex items-center gap-5 flex-wrap justify-between">
                     <Noti className="w-auto" data='Deposit Node NFTs to access 100% liquidity on day 1 launch.' />
-                    <Link href={'https://zoofi.io/lnt'} className="underline underline-offset-2">Learn more about LNT</Link>
+                    <Link target="_blank" href={'https://www.youtube.com/watch?v=VleNKloeJtA'} className="underline underline-offset-2">Learn more about LNT</Link>
                 </div>
             </div>
             {nodelicense.map(nl => <PreDeposit key={nl.name} data={nl} />)}
