@@ -1,7 +1,6 @@
 import { NodeLicense } from "@/config/prelnt";
 import { abiPreDeposit, usePreDepositByUser, usePreDepositData } from "@/hooks/usePreDeposit";
 import { cn } from "@/lib/utils";
-import { useBoundStore } from "@/providers/useBoundStore";
 import _ from "lodash";
 import Link from "next/link";
 import { ButtonHTMLAttributes, ReactNode, useMemo, useRef } from "react";

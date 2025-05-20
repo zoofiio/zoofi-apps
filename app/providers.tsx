@@ -4,7 +4,7 @@
   }
 import * as React from 'react';
 
-import { apiBatchConfig, multicallBatchConfig } from '@/config/network';
+import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network';
 import { RainbowKitProvider, connectorsForWallets, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
 import { binanceWallet, bitgetWallet, coinbaseWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
 import { WagmiProvider, createConfig, createStorage } from 'wagmi';
@@ -30,7 +30,7 @@ const client = new ApolloClient({
 
 const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 } } })
 
-export function Providers({ children, supportChains = [mainnet] }: { children: React.ReactNode, supportChains?: readonly [Chain, ...Chain[]] }) {
+export function Providers({ children, supportChains = SUPPORT_CHAINS }: { children: React.ReactNode, supportChains?: readonly [Chain, ...Chain[]] }) {
   const [config, setConfig] = React.useState<ReturnType<typeof createConfig>>()
   React.useEffect(() => {
     // const isTgMini = Boolean((window as any).Telegram?.WebApp?.platform) && (window as any).Telegram?.WebApp?.platform !== 'unknown'

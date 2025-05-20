@@ -3,13 +3,14 @@
         return this.toString()
     }
 import { Header } from "@/components/header";
+import { ConfigChainsProvider } from "@/components/support-chains";
 import { base, sepolia } from "@/config/network";
 import { ReactNode } from "react";
-import { Providers } from "../providers";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <Providers supportChains={[base, sepolia]}>
+    return <ConfigChainsProvider chains={[base, sepolia]}>
         <Header />
         {children}
-    </Providers>
+    </ConfigChainsProvider>
+
 }

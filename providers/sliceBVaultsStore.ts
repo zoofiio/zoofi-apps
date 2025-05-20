@@ -6,7 +6,7 @@ import { berachain } from '@/config/network'
 import { DECIMAL } from '@/constants'
 import { toDecimal18 } from '@/lib/utils'
 import _ from 'lodash'
-import { Address, erc20Abi, parseAbiItem, PublicClient } from 'viem'
+import { Address, erc20Abi, parseAbi, parseAbiItem, PublicClient } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
 
@@ -72,7 +72,6 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     ])
     const baseIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.base)
     const quoteIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.quote)
-
     return {
       lp,
       vault: vc.vault,
@@ -80,15 +79,29 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
       quoteBalance: balances[quoteIndex],
       totalSupply,
     }
-    // const bvd = map[vc.vault]!
-    // bvd.lpLiq = bvd.lockedAssetTotal
-    // const shareLp = (bvd.lpLiq * DECIMAL) / totalSupply
-    // console.info('updateBvaultForLP:', tokens, balances, totalSupply, bvd.lpLiq)
-    // const baseIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.base)
-    // const quoteIndex = tokens.findIndex((item) => item == LP_TOKENS[lp]!.quote)
-    // bvd.lpBase = toDecimal18((balances[baseIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.baseDecimal)
-    // bvd.lpQuote = toDecimal18((balances[quoteIndex] * shareLp) / DECIMAL, LP_TOKENS[lp]!.quoteDecimal)
-    // return
+  }
+  const getKodiakLpData = async (pc: PublicClient, vc: BVaultConfig) => {
+    const lp = vc.asset
+    const abi = parseAbi(['function getUnderlyingBalances() external view returns(uint256,uint256)'])
+    const [[baseBalance, quoteBalance], totalSupply] = await Promise.all([
+      pc.readContract({
+        abi: abi,
+        address: lp,
+        functionName: 'getUnderlyingBalances',
+      }),
+      pc.readContract({
+        abi: erc20Abi,
+        address: lp,
+        functionName: 'totalSupply',
+      }),
+    ])
+    return {
+      lp,
+      vault: vc.vault,
+      baseBalance,
+      quoteBalance,
+      totalSupply,
+    }
   }
   const updateBvaults = async (chainId: number, bvcs: BVaultConfig[]) => {
     const start = _.now()
@@ -102,7 +115,11 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
             .then((item) => ({ vault: bvc.vault, item })),
         ),
       ),
-      berachain.id == chainId ? Promise.all(bvcs.map((bvc) => (LP_TOKENS[bvc.asset]?.poolId ? getBvaultLpData(pc, bvc) : Promise.resolve(null)))) : Promise.resolve(null),
+      berachain.id == chainId
+        ? Promise.all(
+            bvcs.map((bvc) => (LP_TOKENS[bvc.asset]?.poolId ? getBvaultLpData(pc, bvc) : LP_TOKENS[bvc.asset]?.isKodiak ? getKodiakLpData(pc, bvc) : Promise.resolve(null))),
+          )
+        : Promise.resolve(null),
       Promise.all(
         bvcs.map((vc) =>
           vc.pTokenV2 ? pc.readContract({ abi: [parseAbiItem('function rebaseRate() view returns (uint256)')], address: vc.pToken, functionName: 'rebaseRate' }) : 0n,

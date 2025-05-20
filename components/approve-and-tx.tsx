@@ -4,9 +4,8 @@ import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt } from 'viem'
 
-import { BBtn } from './ui/bbtn'
-import { useAccount } from 'wagmi'
 import { useNetworkWrong } from '@/hooks/useCurrentChainId'
+import { BBtn } from './ui/bbtn'
 
 export function ApproveAndTx<
   const abi extends Abi | readonly unknown[],
@@ -118,7 +117,7 @@ export function NftApproveAndTx<
   }, [isApproveSuccess])
   const isNetWrong = useNetworkWrong()
   const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
-
+  
   if (shouldApprove)
     return (
       <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={approve} busy={isApproveLoading} disabled={approveDisabled}>

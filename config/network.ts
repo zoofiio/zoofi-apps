@@ -2,6 +2,7 @@ import { providers } from 'ethers'
 import { Address, Chain, defineChain } from 'viem'
 import { base as baseMainnet } from 'viem/chains'
 import { LP_TOKENS } from './lpTokens'
+import { BASE_PATH } from './env'
 
 export const berachainTestnet = defineChain({
   id: 80084,
@@ -27,6 +28,7 @@ export const berachainTestnet = defineChain({
   fees: {
     baseFeeMultiplier: 1.4,
   },
+  iconUrl: `${BASE_PATH}/berachain.svg`,
 })
 
 export const berachain = defineChain({
@@ -55,6 +57,7 @@ export const berachain = defineChain({
   fees: {
     baseFeeMultiplier: 1.4,
   },
+  iconUrl: `${BASE_PATH}/berachain.svg`,
 })
 
 export const sepolia = defineChain({
@@ -85,6 +88,8 @@ export const sepolia = defineChain({
     },
   },
   testnet: true,
+  iconUrl:
+    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iIzI1MjkyRSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNhKSIgZmlsbC1vcGFjaXR5PSIuMyIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTguMTkgMTQuNzcgMTQgMTguMjFsNS44LTMuNDQtNS44IDguMTktNS44MS04LjE5WiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Im0xNCAxNi45My01LjgxLTMuNDRMMTQgNC4zNGw1LjgxIDkuMTVMMTQgMTYuOTNaIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMCIgeDI9IjE0IiB5MT0iMCIgeTI9IjI4IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgxPSIxNCIgeDI9IjE0IiB5MT0iMTQuNzciIHkyPSIyMi45NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iLjkiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48L3N2Zz4K',
 })
 
 export const base = defineChain({
@@ -95,6 +100,7 @@ export const base = defineChain({
       http: ['https://base-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'],
     },
   },
+  iconUrl: `${BASE_PATH}/BaseNetwork.png`,
 })
 
 export const apiBatchConfig = { batchSize: 30, wait: 300 }
@@ -109,7 +115,6 @@ const refChainId = { chainId: SUPPORT_CHAINS[0].id }
 export function getCurrentChainId() {
   return refChainId.chainId
 }
-
 
 export function isBerachain(id: number) {
   return !!beraChains.find((item) => item.id == id)

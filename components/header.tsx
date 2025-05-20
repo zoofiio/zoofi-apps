@@ -1,6 +1,6 @@
 'use client'
 
-import { base, berachain, berachainTestnet, SUPPORT_CHAINS } from '@/config/network'
+import { base, berachain, berachainTestnet } from '@/config/network'
 import { DISCORD_LINK, DOC_LINK, isLNT, TWITTER_LINK } from '@/constants'
 
 import { abiMockPriceFeed, abiVault } from '@/config/abi'
@@ -11,17 +11,13 @@ import { VAULTS_CONFIG } from '@/config/swap'
 import { DomainRef } from '@/hooks/useConfigDomain'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useWandContractRead } from '@/hooks/useWand'
-import { useChainModal } from '@rainbow-me/rainbowkit'
-import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
-import { IconType } from 'react-icons'
 import { TbBook2, TbBrandDiscordFilled, TbBrandX } from 'react-icons/tb'
-import { useWindowSize } from 'react-use'
 import { sepolia } from 'viem/chains'
-import { useAccount, useConfig } from 'wagmi'
+import { useAccount } from 'wagmi'
 import ConnectBtn from './connet-btn'
+import { SwitchChain } from './switch-chain'
 import { ThemeMode } from './theme-mode'
 
 const NetIcon: { [k: number]: string } = {
@@ -59,18 +55,6 @@ export function useShowTester() {
 
 
 export function Header() {
-  // const modal = useModal()
-  const chainId = useCurrentChainId()
-  const { openChainModal } = useChainModal()
-  // const showAdmin = useShowAdmin()
-  // const showTester = useShowTester()
-
-  const { chain, address } = useAccount()
-  const { chains } = useConfig()
-  const currentChain = SUPPORT_CHAINS.find(item => item.id === chainId)!
-
-
-  const showDefNet = !chain || SUPPORT_CHAINS.findIndex((item) => item.id == chain.id) == -1 || chains.length <= 1
   const social_networks = useMemo(
     () => [
       { name: 'doc', url: DOC_LINK(), icon: TbBook2 },
@@ -94,15 +78,7 @@ export function Header() {
             )
           })}
         </div>
-        {showDefNet && (
-          <div
-            className='flex items-center gap-2 text-sm text-slate-500 dark:text-slate-50 font-medium rounded-full cursor-pointer'
-            onClick={() => openChainModal && openChainModal()}
-          >
-            <Image width={24} height={24} src={NetIcon[chainId]} alt='' />
-            <div className='hidden sm:block'>{currentChain.name}</div>
-          </div>
-        )}
+        <SwitchChain />
         <ConnectBtn />
       </div>
     </header>

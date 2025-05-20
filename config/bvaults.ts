@@ -180,6 +180,20 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = proxyGetDef(
       //   onEnv: ['test'],
       // },
       {
+        vault: '0xf579c039c52ab795F0C4E358d3b462bE883cDd9F',
+        asset: '0x9659dc8c1565E0bd82627267e3b4eEd1a377ebE6',
+        pToken: '0xF0d0CEAE071b3aDfaad4Aa1722c9E9A94fb7Dd04',
+        pTokenV2: true,
+        assetSymbol: 'WETH-WBERA',
+        pTokenSymbol: 'pWETHWBERA',
+        yTokenSymbol: 'yWETHWBERA',
+        rewardSymbol: 'iBGT',
+        protocolAddress: '0x9F0956c33f45141a7D8D5751038ae0A71C562f87',
+        protocolSettingsAddress: '0xE34e1C9FC5313D9ac4B121B5F93C51e619dd778A',
+        bQueryAddres: BQueryAddress[berachain.id],
+        onEnv: ['test'],
+      },
+      {
         vault: '0x94822b9BA715E9e3079ed12489Dc7A016694FC67',
         asset: '0xdd70a5ef7d8cfe5c5134b5f9874b09fb5ce812b4',
         pToken: '0x0DA715b18AaF66c7c044D4F315D479f6036728Ea',
@@ -193,6 +207,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = proxyGetDef(
         bQueryAddres: BQueryAddress[berachain.id],
         onEnv: ['test', 'prod'],
       },
+
       {
         vault: '0xE6d15592F337f54E8BD47e56BbB22aF12F0D4083',
         asset: '0xf961a8f6d8c69e7321e78d254ecafbcc3a637621',

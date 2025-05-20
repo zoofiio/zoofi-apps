@@ -1,16 +1,17 @@
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit'
 import { useEffect, useState } from 'react'
 import { useWindowSize } from 'react-use'
-import { useAccount, useConfig, useSwitchChain } from 'wagmi'
-import { BBtn } from './ui/bbtn'
+import { useAccount, useSwitchChain } from 'wagmi'
 import { Spinner } from './spinner'
+import { useConfigChains } from './support-chains'
+import { BBtn } from './ui/bbtn'
 
 export default function ConnectBtn() {
   const size = useWindowSize(1024)
   const { isConnected, chainId } = useAccount()
   const showConnect = !isConnected
   const cm = useConnectModal()
-  const { chains } = useConfig()
+  const { chains } = useConfigChains()
   const sc = useSwitchChain()
   const [isSwitching, setSwitching] = useState(false)
   useEffect(() => {
@@ -37,5 +38,5 @@ export default function ConnectBtn() {
         <span className='font-medium text-sm whitespace-nowrap'>Connect Wallet</span>
       </BBtn>
     )
-  return <ConnectButton chainStatus={size.width > 600 ? 'full' : 'icon'} showBalance={false} />
+  return <ConnectButton chainStatus={'none'} showBalance={false} />
 }

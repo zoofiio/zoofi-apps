@@ -59,7 +59,8 @@ const SupportICONS: { [k: string]: string } = {
   Enreach: 'enreach.svg',
   Aethir: 'Aethir.svg',
   Nodeops: 'Nodeops.svg',
-  ReppoNft: 'ReppoNft.png'
+  ReppoNft: 'ReppoNft.png',
+  ['kodiak-logo']: 'kodiak-logo.svg'
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
@@ -79,7 +80,7 @@ export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: 
 }
 
 
-const ignoreDouble = ['logo-alt', 'status-green', 'status-red']
+const ignoreDouble = ['logo-alt', 'status-green', 'status-red', 'kodiak-logo']
 export function DoubleCoinIcon({ symbol1, symbol2, size = 48, url1, url2, className }: { symbol1: string, symbol2: string, className?: string, size?: number | string, url1?: string, url2?: string }) {
   return <div className={cn('flex items-center', className)}>
     <CoinIconImpl symbol={symbol1} size={size} url={url1} />

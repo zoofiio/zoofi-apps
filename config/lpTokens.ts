@@ -1,6 +1,6 @@
 import { Address } from 'viem'
 
-export const LP_TOKENS: { [k: Address]: { poolType: bigint; base: Address; quote: Address; poolId?: Address; baseDecimal?: number; quoteDecimal?: number; isStable?: boolean } } = {
+export const LP_TOKENS: { [k: Address]: { poolType: bigint; base: Address; quote: Address; poolId?: Address; baseDecimal?: number; quoteDecimal?: number; isStable?: boolean, isKodiak?: boolean } } = {
   '0xD69ADb6FB5fD6D06E6ceEc5405D95A37F96E3b96': { poolType: 36000n, base: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03', quote: '0xd6d83af58a19cd14ef3cf6fe848c9a4d21e5727c' },
   '0xd28d852cbcc68dcec922f6d5c7a8185dbaa104b7': { poolType: 36000n, base: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03', quote: '0x7507c1dc16935b82698e4c63f2746a2fcf994df8' },
   // mainnet
@@ -26,5 +26,12 @@ export const LP_TOKENS: { [k: Address]: { poolType: bigint; base: Address; quote
     base: '0x6969696969696969696969696969696969696969',
     quote: '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
     poolId: '0xdd70a5ef7d8cfe5c5134b5f9874b09fb5ce812b4000200000000000000000003',
+  },
+  '0x9659dc8c1565E0bd82627267e3b4eEd1a377ebE6': {
+    isStable: false,
+    isKodiak: true,
+    poolType: 36000n,
+    base: '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+    quote: '0x6969696969696969696969696969696969696969',
   },
 }

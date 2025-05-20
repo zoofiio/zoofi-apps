@@ -16,6 +16,8 @@ import { useAccount } from 'wagmi'
 import { toLntVault } from '../../routes'
 import { useLntVault } from '@/providers/useLntVaultsData'
 import { Demo } from '@/components/noti'
+import { ConfigChainsProvider } from '@/components/support-chains'
+import { sepolia } from '@/config/network'
 
 
 function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
@@ -84,26 +86,28 @@ export default function Vaults() {
   const currentVc = vcs.find((item) => item.vault == paramsVault)
   useLoadLntVaults()
   return (
-    <PageWrap>
+    <ConfigChainsProvider chains={[sepolia]}>
+      <PageWrap>
 
-      <div className='w-full max-w-[1160px] px-4 mx-auto md:pb-8 relative'>
-        {!currentVc ? (
-          <>
-            <div className='page-title'>LNT-Vaults</div>
-            {/* <Noti data='Deposit assets into the Vaults to pair-mint stablecoin and margin token' /> */}
-            <Grid numItems={1} className='gap-5 mt-4'>
-              {vcs.map((item, index) => (
-                <LNTVaultCard key={`group_vault_item_${index}`} vc={item} />
-              ))}
-            </Grid>
-          </>
-        ) : (
-          <>
-            <Demo className='absolute top-3 right-5' />
-            <LntVaultPage vc={currentVc} tab={paramsTab as string} />
-          </>
-        )}
-      </div>
-    </PageWrap>
+        <div className='w-full max-w-[1160px] px-4 mx-auto md:pb-8 relative'>
+          {!currentVc ? (
+            <>
+              <div className='page-title'>LNT-Vaults</div>
+              {/* <Noti data='Deposit assets into the Vaults to pair-mint stablecoin and margin token' /> */}
+              <Grid numItems={1} className='gap-5 mt-4'>
+                {vcs.map((item, index) => (
+                  <LNTVaultCard key={`group_vault_item_${index}`} vc={item} />
+                ))}
+              </Grid>
+            </>
+          ) : (
+            <>
+              <Demo className='absolute top-3 right-5' />
+              <LntVaultPage vc={currentVc} tab={paramsTab as string} />
+            </>
+          )}
+        </div>
+      </PageWrap>
+    </ConfigChainsProvider>
   )
 }

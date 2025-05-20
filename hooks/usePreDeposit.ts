@@ -1,13 +1,12 @@
-
 import { getNftsByAlchemy } from '@/config/api'
+import { NodeLicense } from '@/config/prelnt'
 import { bnMin, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
-import { flatMap } from 'lodash'
+import { flatten } from 'lodash'
 import { parseAbi } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCurrentChainId } from './useCurrentChainId'
-import { NodeLicense } from '@/config/prelnt'
 
 export const abiPreDeposit = parseAbi([
   'function deposit(uint256 nftId) external',
@@ -21,7 +20,7 @@ export const abiPreDeposit = parseAbi([
 export function usePreDepositData(node: NodeLicense) {
   const chainId = useCurrentChainId()
   return useQuery({
-    queryKey: ['preDepositData:',chainId, node.preDeposit],
+    queryKey: ['preDepositData:', chainId, node.preDeposit],
     enabled: Boolean(node.preDeposit),
     initialData: { totalDeposit: 0n },
     queryFn: async () => {
@@ -40,11 +39,11 @@ const chunckCount = (count: bigint, chunk: bigint = 50n) => {
     return chunks
   }
   for (let index = 0n; index < count; index += chunk) {
-    chunks.push([chunk, index])
-  }
-  const mod = count % chunk
-  if (mod > 0n) {
-    chunks.push([mod, chunk * BigInt(chunks.length)])
+    if (chunk + index < count) {
+      chunks.push([chunk, index])
+    } else {
+      chunks.push([count % chunk, chunk * BigInt(chunks.length)])
+    }
   }
   return chunks
 }
@@ -52,26 +51,33 @@ export function usePreDepositByUser(node: NodeLicense) {
   const { address } = useAccount()
   const chainId = useCurrentChainId()
   return useQuery({
-    queryKey: ['preDepositDataByUser:',chainId, node.preDeposit, address],
+    queryKey: ['preDepositDataByUser:', chainId, node.preDeposit, address],
     enabled: Boolean(node.preDeposit) && Boolean(address),
     initialData: { deposited: [], nfts: [] },
     queryFn: async () => {
-      const pc = getPC(chainId)
-      const lnt = node.preDeposit!.prelnt
-      const nft = node.preDeposit!.nft
-      const user = address!
-      const count = await pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'depositedCount', args: [user] })
-      const deposited =
-        count > 50n
-          ? Promise.all(
-              chunckCount(count).map(([count, skip]) => pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'deposited', args: [user, count, skip] })),
-            ).then((data) => flatMap(data))
-          : pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'deposited', args: [user] })
+      try {
+        const pc = getPC(chainId)
+        const lnt = node.preDeposit!.prelnt
+        const nft = node.preDeposit!.nft
+        // const user = address!
+        const user = '0xb3880D65a28951b7E5f3c2Dd59e8E59FF8821640'
+        const count = await pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'depositedCount', args: [user] })
+        console.info('chunks:', chunckCount(count))
+        const deposited: Promise<bigint[]> =
+          count > 50n
+            ? Promise.all(
+                chunckCount(count).map(([count, skip]) => pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'deposited', args: [user, count, skip] })),
+              ).then((data) => flatten(data))
+            : pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'deposited', args: [user] })
 
-      return promiseAll({
-        deposited,
-        nfts: getNftsByAlchemy(nft, user),
-      })
+        return await promiseAll({
+          deposited,
+          nfts: getNftsByAlchemy(nft, user),
+        })
+      } catch (error) {
+        console.error('preDepositData:', error)
+        throw error
+      }
     },
   })
 }
