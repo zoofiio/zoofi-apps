@@ -150,7 +150,7 @@ export const BVAULTS_CONFIG: { [key: number]: BVaultConfig[] } = proxyGetDef(
         protocolAddress: '0xd75Dc0496826FF0C13cE6D6aA5Bf8D64126E4fF1',
         protocolSettingsAddress: '0x45a47E8013425AF3e6e71f1aa24e3B8c523386EA',
         bQueryAddres: BQueryAddress[berachain.id],
-        onEnv: ['test'],
+        onEnv: ['test', 'prod'],
       },
       {
         vault: '0x94822b9BA715E9e3079ed12489Dc7A016694FC67',
