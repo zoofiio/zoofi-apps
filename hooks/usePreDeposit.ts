@@ -39,7 +39,7 @@ const chunckCount = (count: bigint, chunk: bigint = 50n) => {
     return chunks
   }
   for (let index = 0n; index < count; index += chunk) {
-    if (chunk + index < count) {
+    if (chunk + index <= count) {
       chunks.push([chunk, index])
     } else {
       chunks.push([count % chunk, chunk * BigInt(chunks.length)])

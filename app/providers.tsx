@@ -22,6 +22,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Chain, createClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
+import { ConfigChainsProvider } from '@/components/support-chains';
 
 const client = new ApolloClient({
   uri: 'https://api.studio.thegraph.com/query/45897/wand/version/latest',
@@ -78,13 +79,15 @@ export function Providers({ children, supportChains = SUPPORT_CHAINS }: { childr
   return (
     <ApolloProvider client={client}>
       <WagmiProvider config={config}>
-        <QueryClientProvider client={qClient}>
-          <QueryParamProvider adapter={NextAdapterApp}>
-            <RainbowKitProvider locale='en-US' modalSize='compact' theme={theme === 'dark' ? darkTheme({ accentColor: 'green' }) : lightTheme()}>
-              <FetcherProvider>{children}</FetcherProvider>
-            </RainbowKitProvider>
-          </QueryParamProvider>
-        </QueryClientProvider>
+        <ConfigChainsProvider chains={supportChains}>
+          <QueryClientProvider client={qClient}>
+            <QueryParamProvider adapter={NextAdapterApp}>
+              <RainbowKitProvider locale='en-US' modalSize='compact' theme={theme === 'dark' ? darkTheme({ accentColor: 'green' }) : lightTheme()}>
+                <FetcherProvider>{children}</FetcherProvider>
+              </RainbowKitProvider>
+            </QueryParamProvider>
+          </QueryClientProvider>
+        </ConfigChainsProvider>
       </WagmiProvider>
     </ApolloProvider>
   )

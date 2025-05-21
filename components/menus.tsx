@@ -13,6 +13,8 @@ import { CoinIcon } from "./icons/coinicon"
 import { Demo } from "./noti"
 import { usePageLoad } from "./page-loading"
 import { Tip } from "./ui/tip"
+import { useQuery } from "@tanstack/react-query"
+import { useCurrentChainId } from "@/hooks/useCurrentChainId"
 
 
 export type MenuItem = {
@@ -55,6 +57,10 @@ function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?:
 
 
 function MenusContent() {
+    const chainId = useCurrentChainId()
+    const {} = useQuery({
+        queryKey: ['showAdmin:', chainId]
+    })
     const menus = useMemo(() => {
         return [
             {
