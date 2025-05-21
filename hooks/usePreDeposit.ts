@@ -59,11 +59,11 @@ export function usePreDepositByUser(node: NodeLicense) {
         const pc = getPC(chainId)
         const lnt = node.preDeposit!.prelnt
         const nft = node.preDeposit!.nft
-        // const user = address!
-        const user = '0xb3880D65a28951b7E5f3c2Dd59e8E59FF8821640'
+        const user = address!
+        // const user = '0xb3880D65a28951b7E5f3c2Dd59e8E59FF8821640'
         const count = await pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'depositedCount', args: [user] })
         console.info('chunks:', chunckCount(count))
-        const deposited: Promise<bigint[]> =
+        const deposited: Promise<readonly bigint[]> =
           count > 50n
             ? Promise.all(
                 chunckCount(count).map(([count, skip]) => pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'deposited', args: [user, count, skip] })),
