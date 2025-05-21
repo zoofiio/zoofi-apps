@@ -1,7 +1,9 @@
 'use client'
 
+import { useCurrentChainId } from "@/hooks/useCurrentChainId"
 import { cn } from "@/lib/utils"
-import { size } from "lodash"
+import { useQuery } from "@tanstack/react-query"
+import _, { size } from "lodash"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { MouseEvent, useEffect, useMemo, useRef } from "react"
@@ -10,11 +12,13 @@ import { FiChevronRight } from "react-icons/fi"
 import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
 import { CoinIcon } from "./icons/coinicon"
-import { Demo } from "./noti"
 import { usePageLoad } from "./page-loading"
 import { Tip } from "./ui/tip"
-import { useQuery } from "@tanstack/react-query"
-import { useCurrentChainId } from "@/hooks/useCurrentChainId"
+import { BVAULTS_CONFIG } from "@/config/bvaults"
+import { getPC } from "@/providers/publicClient"
+import { abiZooProtocol } from "@/config/abi"
+import { useAccount } from "wagmi"
+import { isAddressEqual } from "viem"
 
 
 export type MenuItem = {
@@ -56,11 +60,22 @@ function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?:
 }
 
 
-function MenusContent() {
+function useShowBvaultAdmin() {
     const chainId = useCurrentChainId()
-    const {} = useQuery({
-        queryKey: ['showAdmin:', chainId]
+    const { address } = useAccount()
+    const { data: showAdmin } = useQuery({
+        queryKey: ['showAdmin:', chainId, address],
+        enabled: Boolean(address),
+        initialData: false,
+        queryFn: async () => {
+            const admins = await Promise.all(_.union(BVAULTS_CONFIG[chainId].map(item => item.protocolAddress)).map(item => getPC(chainId).readContract({ abi: abiZooProtocol, address: item, functionName: 'protocolOwner' })))
+            return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
+        }
     })
+    return showAdmin
+}
+function MenusContent() {
+    const showBvaultAdmin = useShowBvaultAdmin()
     const menus = useMemo(() => {
         return [
             {
@@ -80,10 +95,11 @@ function MenusContent() {
                     { href: '/b-vaults', name: 'B-Vault', icon: LuBox },
                     { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuUserCircle },
                     { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuLineChart },
+                    ...(showBvaultAdmin ? [{ href: '/b-vaults/admin', name: 'Admin', icon: LuLineChart }] : [])
                 ],
             }
         ] as MenuItem[]
-    }, [])
+    }, [showBvaultAdmin])
     return <div className={cn("flex-col gap-2 items-end flex w-full")}>
         {menus.map((menu, i) => <MenusItem key={`menusitem_${i}`} menu={menu} />)}
     </div>
