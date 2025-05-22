@@ -226,7 +226,7 @@ function BoostItem() {
             epochInfo: epochInfo(bvc.vault, parseInt(epoch.epochId.toString())),
             settled: s.sliceBVaultsStore.epoches[`${bvc.vault}_${parseInt(epoch.epochId.toString())}`]?.settled || false,
           }))
-          .filter((item) => !!item.epochInfo)
+          .filter((item) => !!item.epochInfo && (item.userBalanceYToken > 0n || item.userBalanceYTokenSyntyetic > 0n))
         return { bvc, epochsData }
       })
       .filter((item) => item.epochsData.length)
