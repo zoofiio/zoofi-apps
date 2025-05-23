@@ -442,7 +442,7 @@ export function LntVesting({ vc }: { vc: LntVaultConfig }) {
           <CoinIcon symbol={vc.vestingSymbol} size={16} className='ml-auto' />
           <span className='text-base font-semibold ml-1'>{displayBalance(earnedFee)}</span>
           <ApproveAndTx
-            className='w-20 ml-4'
+            className='w-40 ml-4'
             tx='Claim'
             onTxSuccess={() => {
               refetch()

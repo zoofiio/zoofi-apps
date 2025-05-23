@@ -4,9 +4,18 @@ import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt } from 'viem'
 
-import { useNetworkWrong } from '@/hooks/useCurrentChainId'
+import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
 import { BBtn } from './ui/bbtn'
+import { useSwitchChain } from 'wagmi'
 
+
+export function SwitchChain({ className }: { className?: string }) {
+  const { switchChain, isPending } = useSwitchChain()
+  const chainId = useCurrentChainId()
+  return <BBtn className={twMerge('flex items-center justify-center gap-4 whitespace-nowrap', className)} onClick={() => switchChain({ chainId })} busy={isPending} disabled={isPending}>
+    Switch Network
+  </BBtn>
+}
 export function ApproveAndTx<
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
@@ -54,7 +63,9 @@ export function ApproveAndTx<
   }, [isApproveSuccess])
   const isNetWrong = useNetworkWrong()
   const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
-
+  if (isNetWrong) {
+    return <SwitchChain className={className} />
+  }
   if (shouldApprove)
     return (
       <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={approve} busy={isApproveLoading} disabled={approveDisabled}>
@@ -117,7 +128,9 @@ export function NftApproveAndTx<
   }, [isApproveSuccess])
   const isNetWrong = useNetworkWrong()
   const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
-  
+  if (isNetWrong) {
+    return <SwitchChain className={className} />
+  }
   if (shouldApprove)
     return (
       <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={approve} busy={isApproveLoading} disabled={approveDisabled}>
