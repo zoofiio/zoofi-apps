@@ -177,7 +177,7 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     // const data = await Promise.all(vaults.map((vault) => getBvaultPtSynthetic(vault, 100n))).then((data) =>
     //   data.reduce<{ [k: Address]: bigint }>((map, item, i) => ({ ...map, [vaults[i]]: BigInt(item) }), {}),
     // )
-    const data = await getBvaultsPtSynthetic(vaults)
+    const data = await getBvaultsPtSynthetic(chainId, vaults)
     const datas = _.mapValues(data, (v) => BigInt(v))
     set({ yTokenSythetic: { ...get().yTokenSythetic, ...datas } })
     return datas

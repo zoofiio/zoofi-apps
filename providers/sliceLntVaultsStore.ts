@@ -85,7 +85,10 @@ export const sliceLntVaultsStore: SliceFun<LntVaultsStore> = (set, get, init = {
     const datas = await Promise.all(
       vcs.map((vc) => pc.readContract({ abi: abiLntQuery, address: vc.queryAddres, functionName: 'queryVault', args: [vc.vault] }).then((item) => ({ vault: vc.vault, item }))),
     )
-    const countMap = await getLntVaultsDeposited(vcs.map((vc) => vc.vault))
+    const countMap = await getLntVaultsDeposited(
+      chainId,
+      vcs.map((vc) => vc.vault),
+    )
     const map = _.filter(datas, (item) => item != null).reduce<LntVaultsStore['vaults']>(
       (map, item) => ({ ...map, [item.vault]: { ...item.item, nftCount: BigInt(countMap[item.vault] || 0) } }),
       {},
@@ -120,7 +123,7 @@ export const sliceLntVaultsStore: SliceFun<LntVaultsStore> = (set, get, init = {
   }
 
   const updateUserNftStat = async (chainId: number, vc: LntVaultConfig, user: Address) => {
-    const nftstat = await getLntVaultNftStatByUser(vc.vault, user)
+    const nftstat = await getLntVaultNftStatByUser(chainId, vc.vault, user)
     const pc = getPC(chainId)
     if (nftstat.length > 0) {
       const datas = (

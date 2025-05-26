@@ -152,7 +152,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
   }
 
   const updateNftBalance = async (chainId: number, tokens: Address[], user: Address) => {
-    const data = await getNftTokensIdsByUser(tokens, user)
+    const data = await getNftTokensIdsByUser(chainId, tokens, user)
     const idsMap = _.mapValues(data, (item) => item.map((id) => BigInt(id)))
     set({ nftBalance: { ...get().nftBalance, ...idsMap } })
     return {}

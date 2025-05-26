@@ -5,20 +5,23 @@ import { parseEthers } from '@/lib/utils'
 import { DECIMAL } from '@/constants'
 import _ from 'lodash'
 
-export const getBvaultEpochYtPrices = (vault: Address, epochId: bigint) => api.get<{ price: string; time: number }[]>(`/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
-export const getLntVaultEpochYtPrices = (vault: Address, epochId: bigint) => api.get<{ price: string; time: number }[]>(`/api/lntvault/getEpochYTPrices/${vault}/${epochId}`)
+export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
+  api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
+export const getLntVaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
+  api.get<{ price: string; time: number }[]>(chainId, `/api/lntvault/getEpochYTPrices/${vault}/${epochId}`)
 
-export const getBvaultPtSynthetic = (vault: Address, epochId: bigint) => api.get<string>(`/api/bvault/getEpochPtSynthetic/${vault}/${epochId}`)
+export const getBvaultPtSynthetic = (chainId: number, vault: Address, epochId: bigint) => api.get<string>(chainId, `/api/bvault/getEpochPtSynthetic/${vault}/${epochId}`)
 
-export const getBvaultsPtSynthetic = (bvaults: Address[] = []) => api.post<{ [k: Address]: string }>('/api/bvault/batchGetEpochPtSynthetic', { bvaults })
+export const getBvaultsPtSynthetic = (chainId: number, bvaults: Address[] = []) => api.post<{ [k: Address]: string }>(chainId, '/api/bvault/batchGetEpochPtSynthetic', { bvaults })
 
-export const getLntVaultsDeposited = (vaults: Address[]) => api.post<{ [k: Address]: number }>('/api/lntvault/batchNfts', { vaults })
+export const getLntVaultsDeposited = (chainId: number, vaults: Address[]) => api.post<{ [k: Address]: number }>(chainId, '/api/lntvault/batchNfts', { vaults })
 
 export type NFT_STAT = 'Deposited' | 'DepositedClaimed' | 'Redeemed'
-export const getLntVaultNftStatByUser = (vault: Address, user: Address) => api.get<{ tokenId: string; stat: NFT_STAT; tx: Address }[]>(`/api/lntvault/${vault}/${user}/nftstat`)
+export const getLntVaultNftStatByUser = (chainId: number, vault: Address, user: Address) =>
+  api.get<{ tokenId: string; stat: NFT_STAT; tx: Address }[]>(chainId, `/api/lntvault/${vault}/${user}/nftstat`)
 
-export const getNftTokenIdsByUser = (token: Address, user: Address) => api.get<string[]>(`/api/nft/${token}/${user}/tokenIds`)
-export const getNftTokensIdsByUser = (tokens: Address[], user: Address) => api.post<{ [k: Address]: string[] }>(`/api/nft/${user}/tokenIds`, { tokens })
+export const getNftTokenIdsByUser = (chainId: number, token: Address, user: Address) => api.get<string[]>(chainId, `/api/nft/${token}/${user}/tokenIds`)
+export const getNftTokensIdsByUser = (chainId: number, tokens: Address[], user: Address) => api.post<{ [k: Address]: string[] }>(chainId, `/api/nft/${user}/tokenIds`, { tokens })
 
 export const getBeraTokensPrices = (
   tokens: Address[] = [

@@ -1,13 +1,15 @@
+import { SUPPORT_CHAINS } from '@/config/network'
 import { isPROD } from '@/constants'
 import { DomainRef } from '@/hooks/useConfigDomain'
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 
-let api: AxiosInstance
+const api: { [k: string]: AxiosInstance } = {}
 
-const instance = () => {
-  const baseurl = isPROD ? `https://api.${DomainRef.value}` : `https://beta-api.${DomainRef.value}`
-  if (!api || api.defaults.baseURL !== baseurl) {
-    api = axios.create({
+const instance = (chainId: number) => {
+  const chain = SUPPORT_CHAINS.find((item) => chainId == item.id)!
+  const baseurl = isPROD || !chain.testnet ? `https://api.${DomainRef.value}` : `https://beta-api.${DomainRef.value}`
+  if (!api[baseurl]) {
+    api[baseurl] = axios.create({
       baseURL: baseurl,
       timeout: 10000,
       headers: {
@@ -15,7 +17,7 @@ const instance = () => {
       },
     })
   }
-  return api
+  return api[baseurl]
 }
 
 export type Res<T> = {
@@ -24,31 +26,13 @@ export type Res<T> = {
   data: T
 }
 
-// instance.interceptors.request.use(
-//   (config) => {
-//     return config
-//   },
-//   (error) => {
-//     return Promise.reject(error)
-//   },
-// )
-
-// instance.interceptors.response.use(
-//   (response) => {
-//     return response.data
-//   },
-//   (error) => {
-//     return Promise.reject(error)
-//   },
-// )
-
-export async function get<T>(url: `/${string}`, params: any = {}, config: AxiosRequestConfig = {}) {
+export async function get<T>(chainId: number, url: `/${string}`, params: any = {}, config: AxiosRequestConfig = {}) {
   if (url.startsWith('/auth')) {
     const token = localStorage.getItem('earlyaccess-token')
     if (!token) throw 'Need token'
     config.headers = { ...(config.headers || {}), Authorization: token }
   }
-  const res = await instance().get<Res<T>>(url, {
+  const res = await instance(chainId).get<Res<T>>(url, {
     ...config,
     params: params,
   })
@@ -57,13 +41,13 @@ export async function get<T>(url: `/${string}`, params: any = {}, config: AxiosR
   return res.data.data
 }
 
-export async function post<T>(url: `/${string}`, data: any = {}, config: AxiosRequestConfig = {}) {
+export async function post<T>(chainId: number, url: `/${string}`, data: any = {}, config: AxiosRequestConfig = {}) {
   if (url.startsWith('/auth')) {
     const token = localStorage.getItem('earlyaccess-token')
     if (!token) throw 'Need token'
     config.headers = { ...(config.headers || {}), Authorization: token }
   }
-  const res = await instance().post<Res<T>>(url, data, config)
+  const res = await instance(chainId).post<Res<T>>(url, data, config)
   if (res?.data?.code !== 200) throw res.data
   return res.data.data
 }

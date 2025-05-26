@@ -23,7 +23,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
   const chainId = useCurrentChainId()
   const { data: prices } = useQuery({
     queryKey: ['bvualt-epoch-yt-prices', chainId, bvc.vault, epochId],
-    queryFn: () => getBvaultEpochYtPrices(bvc.vault, epochId),
+    queryFn: () => getBvaultEpochYtPrices(chainId, bvc.vault, epochId),
     initialData: [],
   })
   const [isLOG, togLOG] = useToggle(true)
