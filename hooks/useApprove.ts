@@ -12,7 +12,7 @@ const cacheAllowance: { [k: Address]: { [k: Address]: bigint } } = {}
 
 export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Address | undefined, reqBigAmount: bigint | false = 10000000000n * 10n ** 18n) => {
   const { address } = useAccount()
-   const chainId = useCurrentChainId()
+  const chainId = useCurrentChainId()
   const { data: walletClient } = useWalletClient()
   const [isSuccess, setSuccess] = useState(false)
   const tokens = useMemo(() => Object.keys(needAllownce).filter((item) => item !== NATIVE_TOKEN_ADDRESS) as Address[], [needAllownce])
@@ -38,7 +38,7 @@ export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Add
     return tokens.filter((t) => getBigint(needAllownce, t) > 0n && getBigint(needAllownce, t) > getBigint(allowance, t))
   }, [needAllownce, tokens, allowance])
   const approve = async () => {
-    if (needApproves.length == 0 || !spender) return
+    if (needApproves.length == 0 || !spender || !address) return
     try {
       setLoading(true)
       setSuccess(false)
@@ -53,7 +53,11 @@ export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Add
           args: [spender, allowanceValue],
         })
         txHash && (await getPC(chainId).waitForTransactionReceipt({ hash: txHash }))
-        updateAllownce(token, allowanceValue)
+        const currentAllownceValue = await getPC(chainId).readContract({ abi: erc20Abi, address: token, functionName: 'allowance', args: [address, spender] })
+        if (currentAllownceValue < needAllownce[token]) {
+          toast.error('Insufficient amount of approve')
+        }
+        updateAllownce(token, currentAllownceValue)
       }
       toast.success('Approve success')
       setLoading(false)
