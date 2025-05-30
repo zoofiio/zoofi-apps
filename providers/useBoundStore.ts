@@ -2,8 +2,6 @@ import _ from 'lodash'
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { sliceBVaultsStore } from './sliceBVaultsStore'
-import { sliceLntVaultsStore } from './sliceLntVaultsStore'
-import { sliceLVaultsStore } from './sliceLVaultsStore'
 import { sliceTokenStore } from './sliceTokenStore'
 import { sliceUserBVaults } from './sliceUserBVaults'
 
@@ -23,8 +21,6 @@ function sliceStores<T>(slices: SliceType<T>, init: Partial<T> = {}) {
 const boundStore = sliceStores(
   {
     sliceBVaultsStore,
-    sliceLVaultsStore,
-    sliceLntVaultsStore,
     sliceTokenStore,
     sliceUserBVaults,
   },

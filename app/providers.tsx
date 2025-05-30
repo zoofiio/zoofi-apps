@@ -4,7 +4,7 @@
   }
 import * as React from 'react';
 
-import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network';
+import { SUPPORT_CHAINS, apiBatchConfig, multicallBatchConfig } from '@/config/network';
 import { RainbowKitProvider, connectorsForWallets, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
 import { binanceWallet, bitgetWallet, coinbaseWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
 import { WagmiProvider, createConfig, createStorage } from 'wagmi';
@@ -16,13 +16,11 @@ const ankrKey = '5da55021cad3ac57391c3292c373dec3a32bf9eaae63b74d4138d5d4a17dd55
 import NextAdapterApp from 'next-query-params/app';
 import { QueryParamProvider } from 'use-query-params';
 
+import { ConfigChainsProvider } from '@/components/support-chains';
 import { useThemeState } from '@/components/theme-mode';
-import { FetcherProvider } from '@/providers/fetcher';
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Chain, createClient, http } from 'viem';
-import { mainnet } from 'viem/chains';
-import { ConfigChainsProvider } from '@/components/support-chains';
 
 const client = new ApolloClient({
   uri: 'https://api.studio.thegraph.com/query/45897/wand/version/latest',
@@ -83,7 +81,7 @@ export function Providers({ children, supportChains = SUPPORT_CHAINS }: { childr
           <QueryClientProvider client={qClient}>
             <QueryParamProvider adapter={NextAdapterApp}>
               <RainbowKitProvider locale='en-US' modalSize='compact' theme={theme === 'dark' ? darkTheme({ accentColor: 'green' }) : lightTheme()}>
-                <FetcherProvider>{children}</FetcherProvider>
+                {children}
               </RainbowKitProvider>
             </QueryParamProvider>
           </QueryClientProvider>

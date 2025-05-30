@@ -10,7 +10,7 @@ import { CoinIcon } from './icons/coinicon'
 import { useThemeState } from './theme-mode'
 import { Spinner } from './spinner'
 import { useMeasure } from 'react-use'
-import _ from 'lodash'
+import _, { ceil, floor, toNumber } from 'lodash'
 
 export function AssetInput({
   asset = 'ETH',
@@ -34,7 +34,9 @@ export function AssetInput({
   defaultValue,
   balanceClassName = '',
   loading,
-  disableNegative,
+  error,
+  step = 0.01,
+  integer,
 }: {
   asset: string
   assetIcon?: string
@@ -57,14 +59,16 @@ export function AssetInput({
   defaultValue?: any
   loading?: boolean
   balanceClassName?: string
-  disableNegative?: boolean
+  error?: string
+  step?: number
+  integer?: boolean
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const balanceInsufficient =
     checkBalance && typeof balance !== 'undefined' && parseEthers(typeof amount == 'number' ? amount + '' : amount || '', decimals) > (typeof balance == 'bigint' ? balance : 0n)
   const isDark = useThemeState((t) => t.theme == 'dark')
-  const isError = balanceInsufficient
+  const isError = balanceInsufficient || !!error
   const [coinSymbolRef, { width: coinSymbolWidth }] = useMeasure<HTMLDivElement>()
   return (
     <div
@@ -125,7 +129,8 @@ export function AssetInput({
           value={loading ? '' : amount}
           onChange={(e) => {
             if (readonly) return
-            const numstr = (e.target.value || '').replaceAll('-', '').replaceAll('+', '')
+            let numstr = (e.target.value || '').replaceAll('-', '').replaceAll('+', '')
+            if (integer) numstr.replaceAll('.', '')
             setAmount(numstr)
           }}
           ref={inputRef}
@@ -144,7 +149,7 @@ export function AssetInput({
           placeholder='0.000'
           maxLength={36}
           pattern='[0-9.]{36}'
-          step={0.01}
+          step={step}
           title=''
           readOnly={readonly}
         />
@@ -157,18 +162,19 @@ export function AssetInput({
             <span>
               {balanceTit}: {displayBalance(balance, 3, decimals)}
             </span>
-            <button
+            {!disable && <button
               className='text-primary ml-2'
               onClick={() => {
-                const fmtAmount = formatUnits(balance, decimals)
+                let fmtAmount = formatUnits(balance, decimals)
+                if (integer) fmtAmount = floor(toNumber(fmtAmount)).toString()
                 setAmount(fmtAmount)
                 onClick && !disable && onClick()
               }}
             >
               Max
-            </button>
+            </button>}
           </div>
-          <div className='text-sm text-red-400'>{balanceInsufficient ? 'Insufficient account balance' : ''}</div>
+          {isError && <div className='text-sm text-red-400'>{error || 'Insufficient account balance'}</div>}
         </div>
       )}
     </div>

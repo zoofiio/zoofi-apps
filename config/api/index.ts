@@ -1,9 +1,10 @@
-import { Address } from 'viem'
+import { Address, Hex } from 'viem'
 import api from '../../utils/api'
 import axios from 'axios'
 import { parseEthers } from '@/lib/utils'
 import { DECIMAL } from '@/constants'
 import _ from 'lodash'
+import { base, berachain, sepolia } from '../network'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -107,7 +108,16 @@ export const getIBGTPrice = () =>
     .then((res) => _.concat(res.data.underlying_tokens, res.data.reward_tokens)?.find((item) => item.symbol === 'iBGT'))
     .then((data) => (data ? parseEthers(data.price.toFixed(6)) : DECIMAL))
 
-export const getNftsByAlchemy = async (nft: Address, owner: Address) => {
+const aclchemyMap: { [k: number]: string } = {
+  [sepolia.id]: 'eth-sepolia',
+  [base.id]: 'base-mainnet',
+  [berachain.id]: 'berachain-mainnet',
+}
+export const getNftsByAlchemy = async (chainId: number, nft: Address, owner: Address) => {
+  if (!aclchemyMap[chainId]) {
+    throw new Error('Not Support')
+  }
+  // https://eth-sepolia.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX
   let pageKey: string | undefined = undefined
   const getNfts = (pageSize: number = 100) =>
     axios
@@ -117,7 +127,7 @@ export const getNftsByAlchemy = async (nft: Address, owner: Address) => {
         }[]
         totalCount: number
         pageKey?: string
-      }>(`https://base-mainnet.g.alchemy.com/nft/v3/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX/getNFTsForOwner?owner=${owner}&contractAddresses[]=${nft}&pageSize=${pageSize}`, {
+      }>(`https://${aclchemyMap[chainId]}.g.alchemy.com/nft/v3/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX/getNFTsForOwner?owner=${owner}&contractAddresses[]=${nft}&pageSize=${pageSize}`, {
         params: pageKey ? { pageKey } : {},
       })
       .then((res) => {
@@ -128,9 +138,52 @@ export const getNftsByAlchemy = async (nft: Address, owner: Address) => {
       })
   let res: string[] = []
   while (true) {
-    const { pageKey, nfts } = await getNfts()
+    const { pageKey: nPK, nfts } = await getNfts()
     res = res.concat(nfts)
-    if (!pageKey) break
+    if (!nPK) break
+    pageKey = nPK
+  }
+  return res
+}
+
+export type NftTx = { blockNum: Hex; hash: Hex; from: Address; to: Address; erc721TokenId: Hex }
+export const getNftTxsByAlchemy = async (chainId: number, opt: { nft: Address; from: Address; to: Address }) => {
+  if (!aclchemyMap[chainId]) {
+    throw new Error('Not Support')
+  }
+  let pageKey: string | undefined = undefined
+  const getNftTxs = (pageSize: number = 100) =>
+    axios
+      .post<{
+        result: { transfers: NftTx[]; pakeKey: string }
+      }>(`https://${aclchemyMap[chainId]}.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX`, {
+        jsonrpc: '2.0',
+        method: 'alchemy_getAssetTransfers',
+        params: [
+          {
+            category: ['erc721'],
+            contractAddresses: [opt.nft],
+            maxCount: pageSize,
+            pageKey,
+            fromAddress: opt.from,
+            toAddress: opt.to,
+            order: 'desc',
+          },
+        ],
+        id: 1,
+      })
+      .then((res) => {
+        return {
+          pageKey: res.data.result.pakeKey,
+          txs: res.data.result.transfers,
+        }
+      })
+  let res: NftTx[] = []
+  while (true) {
+    const { pageKey: nPK, txs } = await getNftTxs()
+    res = res.concat(txs)
+    if (!nPK) break
+    pageKey = nPK
   }
   return res
 }

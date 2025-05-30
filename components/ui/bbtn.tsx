@@ -1,7 +1,9 @@
 import { cn } from '@/lib/utils'
 import _ from 'lodash'
-import { ButtonHTMLAttributes, useEffect, useRef, useState } from 'react'
+import { ButtonHTMLAttributes, HTMLAttributes, useEffect, useRef, useState } from 'react'
 import { Spinner } from '../spinner'
+import { AiOutlineSwap } from 'react-icons/ai';
+import { IoIosArrowDown } from 'react-icons/io';
 
 // export function BorderDraw() {
 //   const ref = useRef<HTMLCanvasElement>(null)
@@ -86,4 +88,26 @@ export function BBtn(p: ButtonHTMLAttributes<HTMLButtonElement> & { borderWidth?
       {(busyShowContent || !busy) && children}
     </button>
   )
+}
+
+
+export function Swap(p: HTMLAttributes<HTMLDivElement>) {
+  const { className, style, ...props } = p
+  return <div
+    {...props}
+    style={{ transform: 'rotateX(180deg) rotateZ(90deg)', ...(style || {}) }}
+    className={cn("flex w-8 h-8 justify-center items-center self-center text-sm cursor-pointer border border-slate-500 text-slate-500 rounded-full hover:text-primary hover:border-primary", className)}
+  >
+    <AiOutlineSwap />
+  </div>
+}
+export function SwapDown(p: HTMLAttributes<HTMLDivElement>) {
+  const { className, style, ...props } = p
+  return <div
+    {...props}
+    style={{ ...(style || {}) }}
+    className={cn("flex w-8 h-8 justify-center items-center self-center text-sm cursor-pointer border border-slate-500 text-slate-500 rounded-full", className)}
+  >
+    <IoIosArrowDown />
+  </div>
 }

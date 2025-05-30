@@ -3,9 +3,7 @@
 import { ApproveAndTx } from '@/components/approve-and-tx'
 import { Expandable, GeneralAction, inputClassname, selectClassNames } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
-import { abiBVault, abiLntVault, abiMockERC20, abiMockERC721, abiMockPriceFeed, abiPlainVault, abiProtocolSettings, abiPtyPool, abiVault, abiWandProtocol, abiZooProtocol } from '@/config/abi'
-import { PROTOCOL_SETTINGS_ADDRESS, VaultConfig, WAND_PROTOCOL_ADDRESS } from '@/config/swap'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { abiBVault, abiMockPriceFeed, abiProtocolSettings, abiPtyPool, abiVault, abiZooProtocol } from '@/config/abi'
 import { useVaultsConfigs } from '@/hooks/useVaultsConfigs'
 import { useWandContractRead, useWandContractReads } from '@/hooks/useWand'
 import { cn, parseEthers } from '@/lib/utils'
@@ -14,23 +12,8 @@ import { FaSpinner } from 'react-icons/fa6'
 import Select from 'react-select'
 import { useMeasure, useSetState } from 'react-use'
 import { Address, erc20Abi, formatEther, formatUnits, isAddress, parseUnits, stringToHex } from 'viem'
-import { useAccount } from 'wagmi'
 
 type ParamItem = { label: string; value: string; units?: number /** def 10 */ }
-
-const LVaultParams: ParamItem[] = [
-  { label: '资产利息率', value: 'Y' },
-  { label: '目标AAR', value: 'AART' },
-  { label: '安全AAR', value: 'AARS' },
-  { label: '上顶AAR', value: 'AARU' },
-  { label: '熔断AAR', value: 'AARC' },
-  { label: '赎回手续费', value: 'C' },
-  { label: '进入国库比例', value: 'TreasuryFeeRate' },
-  { label: 'Discount冷静时间', value: 'CircuitBreakPeriod', units: 0 },
-  { label: '低买池最小成交量USB', value: 'PtyPoolMinUsbAmount' },
-  { label: '高卖池最小成交量', value: 'PtyPoolMinAssetAmount' },
-  { label: 'RateR', value: 'RateR' },
-]
 
 const BVaultParams: ParamItem[] = [
   { label: '产品周期', value: 'D', units: 0 },
@@ -118,102 +101,6 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress }: { paramL
   )
 }
 
-function UpdateVaultPrice({ vc }: { vc: VaultConfig }) {
-  const [{ feed }, setState] = useSetState({ feed: '' })
-  return (
-    <Expandable tit='Vault Price Feed'>
-      <input type='text' placeholder='_assetTokenPriceFeed_' value={feed} onChange={(e) => setState({ feed: e.target.value })} className={cn(inputClassname)} />
-      <ApproveAndTx
-        tx='Write'
-        config={{
-          abi: abiVault,
-          address: vc.vault,
-          functionName: 'updatePriceFeed',
-          args: [feed as any],
-        }}
-        onTxSuccess={() => {
-          setState({ feed: '' })
-        }}
-        className=' w-full flex items-center justify-center gap-4'
-      />
-    </Expandable>
-  )
-}
-
-function ClaimYieldsForBuyPool({ vc }: { vc: VaultConfig }) {
-  const { data } = useWandContractRead({
-    abi: abiPtyPool,
-    address: vc.ptyPoolBelowAddress,
-    functionName: 'claimableYields',
-  })
-  const yieldsBn = !vc.ptyPoolBelowAddress ? 0n : (data as bigint) || 0n
-  const [{ address }, setState] = useSetState({ address: '' })
-  return (
-    <Expandable tit={'ClaimYields for Buy Low Pool'}>
-      <span>Yields: {formatEther(yieldsBn)}</span>
-      <input type='text' placeholder='recipient' value={address} onChange={(e) => setState({ address: e.target.value })} className={cn(inputClassname)} />
-      <ApproveAndTx
-        tx='Write'
-        disabled={!vc.ptyPoolBelowAddress || yieldsBn <= 0n}
-        config={{
-          abi: abiPtyPool,
-          address: vc.ptyPoolBelowAddress as any,
-          functionName: 'claimYields',
-          args: [address as any],
-        }}
-        className='!mt-0  max-w-[100px] flex items-center justify-center gap-4'
-      />
-    </Expandable>
-  )
-}
-
-function SetTester({ vc }: { vc: VaultConfig }) {
-  const { data } = useWandContractRead({
-    abi: abiMockPriceFeed,
-    address: vc.assetTokenFeed,
-    functionName: 'getTestersCount',
-  })
-  const { data: owner } = useWandContractRead({
-    abi: abiMockPriceFeed,
-    address: vc.assetTokenFeed,
-    functionName: 'owner',
-  })
-
-  const testerCount = (data as bigint) || 0n
-  const { data: testers } = useWandContractReads({
-    contracts: Array.from(new Array(parseInt(testerCount.toString()))).map((_, i) => ({
-      abi: abiMockPriceFeed,
-      address: vc.assetTokenFeed,
-      functionName: 'getTester',
-      args: [BigInt(i)],
-    })) as any,
-  })
-  const testersList = testers?.map((t: any) => t['result'] as string) || []
-  const [{ address }, setState] = useSetState({ address: '' })
-  return (
-    <Expandable tit={'Set tester'}>
-      <div>Owner: {owner as string}</div>
-      <div>Tester Count: {testerCount.toString()}</div>
-      <div>Testers</div>
-      {testersList.map((t) => (
-        <div key={t}>{t}</div>
-      ))}
-      <input type='text' placeholder='recipient' value={address} onChange={(e) => setState({ address: e.target.value })} className={cn(inputClassname)} />
-      <ApproveAndTx
-        tx='Write'
-        disabled={!address}
-        config={{
-          abi: abiMockPriceFeed,
-          address: vc.assetTokenFeed as any,
-          functionName: 'setTester',
-          args: [address as any, true],
-        }}
-        className='!mt-0  max-w-[100px] flex items-center justify-center gap-4'
-      />
-    </Expandable>
-  )
-}
-
 
 function Erc20Approve() {
   const [stat, setStat] = useSetState({
@@ -244,59 +131,8 @@ function Erc20Approve() {
   </Expandable>
 }
 
-const PValutParams: ParamItem[] = [{ label: '赎回手续费', value: 'C' }]
-function InitReinit(props: { vault: Address }) {
-  const { vault } = props;
-  // @ts-ignore
-  const { data } = useWandContractReads({
-    contracts: [
-      {
-        abi: abiLntVault,
-        address: vault,
-        functionName: 'paramValue',
-        args: [stringToHex('D', { size: 32 })]
-      },
-      {
-        abi: abiLntVault,
-        address: vault,
-        functionName: 'nftVtAmount',
-      },
-      {
-        abi: abiLntVault,
-        address: vault,
-        functionName: 'nftVestingEndTime',
-      },
-      {
-        abi: abiLntVault,
-        address: vault,
-        functionName: 'nftVestingDuration',
-      },
-      {
-        abi: abiLntVault,
-        address: vault,
-        functionName: 'ytSwapPaymentToken',
-      },
-      {
-        abi: abiLntVault,
-        address: vault,
-        functionName: 'ytSwapPrice',
-      },
-    ]
-  })
-  const { data: inited } = useWandContractRead({
-    abi: abiLntVault,
-    address: vault,
-    functionName: 'initialized'
-  })
-  const argsDef = data?.map(item => item.result?.toString() || '')
-  const functionName = inited ? 'reInitialize' : 'initialize'
-  return <GeneralAction key={`lnt-vault-init`} abi={abiLntVault} tit="InitOrReinit" txProps={{ disabled: typeof inited !== 'boolean' }} functionName={functionName} address={vault} argsDef={argsDef} />
-}
-
 export default function AdminPage() {
-  const chainId = useCurrentChainId()
   const { current, setState, stateOptions: options, bsQuery: { isLoading } } = useVaultsConfigs()
-  const { chain } = useAccount()
   return (
     <PageWrap>
       <div className='w-full flex'>
@@ -304,26 +140,6 @@ export default function AdminPage() {
           <FaSpinner className='text-3xl animate-spin' />
         </div> : <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
           <Select classNames={selectClassNames} defaultValue={options[0]} options={options} onChange={(e) => e && setState({ current: e as any })} />
-          {current.type == 'L-Vault' && (
-            <>
-              <UpdateVaultParams vault={current.data.vault} paramList={LVaultParams} protocoSettingAddress={PROTOCOL_SETTINGS_ADDRESS[chainId]} />
-              <UpdateVaultPrice vc={current.data} />
-              {['pauseMint', 'unpauseMint', 'pauseRedeem', 'unpauseRedeem', 'pauseUsbToMarginTokens', 'unpauseUsbToMarginTokens'].map((action) => (
-                <GeneralAction key={`l-vault-${action}`} functionName={action} abi={abiVault} address={current.data.vault} />
-              ))}
-              <GeneralAction abi={abiWandProtocol} functionName='transferOwnership' address={WAND_PROTOCOL_ADDRESS[chainId]} />
-              <ClaimYieldsForBuyPool vc={current.data} />
-              {chain?.testnet && <SetTester vc={current.data} />}
-            </>
-          )}
-          {current.type == 'P-Vault' && (
-            <>
-              <UpdateVaultParams vault={current.data.vault} paramList={PValutParams} protocoSettingAddress={PROTOCOL_SETTINGS_ADDRESS[chainId]} />
-              {['configureBlastYieldsAndGas', 'configureBlastPoints'].map((action) => (
-                <GeneralAction key={`p-vault-${action}`} abi={abiPlainVault} functionName={action} address={current.data.vault} />
-              ))}
-            </>
-          )}
           {current.type == 'B-Vault' && (
             <>
               <UpdateVaultParams vault={current.data.vault} paramList={BVaultParams} protocoSettingAddress={current.data.protocolSettingsAddress} />
@@ -334,24 +150,6 @@ export default function AdminPage() {
               <GeneralAction tit='upsertParamConfig' abi={abiProtocolSettings} functionName='upsertParamConfig' address={current.data.protocolSettingsAddress} />
             </>
           )}
-          {
-            current.type == 'Lnt-Vault' && (
-              <>
-                <UpdateVaultParams vault={current.data.vault} paramList={LntVaultParams} protocoSettingAddress={current.data.protocolSettingsAddress} />
-                <InitReinit vault={current.data.vault} />
-                {['startEpoch1', 'updateNftDepositClaimableTime', 'depositNftVestingToken', 'withdrawNftVestingToken', 'addYtRewards',].map((functionName) => (
-                  <GeneralAction key={`lnt-vault-${functionName}`} abi={abiLntVault} functionName={functionName} address={current.data.vault} />
-                ))}
-                <GeneralAction tit='transferOwnership' abi={abiZooProtocol} functionName='transferOwnership' address={current.data.protocolAddress} />
-                <GeneralAction tit='upsertParamConfig' abi={abiProtocolSettings} functionName='upsertParamConfig' address={current.data.protocolSettingsAddress} />
-                {chain?.testnet && <>
-                  <GeneralAction tit='mintMockNFT' abi={abiMockERC721} functionName='safeMint' address={current.data.asset} />
-                  <GeneralAction tit='mintMockERC20' abi={abiMockERC20} functionName='mint' address={current.data.vestingToken} />
-                </>}
-
-              </>
-            )
-          }
           <Erc20Approve />
         </div>}
       </div>

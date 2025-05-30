@@ -19,6 +19,8 @@ import { getPC } from "@/providers/publicClient"
 import { abiZooProtocol } from "@/config/abi"
 import { useAccount } from "wagmi"
 import { isAddressEqual } from "viem"
+import { LNTVAULTS_CONFIG } from "@/config/lntvaults"
+import { abiLntProtocol } from "@/config/abi/abiLNTVault"
 
 
 export type MenuItem = {
@@ -74,8 +76,23 @@ function useShowBvaultAdmin() {
     })
     return showAdmin
 }
+function useShowLntVaultAdmin() {
+    const chainId = useCurrentChainId()
+    const { address } = useAccount()
+    const { data: showAdmin } = useQuery({
+        queryKey: ['showAdmin:', chainId, address],
+        enabled: Boolean(address),
+        initialData: false,
+        queryFn: async () => {
+            const admins = await Promise.all(_.union(LNTVAULTS_CONFIG[chainId].map(item => item.protocol)).map(item => getPC(chainId).readContract({ abi: abiLntProtocol, address: item, functionName: 'owner' })))
+            return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
+        }
+    })
+    return showAdmin
+}
 function MenusContent() {
     const showBvaultAdmin = useShowBvaultAdmin()
+    const showLntVaultAdmin = useShowLntVaultAdmin()
     const menus = useMemo(() => {
         return [
             {
@@ -86,6 +103,7 @@ function MenusContent() {
                     { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },
                     { href: '/lnt/portfolio', name: 'Portfolio', icon: LuUserCircle, disabled: true },
                     { href: '/lnt/dashboard', name: 'Dashboard', icon: LuLineChart, disabled: true },
+                    ...(showLntVaultAdmin ? [{ href: '/lnt/admin', name: 'Admin', icon: LuLineChart }] : [])
                 ]
             },
             {
@@ -99,7 +117,7 @@ function MenusContent() {
                 ],
             }
         ] as MenuItem[]
-    }, [showBvaultAdmin])
+    }, [showBvaultAdmin, showLntVaultAdmin])
     return <div className={cn("flex-col gap-2 items-end flex w-full")}>
         {menus.map((menu, i) => <MenusItem key={`menusitem_${i}`} menu={menu} />)}
     </div>

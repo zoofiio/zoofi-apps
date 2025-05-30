@@ -1,7 +1,7 @@
 'use client'
 
 import { BVaultB, BVaultCard, BVaultCardComming, BVaultP, BVaultRedeemAll } from '@/components/b-vault'
-import { BVaultAddReward } from '@/components/bvault-add-reward'
+import { BVaultAddReward } from '@/components/b-vault-add-reward'
 import { Noti } from '@/components/noti'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleTabs } from '@/components/simple-tabs'

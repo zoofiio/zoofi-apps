@@ -2,16 +2,30 @@
 
 import { GeneralAction } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
-import { nodelicense } from '@/components/pre-deposit'
+import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC721 } from '@/config/abi'
+import { abiLntProtocol } from '@/config/abi/abiLNTVault'
+import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { useState } from 'react'
 
 export default function AdminPage() {
-  const nodes = nodelicense.filter(item => item.preDeposit)
+  const chainId = useCurrentChainId()
+  const vcs = LNTVAULTS_CONFIG[chainId]
+  const options = vcs.map(item => ({ key: item.vault, show: `LNT-Vault(${item.vault})`, vc: item }))
+  const [current, setCurrent] = useState<typeof options[0]>(options[0])
   return (
     <PageWrap>
       <div className='w-full flex'>
         <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
-          {nodes.map(item => <GeneralAction key={'mintErc721' + item.preDeposit!.nft} abi={abiMockERC721} tit="" functionName='mint' address={item.preDeposit!.nft} />)}
+          <SimpleSelect className='w-full' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
+          {
+            current && <>
+              <GeneralAction tit='transferOwnership' abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
+              <GeneralAction abi={abiMockERC721} tit={'mockErc721 setTester'} functionName='setTester' address={current.vc.asset} />
+              <GeneralAction abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName='safeMint' address={current.vc.asset} />
+            </>
+          }
         </div>
       </div>
     </PageWrap>

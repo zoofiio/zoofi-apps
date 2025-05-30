@@ -72,7 +72,7 @@ export function usePreDepositByUser(node: NodeLicense) {
 
         return await promiseAll({
           deposited,
-          nfts: getNftsByAlchemy(nft, user),
+          nfts: getNftsByAlchemy(chainId,nft, user),
         })
       } catch (error) {
         console.error('preDepositData:', error)

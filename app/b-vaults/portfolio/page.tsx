@@ -7,20 +7,15 @@ import PandaLine from '@/components/icons/PandaLine'
 import VenomLine from '@/components/icons/VenomLine'
 import { PageWrap } from '@/components/page-wrap'
 import STable, { TableProps } from '@/components/simple-table'
-import { Tip } from '@/components/ui/tip'
 import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
-import { USB_ADDRESS, USBSymbol, VaultConfig, VAULTS_CONFIG } from '@/config/swap'
 import { ENV } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useLoadBVaults, useLoadLVaults, useLoadUserBVaults, useLoadUserLVaults } from '@/hooks/useLoads'
+import { useLoadBVaults, useLoadUserBVaults } from '@/hooks/useLoads'
 import { fmtDate, fmtPercent } from '@/lib/utils'
 import { useBoundStore } from '@/providers/useBoundStore'
 import { calcBVaultPTApy } from '@/providers/useBVaultsData'
-import { defLVault, useUSBApr } from '@/providers/useLVaultsData'
-import { useBalances } from '@/providers/useTokenStore'
 import { displayBalance } from '@/utils/display'
-import _ from 'lodash'
 import { useRouter } from 'next/navigation'
 import { ReactNode, useMemo } from 'react'
 import { MdArrowOutward } from 'react-icons/md'
@@ -66,70 +61,9 @@ function IconTitle(p: { icon: keyof typeof IconMap; tit: string }) {
 function CoinText(p: { symbol: string; txt?: string; size?: number }) {
   return (
     <div className='flex gap-2 items-center'>
-      {<CoinIcon symbol={p.symbol} size={p.size || 20} />}
+      <CoinIcon className='shrink-0' symbol={p.symbol} size={p.size || 20} />
       <span>{p.txt || p.symbol}</span>
     </div>
-  )
-}
-function InterestItem() {
-  const { apr, aprDecimals } = useUSBApr()
-  const chainId = useCurrentChainId()
-  const balances = useBalances()
-  const usbBalance = balances[USB_ADDRESS[chainId]]
-  const yieldDay = (usbBalance * apr) / 365n / 10n ** BigInt(aprDecimals)
-  return (
-    <PortfolioItem
-      title={<IconTitle tit='Interest Bear' icon='BeraLine' />}
-      tHeader={['', 'Balance', 'APY', 'Est. Yield/day']}
-      tData={[[<CoinText key='icon' symbol={USBSymbol} />, displayBalance(usbBalance), fmtPercent(apr, aprDecimals), displayBalance(yieldDay)]]}
-    />
-  )
-}
-function LeverageItem() {
-  const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId] || []
-  const balances = useBalances()
-
-  const data: ReactNode[][] = useMemo(() => {
-    const calcMyOpenPosition = (vc: VaultConfig) => {
-      const s = useBoundStore.getState()
-      const vs = s.sliceLVaultsStore.lvaults[vc.vault] || defLVault
-      const totalBn = vs.isStable ? vs.M_USDC : vs.M_ETH
-      const xTotalBn = vs.isStable ? vs.M_USDCx : vs.M_ETHx
-      // const mUsbBn = vs.isStable ? vs.M_USB_USDC : vs.M_USB_ETH
-      const myOpenPosition = xTotalBn > 0n ? (balances[vc.xTokenAddress] * totalBn) / xTotalBn : 0n
-      return myOpenPosition
-    }
-    const calcMyMarginLoan = (vc: VaultConfig) => {
-      const s = useBoundStore.getState()
-      const vs = s.sliceLVaultsStore.lvaults[vc.vault] || defLVault
-      // const totalBn = vs.isStable ? vs.M_USDC : vs.M_ETH
-      const xTotalBn = vs.isStable ? vs.M_USDCx : vs.M_ETHx
-      const mUsbBn = vs.isStable ? vs.M_USB_USDC : vs.M_USB_ETH
-      const myMarginLoan = xTotalBn > 0n ? -(balances[vc.xTokenAddress] * mUsbBn) / xTotalBn : 0n
-      return myMarginLoan
-    }
-    return lvcs.map((lvc) => [
-      <CoinText key='coin' symbol={lvc.xTokenSymbol} />,
-      displayBalance(balances[lvc.xTokenAddress]),
-      <CoinText key='openposit' symbol={lvc.assetTokenSymbol} txt={displayBalance(calcMyOpenPosition(lvc))} />,
-      <CoinText key='marginloan' symbol={USBSymbol} txt={displayBalance(calcMyMarginLoan(lvc))} />,
-    ])
-  }, [balances, lvcs])
-  return (
-    <PortfolioItem
-      title={<IconTitle tit='Leverage Bull' icon='BullLine' />}
-      tHeader={[
-        '',
-        'Balance',
-        'Open Position',
-        <div key={'marginloan'}>
-          Margin Loan
-          <Tip>Repay your margin loan to redeem asset corresponding to your open position.</Tip>
-        </div>,
-      ]}
-      tData={data}
-    />
   )
 }
 
@@ -196,6 +130,7 @@ function PrincipalItem() {
     <PortfolioItem
       title={<IconTitle tit='Principal Panda' icon='PandaLine' />}
       tHeader={['', 'Balance', 'In Redemption', 'Claimable', 'Total Amount', 'APY', 'Est.Yield/day']}
+      tableProps={{ span: { 0: 1.5 }, cellClassName: (_index, celIndex) => (celIndex == 0 ? 'flex items-center py-3' : '') }}
       tData={data}
     />
   )
@@ -282,43 +217,14 @@ function BoostItem() {
     />
   )
 }
-function StakedPoolsItem() {
-  const chainId = useCurrentChainId()
-  const lvcs = VAULTS_CONFIG[chainId] || []
-  const lStore = useBoundStore.getState().sliceLVaultsStore
-  const datas: ReactNode[][] = useMemo(() => {
-    const totalStakedUsb = lvcs.map((lvc) => lStore.user[lvc.vault]?.buyPool_userStakingBalance || 0n).reduce((sum, item) => sum + item, 0n)
-    const usb = [
-      <div key={'usb'} className='flex gap-6 items-center'>
-        <CoinText symbol={USBSymbol} />
-        <span>{displayBalance(totalStakedUsb)}</span>
-      </div>,
-    ]
-    const assets = lvcs.map((lvc) => (
-      <div key={lvc.assetTokenSymbol} className='flex gap-6 items-center'>
-        <CoinText symbol={lvc.assetTokenSymbol} />
-        <span>{displayBalance(lStore.user[lvc.vault]?.sellPool_userStakingBalance || 0n)}</span>
-      </div>
-    ))
-    const res = _.chunk([...usb, ...assets], 3).map((items) => (items.length == 3 ? items : _.fill(items, '', 3 - items.length)))
-    return res
-  }, [lvcs, lStore])
-  return <PortfolioItem title='Staked in BuyLow/Sell High' tHeader={['', '', '']} tData={datas} />
-}
 export default function Dashboard() {
-  useLoadLVaults()
   useLoadBVaults()
-  useLoadUserLVaults()
   useLoadUserBVaults()
-  const chainId = useCurrentChainId()
   return (
     <PageWrap>
       <div className='w-full max-w-[1200px] px-4 mx-auto flex flex-col gap-5 md:pb-8'>
-        {chainId !== 80094 && <InterestItem />}
-        {/* <LeverageItem /> */}
         <PrincipalItem />
         <BoostItem />
-        {chainId !== 80094 && <StakedPoolsItem />}
       </div>
     </PageWrap>
   )

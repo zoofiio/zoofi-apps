@@ -1,9 +1,8 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { formatUnits, parseUnits, parseEther as _parseEther, etherUnits, Address } from 'viem'
-import _, { get } from 'lodash'
+import { formatUnits, parseUnits, parseEther as _parseEther, etherUnits, Address, zeroAddress } from 'viem'
+import _, { get, now, round, toNumber } from 'lodash'
 import { toast } from 'sonner'
-import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
 import dayjs from 'dayjs'
 import { DECIMAL } from '@/constants'
 
@@ -67,6 +66,15 @@ export function fmtPercent(percent: bigint, decimals: number | bigint, showDecim
   const _percent = formatUnits(percent * 100n, _decimals)
   return parseFloat(_percent.replaceAll(',', '')).toFixed(showDecimals) + '%'
 }
+export function formatPercent(percet: number, decimals: number = 2) {
+  const minValue = 1 / Math.pow(10, decimals + 2)
+  if (Math.abs(percet) < minValue) {
+    if (percet < 0) return `>-${minValue * 100}%`
+    return `<${minValue * 100}%`
+  }
+
+  return `${_.round(percet * 100, decimals)} %`
+}
 
 export function getBigint(result: any, path: string | (string | number)[], def: bigint = 0n) {
   const data = get(result, path, def)
@@ -84,11 +92,6 @@ export function getBigintGt(result: any, path: string | (string | number)[], def
 export function bnMin(bns: bigint[]): bigint {
   if (bns.length <= 0) return 0n
   return bns.reduce((min, item) => (item < min ? item : min), bns[0])
-}
-
-export function swapThrusterLink(token: Address, token2: Address) {
-  if (token == NATIVE_TOKEN_ADDRESS) token = '0x0000000000000000000000000000000000000000'
-  return `https://app.thruster.finance/?token1=${token}&token2=${token2}`
 }
 
 export function proxyGetDef<T extends object>(obj: Partial<T>, def: any | ((k: string) => any)) {
@@ -217,4 +220,29 @@ export async function promiseAll<ObjTask extends { [k: string]: Promise<any> }>(
     data[key] = datas[i] as any
   })
   return data as { [k in keyof ObjTask]: UnwrapPromise<ObjTask[k]> }
+}
+
+export function genDeadline(duration: bigint = 60n * 5n) {
+  return BigInt(round(now() / 1000)) + duration
+}
+
+export function bnRange(end: bigint, start = 1n, step = 1n) {
+  const bns: bigint[] = []
+  for (let index = start; index <= end; index += step) {
+    bns.push(index)
+  }
+  return bns
+}
+
+export function nowUnix() {
+  return BigInt(Math.round(now() / 1000))
+}
+
+export function sqrtPriceX96ToPriceBn(sqrtPriceX96: bigint, decimalSub: number = 0, priceDeimals: number = 6) {
+  const priceBn = (sqrtPriceX96 ** 2n * 10n ** BigInt(priceDeimals + decimalSub)) / 2n ** 192n
+  return priceBn
+}
+export function sqrtPriceX96ToPrice(sqrtPriceX96: bigint, decimalSub: number = 0, priceDeimals: number = 6) {
+  const priceBn = sqrtPriceX96ToPriceBn(sqrtPriceX96, decimalSub, priceDeimals)
+  return toNumber(formatUnits(priceBn, priceDeimals))
 }

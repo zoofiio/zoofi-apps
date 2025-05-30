@@ -3,7 +3,7 @@ import { getBeraTokensPrices, getIBGTPrice, getNftTokensIdsByUser } from '@/conf
 import { CrocQueryAddress, HONEY_Address } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
 import { berachain, berachainTestnet } from '@/config/network'
-import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
+import { isNativeToken } from '@/config/tokens'
 import { DECIMAL } from '@/constants'
 import _ from 'lodash'
 import { Address, erc20Abi } from 'viem'
@@ -44,7 +44,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     if (tokens.length == 0) return {}
     const pc = getPC(chainId)
     const datas = await Promise.all(
-      tokens.map((token) => (token == NATIVE_TOKEN_ADDRESS ? Promise.resolve(0n) : pc.readContract({ abi: erc20Abi, address: token, functionName: 'totalSupply' }))),
+      tokens.map((token) => (isNativeToken(token) ? Promise.resolve(0n) : pc.readContract({ abi: erc20Abi, address: token, functionName: 'totalSupply' }))),
     )
     const map = datas.reduce<TokenStore['totalSupply']>((map, item, i) => ({ ...map, [tokens[i]]: item }), {})
     set({ totalSupply: { ...get().totalSupply, ...map } })
@@ -55,7 +55,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     const pc = getPC(chainId)
     const datas = await Promise.all(
       tokens.map((token) =>
-        token == NATIVE_TOKEN_ADDRESS ? pc.getBalance({ address: user }) : pc.readContract({ abi: erc20Abi, address: token, functionName: 'balanceOf', args: [user] }),
+        isNativeToken(token) ? pc.getBalance({ address: user }) : pc.readContract({ abi: erc20Abi, address: token, functionName: 'balanceOf', args: [user] }),
       ),
     )
     const map = datas.reduce<TokenStore['balances']>((map, item, i) => ({ ...map, [tokens[i]]: item }), {})

@@ -1,15 +1,6 @@
-import { fmtPercent } from '@/lib/utils'
 
-import { isBerachain } from '@/config/network'
-import { NATIVE_TOKEN_ADDRESS, USB_ADDRESS, USBSymbol, VaultConfig } from '@/config/swap'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+
 import { useElementSizeCheck } from '@/hooks/useElementSizeCheck'
-import { usePtypoolApy } from '@/hooks/usePtypoolApy'
-import { useTokenApys } from '@/hooks/useTokenApys'
-import { FetcherContext } from '@/providers/fetcher'
-import { useLVault, useValutsLeverageRatio } from '@/providers/useLVaultsData'
-import { displayBalance } from '@/utils/display'
-import { useContext, useMemo } from 'react'
 import { GoArrowUpRight } from 'react-icons/go'
 import { Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -26,8 +17,6 @@ type PointItem = {
   link?: { text: string; url: string }
 }
 
-// background: linear-gradient(90deg, #C2B7FD 0%, #6366F1 100%);
-
 const bgMap: { [k: string]: string } = {
   ZUSD: '#FFD3C2',
   ZUSD_dark: '#FFD3C2',
@@ -42,50 +31,6 @@ const titBgMap: { [k: string]: string } = {
   xBERA: '#93B0FF',
 }
 
-export function useVcPoints(vc: VaultConfig) {
-  const chainId = useCurrentChainId()
-  const { prices, usbApr } = useContext(FetcherContext)
-  const vs = useLVault(vc.vault)
-  const levrages = useValutsLeverageRatio()
-  const apys = usePtypoolApy()
-  const tapys = useTokenApys()
-  const items = useMemo(() => {
-    const points: PointItem[] = []
-    const musb = vs.isStable ? vs.M_USB_USDC : vs.M_USB_ETH
-    const mXtoken = vs.isStable ? vs.M_USDCx : vs.M_ETHx
-    // 0.06504987 Points/Block/ETH
-    const perDecimals = 8
-    const perBlockEth = 6504987n
-    const ethPrice = prices[NATIVE_TOKEN_ADDRESS]
-    const usbPrice = prices[USB_ADDRESS[chainId]]
-    const calcPoint = (price: bigint, count: bigint = 100n) => {
-      const weekBlocks = 302400n
-      if (ethPrice == 0n) return '0'
-      return displayBalance((perBlockEth * weekBlocks * price * count) / ethPrice, 0, perDecimals)
-    }
-    points.push({
-      symbol: USBSymbol,
-      symbolPrice: `$${displayBalance(usbPrice)}`,
-      iconSymbol: 'Bera',
-      tit: `APY:${fmtPercent(tapys[USB_ADDRESS[chainId]], 10)} ~ ${fmtPercent(tapys['USB_END'], 10)}`,
-      sub: '~ Interest + Earning',
-      total: `Total Minted: ${displayBalance(musb, 0)}`,
-    })
-    const tit = 'Leverage the Bull'
-    const sub =
-      vc.isStable && isBerachain(chainId) ? `~ ${levrages[vc.vault].toFixed(2)}x Berachain Native Yield` : `~ ${levrages[vc.vault].toFixed(2)}x Leveraged long on ${vc.assetTokenSymbol}`
-    points.push({
-      symbol: vc.xTokenSymbol,
-      symbolPrice: `$${displayBalance(prices[vc.xTokenAddress])}`,
-      iconSymbol: 'Bull',
-      tit,
-      sub,
-      total: `Total Minted: ${displayBalance(mXtoken, 0)}`,
-    })
-    return points
-  }, [chainId, prices, levrages, usbApr, apys])
-  return items
-}
 
 export function PointCard({ symbol, symbolPrice, iconSymbol, tit, sub, total, link }: PointItem) {
   const theme = useThemeState((s) => s.theme)
@@ -127,8 +72,8 @@ export function PointCard({ symbol, symbolPrice, iconSymbol, tit, sub, total, li
   )
 }
 
-export function PointCards({ vc }: { vc: VaultConfig }) {
-  const items = useVcPoints(vc)
+export function PointCards() {
+  const items = [] as any[]
   const [ref, useSwiper] = useElementSizeCheck(({ width }) => width < 970)
   if (items.length == 0) return null
   return (

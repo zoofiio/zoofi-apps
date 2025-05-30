@@ -1,12 +1,12 @@
-import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
 import { getBigint, getErrorMsg } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import _ from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { Address, erc20Abi, erc721Abi } from 'viem'
+import { Address, erc20Abi, erc721Abi, zeroAddress } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { useCurrentChainId } from './useCurrentChainId'
+import { isNativeToken } from '@/config/tokens'
 
 const cacheAllowance: { [k: Address]: { [k: Address]: bigint } } = {}
 
@@ -15,7 +15,7 @@ export const useApproves = (needAllownce: { [k: Address]: bigint }, spender: Add
   const chainId = useCurrentChainId()
   const { data: walletClient } = useWalletClient()
   const [isSuccess, setSuccess] = useState(false)
-  const tokens = useMemo(() => Object.keys(needAllownce).filter((item) => item !== NATIVE_TOKEN_ADDRESS) as Address[], [needAllownce])
+  const tokens = useMemo(() => Object.keys(needAllownce).filter((item) => !isNativeToken(item as any)) as Address[], [needAllownce])
   const [allowance, setAllownce] = useState<{ [k: Address]: bigint }>(spender ? cacheAllowance[spender] || {} : {})
   const updateAllownce = (token: Address, value: bigint) => {
     if (!spender) return

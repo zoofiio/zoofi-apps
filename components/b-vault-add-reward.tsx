@@ -1,6 +1,5 @@
 import { abiBVault } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
-import { NATIVE_TOKEN_ADDRESS } from '@/config/swap'
 import { cn, handleError, parseEthers } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { TokenItem } from '@/providers/sliceTokenStore'
@@ -23,6 +22,7 @@ import { SimpleDialog } from './simple-dialog'
 import { BBtn } from './ui/bbtn'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { berachain } from '@/config/network'
+import { isNativeToken } from '@/config/tokens'
 
 const defTokens: TokenItem[] = [
   { symbol: 'HONEY', name: 'HONEY Token', address: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03', decimals: 18, },
@@ -46,7 +46,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
   const defTokenList = useStore((s) => s.sliceTokenStore.defTokenList)
   const originTokens = useMemo(() => {
     const list = !_.isEmpty(tokens) ? tokens! : !_.isEmpty(defTokenList) ? defTokenList! : chainId == berachain.id ? beraTokens : defTokens
-    if (hiddenNative) return list.filter((item) => item.address !== zeroAddress && item.address !== NATIVE_TOKEN_ADDRESS)
+    if (hiddenNative) return list.filter((item) => !isNativeToken(item.address))
     return list
   }, [tokens, defTokenList, hiddenNative, chainId])
 

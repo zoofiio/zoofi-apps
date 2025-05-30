@@ -69,7 +69,7 @@ export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: 
   if (!supportIcon && !url) {
     return (
       <svg {...p}  width={size} height={size} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-        <text className='fill-primary/60' width='20' x='12' y='12' textAnchor='middle' fontSize={12} dominantBaseline='middle'>
+        <text className='fill-primary/60' width='20' x='12' y='14' textAnchor='middle' fontSize={12} dominantBaseline='middle'>
           {symbol.slice(0, 2)}
         </text>
         <circle className='stroke-primary/60' cx='12' cy='12' r='11.5' strokeWidth={1} />

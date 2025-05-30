@@ -20,21 +20,10 @@ import abiCalcLiq from './CalcLiq'
 import abiBQueryOld from './BQueryOld'
 import abiBQuery from './BQuery'
 import { abiAdhocBribesPool, abiStakingBribesPool } from './BribesPool'
-import abiLntQuery from './LntQuery'
-import abiLntVault from './LntVault'
-import abiLntYtRewardsPool from './LntYtRewardsPool'
 import abiMockERC20 from './MockERC20'
 import abiMockERC721 from './MockERC721'
-import abiLntNftStakingPool from './LntNftStakingPool'
 import abiBeraVault from './BeraVault'
 import abiBeraLP from './BeraLP'
-
-import { abiLntFactory } from './LntFactory'
-import { abiLntErc721 } from './LntErc721'
-import { abiLntVT } from './LntVT'
-import { abiLntMarket } from './LntMarket'
-import { abiLntMarketFactory } from './LntMarketFactory'
-import { abiLntMarketRouter } from './LntMarketRouter'
 import { abiWETH } from './WETH'
 
 export {
@@ -58,20 +47,9 @@ export {
   abiBQuery,
   abiAdhocBribesPool,
   abiStakingBribesPool,
-  abiLntQuery,
-  abiLntVault,
-  abiLntYtRewardsPool,
-  abiLntNftStakingPool,
   abiMockERC20,
   abiMockERC721,
   abiBeraVault,
   abiBeraLP,
-
-  abiLntMarket,
-  abiLntMarketFactory,
-  abiLntMarketRouter,
-  abiLntFactory,
-  abiLntErc721,
-  abiLntVT,
   abiWETH
 }

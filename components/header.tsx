@@ -1,47 +1,14 @@
 'use client'
 
-import { DISCORD_LINK, DOC_LINK, isLNT, TWITTER_LINK } from '@/constants'
+import { DISCORD_LINK, DOC_LINK, TWITTER_LINK } from '@/constants'
 
-import { abiMockPriceFeed, abiVault } from '@/config/abi'
-import { BVAULTS_CONFIG } from '@/config/bvaults'
-import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
-import { VAULTS_CONFIG } from '@/config/swap'
 import { DomainRef } from '@/hooks/useConfigDomain'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useWandContractRead } from '@/hooks/useWand'
 import Link from 'next/link'
 import { useMemo } from 'react'
 import { TbBook2, TbBrandDiscordFilled, TbBrandX } from 'react-icons/tb'
-import { useAccount } from 'wagmi'
 import ConnectBtn from './connet-btn'
 import { SwitchChain } from './switch-chain'
 import { ThemeMode } from './theme-mode'
-
-export function useShowAdmin() {
-  const chainId = useCurrentChainId()
-  const { address } = useAccount()
-  const { data: owner } = useWandContractRead({
-    abi: abiVault,
-    address: isLNT ? LNTVAULTS_CONFIG[chainId]?.[0]?.vault : BVAULTS_CONFIG[chainId]?.[0]?.vault,
-    functionName: 'owner',
-    query: { enabled: !!address },
-  })
-  return !!address && address == owner
-}
-
-export function useShowTester() {
-  const chainId = useCurrentChainId()
-  const { address } = useAccount()
-  const { data: isTester } = useWandContractRead({
-    abi: abiMockPriceFeed,
-    address: VAULTS_CONFIG[chainId]?.[1]?.assetTokenFeed,
-    functionName: 'isTester',
-    args: [address as any],
-    query: { enabled: !!address },
-  })
-  return !!isTester
-}
-
 
 
 export function Header() {
@@ -54,7 +21,7 @@ export function Header() {
     [DomainRef.value],
   )
   return (
-    <header className='h-[72px] sticky top-0 left-0 w-full max-w-[1300px] inset-0 mx-auto flex items-center justify-end px-4 z-30 bg-slate-50/30 backdrop-blur-lg dark:text-slate-50 dark:bg-slate-900/30'>
+    <header className='h-[72px] sticky top-0 left-0 w-full max-w-[1300px] inset-0 mx-auto flex items-center justify-end px-4 z-30 bg-white  dark:text-slate-50 dark:bg-slate-900'>
       <div className='flex items-center gap-1 md:gap-4'>
         {/* Social networks */}
         <ThemeMode />

@@ -1,90 +1,49 @@
 'use client'
 
-import { LntOperators, LNTVaultCard, LntVesting, LntYield } from '@/components/lnt-vault'
+import { LNT_VT_YT, LNTDepositWithdraw, LNTInfo, LntOperators, LNTVaultCard } from '@/components/lnt-vault'
+import LntVaultChart from '@/components/lnt-vault-chart'
+import { LntMyPositions } from '@/components/lnt-vault-positions'
+import { Demo } from '@/components/noti'
 import { PageWrap } from '@/components/page-wrap'
-import { SimpleTabs } from '@/components/simple-tabs'
+import { Spinner } from '@/components/spinner'
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { ENV } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useLoadLntVaults, useLoadLVaults } from '@/hooks/useLoads'
-import { tabToSearchParams } from '@/lib/utils'
-import { useBoundStore } from '@/providers/useBoundStore'
-import { useQuery } from '@tanstack/react-query'
+import { useLntVault } from '@/hooks/useFetLntVault'
+import { isError, isLoading, isSuccess } from '@/lib/useFet'
+
 import { Grid } from '@tremor/react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAccount } from 'wagmi'
-import { toLntVault } from '../../routes'
-import { useLntVault } from '@/providers/useLntVaultsData'
-import { Demo } from '@/components/noti'
-import { ConfigChainsProvider } from '@/components/support-chains'
-import { sepolia } from '@/config/network'
+import { useSearchParams } from 'next/navigation'
 
 
 function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
-  const { address } = useAccount()
-  const vd = useLntVault(vc.vault)
-  const chainId = useCurrentChainId()
-  useQuery({
-    queryKey: ['UpdateLntVaultDetails', vc, address, vd.epochCount.toString()],
-    enabled: vd.epochCount > 0n,
-    queryFn: async () => {
-      if (!address) return false
-      await Promise.all([
-        useBoundStore.getState().sliceLntVaultsStore.updateEpoches(chainId, vc),
-        useBoundStore.getState().sliceLntVaultsStore.updateUserEpoches(chainId, vc, address),
-      ])
-      return true
-    },
-  })
-  useQuery({
-    queryKey: ['UpdateUserLntVault', vc, address, vd.epochCount.toString()],
-    queryFn: async () => {
-      if (!address) return false
-      await Promise.all([
-        useBoundStore.getState().sliceLntVaultsStore.updateUserNftStat(chainId, vc, address),
-        useBoundStore.getState().sliceTokenStore.updateNftBalance(chainId, [vc.asset], address)
-      ])
-      return true
-    },
-  })
-  const r = useRouter()
-  const data = [
-    {
-      tab: 'Vesting Token',
-      content: <LntVesting vc={vc} />,
-    },
-    {
-      tab: 'Yield Token',
-      content: <LntYield vc={vc} />,
-    },
-    {
-      tab: 'Node Operators',
-      content: <LntOperators vc={vc} />,
-    },
-  ]
-  const currentTab = data.find((item) => tabToSearchParams(item.tab) == tab)?.tab || data[0].tab
+  const vd = useLntVault(vc)
   return (
-    <SimpleTabs
-      listClassName='flex-wrap p-0 mb-5 md:gap-14'
-      triggerClassName='text-lg sm:text-xl md:text-2xl py-0 data-[state="active"]:border-b border-b-black dark:border-b-white leading-[0.8] rounded-none whitespace-nowrap'
-      contentClassName='gap-5'
-      currentTab={currentTab}
-      onTabChange={(tab) => toLntVault(r, vc.vault, tab)}
-      data={data}
-    />
+    <div className='flex flex-col w-full gap-5 pt-6'>
+      {isError(vd) && 'Opps! Network Error!'}
+      {isLoading(vd) && <Spinner className="mt-10 mx-auto text-black dark:text-white" />}
+      {isSuccess(vd) && <>
+        <div className='grid lg:grid-cols-[1.2fr_1fr] gap-4 xl:gap-5'>
+          <LNTInfo vc={vc} />
+          <LNTDepositWithdraw vc={vc} />
+          <LntVaultChart vc={vc} />
+          <LNT_VT_YT vc={vc} />
+        </div>
+        <LntMyPositions vc={vc} />
+        <div>Operators</div>
+        <LntOperators vc={vc} />
+      </>}
+    </div>
   )
 }
 
 export default function Vaults() {
   const chainId = useCurrentChainId()
   const vcs = (LNTVAULTS_CONFIG[chainId] || []).filter(item => item.onEnv ? item.onEnv.includes(ENV) : true)
-  // const pvcs = PLAIN_VAULTS_CONFIG[chainId] || []
-  // const groupsVcs = useMemo(() => Object.values(_.groupBy(vcs, 'assetTokenSymbol')), [vcs])
   const params = useSearchParams()
   const paramsVault = params.get('vault')
   const paramsTab = params.get('tab')
   const currentVc = vcs.find((item) => item.vault == paramsVault)
-  useLoadLntVaults()
   return (
     <PageWrap>
       <div className='w-full max-w-[1160px] px-4 mx-auto md:pb-8 relative'>

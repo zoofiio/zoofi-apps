@@ -2,12 +2,15 @@ import { useApproves, useNftApproves } from '@/hooks/useApprove'
 import { useWrapContractWrite } from '@/hooks/useWrapContractWrite'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt, WalletClient } from 'viem'
 
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
 import { BBtn } from './ui/bbtn'
-import { useSwitchChain } from 'wagmi'
-
+import { useSwitchChain, useWalletClient } from 'wagmi'
+import { useMutation } from '@tanstack/react-query'
+import { getPC } from '@/providers/publicClient'
+import { handleError } from '@/lib/utils'
+import { toast as tos } from 'sonner'
 
 export function SwitchChain({ className }: { className?: string }) {
   const { switchChain, isPending } = useSwitchChain()
@@ -142,4 +145,47 @@ export function NftApproveAndTx<
       {tx}
     </BBtn>
   )
+}
+
+
+export async function doTx(wc: WalletClient, config: SimulateContractParameters | (() => Promise<SimulateContractParameters>), confirmations: number = 3) {
+  const mconfig = typeof config === 'function' ? await config() : config
+  const pc = getPC(await wc.getChainId())
+  const { request } = await pc.simulateContract({ account: wc.account, ...mconfig })
+  const hash = await wc.writeContract(request)
+  const txr = await pc.waitForTransactionReceipt({ hash, confirmations })
+  return txr
+}
+
+
+export type TX = SimulateContractParameters | (() => Promise<SimulateContractParameters>)
+export function Txs({
+  className, tx, txs, disabled, busyShowTxet = true, toast = true, onItem, onTxSuccess }:
+  {
+    className?: string, tx: string, disabled?: boolean, txs: TX[], busyShowTxet?: boolean, toast?: boolean
+    onItem?: (stat: 'error' | 'success', tx: TX, index: number) => void
+    onTxSuccess?: () => void
+  }) {
+  const { data: wc } = useWalletClient()
+  const { mutate, isPending } = useMutation({
+    mutationFn: async () => {
+      let i = 0;
+      for (const txitem of txs) {
+        const itemRes = await doTx(wc!, txitem)
+        if (itemRes.status !== 'success') {
+          onItem?.('error', txitem, i);
+          throw new Error("Transaction reverted")
+        }
+        onItem?.('success', txitem, i);
+        toast && tos.success(txs.length > 1 ? `${i + 1}/${txs.length} Transaction success` : 'Transaction success')
+        i++;
+      }
+      onTxSuccess?.()
+    },
+    onError: toast ? handleError : () => { }
+  })
+  const txDisabled = disabled || isPending || txs.length === 0 || !wc
+  return <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={() => mutate()} busy={isPending} busyShowContent={busyShowTxet} disabled={txDisabled}>
+    {tx}
+  </BBtn>
 }
