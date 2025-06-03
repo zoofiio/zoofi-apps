@@ -89,6 +89,7 @@ export const STable = ({
                   key={i}
                   className={cn(
                     span[i] == 0 ? 'p-0 w-max' : 'px-3 py-2 text-sm w-max',
+                    { 'flex items-center gap-2': i == 0 },
                     typeof cellClassName == 'function' ? cellClassName(index, i) : cellClassName,
                   )}
                 >

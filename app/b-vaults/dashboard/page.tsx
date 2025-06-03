@@ -1,7 +1,7 @@
 'use client'
 import { CoinIcon } from '@/components/icons/coinicon'
 import { PageWrap } from '@/components/page-wrap'
-import STable from '@/components/simple-table'
+import STable, { TableProps } from '@/components/simple-table'
 import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL, ENV } from '@/constants'
@@ -25,14 +25,14 @@ const greenPoint = (
 
 
 
-function DashItem({ title, sub, tHeader, tData }: { title: ReactNode; sub?: ReactNode; tHeader: ReactNode[]; tData: ReactNode[][] }) {
+function DashItem({ title, sub, tHeader, tData, tableProps }: { title: ReactNode; sub?: ReactNode; tHeader: ReactNode[]; tData: ReactNode[][], tableProps?: Omit<TableProps, 'header' | 'data'> }) {
   return (
     <div className='card whitespace-nowrap'>
       {typeof title == 'string' ? <div className='text-2xl leading-none font-semibold'>{title}</div> : title}
       {typeof sub == 'string' ? <div className='text-[2rem] text-primary leading-none font-semibold mt-2'>{sub}</div> : sub}
       <div className='my-4 h-[1px] bg-border/60 dark:bg-border'></div>
       <div className='w-full overflow-x-auto'>
-        <STable headerClassName='border-b-0' header={tHeader} data={tData} />
+        <STable headerClassName='border-b-0' header={tHeader} data={tData} {...(tableProps || {})} />
       </div>
     </div>
   )
@@ -80,23 +80,23 @@ function BVaultsItem() {
 
       return { bvc, totalDeposit, totalDepositUsd, totalLeftWidth, lp, baseSymbol, quoteSymbol }
     })
-    const totalLeftWidth = datas.reduce((max, item) => Math.max(max, item.totalLeftWidth), 0) + 20
+    const totalLeftWidth = datas.reduce((max, item) => Math.max(max, item.totalLeftWidth), 0) + 48
 
     return datas.map(({ bvc, totalDeposit, totalDepositUsd, lp, baseSymbol, quoteSymbol }) => [
       <div key='icon' className='flex gap-2 items-center'>
         {<CoinIcon symbol={bvc.assetSymbol} size={20} />}
         <span>{bvc.assetSymbol}</span>
       </div>,
-      <div key='total' className='flex gap-8 items-start'>
+      <div key='total' className='flex gap-6 items-start'>
         <div style={{ width: totalLeftWidth }}>
-          <div key='icon' className='flex gap-2 items-center'>
+          <div key='icon' className='flex items-center'>
             {<CoinIcon symbol={bvc.assetSymbol} size={14} />}
             <span>{displayBalance(totalDeposit)}</span>
           </div>
           <div className='opacity-60'>~{displayBalance(totalDepositUsd)}</div>
         </div>
         {lp && (
-          <div>
+          <div style={{ width: totalLeftWidth }}>
             <div key='icon' className='flex gap-2 items-center'>
               {<CoinIcon symbol={baseSymbol} size={14} />}
               <span>{displayBalance(getBigint(bvaults, [bvc.vault, 'lpBase']))}</span>
@@ -117,7 +117,10 @@ function BVaultsItem() {
       //  `${displayBalance(calcBVaultBoost(bvc.vault), 2)}X`,
     ])
   }, [bvcs, bvaults, prices])
-  return <DashItem title='B-Vault' tHeader={['Vaults', 'Total Deposit', 'Status', 'PT APY', 'YT ROI']} tData={data} />
+  return <DashItem title='B-Vault' tHeader={['Vaults', 'Total Deposit', 'Status', 'PT APY', 'YT ROI']} tData={data} tableProps={{
+    span: { 1: 2 },
+    cellClassName: (ri, ci) => ci == 0 ? 'h-[3.5rem]' : ''
+  }} />
 }
 export default function Dashboard() {
   useLoadBVaults()

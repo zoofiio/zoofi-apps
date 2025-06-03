@@ -88,7 +88,7 @@ export const getBeraTokensPrices = (
 export const getIBGTPrice = () =>
   axios
     .post<{
-      reward_tokens: {
+      rewardTokens: {
         address: Address
         decimals: number
         image: string
@@ -96,7 +96,7 @@ export const getIBGTPrice = () =>
         price: number
         symbol: string
       }[]
-      underlying_tokens: {
+      underlyingTokens: {
         address: Address
         decimals: number
         image: string
@@ -105,7 +105,7 @@ export const getIBGTPrice = () =>
         symbol: string
       }[]
     }>('https://api.zoofi.io/api/third/ibgt')
-    .then((res) => _.concat(res.data.underlying_tokens, res.data.reward_tokens)?.find((item) => item.symbol === 'iBGT'))
+    .then((res) => _.concat(res.data.underlyingTokens, res.data.rewardTokens)?.find((item) => item.symbol === 'iBGT'))
     .then((data) => (data ? parseEthers(data.price.toFixed(6)) : DECIMAL))
 
 const aclchemyMap: { [k: number]: string } = {
