@@ -19,6 +19,7 @@ module.exports = {
         poppins: ['Poppins', 'sans-serif'],
       },
       backgroundImage: {
+        dark: 'linear-gradient(105.67deg, #02050E 14.41%, #1D2F23 98.84%)',
         s0: 'linear-gradient(90deg, #C2B7FD 0%, #423C5E 100%)',
         s1: 'radial-gradient(97.67% 126.32% at 50% 0%, #010214 25.78%, #7A61BC 99.83%)',
         s2: 'linear-gradient(90deg, #C2B7FD 0%, #9580F7 100%)',
@@ -30,6 +31,7 @@ module.exports = {
         btndis: 'linear-gradient(180deg, rgba(159, 179, 159, 0.2) 0%, rgba(190, 255, 186, 0.2) 100%)',
 
         l1: 'linear-gradient(105.67deg, #02050E 14.41%, #1D2F23 98.84%)'
+
       },
       animation: {
         'spin-slow': 'spin 2s cubic-bezier(1, 0, 0, 1) infinite'

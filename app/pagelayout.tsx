@@ -14,7 +14,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
 
   return (
     <Providers>
-      <div className='w-screen h-screen overflow-auto flex justify-center relative bg-white dark:bg-l1'>
+      <div className='w-screen h-screen overflow-auto flex justify-center relative'>
         <div className='flex justify-center w-full max-w-[1400px] h-max relative'>
           <Menus />
           <div className='flex-1 relative h-max w-full'>

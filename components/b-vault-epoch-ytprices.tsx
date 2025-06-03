@@ -7,7 +7,7 @@ import { cn, FMT, fmtDate } from '@/lib/utils'
 import { graphic } from 'echarts'
 import _ from 'lodash'
 import { useMemo } from 'react'
-import { useToggle } from 'react-use'
+import { useMeasure, useToggle } from 'react-use'
 import { formatEther } from 'viem'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 
@@ -97,9 +97,9 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
     }
     return { data, options }
   }, [prices, isLOG])
-
+  const [ref, { width }] = useMeasure<HTMLDivElement>()
   return (
-    <div className='card p-4 mx-auto max-w-4xl w-full min-w-0'>
+    <div className='card p-4 mx-auto w-full min-w-0'>
       <div className='flex justify-between gap-2 items-center'>
         <span className='text-base font-bold'>YT Price Chart</span>
         <span className='text-xs font-medium dark:text-[#FBECEC]'></span>
@@ -109,8 +109,8 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
           LOG
         </span>
       </div>
-
-      <EChartsReact option={options} style={{ height: 240 }}></EChartsReact>
+      <div className='w-full h-0' ref={ref}></div>
+      <EChartsReact option={options} lazyUpdate className='w-full' style={{ width, height: 240 }} opts={{ height: 240, width }}></EChartsReact>
     </div>
   )
 }

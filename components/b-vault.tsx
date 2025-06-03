@@ -581,7 +581,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
     const fTime = `${fmtDate(itemEpoch.startTime * 1000n)}-${fmtDate((itemEpoch.startTime + itemEpoch.duration) * 1000n)}`
     return (
       <div key={key} style={style} className='cursor-pointer' onClick={() => onRowClick(index)}>
-        <div className={cn('h-[56px] card !rounded-lg !px-5 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
+        <div className={cn('h-[56px] card !rounded-lg !px-4 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
           <div className='text-sm'>Epoch {epoches[index].epochId.toString()}</div>
           <div className='text-xs opacity-60 mt-1'>{fTime}</div>
         </div>
@@ -592,7 +592,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
     <div className='md:h-[24.25rem] card !p-4'>
       <div className='font-bold text-base'>Harvest</div>
       <div className={cn('flex flex-col md:flex-row gap-4 mt-2')}>
-        <div className='flex flex-col gap-4 shrink-0 w-full md:w-[14.375rem]' ref={mesRef}>
+        <div className='flex flex-col gap-4 shrink-0 w-full md:w-[11.5625rem]' ref={mesRef}>
           <div className='flex items-center gap-8 text-sm font-semibold'>
             <span>My Pool Only</span>
             <Switch checked={onlyMy} onChange={setOnlyMy as any} />
@@ -613,7 +613,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
             <span className='text-xs opacity-60'>Epoch {(current?.epochId || 1n).toString()}</span>
           </div>
           <div className='flex-1 overflow-y-auto flex flex-col gap-4 font-semibold text-sm'>
-            <div className='flex gap-12 items-end font-semibold'>
+            <div className='flex gap-7 items-end font-semibold'>
               <span className='text-sm'>YT Balance</span>
               <span className='text-sm opacity-60'>{displayBalance(userBalanceYToken)}</span>
             </div>
@@ -641,7 +641,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
             </div>
             <div className='flex items-center relative'>
               <span className='text-sm'>YT Points <Tip>YT Points are calculated based on the duration of YT holding and apply to some uncertain rewards, such as airdrops.</Tip></span>
-              <span className=' opacity-60 ml-10'>{displayBalance(userBalanceYTokenSyntyetic, undefined, 23)}</span>
+              <span className=' opacity-60 ml-5'>{displayBalance(userBalanceYTokenSyntyetic, undefined, 23)}</span>
               <div className='flex flex-col gap-1 absolute left-1/2 top-0'>
                 <span className='opacity-60'>Claimable</span>
                 <span>{displayBalance(userClaimableYTokenSyntyetic, undefined, 23)}</span>
