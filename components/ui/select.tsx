@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { useClickAway } from "react-use";
 
@@ -66,10 +66,17 @@ export function SimpleSelect<T extends OptionBase>({ options, value, defValue, o
 
     const [isOpen, setIsOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState(defValue || options[0]);
+    useEffect(() => {
+        if (options.length && (!selectedValue || !options.find(item => item !== selectedValue))) {
+            setSelectedValue(defValue || options[0])
+            onChange?.(defValue || options[0])
+        }
+    }, [options, defValue, selectedValue])
     const current = value || selectedValue
     const ref = useRef<HTMLDivElement>(null)
     useClickAway(ref, () => setIsOpen(false))
     const renderItem = (item: T) => {
+        if (!item) return null
         if (typeof item == 'string') return item
         return item.show
     }

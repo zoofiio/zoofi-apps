@@ -13,7 +13,8 @@ export default function AdminPage() {
   const chainId = useCurrentChainId()
   const vcs = LNTVAULTS_CONFIG[chainId]
   const options = vcs.map(item => ({ key: item.vault, show: `LNT-Vault(${item.vault})`, vc: item }))
-  const [current, setCurrent] = useState<typeof options[0]>(options[0])
+  const [current_, setCurrent] = useState<typeof options[0] | undefined>(options[0])
+  const current = options.length > 0 ? current_ : undefined;
   return (
     <PageWrap>
       <div className='w-full flex'>
