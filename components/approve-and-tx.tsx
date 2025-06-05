@@ -2,15 +2,16 @@ import { useApproves, useNftApproves } from '@/hooks/useApprove'
 import { useWrapContractWrite } from '@/hooks/useWrapContractWrite'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, SimulateContractParameters, TransactionReceipt, WalletClient } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, SimulateContractParameters, TransactionReceipt, WalletClient } from 'viem'
 
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
 import { BBtn } from './ui/bbtn'
 import { useSwitchChain, useWalletClient } from 'wagmi'
 import { useMutation } from '@tanstack/react-query'
 import { getPC } from '@/providers/publicClient'
-import { handleError } from '@/lib/utils'
+import { handleError, promiseT } from '@/lib/utils'
 import { toast as tos } from 'sonner'
+import { switchChain } from 'viem/actions'
 
 export function SwitchChain({ className }: { className?: string }) {
   const { switchChain, isPending } = useSwitchChain()
@@ -159,28 +160,38 @@ export async function doTx(wc: WalletClient, config: SimulateContractParameters 
 
 
 export type TX = SimulateContractParameters | (() => Promise<SimulateContractParameters>)
+
+
 export function Txs({
-  className, tx, txs, disabled, busyShowTxet = true, toast = true, onItem, onTxSuccess }:
+  className, tx, txs, disabled, busyShowTxet = true, toast = true, onTxSuccess }:
   {
-    className?: string, tx: string, disabled?: boolean, txs: TX[], busyShowTxet?: boolean, toast?: boolean
-    onItem?: (stat: 'error' | 'success', tx: TX, index: number) => void
+    className?: string, tx: string, disabled?: boolean, txs: TX[] | (() => Promise<TX[]> | TX[]), busyShowTxet?: boolean, toast?: boolean
     onTxSuccess?: () => void
   }) {
   const { data: wc } = useWalletClient()
+  const isNetwrong = useNetworkWrong()
+  const chainId = useCurrentChainId()
+  const { switchChainAsync } = useSwitchChain()
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
-      let i = 0;
-      for (const txitem of txs) {
-        const itemRes = await doTx(wc!, txitem)
-        if (itemRes.status !== 'success') {
-          onItem?.('error', txitem, i);
-          throw new Error("Transaction reverted")
+      if (!wc) return
+      if (isNetwrong) await switchChainAsync({ chainId })
+      const calls = await promiseT(txs).then(items => Promise.all(items.map(promiseT)))
+      const { id } = await wc.sendCalls({
+        account: wc.account.address,
+        calls: calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address })),
+      })
+      while (true) {
+        const res = await wc.waitForCallsStatus({ id })
+        if (res.status == 'pending') continue
+        if (res.status == 'success') {
+          toast && tos.success("Transactions Success")
+          onTxSuccess?.()
+        } else {
+          throw new Error(`Transactions ${res.status} ${JSON.stringify(res)}`)
         }
-        onItem?.('success', txitem, i);
-        toast && tos.success(txs.length > 1 ? `${i + 1}/${txs.length} Transaction success` : 'Transaction success')
-        i++;
+        break
       }
-      onTxSuccess?.()
     },
     onError: toast ? handleError : () => { }
   })

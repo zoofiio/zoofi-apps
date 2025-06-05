@@ -16,10 +16,10 @@ export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = proxyGetDef
   {
     [sepolia.id]: [
       {
-        vault: '0x0d662dd166c74b407aefbe85712f82e2134d2fc1',
-        asset: '0x535d7d9c319f159d627ac69004047919d8234b5a',
-        market: '0xec9e89b11879b1918cf83ffbfbbb2e311f21c262',
-        protocol: '0x83566d3b1a2de90ad0982b1a3f5d24f5434995ec',
+        vault: '0xf3ffc5708be6d52a04f1acb903711e9cd108cbd8',
+        asset: '0xc97120230c20f9f9fa164245ae2d30d1d09239c7',
+        market: '0x0ba46512c286e6dfca51a105608c0b81a464716e',
+        protocol: '0x802d7b295668bc09fdf5ed11c17095c930edb4b2',
         onEnv: ['test', 'prod'],
       },
     ],

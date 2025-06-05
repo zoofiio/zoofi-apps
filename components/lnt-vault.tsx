@@ -1,5 +1,5 @@
 import { toLntVault } from '@/app/routes'
-import { abiLntMarket, abiLntVault, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { abiLntMarket, abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { LntVaultConfig, WriteConfirmations } from '@/config/lntvaults'
 import { cn, fmtBn, fmtDuration, formatPercent, handleError, parseEthers } from '@/lib/utils'
 import { displayBalance } from '@/utils/display'
@@ -7,7 +7,7 @@ import _, { now } from 'lodash'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { useDebounce, useSetState, useToggle } from 'react-use'
-import { ApproveAndTx, NftApproveAndTx } from './approve-and-tx'
+import { ApproveAndTx, NftApproveAndTx, Txs } from './approve-and-tx'
 import { CoinIcon } from './icons/coinicon'
 import { Demo } from './noti'
 import { SimpleDialog } from './simple-dialog'
@@ -21,13 +21,14 @@ import { useLntVault } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { getTokenBy } from '@/config/tokens'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { parseUnits, zeroAddress } from 'viem'
+import { erc20Abi, parseUnits, zeroAddress } from 'viem'
 import { useQuery } from '@tanstack/react-query'
 import { getPC } from '@/providers/publicClient'
 import { codeQueryLNT } from '@/config/codes'
 import { DECIMAL } from '@/constants'
 import { reFet } from '@/lib/useFet'
 import { useCalcKey } from '@/hooks/useCalcKey'
+import { encodeSingleSwap } from '@/config/uni'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const chainId = useCurrentChainId()
@@ -271,28 +272,44 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const input = isToggled ? swapTo : t;
   const output = isToggled ? t : swapTo;
   const inputBalance = useBalance(input);
-  const { } = useQuery({
-    queryKey: useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, isToggled]),
+  const outputBalance = useBalance(output);
+  const { data: outAmount, isFetching: isFetchingCalc } = useQuery({
+    queryKey: useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, isToggled, chainId]),
+    initialData: 0n,
     queryFn: async () => {
+      if (type == 'yt') return 0n
       const pc = getPC(chainId)
-
+      if (!vd.result || inputAssetBn <= 0n) return 0n
+      console.info('vd:', vd.result)
+      return pc.readContract({
+        abi: abiLntVTSwapHook, address: vc.market, functionName: 'quoteExactInputSingle',
+        args: [{
+          poolKey: {
+            currency0: vd.result.VT,
+            currency1: vd.result.T,
+            fee: vd.result.vtSwapPoolFee,
+            tickSpacing: vd.result.vtSwapPoolTickSpacing,
+            hooks: vd.result.vtSwapPoolHook
+          },
+          zeroForOne: !isToggled,
+          exactAmount: inputAssetBn,
+          hookData: '0x'
+        }]
+      }).then(([out]) => out).catch(() => 0n)
     }
   })
-
-
   const swapPrice = ''
   const errorInput = ''
   const priceimpcat = 0
   const apy = 1.2
   const apyto = apy
-  const isFetchingOut = false
-  const outAmount = 0n
-  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result
+  // const outAmount = 0n
+  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount == 0n
+  if (!vd.result) return null
   return <div className='flex flex-col gap-1'>
-    <AssetInput asset={input.symbol} amount={inputAsset} balance={inputBalance.result} setAmount={setInputAsset} error={errorInput} />
-    {/* <Swap onClick={() => toggle()} /> */}
-    <SwapDown />
-    <AssetInput asset={output.symbol} loading={isFetchingOut && inputAssetBn > 0n} disable amount={fmtBn(outAmount, output.decimals)} />
+    <AssetInput asset={input.symbol} balance={inputBalance.result} amount={inputAsset} setAmount={setInputAsset} />
+    <Swap onClick={() => toggle()} />
+    <AssetInput checkBalance={false} asset={output.symbol} balance={outputBalance.result} loading={isFetchingCalc} disable amount={fmtBn(outAmount, output.decimals)} />
     <div className="flex justify-between items-center text-xs font-medium">
       <div>Price: {swapPrice}</div>
       <div>Price Impact: {formatPercent(priceimpcat)}</div>
@@ -301,20 +318,11 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       <div>Implied APY Change: {formatPercent(apy)} → {formatPercent(apyto)}</div>
       <Fees fees={[{ name: 'Transaction Fees', value: 1.2 }, { name: 'Unstake Fees(Verio)', value: 1.2 }]} />
     </div>
-    <ApproveAndTx
+    <Txs
       className='mx-auto mt-4'
       tx='Swap'
       disabled={disableTx}
-      spender={vc.vault}
-      approves={{
-        [input.address]: inputAssetBn,
-      }}
-      config={{
-        abi: abiLntMarket,
-        address: vc.market,
-        functionName: 'swapTForExactVT',
-        args: [vt.address, t.address, 3000, 60, zeroAddress, '0x0', outAmount, inputAssetBn],
-      }}
+      txs={() => encodeSingleSwap({ chainId, token0: t.address, token1: swapTo.address, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, amountIn: inputAssetBn, is0To1: !isToggled })}
       onTxSuccess={() => {
         setInputAsset('')
       }}
@@ -367,7 +375,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
         abi: abiLntMarket,
         address: vc.market,
         functionName: 'swapTForExactVT',
-        args: [vt.address, t.address, 3000, 60, zeroAddress, '0x0', outAmount, input1AssetBn],
+        args: [vt.address, t.address, 3000, 60, zeroAddress, outAmount, input1AssetBn],
       }}
       onTxSuccess={() => {
         setInput1Asset('')
@@ -415,7 +423,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
         abi: abiLntMarket,
         address: vc.market,
         functionName: 'swapTForExactVT',
-        args: [vt.address, t.address, 3000, 60, zeroAddress, '0x0', 0n, inputAssetBn],
+        args: [vt.address, t.address, 3000, 60, zeroAddress, 0n, inputAssetBn],
       }}
       onTxSuccess={() => {
         setInputAsset('')

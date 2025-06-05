@@ -21,6 +21,7 @@ import { useAccount } from "wagmi"
 import { isAddressEqual } from "viem"
 import { LNTVAULTS_CONFIG } from "@/config/lntvaults"
 import { abiLntProtocol } from "@/config/abi/abiLNTVault"
+import { isLOCL } from "@/constants"
 
 
 export type MenuItem = {
@@ -70,11 +71,12 @@ function useShowBvaultAdmin() {
         enabled: Boolean(address),
         initialData: false,
         queryFn: async () => {
+
             const admins = await Promise.all(_.union(BVAULTS_CONFIG[chainId].map(item => item.protocolAddress)).map(item => getPC(chainId).readContract({ abi: abiZooProtocol, address: item, functionName: 'protocolOwner' })))
             return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })
-    return showAdmin
+    return showAdmin || isLOCL
 }
 function useShowLntVaultAdmin() {
     const chainId = useCurrentChainId()
@@ -88,7 +90,7 @@ function useShowLntVaultAdmin() {
             return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })
-    return showAdmin
+    return showAdmin || isLOCL
 }
 function MenusContent() {
     const showBvaultAdmin = useShowBvaultAdmin()

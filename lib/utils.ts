@@ -246,3 +246,10 @@ export function sqrtPriceX96ToPrice(sqrtPriceX96: bigint, decimalSub: number = 0
   const priceBn = sqrtPriceX96ToPriceBn(sqrtPriceX96, decimalSub, priceDeimals)
   return toNumber(formatUnits(priceBn, priceDeimals))
 }
+
+type NonFunction<T> = T extends Function ? never : T
+
+export async function promiseT<T>(promiseOrData: NonFunction<T> | (() => Promise<NonFunction<T>> | NonFunction<T>)) {
+  if (typeof promiseOrData !== 'function') return promiseOrData
+  return (promiseOrData as () => Promise<NonFunction<T>> | NonFunction<T>)()
+}
