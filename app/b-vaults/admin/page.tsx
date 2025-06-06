@@ -139,6 +139,11 @@ export default function AdminPage() {
         {isLoading ? <div className='flex w-full justify-center items-center h-screen'>
           <FaSpinner className='text-3xl animate-spin' />
         </div> : <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
+          <div className="text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
+            {JSON.stringify({
+              'Decimal18': '000000000000000000'
+            }, undefined, 2)}
+          </div>
           <Select classNames={selectClassNames} defaultValue={options[0]} options={options} onChange={(e) => e && setState({ current: e as any })} />
           {current.type == 'B-Vault' && (
             <>

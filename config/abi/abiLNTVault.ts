@@ -31,8 +31,10 @@ export const abiLntVTSwapHook = parseAbi([
   'struct PoolKey {address currency0;address currency1;uint24 fee;int24 tickSpacing;address hooks;}',
 ])
 
+export const abiMockaVToracle = parseAbi(['function setaVT(uint256 _aVT_) external'])
 
-
-export const abiMockaVToracle = parseAbi([
-  'function setaVT(uint256 _aVT_) external'
+export const abiMockNodeDelegator = parseAbi([
+  'function addOperator(address operator, uint256 capacity) external',
+  'function removeOperator(address operator) external',
+  'function operators() external view returns (address[] memory)',
 ])

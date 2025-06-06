@@ -11,6 +11,7 @@ export type LntVaultConfig = {
   market: Address
   protocol: Address
   MockaVTOracle?: Address
+  MockNodeDelegator?: Address
   onEnv?: TypeENV[]
 }
 export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = proxyGetDef(
@@ -23,6 +24,7 @@ export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = proxyGetDef
         protocol: '0x802d7b295668bc09fdf5ed11c17095c930edb4b2',
         onEnv: ['test', 'prod'],
         MockaVTOracle: '0x8f9c423ee318ac797167c7dc1d411861b9451519',
+        MockNodeDelegator: '0x6f52f6870696c907573c36adec1abe6c1274bda5'
       },
     ],
   },
