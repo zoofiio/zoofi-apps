@@ -102,3 +102,77 @@ export function encodeSingleSwap({
     { abi: abiUniRouter, functionName: 'execute', address: cf.unirouter, args: [commands, inputs, BigInt(expiration)] },
   ]
 }
+
+export type UniModifyLP = {
+  chainId: number
+  token0: Address
+  token1: Address
+  fee: number
+  tickSpacing: number
+  hooks?: Address
+  is0To1?: boolean
+  amountIn: bigint
+  amountOutMin?: bigint
+  deadline?: number
+}
+export function encodeAddLP({
+  chainId,
+  token0,
+  token1,
+  fee,
+  tickSpacing,
+  hooks = zeroAddress,
+  is0To1 = true,
+  amountIn,
+  amountOutMin = 0n,
+  deadline = 60 * 10,
+}: UniSwapConfig): SimulateContractParameters[] {
+  const cf = UNI_CONFIGS[chainId]
+  const commands = encodePacked(['uint8'], [0x10])
+  /**  uint256 internal constant SWAP_EXACT_IN_SINGLE = 0x06;
+    uint256 internal constant SWAP_EXACT_IN = 0x07;
+    uint256 internal constant SWAP_EXACT_OUT_SINGLE = 0x08;
+    uint256 internal constant SWAP_EXACT_OUT = 0x09; */
+  // action,
+  const actions = encodePacked(['uint8', 'uint8', 'uint8'], [0x06, 0x0c, 0x0f])
+  const input = is0To1 ? token0 : token1
+  const out = is0To1 ? token1 : token0
+  const expiration = Math.round(_.now() / 1000 + deadline)
+  const params: Hex[] = ['0x', '0x', '0x']
+  params[0] = encodeAbiParameters(
+    parseAbiParameters([
+      'ExactInputSingleParams',
+      'struct ExactInputSingleParams { PoolKey poolKey;bool zeroForOne;uint128 amountIn;uint128 amountOutMinimum;bytes hookData;}',
+      'struct PoolKey { address currency0; address currency1 ;uint24 fee; int24 tickSpacing; address hooks;}',
+    ]),
+    [
+      {
+        poolKey: {
+          currency0: token0,
+          currency1: token1,
+          fee,
+          tickSpacing,
+          hooks,
+        },
+        zeroForOne: is0To1,
+        amountIn: amountIn,
+        amountOutMinimum: amountOutMin,
+        hookData: '0x',
+      },
+    ],
+  )
+
+  params[1] = encodeAbiParameters([{ type: 'address' }, { type: 'uint256' }], [input, amountIn])
+  params[2] = encodeAbiParameters([{ type: 'address' }, { type: 'uint256' }], [out, amountOutMin])
+
+  const inputs: Hex[] = ['0x']
+  inputs[0] = encodeAbiParameters([{ type: 'bytes' }, { type: 'bytes[]' }], [actions, params])
+  return [
+    // approve to permit2
+    { abi: erc20Abi, address: input, functionName: 'approve', args: [cf.permit2, amountIn] },
+    // permit2 approve
+    { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [input, cf.unirouter, amountIn, expiration] },
+    // router execute
+    { abi: abiUniRouter, functionName: 'execute', address: cf.unirouter, args: [commands, inputs, BigInt(expiration)] },
+  ]
+}

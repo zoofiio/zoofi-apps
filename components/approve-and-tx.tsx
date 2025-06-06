@@ -195,7 +195,7 @@ export function Txs({
     },
     onError: toast ? handleError : () => { }
   })
-  const txDisabled = disabled || isPending || txs.length === 0 || !wc
+  const txDisabled = disabled || isPending || (typeof txs !== 'function' && txs.length == 0) || !wc
   return <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={() => mutate()} busy={isPending} busyShowContent={busyShowTxet} disabled={txDisabled}>
     {tx}
   </BBtn>

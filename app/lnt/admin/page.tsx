@@ -4,7 +4,7 @@ import { GeneralAction } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC721 } from '@/config/abi'
-import { abiLntProtocol } from '@/config/abi/abiLNTVault'
+import { abiLntProtocol, abiMockaVToracle } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useState } from 'react'
@@ -25,6 +25,7 @@ export default function AdminPage() {
               <GeneralAction tit='transferOwnership' abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
               <GeneralAction abi={abiMockERC721} tit={'mockErc721 setTester'} functionName='setTester' address={current.vc.asset} />
               <GeneralAction abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName='safeMint' address={current.vc.asset} />
+              {current.vc.MockaVTOracle && <GeneralAction abi={abiMockaVToracle} tit={'set aVT mockaVToracle'} functionName='setaVT' address={current.vc.MockaVTOracle} />}
             </>
           }
         </div>

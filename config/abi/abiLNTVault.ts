@@ -30,3 +30,9 @@ export const abiLntVTSwapHook = parseAbi([
   'struct QuoteExactSingleParams {PoolKey poolKey;bool zeroForOne;uint128 exactAmount;bytes hookData;}',
   'struct PoolKey {address currency0;address currency1;uint24 fee;int24 tickSpacing;address hooks;}',
 ])
+
+
+
+export const abiMockaVToracle = parseAbi([
+  'function setaVT(uint256 _aVT_) external'
+])

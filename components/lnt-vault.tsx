@@ -21,7 +21,7 @@ import { useLntVault } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { getTokenBy } from '@/config/tokens'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { erc20Abi, parseUnits, zeroAddress } from 'viem'
+import { erc20Abi, erc721Abi, parseUnits, zeroAddress } from 'viem'
 import { useQuery } from '@tanstack/react-query'
 import { getPC } from '@/providers/publicClient'
 import { codeQueryLNT } from '@/config/codes'
@@ -42,7 +42,10 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
   const { data: outAmountVT } = useQuery({
     queryKey: useCalcKey(['calcLntDeposit', chainId, tokenIds]),
     initialData: 0n,
-    queryFn: async () => getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcDeposit', args: [vc.vault, tokenIds, tokenIds.map(() => 1n)] })
+    queryFn: async () => {
+      if (tokenIds.length == 0) return 0n
+      return getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcDeposit', args: [vc.vault, tokenIds, tokenIds.map(() => 1n)] })
+    }
   })
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='w-full text-start'>Licenses ID</div>
@@ -60,10 +63,8 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       <div className='w-full text-center'>And</div>
       <AssetInput asset={yt.symbol} loading={false} disable amount={fmtBn(DECIMAL * BigInt(tokenIds.length), yt.decimals)} />
     </div>
-    <NftApproveAndTx tx='Deposit'
-      approves={{ [vc.asset]: true }}
-      spender={vc.vault}
-      confirmations={WriteConfirmations}
+    <Txs
+      tx='Deposit'
       onTxSuccess={() => {
         const nStat: { [id: string]: boolean } = {}
         tokenIds.forEach((id) => {
@@ -74,13 +75,16 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         onSuccess()
       }}
       disabled={tokenIds.length == 0}
-      config={{
-        abi: abiLntVault,
-        address: vc.vault,
-        functionName: 'batchDeposit',
-        enabled: tokenIds.length > 0,
-        args: [tokenIds, tokenIds.map(() => 1n)]
-      }} />
+      txs={() => [
+        ...tokenIds.map(id => ({ abi: erc721Abi, address: vc.asset, functionName: 'approve', args: [vc.vault, id] })),
+        {
+          abi: abiLntVault,
+          address: vc.vault,
+          functionName: 'batchDeposit',
+          enabled: tokenIds.length > 0,
+          args: [tokenIds, tokenIds.map(() => 1n)]
+        }
+      ]} />
   </div>
 }
 function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
@@ -110,19 +114,18 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       <span className='text-lg font-medium'>{amount ?? '0'}</span>
       <span className='text-xs opacity-60'>Licenses</span>
     </div>
-    <NftApproveAndTx
+    <Txs
       tx='Withdraw'
-      confirmations={WriteConfirmations}
       onTxSuccess={() => {
         onSuccess()
       }}
       disabled={amountBn <= 0n || amountBn_ > ytBalance.result || outAmountVT > vtBalance.result}
-      config={{
+      txs={[{
         abi: abiLntVault,
         address: vc.vault,
         functionName: 'batchRedeem',
         args: [amountBn]
-      }} />
+      }]} />
   </div>
 }
 
