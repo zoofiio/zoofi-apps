@@ -10,6 +10,7 @@ export type LntVaultConfig = {
   asset: Address // ERC721
   market: Address
   protocol: Address
+  lpTYT: Address
   MockaVTOracle?: Address
   MockNodeDelegator?: Address
   onEnv?: TypeENV[]
@@ -18,13 +19,14 @@ export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = proxyGetDef
   {
     [sepolia.id]: [
       {
-        vault: '0xf3ffc5708be6d52a04f1acb903711e9cd108cbd8',
-        asset: '0xc97120230c20f9f9fa164245ae2d30d1d09239c7',
-        market: '0x0ba46512c286e6dfca51a105608c0b81a464716e',
-        protocol: '0x802d7b295668bc09fdf5ed11c17095c930edb4b2',
+        vault: '0xf7810972Fec61DffA8B19d589bd2a32115378f9E',
+        asset: '0x5cc0eef57f96c2258304fac08753a47aea1a4e59',
+        market: '0xea9ce90aeca28f36666a50c41bdd2cfc45ee40f6',
+        protocol: '0xff2586c2ad47abfb0b294772398611a5928def20',
+        lpTYT: '0x123',
         onEnv: ['test', 'prod'],
-        MockaVTOracle: '0x8f9c423ee318ac797167c7dc1d411861b9451519',
-        MockNodeDelegator: '0x6f52f6870696c907573c36adec1abe6c1274bda5'
+        MockaVTOracle: '0x4d67aa5b2e23315ab5c41c7866f0e2f49d1e4bc2',
+        MockNodeDelegator: '0x7e6457224db3e214568b1dbf58ef45a7787595f4'
       },
     ],
   },

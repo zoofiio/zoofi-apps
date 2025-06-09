@@ -180,6 +180,7 @@ export function Txs({
       const { id } = await wc.sendCalls({
         account: wc.account.address,
         calls: calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address })),
+        experimental_fallback: true,
       })
       while (true) {
         const res = await wc.waitForCallsStatus({ id })
