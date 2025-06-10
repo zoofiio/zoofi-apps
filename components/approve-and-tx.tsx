@@ -6,10 +6,10 @@ import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionNam
 
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
 import { BBtn } from './ui/bbtn'
-import { useSwitchChain, useWalletClient } from 'wagmi'
+import { useSendCalls, useSwitchChain, useWalletClient } from 'wagmi'
 import { useMutation } from '@tanstack/react-query'
 import { getPC } from '@/providers/publicClient'
-import { handleError, promiseT } from '@/lib/utils'
+import { getErrorMsg, handleError, promiseT } from '@/lib/utils'
 import { toast as tos } from 'sonner'
 import { switchChain } from 'viem/actions'
 
@@ -169,30 +169,48 @@ export function Txs({
     onTxSuccess?: () => void
   }) {
   const { data: wc } = useWalletClient()
+  // const { sendCallsAsync } = useSendCalls()
   const isNetwrong = useNetworkWrong()
   const chainId = useCurrentChainId()
   const { switchChainAsync } = useSwitchChain()
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       if (!wc) return
-      if (isNetwrong) await switchChainAsync({ chainId })
+      if (isNetwrong) {
+        await switchChainAsync({ chainId })
+        return setTimeout(() => mutate(), 100)
+      }
+
       const calls = await promiseT(txs).then(items => Promise.all(items.map(promiseT)))
       console.info('calls:', wc.account.address, calls)
-      const { id } = await wc.sendCalls({
-        account: wc.account.address,
-        calls: calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address })),
-        experimental_fallback: true,
-      })
-      while (true) {
-        const res = await wc.waitForCallsStatus({ id })
-        if (res.status == 'pending') continue
-        if (res.status == 'success') {
+      try {
+        const { id } = await wc.sendCalls({
+          account: wc.account.address,
+          calls: calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address })),
+        })
+        while (true) {
+          const res = await wc.waitForCallsStatus({ id })
+          if (res.status == 'pending') continue
+          if (res.status == 'success') {
+            toast && tos.success("Transactions Success")
+            onTxSuccess?.()
+          } else {
+            throw new Error(`Transactions ${res.status} ${JSON.stringify(res)}`)
+          }
+          break
+        }
+      } catch (error) {
+        const msg = getErrorMsg(error)
+        if (msg && msg.includes('wallet_sendCalls')) {
+          const pc = getPC(chainId)
+          for (const item of calls) {
+            const tx = await wc.writeContract(item)
+            const res = await pc.waitForTransactionReceipt({ hash: tx, confirmations: 1 })
+            if (res.status !== 'success') throw new Error('Transactions Reverted')
+          }
           toast && tos.success("Transactions Success")
           onTxSuccess?.()
-        } else {
-          throw new Error(`Transactions ${res.status} ${JSON.stringify(res)}`)
         }
-        break
       }
     },
     onError: toast ? handleError : () => { }
