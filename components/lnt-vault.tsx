@@ -10,7 +10,7 @@ import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLntVault } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
-import { cn, fmtBn, fmtDuration, formatPercent, handleError, parseEthers } from '@/lib/utils'
+import { cn, fmtBn, fmtDuration, formatPercent, genDeadline, handleError, parseEthers, sqrt } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
@@ -18,7 +18,7 @@ import _, { now } from 'lodash'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
 import { useSetState, useToggle } from 'react-use'
-import { erc721Abi, parseUnits } from 'viem'
+import { erc20Abi, erc721Abi, parseUnits, SimulateContractParameters, toHex } from 'viem'
 import { useWalletClient } from 'wagmi'
 import { Txs } from './approve-and-tx'
 import { AssetInput } from './asset-input'
@@ -330,6 +330,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       txs={() => encodeSingleSwap({ chainId, token0: t.address, token1: swapTo.address, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, amountIn: inputAssetBn, is0To1: !isToggled })}
       onTxSuccess={() => {
         setInputAsset('')
+        reFet(vd.key, inputBalance.key, outputBalance.key)
       }}
     />
   </div>
@@ -359,22 +360,68 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const apy = 1.2
   const apyto = apy
   const [calcKey, setCalcKey] = useState<any[]>(['calcLPAdd'])
-  const wrapSetCalcKey = useMemo(() => _.debounce((isToken0: boolean, amount: bigint) => setCalcKey([isToken0, amount, 'calcLPAdd']), 300), [])
+  const wrapSetCalcKey = useMemo(() =>
+    _.debounce((isToken0: boolean, amount: bigint) => {
+      console.info('setCalcKey:', isToken0, amount)
+      setCalcKey([isToken0, amount, 'calcLPAdd'])
+    }, 300), [])
   const { data: [liquidity, amount0Max, amount1Max], isFetching: isFetchingOut } = useQuery({
     queryKey: calcKey,
     initialData: [0n, 0n, 0n],
+    throwOnError(error, query) {
+      console.error(error);
+      return false
+    },
     queryFn: async ({ queryKey }) => {
-      if (queryKey.length == 1) return [0n, 0n, 0n]
+      let data: [bigint, bigint, bigint] = [0n, 0n, 0n]
+      if (queryKey.length <= 1) return data
       const pc = getPC(chainId)
       const inputIsToken0 = queryKey[0] as boolean
       const inputAmount = queryKey[1] as bigint
-      return calcAddLP({ chainId, pc, token0: vt.address, token1: t.address, token0Decimals: vt.decimals, token1Decimals: t.decimals, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, inputIsToken0, inputAmount })
+      console.info('calcLPAdd1:', inputIsToken0, inputAmount)
+      if (type == 'vt') {
+        const [vtLiq, tLiq] = await pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'getVTAndTReserves' })
+        console.info('vtLiq,tLiq:', fmtBn(vtLiq), fmtBn(tLiq))
+        if (vtLiq == 0n || tLiq == 0n) {
+          data = [inputAmount, inputAmount, inputAmount]
+        } else if (inputIsToken0) {
+          data = [sqrt(inputAmount * inputAmount * tLiq / vtLiq), inputAmount, inputAmount * tLiq / vtLiq]
+        } else {
+          data = [sqrt(inputAmount * inputAmount * vtLiq / tLiq), inputAmount * vtLiq / tLiq, inputAmount]
+        }
+      } else {
+        data = await calcAddLP({ chainId, pc, token0: vt.address, token1: t.address, token0Decimals: vt.decimals, token1Decimals: t.decimals, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, inputIsToken0, inputAmount })
+      }
+      console.info('calcLPAdd2:', inputIsToken0, inputAmount, data)
+      setInput1Asset(fmtBn(data[2], t.decimals))
+      setInput2Asset(fmtBn(data[1], vt.decimals))
+      return data
     },
   })
-  const outAmount = liquidity
-  const disableTx = true || input1AssetBn <= 0n || input1AssetBn > input1Balance.result || input2AssetBn <= 0n || input2AssetBn > input2Balance.result
-  const outLoading = isFetchingOut && input1AssetBn > 0n
 
+  const outAmount = liquidity
+  const disableTx = input1AssetBn <= 0n || input1AssetBn > input1Balance.result || input2AssetBn <= 0n || input2AssetBn > input2Balance.result
+  const outLoading = isFetchingOut && input1AssetBn > 0n
+  const txs = (): SimulateContractParameters[] => {
+    if (type == 'yt') return encodeModifyLP({ chainId, lp: vd.result!.vtSwapPoolHook, token0: vt.address, token1: t.address, liquidity, amount0Max, amount1Max, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })
+    // struct AddLiquidityParams {uint256 amount0Desired;uint256 amount1Desired;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
+    return [
+      { abi: erc20Abi, address: input1.address, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, input1AssetBn] },
+      { abi: erc20Abi, address: input2.address, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, input2AssetBn] },
+      {
+        abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'addLiquidity', args: [{
+          amount0Desired: input1AssetBn,
+          amount1Desired: input2AssetBn,
+          amount0Min: 0n,
+          amount1Min: 0n,
+          deadline: genDeadline(),
+          tickLower: -100000,
+          tickUpper: 100000,
+          userInputSalt: toHex(0, { size: 32 })
+        }]
+      }
+    ]
+  }
   return <div className='flex flex-col gap-1'>
     <AssetInput asset={input1.symbol} amount={input1Asset} balance={input1Balance.result} setAmount={(value: any) => {
       wrapSetCalcKey(false, parseEthers(value))
@@ -391,10 +438,12 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       className='mx-auto mt-4'
       tx='Add'
       disabled={disableTx}
-      txs={() => encodeModifyLP({ chainId, lp: vd.result!.vtSwapPoolHook, token0: vt.address, token1: t.address, liquidity, amount0Max, amount1Max, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })}
+      txs={txs}
       onTxSuccess={() => {
         setInput1Asset('')
         setInput2Asset('')
+        wrapSetCalcKey(false, 0n)
+        reFet(vd.key, input1Balance.key, input1Balance.key)
       }}
     />
   </div>
@@ -418,7 +467,12 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     queryFn: async () => {
       if (inputAssetBn <= 0n) return [0n, 0n]
       const pc = getPC(chainId)
-      return calcRemoveLP({ chainId, pc, token0: vt.address, token1: t.address, token0Decimals: vt.decimals, token1Decimals: t.decimals, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, inputAmount: inputAssetBn })
+      if (type == 'yt')
+        return calcRemoveLP({ chainId, pc, token0: vt.address, token1: t.address, token0Decimals: vt.decimals, token1Decimals: t.decimals, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, inputAmount: inputAssetBn })
+      const [vtLiq, tLiq] = await pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'getVTAndTReserves' })
+      if (vtLiq == 0n || tLiq == 0n) return [0n, 0n]
+      const vt_x_t = inputAssetBn * inputAssetBn
+      return [sqrt(vt_x_t * vtLiq / tLiq), sqrt(vt_x_t * tLiq / vtLiq)]
     },
   })
   const swapPrice = ''
@@ -427,6 +481,24 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const apy = 1.2
   const apyto = apy
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result
+  const txs = (): SimulateContractParameters[] => {
+    if (type == 'yt') return encodeModifyLP({ chainId, lp: vd.result!.vtSwapPoolHook, token0: vt.address, token1: t.address, liquidity: -inputAssetBn, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })
+    // struct RemoveLiquidityParams {uint256 liquidity;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
+    return [
+      { abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, inputAssetBn] },
+      {
+        abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'removeLiquidity', args: [{
+          liquidity: inputAssetBn,
+          amount0Min: 0n,
+          amount1Min: 0n,
+          deadline: genDeadline(),
+          tickLower: -100000,
+          tickUpper: 100000,
+          userInputSalt: toHex(0, { size: 32 })
+        }]
+      }
+    ]
+  }
   return <div className='flex flex-col gap-1'>
     <AssetInput asset={input.symbol} amount={inputAsset} balance={inputBalance.result} setAmount={setInputAsset} error={errorInput} />
     {/* <Swap onClick={() => toggle()} /> */}
@@ -437,9 +509,10 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       className='mx-auto mt-4'
       tx='Remove'
       disabled={disableTx}
-      txs={() => encodeModifyLP({ chainId, lp: vd.result!.vtSwapPoolHook, token0: vt.address, token1: t.address, liquidity: -inputAssetBn, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })}
+      txs={txs}
       onTxSuccess={() => {
         setInputAsset('')
+        reFet(vd.key, inputBalance.key)
       }}
     />
   </div>

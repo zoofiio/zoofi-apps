@@ -177,6 +177,7 @@ export function Txs({
       if (!wc) return
       if (isNetwrong) await switchChainAsync({ chainId })
       const calls = await promiseT(txs).then(items => Promise.all(items.map(promiseT)))
+      console.info('calls:', wc.account.address, calls)
       const { id } = await wc.sendCalls({
         account: wc.account.address,
         calls: calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address })),
