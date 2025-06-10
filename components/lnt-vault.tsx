@@ -101,7 +101,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
     queryKey: useCalcKey(['calcLntWithdraw', chainId, amountBn]),
     initialData: 0n,
     queryFn: async () => {
-      if (amountBn <= 0n) return 0n;
+      if (amountBn <= 0n || amountBn > vd.result!.activeDepositCount) return 0n;
       return getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcRedeem', args: [vc.vault, amountBn] })
     }
   })

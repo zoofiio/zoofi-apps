@@ -3,7 +3,7 @@
 import { GeneralAction } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleSelect } from '@/components/ui/select'
-import { abiMockERC721 } from '@/config/abi'
+import { abiMockERC20, abiMockERC721 } from '@/config/abi'
 import { abiLntProtocol, abiMockaVToracle, abiMockNodeDelegator } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
@@ -35,6 +35,10 @@ export default function AdminPage() {
               {current.vc.MockNodeDelegator && <>
                 <GeneralAction abi={abiMockNodeDelegator} functionName='addOperator' address={current.vc.MockNodeDelegator} />
                 <GeneralAction abi={abiMockNodeDelegator} functionName='removeOperator' address={current.vc.MockNodeDelegator} />
+              </>}
+              {current.vc.MockT && <>
+                <GeneralAction abi={abiMockERC20} tit={'mockT setTester'} functionName='setTester' address={current.vc.MockT} />
+                <GeneralAction abi={abiMockERC20} tit={`mintT (${current.vc.asset})`} functionName='mint' address={current.vc.MockT} />
               </>}
             </>
           }
