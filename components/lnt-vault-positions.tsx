@@ -33,12 +33,13 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     const { address } = useAccount()
     const vd = useLntVault(vc)
     const vt = getTokenBy(vd.result?.VT, chainId, { symbol: 'VT' })!
+    const t = getTokenBy(vd.result?.T, chainId, { symbol: 'T' })!
     const vtBalance = useBalance(vt)
     const data = vd.result ? [[
         <TokenSymbol key={'vt'} t={vt} />,
         displayBalance(vtBalance.result, undefined, vt.decimals),
         vd.result.closed ? 'Mature' : 'Active',
-        <MCoinAmount key={'redeemable'} token={vt} amount={vtBalance.result} />,
+        <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} />,
         <ApproveAndTx
             disabled={vd.result.aVT > 0n || vtBalance.result <= 0n || !address}
             onTxSuccess={() => reFet(vd.key, vtBalance.key)}
