@@ -1,10 +1,10 @@
-import { cn, handleError } from '@/lib/utils'
+import { cn, handleError, parseEthers } from '@/lib/utils'
 import { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
 import Select from 'react-select'
 import { useSetState } from 'react-use'
-import { Abi, AbiFunction, AbiParameter, Address, stringToHex } from 'viem'
+import { Abi, AbiFunction, AbiParameter, Address, erc20Abi, isAddress, stringToHex } from 'viem'
 import { ApproveAndTx } from './approve-and-tx'
 import { useMutation } from '@tanstack/react-query'
 import { BBtn } from './ui/bbtn'
@@ -187,4 +187,34 @@ export function ContractAll({ abi, address }: { abi: Abi, address: Address }) {
       {writes.map((item, i) => <GeneralAction key={`write_${i}`} abi={[item]} address={address} functionName={item.name} />)}
     </div>
   </div>
+}
+
+
+export function Erc20Approve() {
+  const [stat, setStat] = useSetState({
+    token: '',
+    spender: '',
+    amount: 0n
+  })
+  return <Expandable tit='Erc20Approve'>
+    <input type='text' placeholder='token' value={stat.token} onChange={(e) => setStat({ token: e.target.value })} className={cn(inputClassname)} />
+    <input type='text' placeholder='spender' value={stat.spender} onChange={(e) => setStat({ spender: e.target.value })} className={cn(inputClassname)} />
+    <input type='text' placeholder='amount' value={stat.amount.toString()} onChange={(e) => {
+      try {
+        setStat({ amount: parseEthers(e.target.value, 0) })
+      } catch (error) {
+      }
+    }} className={cn(inputClassname)} />
+    <ApproveAndTx
+      tx='Write'
+      disabled={!isAddress(stat.token) || !isAddress(stat.spender) || stat.amount <= 0n}
+      config={{
+        abi: erc20Abi,
+        address: stat.token as Address,
+        functionName: 'approve',
+        args: [stat.spender as Address, stat.amount],
+      }}
+      className='!mt-0 w-full flex items-center justify-center gap-4'
+    />
+  </Expandable>
 }

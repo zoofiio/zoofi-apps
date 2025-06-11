@@ -1,10 +1,10 @@
 'use client'
 
-import { GeneralAction } from '@/components/general-action'
+import { Erc20Approve, GeneralAction } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721 } from '@/config/abi'
-import { abiLntProtocol, abiMockaVToracle, abiMockNodeDelegator } from '@/config/abi/abiLNTVault'
+import { abiLntProtocol, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useState } from 'react'
@@ -40,6 +40,10 @@ export default function AdminPage() {
                 <GeneralAction abi={abiMockERC20} tit={'mockT setTester'} functionName='setTester' address={current.vc.MockT} />
                 <GeneralAction abi={abiMockERC20} tit={`mintT (${current.vc.asset})`} functionName='mint' address={current.vc.MockT} />
               </>}
+              {current.vc.MockRewardDistribuitor && <>
+                <GeneralAction abi={abiMockRewardDistributor} tit={`addReward (${current.vc.MockRewardDistribuitor})`} functionName='addReward' address={current.vc.MockRewardDistribuitor} />
+              </>}
+              <Erc20Approve />
             </>
           }
         </div>

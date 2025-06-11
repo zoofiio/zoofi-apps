@@ -44,3 +44,8 @@ export const abiMockNodeDelegator = parseAbi([
   'function operators() external view returns (address[] memory)',
   'function getOperatorInfo(address operator) external view returns (uint256 capacity, uint256 delegations)'
 ])
+
+
+export const abiMockRewardDistributor = parseAbi([
+  'function addReward(address token, uint256 amount) external payable',
+])
