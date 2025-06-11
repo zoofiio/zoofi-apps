@@ -7,10 +7,10 @@ import { calcAddLP, calcRemoveLP, encodeModifyLP, encodeSingleSwap } from '@/con
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useLntVault } from '@/hooks/useFetLntVault'
+import { useLntVault, useLntVaultOperators } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
-import { cn, fmtBn, fmtDuration, formatPercent, genDeadline, handleError, parseEthers, sqrt } from '@/lib/utils'
+import { cn, fmtBn, fmtDuration, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, sqrt } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
@@ -133,15 +133,15 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
 }
 
 export function LntOperators({ vc }: { vc: LntVaultConfig }) {
-  
+  const operators = useLntVaultOperators(vc)
   return <div className='card'>
     <STable
       header={["Operator", "Address", "Delegted", "Fill rate(7d)", "Status"]}
-      data={[1, 2, 3, 4, 5].map((num) => [
-        `Operator${num}`,
-        `0x29ef789...df678`,
-        `${num * 9}`,
-        '99%',
+      data={operators.result.map((item, index) => [
+        `Operator${index + 1}`,
+        shortStr(item.address),
+        `${item.delegations.toString()}`,
+        `${fmtPercent(item.delegations * DECIMAL / item.capacity, 18, 2)}`,
         <div key="status" className='px-2 py-1 rounded-xl bg-green-400 w-fit text-white dark:text-black'>Active</div>
       ])}
     />

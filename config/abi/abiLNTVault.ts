@@ -42,4 +42,5 @@ export const abiMockNodeDelegator = parseAbi([
   'function addOperator(address operator, uint256 capacity) external',
   'function removeOperator(address operator) external',
   'function operators() external view returns (address[] memory)',
+  'function getOperatorInfo(address operator) external view returns (uint256 capacity, uint256 delegations)'
 ])

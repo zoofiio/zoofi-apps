@@ -2,7 +2,7 @@ import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
 import { useCurrentChainId } from './useCurrentChainId'
 import { getPC } from '@/providers/publicClient'
-import { abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { Address, PublicClient } from 'viem'
 import { useAccount } from 'wagmi'
@@ -10,6 +10,7 @@ import { useAccount } from 'wagmi'
 export const FET_KEYS = {
   LntVault: (vc: LntVaultConfig) => `fetLntVault:${vc.vault}`,
   LntVaultYTRewards: (vc: LntVaultConfig, yt?: Address, user?: string) => (yt && user ? `fetLntVaultYTRewards:${yt}:${user}` : ''),
+  LntVaultOperators: (vc: LntVaultConfig, nodeOP?: Address) => (nodeOP ? `fetLntVaultOperators:${nodeOP}` : ''),
 }
 export function useLntVault(vc: LntVaultConfig) {
   const chainId = useCurrentChainId()
@@ -41,3 +42,26 @@ export function useLntVaultYTRewards(vc: LntVaultConfig) {
   return rewards
 }
 
+export function useLntVaultOperators(vc: LntVaultConfig) {
+  const chainId = useCurrentChainId()
+  const vd = useLntVault(vc)
+  const operators = useFet({
+    key: FET_KEYS.LntVaultOperators(vc, vd.result?.nodeDelegator),
+    initResult: [],
+    fetfn: async () => {
+      const pc = getPC(chainId)
+      const opaddress = await pc.readContract({ abi: abiMockNodeDelegator, address: vd.result!.nodeDelegator, functionName: 'operators' })
+      return Promise.all(
+        opaddress.map((item) =>
+          pc
+            .readContract({ abi: abiMockNodeDelegator, address: vd.result!.nodeDelegator, functionName: 'getOperatorInfo', args: [item] })
+            .then(([capacity, delegations]) => ({ address: item, capacity, delegations })),
+        ),
+      )
+    },
+  })
+  if (vd.status === 'fetching') {
+    operators.status = 'fetching'
+  }
+  return operators
+}
