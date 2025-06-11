@@ -132,16 +132,8 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   </div>
 }
 
-
-export function LntPositions({ vc }: { vc: LntVaultConfig }) {
-  return <div className='flex flex-col gap-5'>
-    <div className='card'>VT</div>
-    <div className='card'>YT</div>
-    <div className='card'>LP</div>
-  </div>
-}
-
 export function LntOperators({ vc }: { vc: LntVaultConfig }) {
+  
   return <div className='card'>
     <STable
       header={["Operator", "Address", "Delegted", "Fill rate(7d)", "Status"]}

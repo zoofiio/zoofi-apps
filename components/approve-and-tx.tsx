@@ -5,13 +5,12 @@ import { twMerge } from 'tailwind-merge'
 import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, SimulateContractParameters, TransactionReceipt, WalletClient } from 'viem'
 
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
-import { BBtn } from './ui/bbtn'
-import { useSendCalls, useSwitchChain, useWalletClient } from 'wagmi'
-import { useMutation } from '@tanstack/react-query'
-import { getPC } from '@/providers/publicClient'
 import { getErrorMsg, handleError, promiseT } from '@/lib/utils'
+import { getPC } from '@/providers/publicClient'
+import { useMutation } from '@tanstack/react-query'
 import { toast as tos } from 'sonner'
-import { switchChain } from 'viem/actions'
+import { useSwitchChain, useWalletClient } from 'wagmi'
+import { BBtn } from './ui/bbtn'
 
 export function SwitchChain({ className }: { className?: string }) {
   const { switchChain, isPending } = useSwitchChain()

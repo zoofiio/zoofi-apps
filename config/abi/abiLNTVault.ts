@@ -2,7 +2,7 @@ import { parseAbi } from 'viem'
 
 export const abiQueryLNT = parseAbi([
   'function queryLntVault(address vault) external view returns (LntVault memory lv)',
-  `struct LntVault {bool closed;uint256 expiryTime;uint256 depositCount;uint256 activeDepositCount;address NFT;uint256 NFTType;address VT;address YT;address T;address vATOracle;address nodeDelegator;address rewardDistributor;address tokenPot;address vtSwapPoolHook;uint24 vtSwapPoolFee;int24 vtSwapPoolTickSpacing;}`,
+  `struct LntVault {bool closed;uint256 expiryTime;uint256 depositCount;uint256 activeDepositCount;address NFT;uint256 NFTType;address VT;address YT;address T;address vATOracle;address nodeDelegator;address rewardDistributor;address tokenPot;address vtSwapPoolHook;uint24 vtSwapPoolFee;int24 vtSwapPoolTickSpacing;uint256 aVT;}`,
   `function earned(address irm,address user) external view returns (Earned[] memory)`,
   `struct Earned { address token; uint256 value;}`,
   'function calcDeposit(address vault,uint256[] calldata nftIds,uint256[] calldata values) external view returns (uint256 vt)',
