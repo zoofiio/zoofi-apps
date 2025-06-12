@@ -38,7 +38,7 @@ export default function AdminPage() {
               </>}
               {current.vc.MockT && <>
                 <GeneralAction abi={abiMockERC20} tit={'mockT setTester'} functionName='setTester' address={current.vc.MockT} />
-                <GeneralAction abi={abiMockERC20} tit={`mintT (${current.vc.asset})`} functionName='mint' address={current.vc.MockT} />
+                <GeneralAction abi={abiMockERC20} tit={`mintT (${current.vc.MockT})`} functionName='mint' address={current.vc.MockT} />
               </>}
               {current.vc.MockRewardDistribuitor && <>
                 <GeneralAction abi={abiMockRewardDistributor} tit={`addReward (${current.vc.MockRewardDistribuitor})`} functionName='addReward' address={current.vc.MockRewardDistribuitor} />
