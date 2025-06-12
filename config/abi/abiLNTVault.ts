@@ -48,4 +48,5 @@ export const abiMockNodeDelegator = parseAbi([
 
 export const abiMockRewardDistributor = parseAbi([
   'function addReward(address token, uint256 amount) external payable',
+  'function addT(uint256 amount) external payable'
 ])

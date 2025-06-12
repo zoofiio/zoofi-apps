@@ -42,6 +42,7 @@ export default function AdminPage() {
               </>}
               {current.vc.MockRewardDistribuitor && <>
                 <GeneralAction abi={abiMockRewardDistributor} tit={`addReward (${current.vc.MockRewardDistribuitor})`} functionName='addReward' address={current.vc.MockRewardDistribuitor} />
+                <GeneralAction abi={abiMockRewardDistributor} tit={`addT (${current.vc.MockRewardDistribuitor})`} functionName='addT' address={current.vc.MockRewardDistribuitor} />
               </>}
               <Erc20Approve />
             </>
