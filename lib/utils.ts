@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { formatUnits, parseUnits, parseEther as _parseEther, etherUnits, Address, zeroAddress } from 'viem'
+import { formatUnits, parseUnits, parseEther as _parseEther, etherUnits, Address, zeroAddress, hexToBigInt } from 'viem'
 import _, { get, now, round, toNumber } from 'lodash'
 import { toast } from 'sonner'
 import dayjs from 'dayjs'
@@ -281,4 +281,9 @@ export const sqrt = function (value: bigint) {
     x1 = (value / x0 + x0) >> 1n
   } while (x0 !== x1 && x0 !== x1 - 1n)
   return x0
+}
+
+export function uniSortTokens([token0, token1]: [Address, Address]) {
+  if (hexToBigInt(token0) > hexToBigInt(token1)) return [token1, token0]
+  return [token0, token1]
 }

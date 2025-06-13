@@ -35,6 +35,8 @@ export const abiLntVTSwapHook = parseAbi([
   'struct AddLiquidityParams {uint256 amount0Desired;uint256 amount1Desired;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}',
   'struct RemoveLiquidityParams {uint256 liquidity;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}',
   'function getVTAndTReserves() external view returns(uint256, uint256)',
+  'function reserve0() external view returns(uint256)',
+  'function reserve1() external view returns(uint256)',
 ])
 
 export const abiMockaVToracle = parseAbi(['function setaVT(uint256 _aVT_) external'])

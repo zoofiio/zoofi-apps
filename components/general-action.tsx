@@ -4,14 +4,22 @@ import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
 import Select from 'react-select'
 import { useSetState } from 'react-use'
-import { Abi, AbiFunction, AbiParameter, Address, erc20Abi, isAddress, stringToHex } from 'viem'
-import { ApproveAndTx } from './approve-and-tx'
+import { Abi, AbiFunction, AbiParameter, Address, erc20Abi, isAddress, SimulateContractParameters, stringToHex } from 'viem'
+import { ApproveAndTx, Txs } from './approve-and-tx'
 import { useMutation } from '@tanstack/react-query'
 import { BBtn } from './ui/bbtn'
 import { twMerge } from 'tailwind-merge'
 import { getPC } from '@/providers/publicClient'
 import { toString } from 'lodash'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { create } from 'zustand'
+
+
+export type MultiTxStore = {
+  txs: SimulateContractParameters[],
+  
+}
+create()
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   menu: () => cn('bg-white dark:bg-black dark:border'),
@@ -85,7 +93,7 @@ export function GeneralAction({
   argsDef?: string[] | (() => Promise<string[]>)
   convertArg?: (arg: string, i: number, param: AbiParameter) => any
   onArgs?: (args: string[]) => void
-  txProps?: Omit<Parameters<typeof ApproveAndTx>[0], 'tx' | 'config' | 'className'>
+  txProps?: Omit<Parameters<typeof Txs>[0], 'txs' | 'className'>
 }) {
   const abiItem = abi.find((item) => item.type == 'function' && item.name == functionName) as AbiFunction
   const inputsLength = abiItem?.inputs?.length || 0
@@ -133,17 +141,15 @@ export function GeneralAction({
       {readInfos}
       {
         isWrite ?
-          <ApproveAndTx
+          <Txs
             {...(txProps || {})}
             tx='Write'
-            config={
-              {
-                abi,
-                address,
-                functionName,
-                ...(args.length ? { args: writeArgs } : {}),
-              } as any
-            }
+            txs={[{
+              abi,
+              address,
+              functionName,
+              ...(args.length ? { args: writeArgs } : {}),
+            }]}
             disabled={txProps?.disabled || (Boolean(args.length) && !Boolean(writeArgs))}
             className={cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
           /> :
@@ -217,4 +223,10 @@ export function Erc20Approve() {
       className='!mt-0 w-full flex items-center justify-center gap-4'
     />
   </Expandable>
+}
+
+
+
+export function MultiTxTemp(){
+
 }
