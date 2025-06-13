@@ -4,7 +4,7 @@ import { Erc20Approve, GeneralAction } from '@/components/general-action'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721 } from '@/config/abi'
-import { abiLntProtocol, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor } from '@/config/abi/abiLNTVault'
+import { abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useState } from 'react'
@@ -28,6 +28,8 @@ export default function AdminPage() {
           <SimpleSelect className='w-full' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
             current && <>
+              <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />
+              <GeneralAction abi={abiLntVault} functionName='close' address={current.vc.vault} />
               <GeneralAction tit='transferOwnership' abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
               <GeneralAction abi={abiMockERC721} tit={'mockErc721 setTester'} functionName='setTester' address={current.vc.asset} />
               <GeneralAction abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName='safeMint' address={current.vc.asset} />

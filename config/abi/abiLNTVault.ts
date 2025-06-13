@@ -16,6 +16,7 @@ export const abiLntVault = parseAbi([
   'function batchRedeem(uint256 count) external',
   'function redeemT(uint256 amount) external',
   'function close() external',
+  'function withdrawProfitT(address recipient) external',
 ])
 
 export const abiLntMarket = parseAbi([
