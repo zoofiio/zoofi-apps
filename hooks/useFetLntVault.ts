@@ -16,7 +16,7 @@ export function useLntVault(vc: LntVaultConfig) {
   const chainId = useCurrentChainId()
   return useFet({
     key: FET_KEYS.LntVault(vc),
-    fetfn: async () => getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
+    fetfn: async () => getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }).then(res => ({...res, expiryTime: 1798560000n})),
   })
 }
 
