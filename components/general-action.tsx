@@ -1,25 +1,19 @@
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, handleError, parseEthers } from '@/lib/utils'
-import { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { getPC } from '@/providers/publicClient'
+import { useMutation } from '@tanstack/react-query'
+import { toString } from 'lodash'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
 import Select from 'react-select'
 import { useSetState } from 'react-use'
-import { Abi, AbiFunction, AbiParameter, Address, erc20Abi, isAddress, SimulateContractParameters, stringToHex } from 'viem'
-import { ApproveAndTx, Txs } from './approve-and-tx'
-import { useMutation } from '@tanstack/react-query'
-import { BBtn } from './ui/bbtn'
 import { twMerge } from 'tailwind-merge'
-import { getPC } from '@/providers/publicClient'
-import { toString } from 'lodash'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { create } from 'zustand'
+import { Abi, AbiFunction, AbiParameter, Address, erc20Abi, isAddress, stringToHex } from 'viem'
+import { ApproveAndTx, Txs } from './approve-and-tx'
+import { BBtn } from './ui/bbtn'
+import { AddMultiTx } from './multitxs'
 
-
-export type MultiTxStore = {
-  txs: SimulateContractParameters[],
-  
-}
-create()
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   menu: () => cn('bg-white dark:bg-black dark:border'),
@@ -141,18 +135,27 @@ export function GeneralAction({
       {readInfos}
       {
         isWrite ?
-          <Txs
-            {...(txProps || {})}
-            tx='Write'
-            txs={[{
+          <div className='flex gap-5 items-center'>
+            <Txs
+              {...(txProps || {})}
+              tx='Write'
+              txs={[{
+                abi,
+                address,
+                functionName,
+                ...(args.length ? { args: writeArgs } : {}),
+              }]}
+              disabled={txProps?.disabled || (Boolean(args.length) && !Boolean(writeArgs))}
+              className={cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
+            />
+            <AddMultiTx txs={[{
               abi,
               address,
               functionName,
               ...(args.length ? { args: writeArgs } : {}),
-            }]}
-            disabled={txProps?.disabled || (Boolean(args.length) && !Boolean(writeArgs))}
-            className={cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
-          /> :
+            }]} />
+          </div>
+          :
           <BBtn
             className={twMerge('flex items-center justify-center gap-4', cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full'))}
             onClick={() => doRead()}
@@ -227,6 +230,3 @@ export function Erc20Approve() {
 
 
 
-export function MultiTxTemp(){
-
-}

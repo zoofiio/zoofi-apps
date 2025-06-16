@@ -1,6 +1,7 @@
 'use client'
 
 import { Erc20Approve, GeneralAction } from '@/components/general-action'
+import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721 } from '@/config/abi'
@@ -18,7 +19,7 @@ export default function AdminPage() {
   return (
     <PageWrap>
       <div className='w-full flex'>
-
+        <MultiTxTemp />
         <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
           <div className="text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
             {JSON.stringify({

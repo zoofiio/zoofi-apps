@@ -2,6 +2,7 @@
 
 import { ApproveAndTx } from '@/components/approve-and-tx'
 import { Expandable, GeneralAction, inputClassname, selectClassNames } from '@/components/general-action'
+import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
 import { abiBVault, abiMockPriceFeed, abiProtocolSettings, abiPtyPool, abiVault, abiZooProtocol } from '@/config/abi'
 import { useVaultsConfigs } from '@/hooks/useVaultsConfigs'
@@ -136,6 +137,7 @@ export default function AdminPage() {
   return (
     <PageWrap>
       <div className='w-full flex'>
+        <MultiTxTemp />
         {isLoading ? <div className='flex w-full justify-center items-center h-screen'>
           <FaSpinner className='text-3xl animate-spin' />
         </div> : <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
