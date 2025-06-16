@@ -1,6 +1,6 @@
 'use client'
 
-import _ from "lodash"
+import _, { size } from "lodash"
 import { SimulateContractParameters } from "viem"
 import { create } from "zustand"
 import { SimpleDialog } from "../simple-dialog"
@@ -8,6 +8,7 @@ import { cn, shortStr } from "@/lib/utils"
 import { BBtn } from "../ui/bbtn"
 import { Txs } from "../approve-and-tx"
 import { IoIosRemoveCircleOutline } from "react-icons/io";
+import { Tip } from "../ui/tip"
 export type MultiTxStore = {
     txs: SimulateContractParameters[],
     addTx: (...args: SimulateContractParameters[]) => void,
@@ -41,6 +42,7 @@ const useMultiTxStore = create<MultiTxStore>((set, get) => ({
 export function MultiTxTemp({ className }: { className?: string }) {
     const { txs, removeTx } = useMultiTxStore()
     if (txs.length == 0) return null
+    const clearTxs = () => useMultiTxStore.setState({ txs: [] })
     return <SimpleDialog
         trigger={
             <div
@@ -55,12 +57,13 @@ export function MultiTxTemp({ className }: { className?: string }) {
                 {txs.map((tx, index) => <div key={`tx_item_${index}`} className="flex bg-primary/20 rounded-md items-center gap-4 px-3 py-1">
                     <span>({shortStr(tx.address)})</span>
                     <span>{shortStr(tx.functionName)}</span>
+                    {size(tx.args) > 0 && <Tip>{JSON.stringify(tx.args, undefined, 2)}</Tip>}
                     <IoIosRemoveCircleOutline className="text-3xl cursor-pointer hover:text-red-500 ml-auto shrink-0" onClick={() => removeTx(index)} />
                 </div>)}
             </div>
             <div className="flex gap-4">
-                <Txs tx="Execute" className="flex-1" txs={txs} />
-                <BBtn className="w-20 shrink-0" onClick={() => useMultiTxStore.setState({ txs: [] })}>Clear</BBtn>
+                <Txs tx="Execute" className="flex-1" txs={txs} onTxSuccess={clearTxs} />
+                <BBtn className="w-20 shrink-0" onClick={clearTxs}>Clear</BBtn>
             </div>
         </div>
     </SimpleDialog>
