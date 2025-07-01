@@ -5,6 +5,7 @@ import { useAccount, useSwitchChain } from 'wagmi'
 import { Spinner } from './spinner'
 import { useConfigChains } from './support-chains'
 import { BBtn } from './ui/bbtn'
+import { useDocumentVisible } from '@/hooks/useDocumentVisible'
 
 export default function ConnectBtn() {
   const size = useWindowSize(1024)
@@ -14,12 +15,15 @@ export default function ConnectBtn() {
   const { chains } = useConfigChains()
   const sc = useSwitchChain()
   const [isSwitching, setSwitching] = useState(false)
+  const docVisible = useDocumentVisible()
   useEffect(() => {
+    if (!docVisible || isSwitching) return
     let task: any = null
     if (chainId !== undefined && chainId !== null && !chains.find(item => item.id === chainId)) {
       console.info('needSwitchChainTo:', chains[0].id, chains.map(item => item.id))
       setSwitching(true)
       setTimeout(() => {
+        if (document.visibilityState !== 'visible') return;
         Promise.race([sc.switchChainAsync({ chainId: chains[0].id }), new Promise((_reslove, reject) => setTimeout(() => reject('Timeout'), 3000))])
           .catch(console.error)
           .finally(() => setSwitching(false))
@@ -28,7 +32,7 @@ export default function ConnectBtn() {
       setSwitching(false)
     }
     return () => { task !== null && clearTimeout(task) }
-  }, [chains, chainId])
+  }, [chains, chainId, docVisible])
   if (isSwitching) {
     return <Spinner className='text-2xl' />
   }

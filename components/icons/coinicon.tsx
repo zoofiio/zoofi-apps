@@ -60,7 +60,12 @@ const SupportICONS: { [k: string]: string } = {
   Aethir: 'Aethir.svg',
   Nodeops: 'Nodeops.svg',
   ReppoNft: 'ReppoNft.png',
-  ['kodiak-logo']: 'kodiak-logo.svg'
+  ['kodiak-logo']: 'kodiak-logo.svg',
+  ZeroG: 'ZeroG.png',
+  ['0G']: '0G.png',
+  ['v0G']: 'v0G.png',
+  ['yG']: 'y0G.png',
+  ['lp0G']: 'lp0G.png',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
@@ -68,7 +73,7 @@ export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: 
   const src = `${BASE_PATH}/${supportIcon}`
   if (!supportIcon && !url) {
     return (
-      <svg {...p}  width={size} height={size} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+      <svg {...p} width={size} height={size} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <text className='fill-primary/60' width='20' x='12' y='14' textAnchor='middle' fontSize={12} dominantBaseline='middle'>
           {symbol.slice(0, 2)}
         </text>

@@ -2,6 +2,7 @@ import { toLntVault } from '@/app/routes'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
+import { zeroGTestnet } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
@@ -19,7 +20,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
 import { useSetState, useToggle } from 'react-use'
 import { erc20Abi, erc721Abi, isAddressEqual, parseUnits, SimulateContractParameters, toHex } from 'viem'
-import { useWalletClient } from 'wagmi'
+import { useAccount, useWalletClient } from 'wagmi'
 import { Txs } from './approve-and-tx'
 import { AssetInput } from './asset-input'
 import { Fees } from './fees'
@@ -29,13 +30,15 @@ import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
+import Link from 'next/link'
+import { abiMockERC721 } from '@/config/abi'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const chainId = useCurrentChainId()
   const vd = useLntVault(vc)
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
   const tokenIds = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
-  const nfts = useErc721Balance(vd.result!.NFT)
+  const nfts = useErc721Balance(vd.result!.NFT, chainId == zeroGTestnet.id ? 'zoofi' : 'alchemy')
   const vt = getTokenBy(vd.result!.VT, chainId, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, chainId, { symbol: 'YT' })!
 
@@ -161,8 +164,8 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
   return (
     <div className={cn('card  overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
-      <div className='flex items-center'>
-        <img src='/logo-alt.svg' />
+      <div className='flex items-center gap-5'>
+        <CoinIcon symbol={vc.icon} size={120} className='object-contain' style={{ height: 60 }} />
         <Demo />
       </div>
       <div className={itemClassname}>
@@ -197,38 +200,17 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   )
 }
 
-
-export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
-  const vd = useLntVault(vc)
-  const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
-  return <div style={{
-    backdropFilter: 'blur(20px)'
-  }} className="card bg-white flex flex-col h-full" >
-    <div className="flex gap-5">
-      {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
-      <CoinIcon symbol="ReppoNft" size={161} />
-      <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
-        <div className="text-base font-semibold">Reppo Network LNT Vault</div>
-        <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.</div>
-      </div>
-    </div >
-    <div className='my-4 flex justify-between opacity-60'>Duration <span>{`~ ${remain} remaining`}</span></div>
-    <div className="flex w-full h-4 bg-gray-200 rounded-full ">
-      <div
-        className="h-full rounded-full"
-        style={{ width: `${40}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
-      />
-    </div>
-  </div>
-}
-
 export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const depositRef = useRef<HTMLButtonElement>(null)
   const withdrawRef = useRef<HTMLButtonElement>(null)
   const vd = useLntVault(vc)
-  return <div className='card bg-white flex flex-col h-full justify-between'>
-    <div>Reppo</div>
-    <div className='flex items-start gap-5 justify-between'>
+  return <div className=' flex flex-col h-full justify-between shrink-0'>
+    <div className='flex items-center text-sm justify-center whitespace-nowrap'>
+      <span className=''>Total Deposited</span>
+      <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
+      <span className='opacity-50 ml-1'>Licenses</span>
+    </div>
+    <div className='flex flex-col gap-5 justify-between px-8 my-auto'>
       <SimpleDialog
         triggerRef={depositRef}
         triggerProps={{ className: 'flex-1' }}
@@ -248,13 +230,38 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
       </SimpleDialog>
     </div>
-    <div className='flex items-center text-sm justify-center'>
-      <span className='opacity-80'>Total Deposited</span>
-      <span className='ml-8 text-base font-medium'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
-      <span className='opacity-50 ml-1'>Licenses</span>
-    </div>
+
   </div>
 }
+
+export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
+  const vd = useLntVault(vc)
+  const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
+  return <div style={{
+    backdropFilter: 'blur(20px)'
+  }} className="card bg-white flex gap-5 h-full col-span-2" >
+    <div className='flex flex-col'>
+      <div className="flex gap-5">
+        {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
+        <CoinIcon symbol={vc.icon} size={161} className='object-contain' />
+        <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
+          <div className="text-base font-semibold">{vc.tit}</div>
+          <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
+        </div>
+      </div >
+      <div className='my-4 flex justify-between opacity-60'>Duration <span>{`~ ${remain} remaining`}</span></div>
+      <div className="flex w-full h-4 bg-gray-200 rounded-full ">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${40}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
+        />
+      </div>
+    </div>
+    <LNTDepositWithdraw vc={vc} />
+  </div>
+}
+
+
 
 
 function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
@@ -630,5 +637,24 @@ export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
         { tab: 'Yield Token', content: <YT vc={vc} /> },
       ]}
     />
+  </div>
+}
+
+
+
+export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
+  const { address } = useAccount()
+  const chainId = useCurrentChainId()
+  if (vc.tit !== "0G AI Alignment Node") return null
+  const txs = async () => {
+    const total = await getPC(chainId).readContract({ abi: erc721Abi, address: vc.asset, functionName: 'totalSupply' }).catch(() => 0n)
+    return [{ abi: abiMockERC721, address: vc.asset, functionName: 'safeMint', args: [address, total + 1n] }]
+  }
+  return <div className='flex justify-end items-center gap-10'>
+    <Link href={"https://faucet.0g.ai/"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
+      <CoinIcon symbol='ZeroG' size={32} className='object-contain' />
+      Faucet
+    </Link>
+    <Txs tx='Mint Test Node' className='w-[180px]' txs={txs} disabled={!address} />
   </div>
 }

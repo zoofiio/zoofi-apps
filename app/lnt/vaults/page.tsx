@@ -1,6 +1,6 @@
 'use client'
 
-import { LNT_VT_YT, LNTDepositWithdraw, LNTInfo, LntOperators, LNTVaultCard } from '@/components/lnt-vault'
+import { LNT_VT_YT, LNTInfo, LntOperators, LNTTestHeader, LNTVaultCard } from '@/components/lnt-vault'
 import LntVaultChart from '@/components/lnt-vault-chart'
 import { LntMyPositions } from '@/components/lnt-vault-positions'
 import { Demo } from '@/components/noti'
@@ -23,9 +23,10 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
       {isError(vd) && 'Opps! Network Error!'}
       {isLoading(vd) && <Spinner className="mt-10 mx-auto text-black dark:text-white" />}
       {isSuccess(vd) && <>
+        <LNTTestHeader vc={vc}/>
         <div className='grid lg:grid-cols-[1.2fr_1fr] gap-4 xl:gap-5'>
           <LNTInfo vc={vc} />
-          <LNTDepositWithdraw vc={vc} />
+          {/* <LNTDepositWithdraw vc={vc} /> */}
           <LntVaultChart vc={vc} />
           <LNT_VT_YT vc={vc} />
         </div>
@@ -59,7 +60,7 @@ export default function Vaults() {
           </>
         ) : (
           <>
-            <Demo className='absolute top-3 right-5' />
+            <Demo className='absolute top-3 right-5 z-50' />
             <LntVaultPage vc={currentVc} tab={paramsTab as string} />
           </>
         )}

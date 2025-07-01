@@ -4,11 +4,11 @@
     }
 import { Header } from "@/components/header";
 import { ConfigChainsProvider } from "@/components/support-chains";
-import { base, sepolia } from "@/config/network";
+import { base, sepolia, zeroGTestnet } from "@/config/network";
 import { ReactNode } from "react";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[base, sepolia]}>
+    return <ConfigChainsProvider chains={[base, sepolia, zeroGTestnet]}>
         <Header />
         {children}
     </ConfigChainsProvider>

@@ -24,6 +24,8 @@ export const getLntVaultNftStatByUser = (chainId: number, vault: Address, user: 
 export const getNftTokenIdsByUser = (chainId: number, token: Address, user: Address) => api.get<string[]>(chainId, `/api/nft/${token}/${user}/tokenIds`)
 export const getNftTokensIdsByUser = (chainId: number, tokens: Address[], user: Address) => api.post<{ [k: Address]: string[] }>(chainId, `/api/nft/${user}/tokenIds`, { tokens })
 
+export const getNftsByZoofi = (chainId: number, token: Address, user: Address) => api.get<string[]>(chainId, `/api/nft/erc721Balance/${chainId}/${token}/${user}`)
+
 export const getBeraTokensPrices = (
   tokens: Address[] = [
     '0x6969696969696969696969696969696969696969', // BERA,WBERA

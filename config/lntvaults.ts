@@ -1,7 +1,8 @@
+import { proxyGetDef } from '@/lib/utils'
 import { Address } from 'viem'
 import { sepolia } from 'viem/chains'
 import { TypeENV } from './env'
-import { proxyGetDef } from '@/lib/utils'
+import { zeroGTestnet } from './network'
 
 export const WriteConfirmations = 3
 
@@ -16,6 +17,10 @@ export type LntVaultConfig = {
   MockNodeDelegator?: Address
   MockRewardDistribuitor?: Address
   onEnv?: TypeENV[]
+
+  icon: string
+  tit: string
+  info: string
 }
 export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = proxyGetDef(
   {
@@ -30,6 +35,9 @@ export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = proxyGetDef
         MockaVTOracle: '0x1e349be7cacbd558bf39ba38763359f541ed07ca',
         MockNodeDelegator: '0x48fdfe0ebc720262d4157ff9ea81d0d92d544c6d',
         MockRewardDistribuitor: '0x82d6a9b59c8aa157dca8ef1a15f36406198da3d5',
+        icon: 'ReppoNft',
+        tit: 'Reppo Network LNT Vault',
+        info: 'Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.',
       },
       // {
       //   vault: '0xf7810972Fec61DffA8B19d589bd2a32115378f9E',
@@ -43,6 +51,22 @@ export const LNTVAULTS_CONFIG: { [key: number]: LntVaultConfig[] } = proxyGetDef
       //   MockNodeDelegator: '0x7e6457224db3e214568b1dbf58ef45a7787595f4',
       //   MockRewardDistribuitor: '0x55ab653c6824d4cb32c84c8cbf18056b078f0c4e',
       // },
+    ],
+    [zeroGTestnet.id]: [
+      {
+        vault: '0x8e4c26e6e61753f570f822552ab827125ab147a1',
+        asset: '0xf9d5f79a7528033b372ed8ec4635fa863553b4cd',
+        market: '0x4b9f3a59d4b66e8d71540b6f954b467be1686dd1',
+        protocol: '0x72faf32f5311bfaed7395a8923afd683949ef3ba',
+        onEnv: ['test', 'prod'],
+        MockT: '0xd3baf6025975e5fc33ddab5a21b42713ad55cf09',
+        MockaVTOracle: '0x4717749731c45607e7609cc06115fe4052883c3c',
+        MockNodeDelegator: '0x9726aeedabdd59bdeea84360306f0fadd874f7ea',
+        MockRewardDistribuitor: '0x95b40e1531c5e9a0deb6c89abc64a19d007fdf08',
+        icon: 'ZeroG',
+        tit: '0G AI Alignment Node',
+        info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
+      },
     ],
   },
   [],

@@ -1,5 +1,6 @@
 import { Address, isAddressEqual, zeroAddress } from 'viem'
 import { mainnet, sepolia } from 'viem/chains'
+import { zeroGTestnet } from './network'
 
 export type Token = {
   chain: number[]
@@ -11,6 +12,7 @@ export type Token = {
 
 export const TOKENS: Token[] = [
   { address: zeroAddress, symbol: 'ETH', decimals: 18, chain: [mainnet.id, sepolia.id], isNative: true },
+  { address: zeroAddress, symbol: 'A0GI', decimals: 18, chain: [zeroGTestnet.id], isNative: true },
   // { address: zeroAddress, symbol: 'IP', decimals: 18, chain: [story.id], isNative: true },
   { address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', symbol: 'ETH', decimals: 18, chain: [mainnet.id, sepolia.id], isNative: true },
   // { address: '0x5267F7eE069CEB3D8F1c760c215569b79d0685aD', symbol: 'vIP', decimals: 18, chain: [story.id] },

@@ -200,7 +200,7 @@ export function Txs({
         }
       } catch (error) {
         const msg = getErrorMsg(error)
-        if (msg && msg.includes('wallet_sendCalls')) {
+        if (msg && (msg.includes('wallet_sendCalls') || msg.includes("EIP-7702 not supported"))) {
           const pc = getPC(chainId)
           for (const item of calls) {
             const tx = await wc.writeContract(item)

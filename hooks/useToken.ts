@@ -5,7 +5,7 @@ import { Address, erc20Abi } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCurrentChainId } from './useCurrentChainId'
 import { useFet } from '@/lib/useFet'
-import { getNftsByAlchemy } from '@/config/api'
+import { getNftsByAlchemy, getNftsByZoofi } from '@/config/api'
 
 export const FET_KEYS = {
   TokenBalance: (token?: Token, user?: Address) => (user && token ? `tokenBalance:${token.chain}-${token.address}-by-${user}` : ''),
@@ -34,12 +34,14 @@ export function useTotalSupply(token?: Token) {
   })
 }
 
-export function useErc721Balance(token?: Address) {
+
+
+export function useErc721Balance(token?: Address, by?: 'alchemy' | 'zoofi') {
   const { address } = useAccount()
   const chainId = useCurrentChainId()
   return useFet({
     key: FET_KEYS.Erc721Balance(token, address),
     initResult: [] as string[],
-    fetfn: async () => (token && address ? getNftsByAlchemy(chainId, token, address) : [] as string[]),
+    fetfn: async () => (token && address ? by !== 'zoofi' ?  getNftsByAlchemy(chainId, token, address): getNftsByZoofi(chainId, token, address) : ([] as string[])),
   })
 }
