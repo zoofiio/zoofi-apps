@@ -644,11 +644,10 @@ export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
 
 export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
   const { address } = useAccount()
-  const chainId = useCurrentChainId()
+  // const chainId = useCurrentChainId()
   if (vc.tit !== "0G AI Alignment Node") return null
   const txs = async () => {
-    const total = await getPC(chainId).readContract({ abi: erc721Abi, address: vc.asset, functionName: 'totalSupply' }).catch(() => 0n)
-    return [{ abi: abiMockERC721, address: vc.asset, functionName: 'safeMint', args: [address, total + 1n] }]
+    return [{ abi: abiMockERC721, address: vc.asset, functionName: 'safeMint', args: [address] }]
   }
   return <div className='flex justify-end items-center gap-10'>
     <Link href={"https://faucet.0g.ai/"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
