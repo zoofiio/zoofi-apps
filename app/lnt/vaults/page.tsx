@@ -22,9 +22,9 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
       {isError(vd) && 'Opps! Network Error!'}
       {isLoading(vd) && <Spinner className="mt-10 mx-auto text-black dark:text-white" />}
       {isSuccess(vd) && <>
-        <LNTTestHeader vc={vc}/>
-        <div className='grid lg:grid-cols-[1.2fr_1fr] gap-4 xl:gap-5'>
-          <LNTInfo vc={vc} />
+        <LNTTestHeader vc={vc} />
+        <LNTInfo vc={vc} />
+        <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4 xl:gap-5'>
           {/* <LNTDepositWithdraw vc={vc} /> */}
           <LntVaultChart vc={vc} />
           <LNT_VT_YT vc={vc} />

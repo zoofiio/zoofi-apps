@@ -204,7 +204,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const depositRef = useRef<HTMLButtonElement>(null)
   const withdrawRef = useRef<HTMLButtonElement>(null)
   const vd = useLntVault(vc)
-  return <div className=' flex flex-col h-full justify-between shrink-0'>
+  return <div className=' flex flex-col h-full justify-between shrink-0 gap-10'>
     <div className='flex items-center text-sm justify-center whitespace-nowrap'>
       <span className=''>Total Deposited</span>
       <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
