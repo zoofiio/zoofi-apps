@@ -3,7 +3,6 @@
 import { LNT_VT_YT, LNTInfo, LntOperators, LNTTestHeader, LNTVaultCard } from '@/components/lnt-vault'
 import LntVaultChart from '@/components/lnt-vault-chart'
 import { LntMyPositions } from '@/components/lnt-vault-positions'
-import { Demo } from '@/components/noti'
 import { PageWrap } from '@/components/page-wrap'
 import { Spinner } from '@/components/spinner'
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
@@ -60,7 +59,7 @@ export default function Vaults() {
           </>
         ) : (
           <>
-            <Demo className='absolute top-3 right-5 z-50' />
+            {/* <Demo className='absolute top-3 right-5 z-50' /> */}
             <LntVaultPage vc={currentVc} tab={paramsTab as string} />
           </>
         )}

@@ -51,7 +51,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     }
   })
   return <div className='flex flex-col gap-5 items-center p-5'>
-    <div className='w-full text-start'>Licenses ID</div>
+    <div className='w-full text-start'>Licenses ID <span className='text-xs ml-5 opacity-70'>Wait about 5 minutes after MINT to retrieve the list.</span></div>
     <div className='w-[32rem] h-72 overflow-y-auto'>
       <div className='w-full gap-2 grid grid-cols-4 '>
         {nfts.result.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
