@@ -24,6 +24,20 @@ export const TOKENS: Token[] = [
 
   { address: '0xb09a8ba59615a552231cefcee80c3b88706597ed', symbol: 'YTK', decimals: 18, chain: [sepolia.id] },
   { address: '0xf37b6ec18cee80634de01aef83701d6e726e7fc9', symbol: 'BT-INFRA', decimals: 18, chain: [sepolia.id] },
+  
+  // for 0G
+  /*
+  
+  T: "0xD3Baf6025975e5fc33dDab5A21B42713aD55Cf09"
+  VT: "0x8EA6bf9B97F7ebc4f8c347608f274ceB5995EC0A"
+  YT: "0x2AFC0f7C7417645fD4E9BC85Aa98028B18B12Af0"
+  vtSwapPoolHook: "0x53509Ccd440Df9df70561D715b932AE1a29f7aC8"
+  */
+ 
+ { address: '0xD3Baf6025975e5fc33dDab5A21B42713aD55Cf09', symbol: '0G', decimals: 18, chain: [zeroGTestnet.id] },
+ { address: '0x8EA6bf9B97F7ebc4f8c347608f274ceB5995EC0A', symbol: 'v0G', decimals: 18, chain: [zeroGTestnet.id] },
+ { address: '0x2AFC0f7C7417645fD4E9BC85Aa98028B18B12Af0', symbol: 'y0G', decimals: 18, chain: [zeroGTestnet.id] },
+ { address: '0x53509Ccd440Df9df70561D715b932AE1a29f7aC8', symbol: 'lp0G', decimals: 18, chain: [zeroGTestnet.id] },
 ]
 
 export const TOKENS_MAP: { [k: `${number}_${Address}`]: Token } = TOKENS.reduce((map, item) => {

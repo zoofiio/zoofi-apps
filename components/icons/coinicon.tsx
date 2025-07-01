@@ -64,7 +64,7 @@ const SupportICONS: { [k: string]: string } = {
   ZeroG: 'ZeroG.png',
   ['0G']: '0G.png',
   ['v0G']: 'v0G.png',
-  ['yG']: 'y0G.png',
+  ['y0G']: 'y0G.png',
   ['lp0G']: 'lp0G.png',
 }
 

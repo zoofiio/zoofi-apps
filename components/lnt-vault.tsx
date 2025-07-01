@@ -553,9 +553,9 @@ function VT({ vc }: { vc: LntVaultConfig }) {
   return <div className="flex flex-col gap-4 w-full">
     <div className='card !p-0 overflow-hidden w-full'>
       <div className='flex p-5 bg-[#10B98126] gap-5'>
-        <CoinIcon size={48} symbol='VT' />
+        <CoinIcon size={48} symbol={vt.symbol} />
         <div className='flex flex-col gap-3'>
-          <div className='text-xl leading-6 text-black dark:text-white font-semibold'>{'VT'}</div>
+          <div className='text-xl leading-6 text-black dark:text-white font-semibold'>{vt.symbol}</div>
           <div className='text-xs leading-none text-black/60 dark:text-white/60 font-medium'>1 VT is equal to 1 T at maturity</div>
         </div>
       </div>
@@ -595,9 +595,9 @@ function YT({ vc }: { vc: LntVaultConfig }) {
   return <div className="flex flex-col gap-4 w-full">
     <div className='card !p-0 overflow-hidden w-full'>
       <div className='flex p-5 bg-[#10B98126] gap-5'>
-        <CoinIcon size={48} symbol='YT' />
+        <CoinIcon size={48} symbol={yt.symbol} />
         <div className='flex flex-col gap-3'>
-          <div className='text-xl leading-6 text-black dark:text-white font-semibold'>{'YT'}</div>
+          <div className='text-xl leading-6 text-black dark:text-white font-semibold'>{yt.symbol}</div>
           <div className='text-xs leading-none text-black/60 dark:text-white/60 font-medium'>1 YT is equal to1 T at maturity</div>
         </div>
       </div>
