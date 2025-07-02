@@ -77,7 +77,7 @@ export function Providers({ children, supportChains = SUPPORT_CHAINS }: { childr
   return (
     <ApolloProvider client={client}>
       <WagmiProvider config={config}>
-        <ConfigChainsProvider chains={supportChains}>
+        <ConfigChainsProvider chains={supportChains.map(item => item.id)}>
           <QueryClientProvider client={qClient}>
             <QueryParamProvider adapter={NextAdapterApp}>
               <RainbowKitProvider locale='en-US' modalSize='compact' theme={theme === 'dark' ? darkTheme({ accentColor: 'green' }) : lightTheme()}>

@@ -42,6 +42,13 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
     poolmanager: '0xE03A1074c86CFeDd5C142C4F04F1a1536e203543',
     stateview: '0xe1dd9c3fa50edb962e442f60dfbc432e24537e4c',
   },
+  [16601]: {
+    unirouter: '0xfa2ba0a2743ea9d60caf373482ea3a4200230dcc',
+    permit2: '0x45B4798F3d93f3754ea2f28ea3b6449e31E53043',
+    positionmanager: '0x429ba70129df741B2Ca2a85BC3A2a3328e5c09b4',
+    poolmanager: '0x5cd9e7907522016160a8ce6ad58dc8a80909e79f',
+    stateview: '0xe1dd9c3fa50edb962e442f60dfbc432e24537e4c',
+  },
 }
 export type UniSwapConfig = {
   chainId: number

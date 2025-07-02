@@ -7,7 +7,7 @@ import { sepolia, zeroGTestnet } from "@/config/network";
 import { ReactNode } from "react";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[zeroGTestnet, sepolia]}>
+    return <ConfigChainsProvider chains={[zeroGTestnet.id, sepolia.id]}>
         {children}
     </ConfigChainsProvider>
 

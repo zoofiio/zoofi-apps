@@ -106,6 +106,7 @@ export const base = defineChain({
 export const zeroGTestnet = defineChain({
   ...zeroG,
   id: 16601,
+  name: '0G Testnet',
   iconUrl: `${BASE_PATH}/ZeroG.png`,
 })
 

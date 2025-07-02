@@ -15,7 +15,7 @@ import { BBtn } from './ui/bbtn'
 export function SwitchChain({ className }: { className?: string }) {
   const { switchChain, isPending } = useSwitchChain()
   const chainId = useCurrentChainId()
-  return <BBtn className={twMerge('flex items-center justify-center gap-4 whitespace-nowrap', className)} onClick={() => switchChain({ chainId })} busy={isPending} disabled={isPending}>
+  return <BBtn className={twMerge('flex items-center justify-center gap-4 whitespace-nowrap min-w-fit', className)} onClick={() => switchChain({ chainId })} busy={isPending} disabled={isPending}>
     Switch Network
   </BBtn>
 }

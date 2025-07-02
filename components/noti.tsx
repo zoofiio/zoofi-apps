@@ -14,6 +14,6 @@ export function Noti({ data, className }: { data: string, className?: string }) 
 }
 
 
-export function Demo({ className }: { className?: string }) {
-  return <div className={cn('text-xs px-1.5 text-center py-[1px] rounded-full bg-red-500 text-slate-50', className)}>TEST</div>
+export function Badge({ className, text }: { className?: string, text?: string }) {
+  return <div className={cn('text-xs px-1.5 text-center py-[1px] rounded-full bg-red-500 text-slate-50', className)}>{text}</div>
 }

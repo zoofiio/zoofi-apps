@@ -8,7 +8,7 @@ import { base, sepolia, zeroGTestnet } from "@/config/network";
 import { ReactNode } from "react";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[base, sepolia, zeroGTestnet]}>
+    return <ConfigChainsProvider chains={[base.id, sepolia.id, zeroGTestnet.id]}>
         <Header />
         {children}
     </ConfigChainsProvider>

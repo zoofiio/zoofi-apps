@@ -19,12 +19,9 @@ const revertLog = (num: number) => _.round((Math.pow(10, num) - 1) / multip, 5)
 // const logTrans = (num: number) => _.round(Math.log10(num * 10000), 5)
 // const revertLog = (num: number) => _.round(Math.pow(10, num) / 10000, 5)
 
-
-const chartType = ["VT APY", 'VT Price', 'YT APY', 'YT Price'] as const
-type CTTyte = (typeof chartType)[number]
-export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
+function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVaultConfig }) {
   const chainId = useCurrentChainId()
-  const [ct, setCT] = useState<CTTyte>(chartType[0])
+  const [ct, setCT] = useState(types[0])
   const [isLOG, togLOG] = useToggle(true)
   const { options } = useMemo(() => {
     const nowtime = now()
@@ -99,21 +96,19 @@ export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
     }
     return { options }
   }, [isLOG, ct])
-
+  return <>
+    <div className='flex justify-between gap-2 items-center'>
+      <span className='text-base font-bold'>{tit} Chart</span>
+      <SimpleSelect className="text-sm" options={types} onChange={(n) => setCT(n as any)} />
+    </div>
+    <EChartsReact option={options} style={{ height: 240 }}></EChartsReact>
+  </>
+}
+export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
   return (
-    <div className='card bg-white p-4 mx-auto max-w-4xl w-full min-w-0'>
-      <div className='flex justify-between gap-2 items-center'>
-        <span className='text-base font-bold'>Price Chart</span>
-        <SimpleSelect className="text-sm" options={chartType} onChange={(n) => setCT(n as any)} />
-        {/* <span className='text-xs font-medium dark:text-[#FBECEC]'></span> */}
-        {/* <div className='flex gap-2 justify-end items-center mt-2'>
-          <span className={cn('cursor-pointer text-xs px-1 py-0 rounded border-primary border', isLOG ? 'bg-primary' : 'bg-transparent')} onClick={() => togLOG()}>
-            LOG
-          </span>
-        </div> */}
-      </div>
-
-      <EChartsReact option={options} style={{ height: 340 }}></EChartsReact>
+    <div className='card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5'>
+      <ChartItem tit='VT' types={["VT APY", 'VT Price']} vc={vc} />
+      <ChartItem tit='YT' types={["YT APY", 'YT Price']} vc={vc} />
     </div>
   )
 }

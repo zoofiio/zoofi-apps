@@ -9,7 +9,7 @@ import { isPROD } from "@/constants";
 import { ReactNode } from "react";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={isPROD ? [berachain] : [berachain, berachainTestnet]}>
+    return <ConfigChainsProvider chains={isPROD ? [berachain.id] : [berachain.id, berachainTestnet.id]}>
         <Header />
         {children}
     </ConfigChainsProvider>

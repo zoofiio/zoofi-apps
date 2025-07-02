@@ -5,6 +5,7 @@ import LntVaultChart from '@/components/lnt-vault-chart'
 import { LntMyPositions } from '@/components/lnt-vault-positions'
 import { PageWrap } from '@/components/page-wrap'
 import { Spinner } from '@/components/spinner'
+import { ConfigChainsProvider } from '@/components/support-chains'
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { ENV } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
@@ -38,8 +39,7 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
 }
 
 export default function Vaults() {
-  const chainId = useCurrentChainId()
-  const vcs = (LNTVAULTS_CONFIG[chainId] || []).filter(item => item.onEnv ? item.onEnv.includes(ENV) : true)
+  const vcs = (LNTVAULTS_CONFIG).filter(item => item.onEnv ? item.onEnv.includes(ENV) : true)
   const params = useSearchParams()
   const paramsVault = params.get('vault')
   const paramsTab = params.get('tab')
@@ -53,15 +53,17 @@ export default function Vaults() {
             {/* <Noti data='Deposit assets into the Vaults to pair-mint stablecoin and margin token' /> */}
             <Grid numItems={1} className='gap-5 mt-4'>
               {vcs.map((item, index) => (
-                <LNTVaultCard key={`group_vault_item_${index}`} vc={item} />
+                <ConfigChainsProvider key={`group_vault_item_${index}`} chains={[item.chain]}>
+                  <LNTVaultCard vc={item} />
+                </ConfigChainsProvider>
               ))}
             </Grid>
           </>
         ) : (
-          <>
+          <ConfigChainsProvider chains={[currentVc.chain]}>
             {/* <Demo className='absolute top-3 right-5 z-50' /> */}
             <LntVaultPage vc={currentVc} tab={paramsTab as string} />
-          </>
+          </ConfigChainsProvider>
         )}
       </div>
     </PageWrap>

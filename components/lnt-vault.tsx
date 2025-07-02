@@ -7,7 +7,7 @@ import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { useCurrentChain, useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLntVault, useLntVaultOperators } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
@@ -25,7 +25,7 @@ import { Txs } from './approve-and-tx'
 import { AssetInput } from './asset-input'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
-import { Demo } from './noti'
+import { Badge } from './noti'
 import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
@@ -162,11 +162,12 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, chainId, { symbol: 'VT' }))
   const ytTotalSupply = useTotalSupply(getTokenBy(vd.result?.YT, chainId, { symbol: 'YT' }))
   const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
+  const chain = useCurrentChain()
   return (
     <div className={cn('card  overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
       <div className='flex items-center gap-5'>
         <CoinIcon symbol={vc.icon} size={120} className='object-contain' style={{ height: 60 }} />
-        <Demo />
+        {chain.testnet && <Badge text='Testnet' />}
       </div>
       <div className={itemClassname}>
         <div className={itemTitClassname}>Total Delegated</div>
