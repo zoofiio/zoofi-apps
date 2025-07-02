@@ -3,16 +3,15 @@
 import { Erc20Approve, GeneralAction } from '@/components/general-action'
 import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
+import { ConfigChainsProvider } from '@/components/support-chains'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721 } from '@/config/abi'
 import { abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useState } from 'react'
 
 export default function AdminPage() {
-  const chainId = useCurrentChainId()
-  const vcs = LNTVAULTS_CONFIG[chainId]
+  const vcs = LNTVAULTS_CONFIG
   const options = vcs.map(item => ({ key: item.vault, show: `LNT-Vault(${item.vault})`, vc: item }))
   const [current_, setCurrent] = useState<typeof options[0] | undefined>(options[0])
   const current = options.length > 0 ? current_ : undefined;
@@ -28,7 +27,7 @@ export default function AdminPage() {
           </div>
           <SimpleSelect className='w-full' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
-            current && <>
+            current && <ConfigChainsProvider chains={[current.vc.chain]}>
               <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />
               <GeneralAction abi={abiLntVault} functionName='close' address={current.vc.vault} />
               <GeneralAction tit='transferOwnership' abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
@@ -48,7 +47,7 @@ export default function AdminPage() {
                 <GeneralAction abi={abiMockRewardDistributor} tit={`addT (${current.vc.MockRewardDistribuitor})`} functionName='addT' address={current.vc.MockRewardDistribuitor} />
               </>}
               <Erc20Approve />
-            </>
+            </ConfigChainsProvider>
           }
         </div>
       </div>

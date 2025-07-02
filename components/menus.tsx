@@ -71,7 +71,6 @@ function useShowBvaultAdmin() {
         enabled: Boolean(address),
         initialData: false,
         queryFn: async () => {
-
             const admins = await Promise.all(_.union(BVAULTS_CONFIG[chainId].map(item => item.protocolAddress)).map(item => getPC(chainId).readContract({ abi: abiZooProtocol, address: item, functionName: 'protocolOwner' })))
             return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
         }
@@ -86,7 +85,7 @@ function useShowLntVaultAdmin() {
         enabled: Boolean(address),
         initialData: false,
         queryFn: async () => {
-            const admins = await Promise.all(_.union(LNTVAULTS_CONFIG[chainId].map(item => item.protocol)).map(item => getPC(chainId).readContract({ abi: abiLntProtocol, address: item, functionName: 'owner' })))
+            const admins = await Promise.all(_.unionBy(LNTVAULTS_CONFIG, item => item.protocol).map(item => getPC(item.chain).readContract({ abi: abiLntProtocol, address: item.protocol, functionName: 'owner' })))
             return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })

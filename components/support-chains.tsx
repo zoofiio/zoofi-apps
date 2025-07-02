@@ -6,7 +6,8 @@ export const ConfigChainsCTX = React.createContext<{ chains: readonly [Chain, ..
 export function ConfigChainsProvider({ children, chains }: { chains: number[], children: React.ReactNode }) {
     const mChains = chains.map(cid => SUPPORT_CHAINS.find(c => c.id === cid)!).filter(Boolean)
     if (mChains.length == 0) throw new Error("ConfigChains Error")
-    const [def, setDef] = useState(mChains[0].id)
+    const [_def, setDef] = useState(mChains[0].id)
+    const def = mChains.map(item => item.id).includes(_def) ? _def : mChains[0].id
     return <ConfigChainsCTX.Provider value={{ chains: mChains as any, def, setDef }}>
         {children}
     </ConfigChainsCTX.Provider>

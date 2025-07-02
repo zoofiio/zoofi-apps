@@ -12,10 +12,14 @@ import { toast as tos } from 'sonner'
 import { useSwitchChain, useWalletClient } from 'wagmi'
 import { BBtn } from './ui/bbtn'
 
-export function SwitchChain({ className }: { className?: string }) {
-  const { switchChain, isPending } = useSwitchChain()
+export function SwitchNet({ className }: { className?: string }) {
+  const sc = useSwitchChain()
   const chainId = useCurrentChainId()
-  return <BBtn className={twMerge('flex items-center justify-center gap-4 whitespace-nowrap min-w-fit', className)} onClick={() => switchChain({ chainId })} busy={isPending} disabled={isPending}>
+  return <BBtn
+    className={twMerge('flex items-center justify-center gap-4 whitespace-nowrap min-w-[200px]', className)}
+    onClick={() => sc.switchChainAsync({ chainId }).catch(console.error)}
+    busy={sc.isPending}
+    disabled={sc.isPending}>
     Switch Network
   </BBtn>
 }
@@ -67,7 +71,7 @@ export function ApproveAndTx<
   const isNetWrong = useNetworkWrong()
   const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
   if (isNetWrong) {
-    return <SwitchChain className={className} />
+    return <SwitchNet className={className} />
   }
   if (shouldApprove)
     return (
@@ -132,7 +136,7 @@ export function NftApproveAndTx<
   const isNetWrong = useNetworkWrong()
   const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
   if (isNetWrong) {
-    return <SwitchChain className={className} />
+    return <SwitchNet className={className} />
   }
   if (shouldApprove)
     return (
@@ -171,15 +175,10 @@ export function Txs({
   // const { sendCallsAsync } = useSendCalls()
   const isNetwrong = useNetworkWrong()
   const chainId = useCurrentChainId()
-  const { switchChainAsync } = useSwitchChain()
+  // const { switchChainAsync } = useSwitchChain()
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       if (!wc) return
-      if (isNetwrong) {
-        await switchChainAsync({ chainId })
-        return setTimeout(() => mutate(), 100)
-      }
-
       const calls = await promiseT(txs).then(items => Promise.all(items.map(promiseT)))
       console.info('calls:', wc.account.address, calls)
       try {
@@ -215,6 +214,9 @@ export function Txs({
     onError: toast ? handleError : () => { }
   })
   const txDisabled = disabled || isPending || (typeof txs !== 'function' && txs.length == 0) || !wc
+  if (isNetwrong) {
+    return <SwitchNet />
+  }
   return <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={() => mutate()} busy={isPending} busyShowContent={busyShowTxet} disabled={txDisabled}>
     {tx}
   </BBtn>
