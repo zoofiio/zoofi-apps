@@ -1,4 +1,5 @@
 import { toLntVault } from '@/app/routes'
+import { abiMockERC721 } from '@/config/abi'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
@@ -16,12 +17,13 @@ import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
 import _, { now } from 'lodash'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
 import { useSetState, useToggle } from 'react-use'
-import { erc20Abi, erc721Abi, isAddressEqual, parseUnits, SimulateContractParameters, toHex } from 'viem'
+import { erc721Abi, isAddressEqual, parseUnits, SimulateContractParameters, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
-import { Txs } from './approve-and-tx'
+import { Txs, withTokenApprove } from './approve-and-tx'
 import { AssetInput } from './asset-input'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
@@ -30,8 +32,6 @@ import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
-import Link from 'next/link'
-import { abiMockERC721 } from '@/config/abi'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const chainId = useCurrentChainId()
@@ -339,12 +339,13 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
 }
 
 function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
-  const chainId = useCurrentChainId()
+
+  const { address } = useAccount()
   const vd = useLntVault(vc)
   const [isToggled, toggle] = useToggle(false)
-  const t = getTokenBy(vd.result!.T, chainId, { symbol: 'T' })!
-  const vt = getTokenBy(vd.result!.VT, chainId, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, chainId, { symbol: 'YT' })!
+  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
+  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
 
   const [input1Asset, setInput1Asset] = useState('')
   const input1AssetBn = parseEthers(input1Asset)
@@ -352,7 +353,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const input2AssetBn = parseEthers(input2Asset)
   const input1 = t;
   const input2 = type == 'vt' ? vt : yt;
-  const output = type == 'vt' ? getTokenBy(vd.result!.vtSwapPoolHook, chainId, { symbol: 'lpTVT' })! : getTokenBy(vc.lpTYT, chainId, { symbol: 'lpTYT' })!;
+  const output = type == 'vt' ? getTokenBy(vd.result!.vtSwapPoolHook, vc.chain, { symbol: 'lpTVT' })! : getTokenBy(vc.lpTYT, vc.chain, { symbol: 'lpTYT' })!;
   const [token0, token1] = useMemo(() => uniSortTokens([vd.result!.T, type == 'vt' ? vd.result!.VT : vd.result!.YT]), [type, vd.result])
   const token0IsInput1 = isAddressEqual(token0, input1.address)
   const input1Balance = useBalance(input1);
@@ -379,7 +380,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     queryFn: async ({ queryKey }) => {
       let data: [bigint, bigint, bigint] = [0n, 0n, 0n]
       if (queryKey.length <= 1) return data
-      const pc = getPC(chainId)
+      const pc = getPC(vc.chain)
       const inputIsToken0 = queryKey[0] as boolean
       const inputAmount = queryKey[1] as bigint
       console.info('calcLPAdd1:', inputIsToken0, inputAmount)
@@ -410,16 +411,19 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const outAmount = liquidity
   const disableTx = type !== 'vt' || input1AssetBn <= 0n || input1AssetBn > input1Balance.result || input2AssetBn <= 0n || input2AssetBn > input2Balance.result
   const outLoading = isFetchingOut && input1AssetBn > 0n
-  const txs = (): SimulateContractParameters[] => {
+  const txs = async () => {
     if (type == 'yt') {
-      return encodeModifyLP({ chainId, lp: vd.result!.vtSwapPoolHook, token0, token1, liquidity, amount0Max, amount1Max, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })
+      return encodeModifyLP({ chainId: vc.chain, lp: vd.result!.vtSwapPoolHook, token0, token1, liquidity, amount0Max, amount1Max, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })
     }
-
     // struct AddLiquidityParams {uint256 amount0Desired;uint256 amount1Desired;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
-    return [
-      { abi: erc20Abi, address: input1.address, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, input1AssetBn] },
-      { abi: erc20Abi, address: input2.address, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, input2AssetBn] },
-      {
+    return withTokenApprove({
+      approves: [
+        { spender: vd.result!.vtSwapPoolHook, token: input1.address, amount: input1AssetBn },
+        { spender: vd.result!.vtSwapPoolHook, token: input2.address, amount: input2AssetBn },
+      ],
+      user: address!,
+      pc: getPC(vc.chain),
+      tx: {
         abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'addLiquidity', args: [{
           amount0Desired: token0IsInput1 ? input1AssetBn : input2AssetBn,
           amount1Desired: token0IsInput1 ? input2AssetBn : input1AssetBn,
@@ -431,7 +435,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
           userInputSalt: toHex(0, { size: 32 })
         }]
       }
-    ]
+    })
   }
   return <div className='flex flex-col gap-1'>
     <AssetInput asset={input1.symbol} amount={input1Asset} balance={input1Balance.result} setAmount={(value: any) => {
@@ -510,7 +514,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     }
     // struct RemoveLiquidityParams {uint256 liquidity;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
     return [
-      { abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, inputAssetBn] },
+      // { abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, inputAssetBn] },
       {
         abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'removeLiquidity', args: [{
           liquidity: inputAssetBn,
@@ -553,7 +557,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
   }
   return <div className="flex flex-col gap-4 w-full">
     <div className='card !p-0 overflow-hidden w-full'>
-      <div className='flex p-5 bg-[#10B98126] gap-5'>
+      <div className='flex p-5 bg-[#10B981]/60 gap-5'>
         <CoinIcon size={48} symbol={vt.symbol} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black dark:text-white font-semibold'>{vt.symbol}</div>
@@ -595,7 +599,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
   }
   return <div className="flex flex-col gap-4 w-full">
     <div className='card !p-0 overflow-hidden w-full'>
-      <div className='flex p-5 bg-[#10B98126] gap-5'>
+      <div className='flex p-5 bg-[#F0D187]/60 gap-5'>
         <CoinIcon size={48} symbol={yt.symbol} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black dark:text-white font-semibold'>{yt.symbol}</div>

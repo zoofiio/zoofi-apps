@@ -2,7 +2,7 @@ import { useApproves, useNftApproves } from '@/hooks/useApprove'
 import { useWrapContractWrite } from '@/hooks/useWrapContractWrite'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, SimulateContractParameters, TransactionReceipt, WalletClient } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, erc20Abi, PublicClient, SimulateContractParameters, TransactionReceipt, WalletClient, zeroAddress } from 'viem'
 
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
 import { getErrorMsg, handleError, promiseT } from '@/lib/utils'
@@ -68,8 +68,8 @@ export function ApproveAndTx<
   useEffect(() => {
     onApproveSuccessRef.current && isApproveSuccess && onApproveSuccessRef.current()
   }, [isApproveSuccess])
+  const approveDisabled = disabled || !approve || isApproveLoading
   const isNetWrong = useNetworkWrong()
-  const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
   if (isNetWrong) {
     return <SwitchNet className={className} />
   }
@@ -133,8 +133,8 @@ export function NftApproveAndTx<
   useEffect(() => {
     onApproveSuccessRef.current && isApproveSuccess && onApproveSuccessRef.current()
   }, [isApproveSuccess])
+  const approveDisabled = disabled || !approve || isApproveLoading
   const isNetWrong = useNetworkWrong()
-  const approveDisabled = disabled || !approve || isApproveLoading || isNetWrong
   if (isNetWrong) {
     return <SwitchNet className={className} />
   }
@@ -220,4 +220,24 @@ export function Txs({
   return <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={() => mutate()} busy={isPending} busyShowContent={busyShowTxet} disabled={txDisabled}>
     {tx}
   </BBtn>
+}
+
+
+export async function withTokenApprove({ approves, pc, user, tx }: {
+  approves: { spender: Address, token: Address, amount: bigint }[],
+  pc: PublicClient
+  user: Address,
+  tx: SimulateContractParameters
+}) {
+  let nativeAmount = 0n;
+  const needApproves = await Promise.all(approves.map(async item => {
+    if (zeroAddress === item.token) {
+      nativeAmount += item.amount;
+      return null
+    }
+    const allowance = await pc.readContract({ abi: erc20Abi, address: item.token, functionName: 'allowance', args: [user, item.spender] })
+    if (allowance >= item.amount) return null
+    return { abi: erc20Abi, address: item.token, functionName: 'approve', args: [item.spender, item.amount - allowance] } as SimulateContractParameters
+  })).then(txs => txs.filter(item => item !== null))
+  return [...needApproves, { ...tx, ...(nativeAmount > 0n ? { value: nativeAmount } : {}) }]
 }

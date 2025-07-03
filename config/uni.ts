@@ -2,7 +2,22 @@ import { promiseAll } from '@/lib/utils'
 import { Token } from '@uniswap/sdk-core'
 import { Pool, Position } from '@uniswap/v4-sdk'
 import _ from 'lodash'
-import { Address, encodeAbiParameters, encodePacked, erc20Abi, Hex, parseAbi, parseAbiParameters, PublicClient, SimulateContractParameters, toHex, zeroAddress } from 'viem'
+import {
+  Address,
+  encodeAbiParameters,
+  encodePacked,
+  erc20Abi,
+  Hex,
+  isAddressEqual,
+  parseAbi,
+  parseAbiParameters,
+  PublicClient,
+  SimulateContractParameters,
+  toHex,
+  zeroAddress,
+} from 'viem'
+import { getTokenBy } from './tokens'
+import { number } from 'echarts'
 export const abiUniRouter = parseAbi([
   'function execute(bytes calldata commands, bytes[] calldata inputs) public payable',
   'function execute(bytes calldata commands, bytes[] calldata inputs, uint256 deadline) public payable',
@@ -63,6 +78,31 @@ export type UniSwapConfig = {
   deadline?: number
 }
 
+export function withPermit2({
+  input,
+  permit2,
+  spender,
+  amountIn,
+  expiration = Math.round(_.now() / 1000 + 60 * 10),
+  tx
+}: {
+  input: Address
+  permit2: Address
+  spender: Address
+  amountIn: bigint
+  expiration?: number
+  tx: SimulateContractParameters
+}) {
+  if (isAddressEqual(input, zeroAddress)) return []
+
+  return [
+    // approve to permit2
+    { abi: erc20Abi, address: input, functionName: 'approve', args: [permit2, amountIn] },
+    // permit2 approve
+    { abi: abiPermit2, address: permit2, functionName: 'approve', args: [input, spender, amountIn, expiration] },
+  ]
+}
+
 export function encodeSingleSwap({
   chainId,
   token0,
@@ -115,6 +155,9 @@ export function encodeSingleSwap({
 
   const inputs: Hex[] = ['0x']
   inputs[0] = encodeAbiParameters([{ type: 'bytes' }, { type: 'bytes[]' }], [actions, params])
+  if (isAddressEqual(input, zeroAddress)) {
+    return [{ abi: abiUniRouter, functionName: 'execute', address: cf.unirouter, args: [commands, inputs, BigInt(expiration)], value: amountIn }]
+  }
   return [
     // approve to permit2
     { abi: erc20Abi, address: input, functionName: 'approve', args: [cf.permit2, amountIn] },
@@ -174,6 +217,7 @@ export function encodeModifyLP({
   }
   if (liquidity == 0n) return []
   if (liquidity > 0n) {
+    // withPermit2({ input: token0, permit2: cf.permit2, spender: cf.poolmanager, amountIn: amount0Max!, })
     return [
       // approve to permit2
       { abi: erc20Abi, address: token0, functionName: 'approve', args: [cf.permit2, amount0Max] },
