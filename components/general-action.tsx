@@ -84,24 +84,18 @@ export function GeneralAction({
   functionName: string
   tit?: string
   infos?: ReactNode
-  argsDef?: string[] | (() => Promise<string[]>)
+  argsDef?: string[]
   convertArg?: (arg: string, i: number, param: AbiParameter) => any
   onArgs?: (args: string[]) => void
   txProps?: Omit<Parameters<typeof Txs>[0], 'txs' | 'className'>
 }) {
   const abiItem = abi.find((item) => item.type == 'function' && item.name == functionName) as AbiFunction
   const inputsLength = abiItem?.inputs?.length || 0
-  const [{ args }, setState] = useSetState({ args: typeof argsDef !== 'function' && argsDef?.length == inputsLength && inputsLength > 0 ? argsDef : new Array(inputsLength).fill('') })
+  const [{ args }, setState] = useSetState({ args: new Array(inputsLength).fill('') as string[] })
   useEffect(() => {
     onArgs && onArgs(args)
   }, [args])
-  const idRef = useRef(0)
-  useEffect(() => {
-    idRef.current++
-    const id = idRef.current;
-    Promise.resolve(argsDef).then((data) => typeof data == 'function' ? data() : data || [])
-      .then((data) => id == idRef.current && setState({ args: args.map((arg, index) => arg || data[index] || '') }))
-  }, [argsDef])
+  const margs = useMemo(() => args.map((arg, i) => arg || argsDef?.[i] || ''), [argsDef, args])
   const chaindId = useCurrentChainId()
   const { data, mutate: doRead, isPending: isReadLoading } = useMutation({
     mutationFn: async () => {
@@ -113,7 +107,7 @@ export function GeneralAction({
   if (!abiItem) return
   const isWrite = abiItem.stateMutability.includes("payable")
   const disableExpand = (!abiItem.inputs || abiItem.inputs.length == 0) && isWrite
-  const writeArgs = isWrite ? convertArgs(args, abiItem.inputs, convertArg) : undefined
+  const writeArgs = isWrite ? convertArgs(margs, abiItem.inputs, convertArg) : undefined
   return (
     <Expandable tit={tit || functionName} disable={disableExpand}>
       {abiItem.inputs?.map((item, index) => (
@@ -124,7 +118,7 @@ export function GeneralAction({
           <div className='opacity-60 absolute top-1/2 left-2 -translate-y-1/2 text-xs'>{item.name}({item.type})</div>
           <input
             type='text'
-            value={args[index]}
+            value={margs[index]}
             onChange={(e) => setState({ args: args.map((arg, argIndex) => (index == argIndex ? e.target.value : arg)) })}
             className={cn(inputClassname)}
           />
