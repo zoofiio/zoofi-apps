@@ -367,9 +367,9 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const [calcKey, setCalcKey] = useState<any[]>(['calcLPAdd'])
   const wrapSetCalcKey = useMemo(() =>
     _.debounce((isToken0: boolean, amount: bigint) => {
-      console.info('setCalcKey:', isToken0, amount)
-      setCalcKey([isToken0, amount, 'calcLPAdd'])
-    }, 300), [])
+      console.info('setCalcKey:', isToken0, amount, token0IsInput1)
+      setCalcKey([isToken0, amount, 'calcLPAdd', token0IsInput1])
+    }, 300), [token0IsInput1])
   const { data: [liquidity, amount0Max, amount1Max], isFetching: isFetchingOut } = useQuery({
     queryKey: calcKey,
     initialData: [0n, 0n, 0n],
@@ -401,9 +401,14 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
         return data
         // data = await calcAddLP({ chainId, pc, token0, token1, token0Decimals: vt.decimals, token1Decimals: t.decimals, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, inputIsToken0, inputAmount })
       }
-      console.info('calcLPAdd2:', inputIsToken0, inputAmount, data)
-      setInput1Asset(fmtBn(data[2], t.decimals))
-      setInput2Asset(fmtBn(data[1], vt.decimals))
+      console.info('calcLPAdd2:', inputIsToken0, token0IsInput1, inputAmount, data)
+      if (token0IsInput1) { // 
+        setInput1Asset(fmtBn(data[1], t.decimals))
+        setInput2Asset(fmtBn(data[2], vt.decimals))
+      } else {
+        setInput1Asset(fmtBn(data[2], t.decimals))
+        setInput2Asset(fmtBn(data[1], vt.decimals))
+      }
       return data
     },
   })
