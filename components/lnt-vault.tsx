@@ -3,7 +3,7 @@ import { abiMockERC721 } from '@/config/abi'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
-import { zeroGTestnet } from '@/config/network'
+import { isTestnet, zeroGTestnet } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
@@ -16,12 +16,12 @@ import { cn, fmtBn, fmtDuration, fmtPercent, formatPercent, genDeadline, handleE
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
-import _, { now } from 'lodash'
+import _, { floor, min, now, toNumber } from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
 import { useSetState, useToggle } from 'react-use'
-import { erc721Abi, isAddressEqual, parseUnits, SimulateContractParameters, toHex } from 'viem'
+import { erc721Abi, isAddressEqual, SimulateContractParameters, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { Txs, withTokenApprove } from './approve-and-tx'
 import { AssetInput } from './asset-input'
@@ -32,6 +32,7 @@ import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
+import { NumInput } from './ui/num-input'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const chainId = useCurrentChainId()
@@ -54,17 +55,23 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     <div className='w-full text-start'>Licenses ID <span className='text-xs ml-5 opacity-70'>Wait about 5 minutes after MINT to retrieve the list.</span></div>
     <div className='w-[32rem] h-72 overflow-y-auto'>
       <div className='w-full gap-2 grid grid-cols-4 '>
-        {nfts.result.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
-          <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
-          #{id.toString()}
-        </div>))}
+        {nfts.result.map(id => (
+          <div key={id.toString()}
+            className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })}
+            onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}
+          >
+            <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
+            #{id.toString()}
+          </div>))}
       </div>
     </div>
     <div className='flex flex-col gap-1 w-full'>
       <div className='w-full'>Receive</div>
       <AssetInput asset={vt.symbol} loading={false} disable amount={fmtBn(outAmountVT, vt.decimals)} />
-      <div className='w-full text-center'>And</div>
-      <AssetInput asset={yt.symbol} loading={false} disable amount={fmtBn(DECIMAL * BigInt(tokenIds.length), yt.decimals)} />
+      {vc.ytEnable && <>
+        <div className='w-full text-center'>And</div>
+        <AssetInput asset={yt.symbol} loading={false} disable amount={fmtBn(DECIMAL * BigInt(tokenIds.length), yt.decimals)} />
+      </>}
     </div>
     <Txs
       tx='Deposit'
@@ -95,49 +102,54 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.result!.VT, chainId, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, chainId, { symbol: 'YT' })!
-  const ytBalance = useBalance(yt)
+  const ytBalance = useBalance(vc.ytEnable ? yt : undefined)
   const vtBalance = useBalance(vt)
-  const [amount, setAmount] = useState('0')
-  const amountBn = parseUnits(amount ?? '0', 0);
-  const amountBn_ = parseEthers(amount, yt.decimals)
+  const maxByYT = floor(toNumber(fmtBn(ytBalance.result, yt.decimals)))
+  const avt = vd.result?.aVT ?? 0n
+  const maxByVT = toNumber((avt > 0n ? vtBalance.result / avt : 1n).toString())
+  const maxByActive = toNumber((vd.result?.activeDepositCount ?? 0n).toString())
+  const [count, setCount] = useState(1)
+  const max = vc.ytEnable ? min([maxByYT, maxByVT, maxByActive])! : min([maxByVT, maxByActive])!
   const { data: outAmountVT, isFetching: isFetchingOut } = useQuery({
-    queryKey: useCalcKey(['calcLntWithdraw', chainId, amountBn]),
+    queryKey: useCalcKey(['calcLntWithdraw', chainId, count, vd.result?.activeDepositCount]),
     initialData: 0n,
     queryFn: async () => {
-      if (amountBn <= 0n || amountBn > vd.result!.activeDepositCount) return 0n;
-      return getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcRedeem', args: [vc.vault, amountBn] })
+      if (count <= 0 || BigInt(count) > (vd.result?.activeDepositCount ?? 0n)) return 0n;
+      return getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcRedeem', args: [vc.vault, BigInt(count)] })
     }
   })
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='flex flex-col gap-1 w-full'>
-      <div className='w-full'>Receive</div>
-      <AssetInput asset={yt.symbol} loading={false} amount={amount} setAmount={setAmount} balance={ytBalance.result} integer step={1} />
-      <div className='w-full'>Pair With</div>
-      <AssetInput asset={vt.symbol} loading={isFetchingOut && amountBn > 0n} disable amount={fmtBn(outAmountVT, vt.decimals)} balance={vtBalance.result} />
+      <div className=' w-full'>Input:</div>
+      {vc.ytEnable && <>
+        <AssetInput asset={yt.symbol} loading={isFetchingOut && count > 0} disable amount={count.toString()} balance={ytBalance.result} />
+        <div className='w-full'>Pair With</div>
+      </>}
+      <AssetInput asset={vt.symbol} loading={isFetchingOut && count > 0} disable amount={fmtBn(outAmountVT, vt.decimals)} balance={vtBalance.result} />
     </div>
-    <div className=' w-full'>Receive</div>
-    <div className='w-full flex justify-center items-center gap-8'>
-      <span className='text-lg font-medium'>{amount ?? '0'}</span>
-      <span className='text-xs opacity-60'>Licenses</span>
+    <div className='flex flex-col gap-1 w-full'>
+      <div className='w-full'>Receive:</div>
+      <NumInput title='Licenses' min={0} max={max} value={count} onChange={setCount} />
     </div>
     <Txs
       tx='Withdraw'
+      className='mt-6'
       onTxSuccess={() => {
         onSuccess()
       }}
-      disabled={amountBn <= 0n || amountBn_ > ytBalance.result || outAmountVT < 0n || outAmountVT > vtBalance.result || isFetchingOut}
+      disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result || isFetchingOut}
       txs={[{
         abi: abiLntVault,
         address: vc.vault,
         functionName: 'batchRedeem',
-        args: [amountBn]
+        args: [BigInt(count)]
       }]} />
   </div>
 }
 
 export function LntOperators({ vc }: { vc: LntVaultConfig }) {
   const operators = useLntVaultOperators(vc)
-  return <div className='card'>
+  return <div className='animitem card'>
     <STable
       header={["Operator", "Address", "Delegted", "Fill rate(7d)", "Status"]}
       data={operators.result.map((item, index) => [
@@ -160,11 +172,12 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const itemTitClassname = "opacity-60 text-xs font-semibold"
   const chainId = useCurrentChainId()
   const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, chainId, { symbol: 'VT' }))
-  const ytTotalSupply = useTotalSupply(getTokenBy(vd.result?.YT, chainId, { symbol: 'YT' }))
+  const yt = getTokenBy(vd.result?.YT, chainId, { symbol: 'YT' })
+  const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
   const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
   const chain = useCurrentChain()
   return (
-    <div className={cn('card  overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
+    <div className={cn('animitem card overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
       <div className='flex items-center gap-5'>
         <CoinIcon symbol={vc.icon} size={120} className='object-contain' style={{ height: 60 }} />
         {chain.testnet && <Badge text='Testnet' />}
@@ -177,10 +190,10 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
         <div className={itemTitClassname}>VT Supply</div>
         <div>{displayBalance(vtTotalSupply.result)}</div>
       </div>
-      <div className={itemClassname}>
+      {vc.ytEnable && <div className={itemClassname}>
         <div className={itemTitClassname}>YT Supply</div>
         <div>{displayBalance(ytTotalSupply.result)}</div>
-      </div>
+      </div>}
       <div className={itemClassname}>
         <div className={itemTitClassname}>VT Buyback</div>
         <div className="flex w-36 items-center ">
@@ -240,7 +253,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
   return <div style={{
     backdropFilter: 'blur(20px)'
-  }} className="card bg-white flex gap-5 h-full col-span-2" >
+  }} className="animitem card bg-white flex gap-5 h-full col-span-2" >
     <div className='flex flex-col'>
       <div className="flex gap-5">
         {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
@@ -306,6 +319,13 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       }).then(([out]) => out).catch(() => 0n)
     }
   })
+  const { data: feeRate } = useQuery({
+    queryKey: ['calcFee', vc.vault, vt.address, type],
+    initialData: 30n,
+    queryFn: async () => 30n
+  })
+
+  const fees = inputAssetBn > 0n ? `${fmtBn(inputAssetBn * feeRate / 10000n, input.decimals)} ${input.symbol}` : ''
   const swapPrice = ''
   const errorInput = ''
   const priceimpcat = 0
@@ -323,13 +343,16 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     </div>
     <div className="flex justify-between items-center text-xs font-medium opacity-60">
       <div>Implied APY Change: {formatPercent(apy)} → {formatPercent(apyto)}</div>
-      <Fees fees={[{ name: 'Transaction Fees', value: 1.2 }, { name: 'Unstake Fees(Verio)', value: 1.2 }]} />
+      <Fees fees={fees} />
     </div>
     <Txs
       className='mx-auto mt-4'
       tx='Swap'
       disabled={disableTx}
-      txs={() => encodeSingleSwap({ chainId, token0, token1, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, amountIn: inputAssetBn, is0To1: !isToggled })}
+      txs={() => encodeSingleSwap({
+        chainId, token0, token1, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, amountIn: inputAssetBn,
+        is0To1: zeroForOne
+      })}
       onTxSuccess={() => {
         setInputAsset('')
         reFet(vd.key, inputBalance.key, outputBalance.key)
@@ -561,7 +584,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     walletClient?.watchAsset({ type: 'ERC20', options: vt }).catch(handleError)
   }
   return <div className="flex flex-col gap-4 w-full">
-    <div className='card !p-0 overflow-hidden w-full'>
+    <div className='animitem card !p-0 overflow-hidden w-full'>
       <div className='flex p-5 bg-[#A3D395] gap-5'>
         <CoinIcon size={48} symbol={vt.symbol} />
         <div className='flex flex-col gap-3'>
@@ -581,8 +604,8 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         </button>
       </div>
     </div>
-    <div className="card !p-4">
-      <SimpleTabs
+    <div className="animitem card !p-4">
+      {vc.vtActive ? <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
         triggerClassName={`text-base font-bold leading-none data-[state="active"]:text-black`}
         data={[
@@ -590,7 +613,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
           { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='vt' /> },
           { tab: 'Remove Liquidity', content: <LPRemove vc={vc} type='vt' /> },
         ]}
-      />
+      /> : <div className='w-full py-[150px] text-center text-base font-semibold'>Swap Coming Soon</div>}
     </div>
   </div>
 }
@@ -603,7 +626,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
     walletClient?.watchAsset({ type: 'ERC20', options: yt }).catch(handleError)
   }
   return <div className="flex flex-col gap-4 w-full">
-    <div className='card !p-0 overflow-hidden w-full'>
+    <div className='animitem card !p-0 overflow-hidden w-full'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
         <CoinIcon size={48} symbol={yt.symbol} />
         <div className='flex flex-col gap-3'>
@@ -623,7 +646,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
         </button>
       </div>
     </div>
-    <div className="card !p-4">
+    <div className="animitem card !p-4">
       <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
         triggerClassName={`text-base font-bold leading-none data-[state="active"]:text-black`}
@@ -638,13 +661,15 @@ function YT({ vc }: { vc: LntVaultConfig }) {
 }
 
 export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
-  return <div className='card bg-white'>
+  return <div className='animitem card bg-white'>
     <SimpleTabs
       listClassName="p-0 gap-8 mb-4 w-full"
       triggerClassName={(i) => `text-2xl font-semibold leading-none data-[state="active"]:underline underline-offset-2`}
-      data={[
+      data={vc.ytEnable ? [
         { tab: 'Vesting Token', content: <VT vc={vc} /> },
         { tab: 'Yield Token', content: <YT vc={vc} /> },
+      ] : [
+        { tab: 'Vesting Token', content: <VT vc={vc} /> },
       ]}
     />
   </div>
@@ -655,7 +680,7 @@ export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
 export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
   const { address } = useAccount()
   // const chainId = useCurrentChainId()
-  if (vc.tit !== "0G AI Alignment Node") return null
+  if (vc.tit !== "0G AI Alignment Node" && isTestnet(vc.chain)) return null
   const txs = async () => {
     return [{ abi: abiMockERC721, address: vc.asset, functionName: 'safeMint', args: [address] }]
   }

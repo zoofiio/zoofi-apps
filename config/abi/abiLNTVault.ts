@@ -26,6 +26,12 @@ export const abiLntMarket = parseAbi([
 
 export const abiLntProtocol = parseAbi(['function owner() public view returns (address)', 'function transferOwnership(address newowner) public'])
 
+/**
+ * 
+ *     uint256 public constant FEE_RATE = 30;
+    uint256 public constant FEE_DENOMINATOR = 10000;
+
+ */
 export const abiLntVTSwapHook = parseAbi([
   'function quoteExactInputSingle(QuoteExactSingleParams memory params) external view returns (uint256 amountOut, uint256 gasEstimate)',
   'struct QuoteExactSingleParams {PoolKey poolKey;bool zeroForOne;uint128 exactAmount;bytes hookData;}',
@@ -37,6 +43,7 @@ export const abiLntVTSwapHook = parseAbi([
   'function getVTAndTReserves() external view returns(uint256, uint256)',
   'function reserve0() external view returns(uint256)',
   'function reserve1() external view returns(uint256)',
+  'function FEE_RATE() external view returns(uint256)',
 ])
 
 export const abiMockaVToracle = parseAbi(['function setaVT(uint256 _aVT_) external'])

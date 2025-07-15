@@ -50,7 +50,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         />,
     ]] : []
     const header = ['VT', 'Value', 'Status', 'Redeemable', '']
-    return <div className="card !p-4 bg-white">
+    return <div className="animitem card !p-4 bg-white">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName='py-1 px-0 text-base'
@@ -89,7 +89,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
             />,
         ]
     ] : []
-    return <div className="card !p-4 bg-white">
+    return <div className="animitem card !p-4 bg-white">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName='py-1 px-0 text-base'
@@ -114,17 +114,17 @@ function LP({ vc }: { vc: LntVaultConfig }) {
         '',
         '',
         '',
-        <ApproveAndTx
+        vc.lpYields ? <ApproveAndTx
             disabled={true}
             onTxSuccess={() => reFet(vd.key, lpTVTBalance.key)}
             key="claim"
             className="w-28 font-semibold h-7"
             tx="Claim"
             config={{ abi: abiRewardManager, functionName: 'claimRewards', address: lpTVT.address, args: [address!] }}
-        />
+        /> : ''
     ]] : []
-    const header = ['LP', 'Value', '', 'Yield', 'Airdrops', '']
-    return <div className="card !p-4 bg-white">
+    const header = ['LP', 'Value', '', vc.lpYields ? 'Yield' : '', vc.lpYields ? 'Airdrops' : '', '']
+    return <div className="animitem card !p-4 bg-white">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName='py-1 px-0 text-base'
@@ -141,7 +141,7 @@ export function LntMyPositions({ vc }: { vc: LntVaultConfig }) {
     return <div className="flex flex-col gap-5">
         <div className="font-semibold text-2xl leading-none">My Positions</div>
         <VT vc={vc} />
-        <YT vc={vc} />
+        {vc.ytEnable && <YT vc={vc} />}
         <LP vc={vc} />
     </div>
 }

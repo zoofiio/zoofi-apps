@@ -66,6 +66,9 @@ const SupportICONS: { [k: string]: string } = {
   ['v0G']: 'v0G.png',
   ['y0G']: 'y0G.png',
   ['lp0G']: 'lp0G.png',
+  aethir: 'aethir.png',
+  ATH: 'ATH.png',
+  vATH: 'vATH.png'
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {

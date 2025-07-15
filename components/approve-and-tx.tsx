@@ -215,7 +215,7 @@ export function Txs({
   })
   const txDisabled = disabled || isPending || (typeof txs !== 'function' && txs.length == 0) || !wc
   if (isNetwrong) {
-    return <SwitchNet />
+    return <SwitchNet className={className}/>
   }
   return <BBtn className={twMerge('flex items-center justify-center gap-4', className)} onClick={() => mutate()} busy={isPending} busyShowContent={busyShowTxet} disabled={txDisabled}>
     {tx}

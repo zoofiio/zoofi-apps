@@ -16,8 +16,6 @@ import {
   toHex,
   zeroAddress,
 } from 'viem'
-import { getTokenBy } from './tokens'
-import { number } from 'echarts'
 export const abiUniRouter = parseAbi([
   'function execute(bytes calldata commands, bytes[] calldata inputs) public payable',
   'function execute(bytes calldata commands, bytes[] calldata inputs, uint256 deadline) public payable',
@@ -103,7 +101,7 @@ export function withPermit2({
   ]
 }
 
-export function encodeSingleSwap({
+export async function encodeSingleSwap({
   chainId,
   token0,
   token1,
@@ -114,7 +112,7 @@ export function encodeSingleSwap({
   amountIn,
   amountOutMin = 0n,
   deadline = 60 * 10,
-}: UniSwapConfig): SimulateContractParameters[] {
+}: UniSwapConfig): Promise<SimulateContractParameters[]> {
   const cf = UNI_CONFIGS[chainId]
   const commands = encodePacked(['uint8'], [0x10])
   /**  uint256 internal constant SWAP_EXACT_IN_SINGLE = 0x06;

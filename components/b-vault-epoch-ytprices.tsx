@@ -99,7 +99,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
   }, [prices, isLOG])
   const [ref, { width }] = useMeasure<HTMLDivElement>()
   return (
-    <div className='card p-4 mx-auto w-full min-w-0'>
+    <div className='animitem card p-4 mx-auto w-full min-w-0'>
       <div className='flex justify-between gap-2 items-center'>
         <span className='text-base font-bold'>YT Price Chart</span>
         <span className='text-xs font-medium dark:text-[#FBECEC]'></span>

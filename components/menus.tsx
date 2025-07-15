@@ -39,7 +39,7 @@ const isActiveLink = (pathname: string, li: MenuItem) => {
     const isActiveAsParent = (pathname.split('/').length > li.href.split('/').length && pathname.startsWith(li.href)) && size(li.subs) > 0
     return isActiveStatic || isActiveAsParent
 }
-function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?: number, expand?: boolean }) {
+function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { menu: MenuItem, depth?: number, expand?: boolean, className?: string, animitem?: boolean }) {
     const [isExpand, toggleExpand] = useToggle(expand)
     const pathname = usePathname()
     const isActive = isActiveLink(pathname, menu)
@@ -53,12 +53,12 @@ function MenusItem({ menu, expand = true, depth = 0 }: { menu: MenuItem, depth?:
         <Link target={menu.target} onClickCapture={() => {
             (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
         }} href={menu.disabled ? 'javascript:void(0)' : menu.href} style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
-            className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed opacity-60': menu.disabled, "text-primary": isActive })}>
+            className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed opacity-60': menu.disabled, "text-primary": isActive, 'animitem': animitem }, className)}>
             {menu.icon && <menu.icon />}
             {menu.disabled ? <Tip node={menu.name}>Coming Soon</Tip> : menu.name}
             {menu.subs && <FiChevronRight className={cn('cursor-pointer ml-auto', { "-rotate-90": isExpand })} onClick={onClickToggle} />}
         </Link>
-        {isExpand && menu.subs?.map((item, i) => <MenusItem key={`menusitem_${i}_${depth}`} menu={item} expand={false} depth={depth + 1} />)}
+        {isExpand && menu.subs?.map((item, i) => <MenusItem animitem={animitem} key={`menusitem_${i}_${depth}`} menu={item} expand={false} depth={depth + 1} />)}
     </>
 }
 
@@ -91,7 +91,7 @@ function useShowLntVaultAdmin() {
     })
     return showAdmin || isLOCL
 }
-function MenusContent() {
+function MenusContent({ animitem }: { animitem?: boolean }) {
     const showBvaultAdmin = useShowBvaultAdmin()
     const showLntVaultAdmin = useShowLntVaultAdmin()
     const menus = useMemo(() => {
@@ -120,7 +120,7 @@ function MenusContent() {
         ] as MenuItem[]
     }, [showBvaultAdmin, showLntVaultAdmin])
     return <div className={cn("flex-col gap-2 items-end flex w-full")}>
-        {menus.map((menu, i) => <MenusItem key={`menusitem_${i}`} menu={menu} />)}
+        {menus.map((menu, i) => <MenusItem key={`menusitem_${i}`} menu={menu} animitem={animitem} />)}
     </div>
 }
 export function Menus() {
@@ -152,7 +152,7 @@ export function Menus() {
                     <CoinIcon symbol='logo-alt' size={90} />
                 </Link>
             </div>
-            <MenusContent />
+            <MenusContent animitem />
         </div>
         {/* for mobile */}
         <div ref={refMenus} className={cn("fixed z-50 flex lg:hidden flex-col gap-8 items-center top-[72px] w-[15rem] overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>

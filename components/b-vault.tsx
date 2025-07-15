@@ -246,7 +246,7 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
   const currentTab = data.find((item) => item.tab.toLowerCase() == subtab)?.tab
   return (
     <div className={cn('flex flex-col gap-5', maxClassname, 'max-w-xl')}>
-      <div className='card !p-0 overflow-hidden w-full'>
+      <div className='animitem card !p-0 overflow-hidden w-full'>
         <div className='flex p-5 bg-[#A3D395] gap-5'>
           <PandaLine className='text-[3.375rem]' showbg={true} />
           <div className='flex flex-col gap-2'>
@@ -264,7 +264,7 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
           </button>
         </div>
       </div>
-      <div className='md:col-span-2 card !p-4'>
+      <div className='md:col-span-2 animitem card !p-4'>
         <SimpleTabs currentTab={currentTab} data={data} onTabChange={(tab) => toBVault(r, bvc.vault, 'principal_panda', tab)} />
       </div>
     </div>
@@ -292,7 +292,7 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
   }
   const { roi, restakingIncomesApy, additionalRoi } = useBvaultROI(bvc)
   return (
-    <div className='card !p-0 overflow-hidden flex flex-col'>
+    <div className='animitem card !p-0 overflow-hidden flex flex-col'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
         <VenomLine className='text-[3.375rem]' showbg={true} />
         <div className='flex flex-col gap-2'>
@@ -380,7 +380,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const upForUserAction = useUpBVaultForUserAction(bvc)
   const { roi, roiChange } = useBvaultROI(bvc, outputYTokenForInput, afterYtAssetPrice)
   return (
-    <div className='card !p-4 flex flex-col h-[24.25rem] gap-1'>
+    <div className='animitem card !p-4 flex flex-col h-[24.25rem] gap-1'>
       <AssetInput asset={bvc.assetSymbol} amount={inputAsset} balance={assetBalance} setAmount={setInputAsset} />
       <GetLP address={bvc.asset} />
       <div className='text-base font-bold my-2'>Receive</div>
@@ -472,7 +472,7 @@ function BVaultPoolsOld({ bvc }: { bvc: BVaultConfig }) {
     const fTime = `${fmtDate(itemEpoch.startTime * 1000n)}-${fmtDate((itemEpoch.startTime + itemEpoch.duration) * 1000n)}`
     return (
       <div key={key} style={style} className='cursor-pointer' onClick={() => onRowClick(index)}>
-        <div className={cn('h-[56px] card !rounded-lg !px-5 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
+        <div className={cn('h-[56px] animitem card !rounded-lg !px-5 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
           <div className='text-sm'>Epoch {epoches[index].epochId.toString()}</div>
           <div className='text-xs dark:text-white/60 mt-1'>{fTime}</div>
         </div>
@@ -480,7 +480,7 @@ function BVaultPoolsOld({ bvc }: { bvc: BVaultConfig }) {
     )
   }
   return (
-    <div className='md:h-[24.25rem] card !p-4'>
+    <div className='md:h-[24.25rem] animitem card !p-4'>
       <div className='font-bold text-base'>Harvest</div>
       <div className={cn('flex flex-col md:flex-row gap-4 mt-2')}>
         <div className='flex flex-col gap-4 shrink-0 w-full md:w-[14.375rem]' ref={mesRef}>
@@ -581,7 +581,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
     const fTime = `${fmtDate(itemEpoch.startTime * 1000n)}-${fmtDate((itemEpoch.startTime + itemEpoch.duration) * 1000n)}`
     return (
       <div key={key} style={style} className='cursor-pointer' onClick={() => onRowClick(index)}>
-        <div className={cn('h-[56px] card !rounded-lg !px-4 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
+        <div className={cn('h-[56px] animitem card !rounded-lg !px-4 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
           <div className='text-sm'>Epoch {epoches[index].epochId.toString()}</div>
           <div className='text-xs opacity-60 mt-1'>{fTime}</div>
         </div>
@@ -589,7 +589,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
     )
   }
   return (
-    <div className='md:h-[24.25rem] card !p-4'>
+    <div className='md:h-[24.25rem] animitem card !p-4'>
       <div className='font-bold text-base'>Harvest</div>
       <div className={cn('flex flex-col md:flex-row gap-4 mt-2')}>
         <div className='flex flex-col gap-4 shrink-0 w-full md:w-[11.5625rem]' ref={mesRef}>
@@ -727,7 +727,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   const settleDuration = bvd.epochCount == 0n ? '' : fmtDuration((bvd.current.startTime + bvd.current.duration) * 1000n - BigInt(_.now()))
   const { roi } = useBvaultROI(vc)
   return (
-    <div className={cn('card !p-0 grid grid-cols-2 overflow-hidden', {})}>
+    <div className={cn('animitem card !p-0 grid grid-cols-2 overflow-hidden', {})}>
       <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center')}>
         {Boolean(lp) ? <DoubleCoinIcon symbol1={token1} symbol2={token2} size={28} /> : <CoinIcon symbol={vc.assetSymbol} size={44} />}
         <div>
@@ -783,7 +783,7 @@ export function BVaultCardComming({ symbol }: { symbol: string }) {
   const [token1, token2] = (symbol || '').split('-')
 
   return (
-    <div className={cn('card cursor-pointer !p-0 grid grid-cols-2 overflow-hidden h-[419px]', {})}>
+    <div className={cn('animitem card cursor-pointer !p-0 grid grid-cols-2 overflow-hidden h-[419px]', {})}>
       <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center h-20')}>
         {
           symbol && <>

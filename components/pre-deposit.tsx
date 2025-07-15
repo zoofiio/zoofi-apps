@@ -98,7 +98,7 @@ const nlImages: { [k: string]: { src: string, width: string, height: string } } 
 export function NodeLicenseInfo({ data }: { data: NodeLicense }) {
     return <div style={{
         backdropFilter: 'blur(20px)'
-    }} className="bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-[25rem]" >
+    }} className="animitem bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-[25rem]" >
         <div className="flex gap-7 flex-wrap">
             {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
             <CoinIcon symbol="ReppoNft" size={161} />
@@ -248,7 +248,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
     const { data: { deposited, nfts }, refetch: reFetUser } = usePreDepositByUser(data)
     return <div style={{
         backdropFilter: 'blur(20px)'
-    }} className="bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-max" >
+    }} className="animitem bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-max" >
         {/* title */}
         <div className="flex justify-between items-center">
             <div className="flex flex-col gap-2">

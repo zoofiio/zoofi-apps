@@ -106,9 +106,9 @@ function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVa
 }
 export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
   return (
-    <div className='card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5'>
-      <ChartItem tit='VT' types={["VT APY", 'VT Price']} vc={vc} />
-      <ChartItem tit='YT' types={["YT APY", 'YT Price']} vc={vc} />
+    <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5'>
+      <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} />
+      <ChartItem tit='Price' types={vc.ytEnable ? ["YT Price", 'VT Price'] : ['VT Price']} vc={vc} />
     </div>
   )
 }
