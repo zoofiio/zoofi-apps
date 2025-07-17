@@ -1,8 +1,5 @@
+import { DomainRef } from '@/constants'
 import { useEffect } from 'react'
-
-export const DomainRef = {
-  value: 'zoofi.io',
-}
 
 const supportDomain = ['zoofi.io', 'zoofi.xyz']
 

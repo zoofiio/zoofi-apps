@@ -1,6 +1,7 @@
 import { TypeENV } from './config/env'
-import { DomainRef } from './hooks/useConfigDomain'
-
+export const DomainRef = {
+  value: 'zoofi.io',
+}
 const TWITTER_LINK = 'https://x.com/ZooFinanceIO'
 const DISCORD_LINK = 'https://t.co/RJwdwdawe5'
 

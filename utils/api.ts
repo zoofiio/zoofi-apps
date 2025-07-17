@@ -1,6 +1,6 @@
 import { SUPPORT_CHAINS } from '@/config/network'
-import { isPROD } from '@/constants'
-import { DomainRef } from '@/hooks/useConfigDomain'
+import { isPROD, DomainRef } from '@/constants'
+
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 
 const api: { [k: string]: AxiosInstance } = {}

@@ -1,9 +1,8 @@
-import { LntVaultConfig } from '@/config/lntvaults'
-import { useFet } from '@/lib/useFet'
-import { useCurrentChainId } from './useCurrentChainId'
-import { getPC } from '@/providers/publicClient'
 import { abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
+import { LntVaultConfig } from '@/config/lntvaults'
+import { useFet } from '@/lib/useFet'
+import { getPC } from '@/providers/publicClient'
 import { Address, PublicClient } from 'viem'
 import { useAccount } from 'wagmi'
 
@@ -13,10 +12,12 @@ export const FET_KEYS = {
   LntVaultOperators: (vc: LntVaultConfig, nodeOP?: Address) => (nodeOP ? `fetLntVaultOperators:${nodeOP}` : ''),
 }
 export function useLntVault(vc: LntVaultConfig) {
-  const chainId = useCurrentChainId()
   return useFet({
     key: FET_KEYS.LntVault(vc),
-    fetfn: async () => getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }).then(res => ({...res, expiryTime: 1798560000n})),
+    fetfn: async () =>
+      getPC(vc.chain)
+        .readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] })
+        .then((res) => ({ ...res, expiryTime: 1798560000n })),
   })
 }
 
@@ -26,13 +27,12 @@ export async function getRewardsBy(rewradManager: Address, user: Address, pc: Pu
     .then((item) => item.map((r) => [r.token, r.value] as [Address, bigint]))
 }
 export function useLntVaultYTRewards(vc: LntVaultConfig) {
-  const chainId = useCurrentChainId()
   const vd = useLntVault(vc)
   const { address } = useAccount()
   const rewards = useFet({
     key: FET_KEYS.LntVaultYTRewards(vc, vd.result?.YT, address),
     fetfn: async () => {
-      const pc = getPC(chainId)
+      const pc = getPC(vc.chain)
       return getRewardsBy(vd.result!.YT, address!, pc)
     },
   })
@@ -43,13 +43,12 @@ export function useLntVaultYTRewards(vc: LntVaultConfig) {
 }
 
 export function useLntVaultOperators(vc: LntVaultConfig) {
-  const chainId = useCurrentChainId()
   const vd = useLntVault(vc)
   const operators = useFet({
     key: FET_KEYS.LntVaultOperators(vc, vd.result?.nodeDelegator),
     initResult: [],
     fetfn: async () => {
-      const pc = getPC(chainId)
+      const pc = getPC(vc.chain)
       const opaddress = await pc.readContract({ abi: abiMockNodeDelegator, address: vd.result!.nodeDelegator, functionName: 'operators' })
       return Promise.all(
         opaddress.map((item) =>

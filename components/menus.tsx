@@ -22,7 +22,7 @@ import { isAddressEqual } from "viem"
 import { LNTVAULTS_CONFIG } from "@/config/lntvaults"
 import { abiLntProtocol } from "@/config/abi/abiLNTVault"
 import { isLOCL } from "@/constants"
-
+import { AiFillApi } from "react-icons/ai";
 
 export type MenuItem = {
     name: string,
@@ -104,7 +104,10 @@ function MenusContent({ animitem }: { animitem?: boolean }) {
                     { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },
                     { href: '/lnt/portfolio', name: 'Portfolio', icon: LuUserCircle, disabled: true },
                     { href: '/lnt/dashboard', name: 'Dashboard', icon: LuLineChart, disabled: true },
-                    ...(showLntVaultAdmin ? [{ href: '/lnt/admin', name: 'Admin', icon: LuLineChart }] : [])
+                    ...(showLntVaultAdmin ? [
+                        { href: '/lnt/ops', name: 'Ops', icon: AiFillApi },
+                        { href: '/lnt/admin', name: 'Admin', icon: LuLineChart },
+                    ] : [])
                 ]
             },
             {

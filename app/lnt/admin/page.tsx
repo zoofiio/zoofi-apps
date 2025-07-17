@@ -20,12 +20,12 @@ export default function AdminPage() {
       <div className='w-full flex'>
         <MultiTxTemp />
         <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
-          <div className="text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
+          <div className="animitem text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
             {JSON.stringify({
               'Decimal18': '000000000000000000'
             }, undefined, 2)}
           </div>
-          <SimpleSelect className='w-full' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
+          <SimpleSelect className='w-full animitem' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
             current && <ConfigChainsProvider chains={[current.vc.chain]}>
               <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />

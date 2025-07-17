@@ -1,8 +1,7 @@
 'use client'
 
-import { DISCORD_LINK, DOC_LINK, TWITTER_LINK } from '@/constants'
+import { DISCORD_LINK, DOC_LINK, DomainRef, TWITTER_LINK } from '@/constants'
 
-import { DomainRef } from '@/hooks/useConfigDomain'
 import Link from 'next/link'
 import { useMemo } from 'react'
 import { TbBook2, TbBrandDiscordFilled, TbBrandX } from 'react-icons/tb'

@@ -1,6 +1,7 @@
 import { animate, createSpring, stagger } from 'animejs'
 import { useEffect, useRef } from 'react'
-
+const staggerdelay = 70;
+const animduration = 400
 export function useInitAnimRoot(classname: string = 'animitem') {
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -24,15 +25,15 @@ export function useInitAnimRoot(classname: string = 'animitem') {
             scale: { from: 0.8 },
             // rotate: { from: 30 },
             // skewX: { from: 30 },
-            delay: stagger(100),
+            delay: stagger(staggerdelay),
             ease: createSpring({ stiffness: 70 }),
-            duration: stagger(100, { start: 500 }),
+            duration: stagger(staggerdelay, { start: animduration }),
           })
         }
       }
     }
     const mo = new MutationObserver(onChange)
-    onChange()
+    // onChange()
     mo.observe(root.current, { subtree: true, childList: true })
     // Properly cleanup all anime.js instances declared inside the scope
     return () => mo.disconnect()

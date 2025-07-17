@@ -49,7 +49,7 @@ export function Expandable({ children, tit, disable }: { tit: string; children?:
   const [open, setOpen] = useState(false)
 
   return (
-    <div className='flex flex-col w-full bg-white dark:bg-transparent rounded-lg overflow-hidden border border-solid border-primary/40'>
+    <div className='animitem flex flex-col w-full bg-white dark:bg-transparent rounded-lg overflow-hidden border border-solid border-primary/40'>
       <div className='px-5 py-2 min-h-[58px] flex justify-between items-center text-sm'>
         <div className='font-medium text-base'>{tit}</div>
         {disable ? (
