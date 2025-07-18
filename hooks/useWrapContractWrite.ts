@@ -29,7 +29,6 @@ export function useWrapContractWrite<
   const { data: wc } = useWalletClient()
   const chainId = useCurrentChainId()
   const isDisabled = !wc || !wc.account || isLoading || !config || wc.chain.id !== chainId
-  // const wt = useWandTimestamp()
   const write = async () => {
     if (isDisabled) return
     setIsLoading(true)

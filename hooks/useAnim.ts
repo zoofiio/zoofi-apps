@@ -33,9 +33,8 @@ export function useInitAnimRoot(classname: string = 'animitem') {
       }
     }
     const mo = new MutationObserver(onChange)
-    // onChange()
+    onChange()
     mo.observe(root.current, { subtree: true, childList: true })
-    // Properly cleanup all anime.js instances declared inside the scope
     return () => mo.disconnect()
   }, [root.current])
   return root

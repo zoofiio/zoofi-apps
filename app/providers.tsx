@@ -29,51 +29,49 @@ const client = new ApolloClient({
 
 const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 } } })
 
+const isTgMini = true
+const storage = createStorage({
+  storage: {
+    getItem: (key) => typeof window !== 'undefined' ? window.localStorage.getItem(key) : undefined,
+    removeItem: (key) => typeof window !== 'undefined' ? window.localStorage.removeItem(key) : undefined,
+    setItem: (key, value) => {
+      key !== 'wagmi.cache' && typeof window !== 'undefined' && localStorage.setItem(key, value)
+    },
+  },
+})
+const appName = 'ZooFi'
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [injectedWallet, metaMaskWallet, coinbaseWallet, binanceWallet, okxWallet, bitgetWallet, tokenPocketWallet, gateWallet, walletConnectWallet],
+    },
+  ],
+  {
+    appName,
+    projectId: walletConnectProjectId,
+  },
+)
+
+
+const config = createConfig({
+  connectors,
+  storage,
+  chains: SUPPORT_CHAINS,
+  client: ({ chain }) =>
+    createClient({
+      chain,
+      transport: http(undefined, { batch: apiBatchConfig }),
+      batch: { multicall: multicallBatchConfig },
+    }),
+})
 export function Providers({ children, supportChains = SUPPORT_CHAINS }: { children: React.ReactNode, supportChains?: readonly [Chain, ...Chain[]] }) {
-  const [config, setConfig] = React.useState<ReturnType<typeof createConfig>>()
-  React.useEffect(() => {
-    // const isTgMini = Boolean((window as any).Telegram?.WebApp?.platform) && (window as any).Telegram?.WebApp?.platform !== 'unknown'
-    const isTgMini = true
-    const storage = createStorage({
-      storage: {
-        getItem: (key) => window.localStorage.getItem(key),
-        removeItem: (key) => window.localStorage.removeItem(key),
-        setItem: (key, value) => {
-          key !== 'wagmi.cache' && localStorage.setItem(key, value)
-        },
-      },
-    })
-    const appName = 'ZooFi'
-    const connectors = connectorsForWallets(
-      [
-        {
-          groupName: 'Recommended',
-          wallets: [injectedWallet, metaMaskWallet, coinbaseWallet, binanceWallet, okxWallet, bitgetWallet, tokenPocketWallet, gateWallet, walletConnectWallet],
-        },
-      ],
-      {
-        appName,
-        projectId: walletConnectProjectId,
-      },
-    )
+  // const [config, setConfig] = React.useState<ReturnType<typeof createConfig>>()
+  // React.useEffect(() => {
+  //   // const isTgMini = Boolean((window as any).Telegram?.WebApp?.platform) && (window as any).Telegram?.WebApp?.platform !== 'unknown'
 
-
-    setConfig(
-      createConfig({
-        connectors,
-        storage,
-        chains: supportChains,
-        client: ({ chain }) =>
-          createClient({
-            chain,
-            transport: http(undefined, { batch: apiBatchConfig }),
-            batch: { multicall: multicallBatchConfig },
-          }),
-      }),
-    )
-  }, [])
+  // }, [])
   const theme = useThemeState((s) => s.theme)
-  if (!config) return null
   return (
     <ApolloProvider client={client}>
       <WagmiProvider config={config}>

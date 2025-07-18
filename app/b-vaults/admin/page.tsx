@@ -4,32 +4,20 @@ import { ApproveAndTx } from '@/components/approve-and-tx'
 import { Expandable, GeneralAction, inputClassname, selectClassNames } from '@/components/general-action'
 import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
-import { abiBVault, abiMockPriceFeed, abiProtocolSettings, abiPtyPool, abiVault, abiZooProtocol } from '@/config/abi'
+import { abiBVault, abiProtocolSettings, abiZooProtocol } from '@/config/abi'
 import { useVaultsConfigs } from '@/hooks/useVaultsConfigs'
-import { useWandContractRead, useWandContractReads } from '@/hooks/useWand'
 import { cn, parseEthers } from '@/lib/utils'
 import { useMemo } from 'react'
 import { FaSpinner } from 'react-icons/fa6'
 import Select from 'react-select'
 import { useMeasure, useSetState } from 'react-use'
-import { Address, erc20Abi, formatEther, formatUnits, isAddress, parseUnits, stringToHex } from 'viem'
+import { Address, erc20Abi, formatUnits, isAddress, parseUnits, stringToHex } from 'viem'
+import { useReadContracts } from 'wagmi'
 
 type ParamItem = { label: string; value: string; units?: number /** def 10 */ }
 
 const BVaultParams: ParamItem[] = [
   { label: '产品周期', value: 'D', units: 0 },
-  { label: '初始定价', value: 'APRi' },
-  // { label: '保底定价', value: 'APRl' },
-  // { label: '衰减时长', value: 'T', units: 0 },
-  // { label: '价格变动系数', value: 'e1', units: 0 },
-  // { label: '斜率变动系数', value: 'e2', units: 0 },
-  { label: '赎回手续费', value: 'f1' },
-  { label: '利息佣金', value: 'f2' },
-]
-const LntVaultParams: ParamItem[] = [
-  { label: '产品周期', value: 'D', units: 0 },
-  { label: 'Nft质押Claim等待时间', value: 'NftDepositLeadingTime', units: 0 },
-  { label: 'Nft赎回等待时间', value: 'NftRedeemWaitingPeriod', units: 0 },
   { label: '初始定价', value: 'APRi' },
   // { label: '保底定价', value: 'APRl' },
   // { label: '衰减时长', value: 'T', units: 0 },
@@ -45,7 +33,7 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress }: { paramL
     value: '',
     param: params[0],
   })
-  const { data, refetch } = useWandContractReads({
+  const { data, refetch } = useReadContracts({
     contracts: paramList.map((p) => ({
       abi: abiProtocolSettings,
       address: protocoSettingAddress,

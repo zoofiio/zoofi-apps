@@ -9,13 +9,16 @@ import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import { Providers } from './providers';
 import { useInitAnimRoot } from '@/hooks/useAnim';
+import { useEffectOnce, useMount } from 'react-use';
+import { useIsClient } from '@/hooks/useIsClient';
 
 export default function PageLayout({ children }: { children: ReactNode }) {
   useConfigDomain()
   const root = useInitAnimRoot()
+  const isClient = useIsClient()
   return (
     <div ref={root}>
-      <Providers>
+      {isClient && <Providers>
         <div className='w-screen h-screen overflow-auto flex justify-center relative'>
           <div className='flex justify-center w-full max-w-[1400px] h-max relative'>
             <Menus />
@@ -28,7 +31,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
         <Toaster position='top-right' offset={70} />
         {/* <BetaFlag /> */}
         <PageLoading />
-      </Providers>
+      </Providers>}
     </div>
   )
 }
