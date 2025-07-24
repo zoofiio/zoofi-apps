@@ -4,7 +4,7 @@ import axios from 'axios'
 import { parseEthers } from '@/lib/utils'
 import { DECIMAL } from '@/constants'
 import _ from 'lodash'
-import { base, berachain, sepolia } from '../network'
+import { arbitrum, base, berachain, sepolia } from '../network'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -114,6 +114,7 @@ const aclchemyMap: { [k: number]: string } = {
   [sepolia.id]: 'eth-sepolia',
   [base.id]: 'base-mainnet',
   [berachain.id]: 'berachain-mainnet',
+  [arbitrum.id]: 'arb-mainnet',
 }
 export const getNftsByAlchemy = async (chainId: number, nft: Address, owner: Address) => {
   if (!aclchemyMap[chainId]) {

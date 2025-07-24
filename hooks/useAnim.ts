@@ -10,7 +10,7 @@ export function useInitAnimRoot(classname: string = 'animitem') {
     let lastTargets: Element[] = []
     const onChange = (data?: MutationRecord[]) => {
       const added = !data || data.find((item) => item.type === 'childList' && item.addedNodes.length)
-      console.info('AnimChange:', added)
+      // console.info('AnimChange:', added)
       if (added && root.current) {
         const nTargets = root.current.getElementsByClassName(classname)
         const targets: Element[] = []

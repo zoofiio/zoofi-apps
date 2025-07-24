@@ -8,7 +8,6 @@ import { Spinner } from '@/components/spinner'
 import { ConfigChainsProvider } from '@/components/support-chains'
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { ENV } from '@/constants'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLntVault } from '@/hooks/useFetLntVault'
 import { isError, isLoading, isSuccess } from '@/lib/useFet'
 
@@ -26,13 +25,14 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
         <LNTTestHeader vc={vc} />
         <LNTInfo vc={vc} />
         <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4 xl:gap-5'>
-          {/* <LNTDepositWithdraw vc={vc} /> */}
           <LntVaultChart vc={vc} />
           <LNT_VT_YT vc={vc} />
         </div>
         <LntMyPositions vc={vc} />
-        <div>Operators</div>
-        <LntOperators vc={vc} />
+        {vc.MockNodeDelegator && <>
+          <div>Operators</div>
+          <LntOperators vc={vc} />
+        </>}
       </>}
     </div>
   )

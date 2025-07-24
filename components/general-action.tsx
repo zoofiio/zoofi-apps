@@ -1,8 +1,8 @@
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { cn, handleError, parseEthers } from '@/lib/utils'
+import { cn, handleError, parseEthers, promiseT } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { useMutation } from '@tanstack/react-query'
-import { toString } from 'lodash'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { isNil, toString } from 'lodash'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
@@ -13,6 +13,7 @@ import { Abi, AbiFunction, AbiParameter, Address, erc20Abi, isAddress, stringToH
 import { ApproveAndTx, Txs } from './approve-and-tx'
 import { BBtn } from './ui/bbtn'
 import { AddMultiTx } from './multitxs'
+import { Spinner } from './spinner'
 
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
@@ -83,7 +84,7 @@ export function GeneralAction({
   address: Address
   functionName: string
   tit?: string
-  infos?: ReactNode
+  infos?: any | (() => Promise<any>)
   argsDef?: string[]
   convertArg?: (arg: string, i: number, param: AbiParameter) => any
   onArgs?: (args: string[]) => void
@@ -95,6 +96,11 @@ export function GeneralAction({
   useEffect(() => {
     onArgs && onArgs(args)
   }, [args])
+  const { data: qInfo, isLoading, isError, refetch } = useQuery({
+    queryKey: ['queryInfo', address, functionName, infos],
+    enabled: Boolean(infos),
+    queryFn: async () => promiseT(infos)
+  })
   const margs = useMemo(() => args.map((arg, i) => arg || argsDef?.[i] || ''), [argsDef, args])
   const chaindId = useCurrentChainId()
   const { data, mutate: doRead, isPending: isReadLoading } = useMutation({
@@ -103,7 +109,7 @@ export function GeneralAction({
     },
     onError: handleError
   })
-  const readInfos = typeof data == 'object' ? JSON.stringify(data, undefined, 2) : toString(data)
+
   if (!abiItem) return
   const isWrite = abiItem.stateMutability.includes("payable")
   const disableExpand = (!abiItem.inputs || abiItem.inputs.length == 0) && isWrite
@@ -125,13 +131,24 @@ export function GeneralAction({
 
         </div>
       ))}
-      {infos}
-      {readInfos}
+
+      <div className={cn('whitespace-pre-wrap')}>
+        {isLoading && <Spinner />}
+        {!isNil(qInfo) && JSON.stringify(qInfo, undefined, 2)}
+      </div>
+
+      <div className={cn('whitespace-pre-wrap')}>
+        {!isNil(data) && JSON.stringify(data, undefined, 2)}
+      </div>
       {
         isWrite ?
           <div className='flex gap-5 items-center'>
             <Txs
               {...(txProps || {})}
+              onTxSuccess={() => {
+                Boolean(infos) && refetch()
+                txProps?.onTxSuccess?.()
+              }}
               tx='Write'
               txs={[{
                 abi,
@@ -164,7 +181,7 @@ export function GeneralAction({
 }
 
 
-export function ContractAll({ abi, address }: { abi: Abi, address: Address }) {
+export function ContractAll({ abi, address, tit }: { abi: Abi, address: Address, tit: string }) {
   const [reads, writes] = useMemo(() => {
     const reads = []
     const writes = []
@@ -180,16 +197,18 @@ export function ContractAll({ abi, address }: { abi: Abi, address: Address }) {
     }
     return [reads, writes]
   }, [abi])
-  return <div className='grid grid-cols-2 gap-4'>
-    <div className='flex flex-col gap-2'>
-      <div className='font-bold text-2xl'>Read</div>
-      {reads.map((item, i) => <GeneralAction key={`read_${i}`} abi={[item]} address={address} functionName={item.name} />)}
+  return <Expandable tit={tit}>
+    <div className='grid grid-cols-5 gap-4'>
+      <div className='flex flex-col gap-2 col-span-2'>
+        <div className='font-bold text-2xl'>Read</div>
+        {reads.map((item, i) => <GeneralAction key={`read_${i}`} abi={[item]} address={address} functionName={item.name} />)}
+      </div>
+      <div className='flex flex-col gap-2 col-span-3'>
+        <div className='font-bold text-2xl'>Write</div>
+        {writes.map((item, i) => <GeneralAction key={`write_${i}`} abi={[item]} address={address} functionName={item.name} />)}
+      </div>
     </div>
-    <div className='flex flex-col gap-2'>
-      <div className='font-bold text-2xl'>Write</div>
-      {writes.map((item, i) => <GeneralAction key={`write_${i}`} abi={[item]} address={address} functionName={item.name} />)}
-    </div>
-  </div>
+  </Expandable>
 }
 
 

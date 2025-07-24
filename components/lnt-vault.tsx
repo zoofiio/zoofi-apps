@@ -3,13 +3,13 @@ import { abiMockERC721 } from '@/config/abi'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
-import { isTestnet, zeroGTestnet } from '@/config/network'
+import { zeroGTestnet } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain, useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useLntVault, useLntVaultOperators } from '@/hooks/useFetLntVault'
+import { useLntHookPoolkey, useLntVault, useLntVaultOperators } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
 import { cn, fmtBn, fmtDuration, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, sqrt, uniSortTokens } from '@/lib/utils'
@@ -92,7 +92,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
           address: vc.vault,
           functionName: 'batchDeposit',
           enabled: tokenIds.length > 0,
-          args: [tokenIds, tokenIds.map(() => 1n)]
+          args: vc.isAethir ? [tokenIds] : [tokenIds, tokenIds.map(() => 1n)]
         }
       ]} />
   </div>
@@ -180,7 +180,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
     <div className={cn('animitem card overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
       <div className='flex items-center gap-5'>
         <CoinIcon symbol={vc.icon} size={120} className='object-contain' style={{ height: 60 }} />
-        {chain.testnet && <Badge text='Testnet' />}
+        <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet })} />
       </div>
       <div className={itemClassname}>
         <div className={itemTitClassname}>Total Delegated</div>
@@ -190,10 +190,10 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
         <div className={itemTitClassname}>VT Supply</div>
         <div>{displayBalance(vtTotalSupply.result)}</div>
       </div>
-      {vc.ytEnable && <div className={itemClassname}>
+      <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
         <div className={itemTitClassname}>YT Supply</div>
         <div>{displayBalance(ytTotalSupply.result)}</div>
-      </div>}
+      </div>
       <div className={itemClassname}>
         <div className={itemTitClassname}>VT Buyback</div>
         <div className="flex w-36 items-center ">
@@ -293,25 +293,26 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const inputBalance = useBalance(input);
   const outputBalance = useBalance(output);
   const [token0, token1] = useMemo(() => uniSortTokens([vd.result!.T, vd.result!.VT]), [vd.result])
+  const poolkey = useLntHookPoolkey(vc)
   const zeroForOne = isAddressEqual(input.address, token0)
   const { data: outAmount, isFetching: isFetchingCalc } = useQuery({
-    queryKey: useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, zeroForOne, chainId]),
+    queryKey: useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, zeroForOne, chainId, poolkey.result, isToggled]),
     initialData: 0n,
     queryFn: async () => {
       if (type == 'yt') return 0n
       const pc = getPC(chainId)
-      if (!vd.result || inputAssetBn <= 0n) return 0n
+      if (!vd.result || inputAssetBn <= 0n || !poolkey.result) return 0n
       console.info('vd:', vd.result)
+      if (vc.isAethir) {
+        return pc.readContract({
+          abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: isToggled ? 'getAmountOutVTforT' : 'getAmountOutTforVT',
+          args: [inputAssetBn],
+        })
+      }
       return pc.readContract({
         abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'quoteExactInputSingle',
         args: [{
-          poolKey: {
-            currency0: token0,
-            currency1: token1,
-            fee: vd.result.vtSwapPoolFee,
-            tickSpacing: vd.result.vtSwapPoolTickSpacing,
-            hooks: vd.result.vtSwapPoolHook
-          },
+          poolKey: poolkey.result,
           zeroForOne,
           exactAmount: inputAssetBn,
           hookData: '0x'
@@ -332,7 +333,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const apy = 1.2
   const apyto = apy
   // const outAmount = 0n
-  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n
+  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
   return <div className='flex flex-col gap-1'>
     <AssetInput asset={input.symbol} balance={inputBalance.result} amount={inputAsset} setAmount={setInputAsset} />
     <Swap onClick={() => toggle()} />
@@ -350,7 +351,9 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       tx='Swap'
       disabled={disableTx}
       txs={() => encodeSingleSwap({
-        chainId, token0, token1, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, amountIn: inputAssetBn,
+        chainId,
+        poolkey: poolkey.result!,
+        amountIn: inputAssetBn,
         is0To1: zeroForOne
       })}
       onTxSuccess={() => {
@@ -365,6 +368,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
 
   const { address } = useAccount()
   const vd = useLntVault(vc)
+  const poolkey = useLntHookPoolkey(vc)
   const [isToggled, toggle] = useToggle(false)
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
@@ -441,7 +445,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const outLoading = isFetchingOut && input1AssetBn > 0n
   const txs = async () => {
     if (type == 'yt') {
-      return encodeModifyLP({ chainId: vc.chain, lp: vd.result!.vtSwapPoolHook, token0, token1, liquidity, amount0Max, amount1Max, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })
+      return encodeModifyLP({ chainId: vc.chain, lp: vd.result!.vtSwapPoolHook, poolkey: poolkey.result!, liquidity, amount0Max, amount1Max, })
     }
     // struct AddLiquidityParams {uint256 amount0Desired;uint256 amount1Desired;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
     return withTokenApprove({
@@ -494,6 +498,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
 function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const chainId = useCurrentChainId()
   const vd = useLntVault(vc)
+  const poolkey = useLntHookPoolkey(vc)
   const [inputAsset, setInputAsset] = useState('')
   const inputAssetBn = parseEthers(inputAsset)
   const t = getTokenBy(vd.result!.T, chainId, { symbol: 'T' })!
@@ -538,7 +543,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result
   const txs = (): SimulateContractParameters[] => {
     if (type == 'yt') {
-      return encodeModifyLP({ chainId, lp: vd.result!.vtSwapPoolHook, token0, token1, liquidity: -inputAssetBn, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, })
+      return encodeModifyLP({ chainId, poolkey: poolkey.result!, lp: vd.result!.vtSwapPoolHook, liquidity: -inputAssetBn, })
     }
     // struct RemoveLiquidityParams {uint256 liquidity;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
     return [
@@ -680,7 +685,7 @@ export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
 export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
   const { address } = useAccount()
   // const chainId = useCurrentChainId()
-  if (vc.tit !== "0G AI Alignment Node" && isTestnet(vc.chain)) return null
+  if (vc.tit !== "0G AI Alignment Node") return null
   const txs = async () => {
     return [{ abi: abiMockERC721, address: vc.asset, functionName: 'safeMint', args: [address] }]
   }

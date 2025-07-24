@@ -65,11 +65,13 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
 }
 export type UniSwapConfig = {
   chainId: number
-  token0: Address
-  token1: Address
-  fee: number
-  tickSpacing: number
-  hooks?: Address
+  poolkey: {
+    currency0: Address
+    currency1: Address
+    fee: number
+    tickSpacing: number
+    hooks?: Address
+  }
   is0To1?: boolean
   amountIn: bigint
   amountOutMin?: bigint
@@ -82,7 +84,7 @@ export function withPermit2({
   spender,
   amountIn,
   expiration = Math.round(_.now() / 1000 + 60 * 10),
-  tx
+  tx,
 }: {
   input: Address
   permit2: Address
@@ -101,18 +103,7 @@ export function withPermit2({
   ]
 }
 
-export async function encodeSingleSwap({
-  chainId,
-  token0,
-  token1,
-  fee,
-  tickSpacing,
-  hooks = zeroAddress,
-  is0To1 = true,
-  amountIn,
-  amountOutMin = 0n,
-  deadline = 60 * 10,
-}: UniSwapConfig): Promise<SimulateContractParameters[]> {
+export async function encodeSingleSwap({ chainId, poolkey, is0To1 = true, amountIn, amountOutMin = 0n, deadline = 60 * 10 }: UniSwapConfig): Promise<SimulateContractParameters[]> {
   const cf = UNI_CONFIGS[chainId]
   const commands = encodePacked(['uint8'], [0x10])
   /**  uint256 internal constant SWAP_EXACT_IN_SINGLE = 0x06;
@@ -121,10 +112,11 @@ export async function encodeSingleSwap({
     uint256 internal constant SWAP_EXACT_OUT = 0x09; */
   // action,
   const actions = encodePacked(['uint8', 'uint8', 'uint8'], [0x06, 0x0c, 0x0f])
-  const input = is0To1 ? token0 : token1
-  const out = is0To1 ? token1 : token0
+  const input = is0To1 ? poolkey.currency0 : poolkey.currency1
+  const out = is0To1 ? poolkey.currency1 : poolkey.currency0
   const expiration = Math.round(_.now() / 1000 + deadline)
   const params: Hex[] = ['0x', '0x', '0x']
+  if (!poolkey.hooks) poolkey.hooks = zeroAddress
   params[0] = encodeAbiParameters(
     parseAbiParameters([
       'ExactInputSingleParams',
@@ -133,13 +125,7 @@ export async function encodeSingleSwap({
     ]),
     [
       {
-        poolKey: {
-          currency0: token0,
-          currency1: token1,
-          fee,
-          tickSpacing,
-          hooks,
-        },
+        poolKey: poolkey as any,
         zeroForOne: is0To1,
         amountIn: amountIn,
         amountOutMinimum: amountOutMin,
@@ -169,11 +155,13 @@ export async function encodeSingleSwap({
 export type UniModifyLP = {
   chainId: number
   lp: Address
-  token0: Address
-  token1: Address
-  fee: number
-  tickSpacing: number
-  hooks?: Address
+  poolkey: {
+    currency0: Address
+    currency1: Address
+    fee: number
+    tickSpacing: number
+    hooks?: Address
+  }
   liquidity: bigint
   amount0Max?: bigint
   amount1Max?: bigint
@@ -184,12 +172,8 @@ export type UniModifyLP = {
 }
 export function encodeModifyLP({
   chainId,
-  fee,
-  tickSpacing,
-  hooks = zeroAddress,
   lp,
-  token0,
-  token1,
+  poolkey,
   liquidity,
   amount0Max,
   amount1Max,
@@ -201,11 +185,8 @@ export function encodeModifyLP({
   const cf = UNI_CONFIGS[chainId]
   const expiration = Math.round(_.now() / 1000 + deadline)
   const poolKey = {
-    currency0: token0,
-    currency1: token1,
-    fee,
-    tickSpacing,
-    hooks,
+    ...poolkey,
+    hooks: poolkey.hooks ?? zeroAddress,
   }
   const modifyLpParams = {
     tickLower,
@@ -218,11 +199,11 @@ export function encodeModifyLP({
     // withPermit2({ input: token0, permit2: cf.permit2, spender: cf.poolmanager, amountIn: amount0Max!, })
     return [
       // approve to permit2
-      { abi: erc20Abi, address: token0, functionName: 'approve', args: [cf.permit2, amount0Max] },
-      { abi: erc20Abi, address: token1, functionName: 'approve', args: [cf.permit2, amount1Max] },
+      { abi: erc20Abi, address: poolKey.currency0, functionName: 'approve', args: [cf.permit2, amount0Max] },
+      { abi: erc20Abi, address: poolKey.currency1, functionName: 'approve', args: [cf.permit2, amount1Max] },
       // permit2 approve
-      { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [token0, cf.poolmanager, amount0Max, expiration] },
-      { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [token1, cf.poolmanager, amount1Max, expiration] },
+      { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [poolKey.currency0, cf.poolmanager, amount0Max, expiration] },
+      { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [poolKey.currency1, cf.poolmanager, amount1Max, expiration] },
       // router execute
       { abi: abiPoolManager, functionName: 'modifyLiquidity', address: cf.poolmanager, args: [poolKey, modifyLpParams, hookData] },
     ]
@@ -231,7 +212,7 @@ export function encodeModifyLP({
       // approve to permit2
       { abi: erc20Abi, address: lp, functionName: 'approve', args: [cf.permit2, -liquidity] },
       // permit2 approve
-      { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [token0, cf.poolmanager, -liquidity, expiration] },
+      { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [poolKey.currency0, cf.poolmanager, -liquidity, expiration] },
       // router execute
       { abi: abiPoolManager, functionName: 'modifyLiquidity', address: cf.poolmanager, args: [poolKey, modifyLpParams, hookData] },
     ]

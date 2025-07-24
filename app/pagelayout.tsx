@@ -11,6 +11,7 @@ import { Providers } from './providers';
 import { useInitAnimRoot } from '@/hooks/useAnim';
 import { useEffectOnce, useMount } from 'react-use';
 import { useIsClient } from '@/hooks/useIsClient';
+import { TxsStat } from '@/components/approve-and-tx';
 
 export default function PageLayout({ children }: { children: ReactNode }) {
   useConfigDomain()
@@ -31,6 +32,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
         <Toaster position='top-right' offset={70} />
         {/* <BetaFlag /> */}
         <PageLoading />
+        <TxsStat />
       </Providers>}
     </div>
   )

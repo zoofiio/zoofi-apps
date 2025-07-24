@@ -1,5 +1,5 @@
 import { Address } from 'viem'
-import { sepolia } from 'viem/chains'
+import { arbitrum, sepolia } from 'viem/chains'
 import { TypeENV } from './env'
 import { zeroGTestnet } from './network'
 
@@ -16,11 +16,17 @@ export type LntVaultConfig = {
   MockaVTOracle?: Address
   MockNodeDelegator?: Address
   MockRewardDistribuitor?: Address
+  // aethir
+  AethirNFT?: Address
+  AethirVToracle?: Address
+  AethirRedeemStrategy?: Address
+  isAethir?: boolean
+
   onEnv?: TypeENV[]
   vtActive: boolean
   ytEnable: boolean
   lpYields: boolean
-
+  test?: boolean
   icon: string
   tit: string
   info: string
@@ -64,24 +70,29 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     tit: '0G AI Alignment Node',
     info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
   },
-//   {
-//     chain: zeroGTestnet.id,
-//     vault: '0xda732f0f05e8e4448d8358a142b289f528f81824',
-//     asset: '0xfce521166366566a49344a0dd529028d5fda5cd3',
-//     market: '0xb1d4d60ebd2bae3904a4070ac4661ed9b84c47e8',
-//     protocol: '0x47c79e20ffd41ca55ced7e31aa5767a7440ff0cf',
-//     onEnv: ['test'],
-//     // MockT: '0xe01c85599300f9ed5de2d7d4fe3dc2dc4c5c3877',
-//     MockaVTOracle: '0x8fb28f6d7834dc0127e39be7c9db11383e126d2b',
-//     MockNodeDelegator: '0xc7329fbb367f709b57f3945eb6ac18cebd711c7c',
-//     MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
-//     lpTYT: '0x123',
-//     vtActive: true,
-//     ytEnable: false,
-//     lpYields: false,
-//     icon: 'aethir',
-//     tit: 'Aethir Checker Node',
-//     info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.
-// Checker nodes ensure the integrity and service quality of Aethir network by checking the GPU specifications and its service process.`,
-//   },
+  {
+    chain: arbitrum.id,
+    vault: '0x4c0f596f658ea9027793c04e2173bb507766e956',
+    asset: '0x95b40e1531c5e9a0deb6c89abc64a19d007fdf08',
+    market: '0x9726aeedabdd59bdeea84360306f0fadd874f7ea',
+    protocol: '0xf9d5f79a7528033b372ed8ec4635fa863553b4cd',
+    onEnv: ['test'],
+    // MockT: '0xe01c85599300f9ed5de2d7d4fe3dc2dc4c5c3877',
+    // MockaVTOracle: '0xf1487677d2e09250d89efdb647e3e288503683d0',
+    // MockNodeDelegator: '0xc7329fbb367f709b57f3945eb6ac18cebd711c7c',
+    // MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
+    AethirNFT: '0x95b40e1531c5e9a0deb6c89abc64a19d007fdf08',
+    AethirVToracle: '0xf1487677d2e09250d89efdb647e3e288503683d0',
+    AethirRedeemStrategy: '0xcca3648ccbf63ee0f04eee094b4e8799337f1bba',
+    isAethir: true,
+    lpTYT: '0x123',
+    test: true,
+    vtActive: true,
+    ytEnable: false,
+    lpYields: false,
+    icon: 'aethir',
+    tit: 'Aethir Checker Node',
+    info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.
+Checker nodes ensure the integrity and service quality of Aethir network by checking the GPU specifications and its service process.`,
+  },
 ]

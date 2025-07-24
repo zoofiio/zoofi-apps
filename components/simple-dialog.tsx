@@ -27,7 +27,7 @@ export function SimpleDialog({
 } & Dialog.DialogProps) {
   return (
     <Dialog.Root {...props}>
-      <Dialog.Trigger ref={triggerRef} {...(triggerProps||{})}>{trigger}</Dialog.Trigger>
+      <Dialog.Trigger ref={triggerRef} {...(triggerProps || {})}>{trigger}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className='fixed top-0 left-0 inset-0 z-50 bg-black/60' />
 
@@ -48,12 +48,11 @@ export function SimpleDialog({
           )}
         >
           {children}
-          <Dialog.Close
-            disabled={disableClose}
+          {!disableClose && <Dialog.Close
             className={cn('absolute right-4 top-4 cursor-point text-xl', closeClassName)}
           >
             <IoIosCloseCircleOutline />
-          </Dialog.Close>
+          </Dialog.Close>}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
