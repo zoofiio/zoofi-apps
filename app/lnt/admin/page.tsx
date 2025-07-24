@@ -9,8 +9,9 @@ import { abiMockERC20, abiMockERC721 } from '@/config/abi'
 import { abiLntProtocol, abiLntVault, abiAethirNFT, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor, abiAethirVToracle, abiAethirRedeemStrategy } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { isTestnet } from '@/config/network'
-import { promiseAll } from '@/lib/utils'
+import { FMT, fmtDate, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
+import _, { toNumber } from 'lodash'
 import { useState } from 'react'
 
 export default function AdminPage() {
@@ -46,7 +47,9 @@ export default function AdminPage() {
                   vtPriceEndTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceEndTime' })
                 })} />
               <GeneralAction abi={abiLntVault} functionName='updateVTAOracle' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='updateRedeemStrategy' address={current.vc.vault} />
+              <GeneralAction abi={abiLntVault} functionName='updateRedeemStrategy' address={current.vc.vault}
+                infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'redeemStrategy' })}
+              />
               <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={current.vc.vault} />
               <GeneralAction abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='acceptOwnership' address={current.vc.protocol} />
@@ -56,8 +59,16 @@ export default function AdminPage() {
               </>}
               {current.vc.AethirNFT && <ContractAll tit='MockAethirNFT' abi={abiAethirNFT} address={current.vc.AethirNFT} />}
               {current.vc.AethirVToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={current.vc.AethirVToracle} />}
-              {current.vc.AethirRedeemStrategy && <ContractAll tit='AethirRedeemStrategy' abi={abiAethirRedeemStrategy} address={current.vc.AethirRedeemStrategy} />}
-
+              {current.vc.AethirRedeemStrategy && <ContractAll tit='AethirRedeemStrategy' abi={abiAethirRedeemStrategy} address={current.vc.AethirRedeemStrategy}
+                itemInfos={{
+                  redeemTimeWindows: async () => {
+                    const pc = getPC(current.vc.chain)
+                    const count = await pc.readContract({ abi: abiAethirRedeemStrategy, address: current.vc.AethirRedeemStrategy!, functionName: 'redeemTimeWindowsCount' })
+                    const tws = await pc.readContract({ abi: abiAethirRedeemStrategy, address: current.vc.AethirRedeemStrategy!, functionName: 'redeemTimeWindows', args: [0n, count] })
+                    return tws[0].map((t, i) => `${fmtDate(t * 1000n, FMT.ALL)}       --   ${tws[1][i]}`)
+                  }
+                }}
+              />}
               {current.vc.MockaVTOracle && <GeneralAction abi={abiMockaVToracle} tit={'set aVT mockaVToracle'} functionName='setaVT' address={current.vc.MockaVTOracle} />}
               {current.vc.MockNodeDelegator && <>
                 <GeneralAction abi={abiMockNodeDelegator} functionName='addOperator' address={current.vc.MockNodeDelegator} />

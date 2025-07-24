@@ -181,7 +181,7 @@ export function GeneralAction({
 }
 
 
-export function ContractAll({ abi, address, tit }: { abi: Abi, address: Address, tit: string }) {
+export function ContractAll({ abi, address, tit, itemInfos }: { abi: Abi, address: Address, tit: string, itemInfos?: Record<string, Parameters<typeof GeneralAction>[0]['infos']> }) {
   const [reads, writes] = useMemo(() => {
     const reads = []
     const writes = []
@@ -201,11 +201,11 @@ export function ContractAll({ abi, address, tit }: { abi: Abi, address: Address,
     <div className='grid grid-cols-5 gap-4'>
       <div className='flex flex-col gap-2 col-span-2'>
         <div className='font-bold text-2xl'>Read</div>
-        {reads.map((item, i) => <GeneralAction key={`read_${i}`} abi={[item]} address={address} functionName={item.name} />)}
+        {reads.map((item, i) => <GeneralAction key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
       </div>
       <div className='flex flex-col gap-2 col-span-3'>
         <div className='font-bold text-2xl'>Write</div>
-        {writes.map((item, i) => <GeneralAction key={`write_${i}`} abi={[item]} address={address} functionName={item.name} />)}
+        {writes.map((item, i) => <GeneralAction key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
       </div>
     </div>
   </Expandable>

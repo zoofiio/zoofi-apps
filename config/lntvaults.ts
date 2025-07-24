@@ -83,7 +83,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     // MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
     AethirNFT: '0x95b40e1531c5e9a0deb6c89abc64a19d007fdf08',
     AethirVToracle: '0xf1487677d2e09250d89efdb647e3e288503683d0',
-    AethirRedeemStrategy: '0xcca3648ccbf63ee0f04eee094b4e8799337f1bba',
+    AethirRedeemStrategy: '0x2280c560B1d36eb40814F1E7489663C35B1BaDF0',
     isAethir: true,
     lpTYT: '0x123',
     test: true,
