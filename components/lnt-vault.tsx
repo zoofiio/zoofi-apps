@@ -21,7 +21,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
 import { useSetState, useToggle } from 'react-use'
-import { erc721Abi, isAddressEqual, SimulateContractParameters, toHex } from 'viem'
+import { erc20Abi, erc721Abi, isAddressEqual, SimulateContractParameters, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { Txs, withTokenApprove } from './approve-and-tx'
 import { AssetInput } from './asset-input'
@@ -412,17 +412,18 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       const inputAmount = queryKey[1] as bigint
       console.info('calcLPAdd1:', inputIsToken0, inputAmount)
       if (type == 'vt') {
-        const [liq0, liq1] = await Promise.all([
+        const [liq0, liq1, totalShares] = await Promise.all([
           pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve0' }),
           pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve1' }),
+          pc.readContract({ abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'totalSupply' }),
         ])
         console.info('liq0,liq1:', fmtBn(liq0), fmtBn(liq1))
         if (liq0 == 0n || liq1 == 0n) {
           data = [inputAmount, inputAmount, inputAmount]
         } else if (inputIsToken0) {
-          data = [sqrt(inputAmount * inputAmount * liq1 / liq0), inputAmount, inputAmount * liq1 / liq0]
+          data = [inputAmount * totalShares / liq0, inputAmount, inputAmount * liq1 / liq0]
         } else {
-          data = [sqrt(inputAmount * inputAmount * liq0 / liq1), inputAmount * liq0 / liq1, inputAmount]
+          data = [inputAmount * totalShares / liq1, inputAmount * liq0 / liq1, inputAmount]
         }
       } else {
         return data
@@ -471,11 +472,11 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   }
   return <div className='flex flex-col gap-1'>
     <AssetInput asset={input1.symbol} amount={input1Asset} balance={input1Balance.result} setAmount={(value: any) => {
-      wrapSetCalcKey(token0IsInput1, parseEthers(value))
+      wrapSetCalcKey(token0IsInput1, parseEthers(value, input1.decimals))
       setInput1Asset(value)
     }} error={errorInput1} />
     <AssetInput asset={input2.symbol} amount={input2Asset} balance={input2Balance.result} setAmount={(value: any) => {
-      wrapSetCalcKey(!token0IsInput1, parseEthers(value))
+      wrapSetCalcKey(!token0IsInput1, parseEthers(value, input2.decimals))
       setInput2Asset(value)
     }} error={errorInput2} />
     {/* <Swap onClick={() => toggle()} /> */}
@@ -521,17 +522,18 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
         return [0n, 0n]
         // return calcRemoveLP({ chainId, pc, token0, token1, token0Decimals: vt.decimals, token1Decimals: t.decimals, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, inputAmount: inputAssetBn })
       }
-      const [liq0, liq1] = await Promise.all([
+      const [liq0, liq1, totalShares] = await Promise.all([
         pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve0' }),
         pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve1' }),
+        pc.readContract({ abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'totalSupply' }),
       ])
       // const [vtLiq, tLiq] = await pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'getVTAndTReserves' })
       if (liq0 == 0n || liq1 == 0n) return [0n, 0n]
-      const liqXX2 = inputAssetBn * inputAssetBn
+      // const liqXX2 = inputAssetBn * inputAssetBn
       if (output1IsToken0) {
-        return [sqrt(liqXX2 * liq0 / liq1), sqrt(liqXX2 * liq1 / liq0)]
+        return [inputAssetBn * liq0 / totalShares, inputAssetBn * liq1 / totalShares]
       } else {
-        return [sqrt(liqXX2 * liq1 / liq0), sqrt(liqXX2 * liq0 / liq1)]
+        return [inputAssetBn * liq1 / totalShares, inputAssetBn * liq0 / totalShares]
       }
     },
   })
