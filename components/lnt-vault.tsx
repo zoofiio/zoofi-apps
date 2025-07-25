@@ -48,7 +48,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     initialData: 0n,
     queryFn: async () => {
       if (tokenIds.length == 0) return 0n
-      return getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcDeposit', args: [vc.vault, tokenIds, tokenIds.map(() => 1n)] })
+      return getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcDeposit', args: [vc.vault, tokenIds] })
     }
   })
   return <div className='flex flex-col gap-5 items-center p-5'>

@@ -5,7 +5,7 @@ export const abiQueryLNT = parseAbi([
   `struct LntVault {bool closed;uint256 activeDepositCount;address NFT;address VT;address YT;address T;address vATOracle;address tokenPot;address vtSwapPoolHook;uint256 aVT;}`,
   `function earned(address irm,address user) external view returns (Earned[] memory)`,
   `struct Earned { address token; uint256 value;}`,
-  'function calcDeposit(address vault,uint256[] calldata nftIds,uint256[] calldata values) external view returns (uint256 vt)',
+  'function calcDeposit(address vault,uint256[] calldata nftIds) external view returns (uint256 vt)',
   'function calcRedeem(address vault,uint256 count) external view returns (uint256 vt)',
 ])
 
