@@ -1,4 +1,4 @@
-import { abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
@@ -18,7 +18,13 @@ export function useLntVault(vc: LntVaultConfig) {
     fetfn: async () =>
       getPC(vc.chain)
         .readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] })
-        .then((res) => ({ ...res, expiryTime: 1798560000n })),
+        .then((res) =>
+          vc.isAethir
+            ? getPC(vc.chain)
+                .readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
+                .then((endTime) => ({ ...res, expiryTime: endTime }))
+            : { ...res, expiryTime: 1798560000n },
+        ),
   })
 }
 
