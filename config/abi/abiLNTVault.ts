@@ -67,6 +67,7 @@ export const abiLntVTSwapHook = parseAbi([
   'function reserve1() external view returns(uint256)',
   'function FEE_RATE() external view returns(uint256)',
   'function poolKey() external view returns(PoolKey memory)',
+  'function isToken0VT() external view returns(bool)',
 ])
 
 export const abiMockaVToracle = parseAbi(['function setaVT(uint256 _aVT_) external'])

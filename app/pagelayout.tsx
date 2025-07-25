@@ -2,16 +2,15 @@
   ; (BigInt.prototype as any).toJSON = function () {
     return this.toString()
   }
+import { TxsStat } from '@/components/approve-and-tx';
 import { Menus } from '@/components/menus';
 import { PageLoading } from '@/components/page-loading';
+import { useInitAnimRoot } from '@/hooks/useAnim';
 import { useConfigDomain } from '@/hooks/useConfigDomain';
+import { useIsClient } from '@/hooks/useIsClient';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import { Providers } from './providers';
-import { useInitAnimRoot } from '@/hooks/useAnim';
-import { useEffectOnce, useMount } from 'react-use';
-import { useIsClient } from '@/hooks/useIsClient';
-import { TxsStat } from '@/components/approve-and-tx';
 
 export default function PageLayout({ children }: { children: ReactNode }) {
   useConfigDomain()

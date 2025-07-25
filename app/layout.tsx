@@ -9,9 +9,11 @@ import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import './globals.css'
 
-import PageLayout from './pagelayout'
+// import PageLayout from './pagelayout'
 import Script from 'next/script'
+import dynamic from 'next/dynamic'
 const inter = Inter({ subsets: ['latin'] })
+const PageLayout = dynamic(() => import("./pagelayout"))
 
 const baseMeta = {
   title: 'Zoo Finance',

@@ -2,7 +2,9 @@ import { abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
+import { fmtDuration, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
+import { now, round, toNumber } from 'lodash'
 import { Address, PublicClient, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 
@@ -16,16 +18,15 @@ export const FET_KEYS = {
 export function useLntVault(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntVault(vc),
-    fetfn: async () =>
-      getPC(vc.chain)
-        .readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] })
-        .then((res) =>
-          vc.isAethir
-            ? getPC(vc.chain)
-                .readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
-                .then((endTime) => ({ ...res, expiryTime: endTime }))
-            : { ...res, expiryTime: 1798560000n },
-        ),
+    fetfn: async () => {
+      const pc = getPC(vc.chain)
+      const { lntdata, ...other } = await promiseAll({
+        lntdata: pc.readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
+        expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }).catch(() => 1784968222n),
+        startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }).catch(() => 1750840222n),
+      })
+      return { ...lntdata, ...other }
+    },
   })
 }
 
@@ -87,4 +88,16 @@ export function useLntVaultOperators(vc: LntVaultConfig) {
     operators.status = 'fetching'
   }
   return operators
+}
+
+export function useLntVaultTimes(vc: LntVaultConfig) {
+  const vd = useLntVault(vc)
+  const nowtime = round(now() / 1000)
+  const startTime = toNumber((vd.result?.startTime ?? 0n).toString())
+  const minStartTime = Math.min(nowtime, startTime)
+  const endTime = toNumber((vd.result?.expiryTime ?? 0n).toString())
+  const progress = endTime > minStartTime ? Math.min(Math.max(((nowtime - minStartTime) * 100) / (endTime - minStartTime), 0), 100) : 100
+  const progressPercent = `${round(progress)}%`
+  const remain = fmtDuration((endTime - minStartTime) * 1000)
+  return { progressPercent, remain, remainStr: `~ ${remain} remaining` }
 }

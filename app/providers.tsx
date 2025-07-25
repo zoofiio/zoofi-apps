@@ -10,9 +10,6 @@ import { binanceWallet, bitgetWallet, coinbaseWallet, gateWallet, injectedWallet
 import { WagmiProvider, createConfig, createStorage } from 'wagmi';
 
 const walletConnectProjectId = 'abf1f323cd9ff9f6a27167188d993168'
-// const ankrKey = 'e1a06837672f1dd89a4c70522941d3beebad120eafad005d79d77c42856d9310'
-const ankrKey = '5da55021cad3ac57391c3292c373dec3a32bf9eaae63b74d4138d5d4a17dd554'
-
 import NextAdapterApp from 'next-query-params/app';
 import { QueryParamProvider } from 'use-query-params';
 
@@ -28,8 +25,6 @@ const client = new ApolloClient({
 })
 
 const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 } } })
-
-const isTgMini = true
 const storage = createStorage({
   storage: {
     getItem: (key) => typeof window !== 'undefined' ? window.localStorage.getItem(key) : undefined,
@@ -66,11 +61,6 @@ const config = createConfig({
     }),
 })
 export function Providers({ children, supportChains = SUPPORT_CHAINS }: { children: React.ReactNode, supportChains?: readonly [Chain, ...Chain[]] }) {
-  // const [config, setConfig] = React.useState<ReturnType<typeof createConfig>>()
-  // React.useEffect(() => {
-  //   // const isTgMini = Boolean((window as any).Telegram?.WebApp?.platform) && (window as any).Telegram?.WebApp?.platform !== 'unknown'
-
-  // }, [])
   const theme = useThemeState((s) => s.theme)
   return (
     <ApolloProvider client={client}>

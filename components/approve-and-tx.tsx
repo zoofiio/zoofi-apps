@@ -170,7 +170,7 @@ export type TxConfig = SimulateContractParameters & { name?: string }
 export type TX = TxConfig | (() => Promise<TxConfig>)
 export const useTxsStore = create(() => ({ txs: [] as TxConfig[], progress: 0 }))
 export function Txs({
-  className, tx, txs, disabled, disableSendCalls, disableProgress, busyShowTxet = true, toast = true, onTxSuccess }:
+  className, tx, txs, disabled, disableSendCalls = true, disableProgress, busyShowTxet = true, toast = true, onTxSuccess }:
   {
     disableSendCalls?: boolean,
     disableProgress?: boolean,

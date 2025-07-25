@@ -9,10 +9,10 @@ import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { useLntHookPoolkey, useLntVault, useLntVaultOperators, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
+import { useLntHookPoolkey, useLntVault, useLntVaultOperators, useLntVaultTimes, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
-import { cn, fmtBn, fmtDuration, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
+import { cn, fmtBn, fmtDuration, fmtPercent, formatPercent, genDeadline, handleError, nowUnix, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
@@ -167,7 +167,8 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, vc.chain, { symbol: 'VT' }))
   const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
   const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
-  const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
+
+  const { remainStr } = useLntVaultTimes(vc)
   const chain = useCurrentChain()
   return (
     <div className={cn('animitem card overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
@@ -193,15 +194,15 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
           <div className="flex w-full h-4 bg-gray-200 rounded-full ">
             <div
               className="h-full rounded-full"
-              style={{ width: `${40}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
+              style={{ width: `${0}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
             />
           </div>
-          <div className="text-sm  text-right opacity-60 ml-[10px]">{40}%</div>
+          <div className="text-sm  text-right opacity-60 ml-[10px]">{0}%</div>
         </div>
       </div>
       <div className={itemClassname}>
         <div className={itemTitClassname}>State</div>
-        <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : `Active ${remain}`}</div>
+        <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : <>Active <span className='opacity-60 text-xs ml-3'>{remainStr}</span></>}</div>
       </div>
     </div>
   )
@@ -211,6 +212,8 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const depositRef = useRef<HTMLButtonElement>(null)
   const withdrawRef = useRef<HTMLButtonElement>(null)
   const vd = useLntVault(vc)
+  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
+  const withdrawPrice = useLntWithdrawPrice(vc)
   return <div className=' flex flex-col h-full justify-between shrink-0 gap-10'>
     <div className='flex items-center text-sm justify-center whitespace-nowrap'>
       <span className=''>Total Deposited</span>
@@ -236,14 +239,16 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
       </SimpleDialog>
+      <div className='mt-4 text-sm opacity-60 text-center'>
+        {`1 Licenses = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+      </div>
     </div>
 
   </div>
 }
 
 export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
-  const vd = useLntVault(vc)
-  const remain = fmtDuration((vd.result?.expiryTime ?? 0n) * 1000n - BigInt(now()))
+  const { progressPercent, remainStr } = useLntVaultTimes(vc)
   return <div style={{
     backdropFilter: 'blur(20px)'
   }} className="animitem card bg-white flex gap-5 h-full col-span-2" >
@@ -256,11 +261,11 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
       </div >
-      <div className='my-4 flex justify-between opacity-60'>Duration <span>{`~ ${remain} remaining`}</span></div>
+      <div className='my-4 flex justify-between opacity-60'>Duration <span>{remainStr}</span></div>
       <div className="flex w-full h-4 bg-gray-200 rounded-full ">
         <div
           className="h-full rounded-full"
-          style={{ width: `${40}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
+          style={{ width: progressPercent, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
         />
       </div>
     </div>
@@ -319,10 +324,11 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   })
 
   const fees = inputAssetBn > 0n ? `${fmtBn(inputAssetBn * feeRate / 10000n, input.decimals)} ${input.symbol}` : ''
-  const swapPrice = ''
+
+  const swapPrice = '-'
   const errorInput = ''
-  const priceimpcat = 0
-  const apy = 1.2
+  const priceimpcat = '-'
+  const apy = 1
   const apyto = apy
   // const outAmount = 0n
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
@@ -332,7 +338,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     <AssetInput checkBalance={false} asset={output.symbol} balance={outputBalance.result} loading={isFetchingCalc} disable amount={fmtBn(outAmount, output.decimals)} />
     <div className="flex justify-between items-center text-xs font-medium">
       <div>Price: {swapPrice}</div>
-      <div>Price Impact: {formatPercent(priceimpcat)}</div>
+      <div>Price Impact: {'-'}</div>
     </div>
     <div className="flex justify-between items-center text-xs font-medium opacity-60">
       <div>Implied APY Change: {formatPercent(apy)} → {formatPercent(apyto)}</div>
@@ -580,6 +586,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
   const onAddPToken = () => {
     walletClient?.watchAsset({ type: 'ERC20', options: vt }).catch(handleError)
   }
+  const vtTotal = useTotalSupply(vt)
   return <div className="flex flex-col gap-4 w-full">
     <div className='animitem card !p-0 overflow-hidden w-full'>
       <div className='flex p-5 bg-[#A3D395] gap-5'>
@@ -593,7 +600,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         <div className="text-lg font-medium">{formatPercent(1)}</div>
         <div className="text-xs font-semibold opacity-60">Fixed APY</div>
         <div className="text-xs font-semibold opacity-60 ml-auto">Circulation amount</div>
-        <div className="text-lg font-medium">{displayBalance(0n)}</div>
+        <div className="text-lg font-medium">{displayBalance(vtTotal.result, undefined, vt.decimals)}</div>
       </div>
       <div className='flex px-2 pb-4'>
         <button className='btn-link ml-auto text-primary text-xs underline-offset-2' onClick={onAddPToken}>
@@ -601,7 +608,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         </button>
       </div>
     </div>
-    <div className="animitem card !p-4">
+    <div className="animitem card !p-4 min-h-[390px]">
       {vc.vtActive ? <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
         triggerClassName={`text-base font-bold leading-none data-[state="active"]:text-black`}
