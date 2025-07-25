@@ -154,7 +154,8 @@ export const fmtDuration = (duration: number | bigint, type: FMT_DURATION_TYPE |
   } else {
     fType = type
   }
-  return `${(durationBn / divVauleMap[fType]).toString()} ${fType}`
+  const count = ((durationBn * 100n) / divVauleMap[fType]).toString()
+  return `${round(toNumber(count)/100)} ${fType}`
 }
 
 export const decimalBn = (decimals: bigint | number = 10n) => 10n ** BigInt(decimals || 10n)

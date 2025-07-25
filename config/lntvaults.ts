@@ -41,7 +41,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     asset: '0xc227e25544edd261a9066932c71a25f4504972f1',
     protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
     protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
-    onEnv: ['test'],
+    onEnv: ['test','prod'],
     AethirVToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
     AethirRedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
     isAethir: true,
