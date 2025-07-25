@@ -9,8 +9,9 @@ export type LntVaultConfig = {
   chain: number
   vault: Address
   asset: Address // ERC721
-  market: Address
+
   protocol: Address
+  protocalSettings?: Address
   lpTYT?: Address
   MockT?: Address
   MockaVTOracle?: Address
@@ -36,7 +37,6 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     chain: sepolia.id,
     vault: '0xb8aa29c0688c53f4dd875b1d0702de69bf52df7d',
     asset: '0x0993a80ee5bb32b73f61c71662f53c599ee4f829',
-    market: '0x8bb5b52183f2a3d578b452e09b3ed8f8ae859f9e',
     protocol: '0xcdf86f49303fd5350ece1f1a27b9d6083851ae04',
     onEnv: ['test', 'prod'],
     MockT: '0x6f00ca3db3ee2b72d8ddd434ae0e31571fd70f03',
@@ -55,7 +55,6 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     chain: zeroGTestnet.id,
     vault: '0xda732f0f05e8e4448d8358a142b289f528f81824',
     asset: '0xfce521166366566a49344a0dd529028d5fda5cd3',
-    market: '0xb1d4d60ebd2bae3904a4070ac4661ed9b84c47e8',
     protocol: '0x47c79e20ffd41ca55ced7e31aa5767a7440ff0cf',
     onEnv: ['test', 'prod'],
     // MockT: '0xe01c85599300f9ed5de2d7d4fe3dc2dc4c5c3877',
@@ -72,17 +71,17 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   },
   {
     chain: arbitrum.id,
-    vault: '0x4c0f596f658ea9027793c04e2173bb507766e956',
-    asset: '0x95b40e1531c5e9a0deb6c89abc64a19d007fdf08',
-    market: '0x9726aeedabdd59bdeea84360306f0fadd874f7ea',
-    protocol: '0xf9d5f79a7528033b372ed8ec4635fa863553b4cd',
+    vault: '0x51bc756d7522f963e64d8ef98fdf9ec509f03689',
+    asset: '0xb58dafe606162a744f5007a49d928055bcfb67ed',
+    protocol: '0x0028b2137d90f52443287d63a7bb398580ee0158',
+    protocalSettings: '0x67b02b199a45a6c158f7ec66ef01139432d4dcb0',
     onEnv: ['test'],
     // MockT: '0xe01c85599300f9ed5de2d7d4fe3dc2dc4c5c3877',
     // MockaVTOracle: '0xf1487677d2e09250d89efdb647e3e288503683d0',
     // MockNodeDelegator: '0xc7329fbb367f709b57f3945eb6ac18cebd711c7c',
     // MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
-    AethirNFT: '0x95b40e1531c5e9a0deb6c89abc64a19d007fdf08',
-    AethirVToracle: '0xf1487677d2e09250d89efdb647e3e288503683d0',
+    AethirNFT: '0xb58dafe606162a744f5007a49d928055bcfb67ed',
+    AethirVToracle: '0x27d3e7898cdff305fbc031d44c087c031188ca25',
     AethirRedeemStrategy: '0x2280c560B1d36eb40814F1E7489663C35B1BaDF0',
     isAethir: true,
     lpTYT: '0x123',

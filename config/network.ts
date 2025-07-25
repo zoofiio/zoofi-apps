@@ -138,7 +138,7 @@ export function isBerachain(id: number) {
   return !!beraChains.find((item) => item.id == id)
 }
 
-export function isTestnet(chainId: number, def: boolean = true) {
+export function isTestnet(chainId: number, def: boolean = false) {
   return SUPPORT_CHAINS.find((item) => item.id === chainId)?.testnet ?? def
 }
 

@@ -36,6 +36,7 @@ export const abiLntVault = parseAbi([
   'function vtPriceStartTime() external view returns(uint256)',
   'function vtPriceEndTime() external view returns(uint256)',
   'function redeemStrategy() external view returns(address)',
+  'function updateVTPriceTime(uint256 newStartTime, uint256 newEndTime) external',
 ])
 
 export const abiLntProtocol = parseAbi([

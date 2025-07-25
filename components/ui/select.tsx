@@ -7,13 +7,14 @@ export type OptionBase = string | {
     key: string
     show: ReactNode,
 }
-export function SimpleSelect<T extends OptionBase>({ options, value, defValue, onChange, className, itemClassName, currentClassName }: {
+export function SimpleSelect<T extends OptionBase>({ options, value, defValue, onChange, className, itemClassName, currentClassName, listClassName }: {
     options: T[] | readonly T[],
     value?: T,
     onChange?: (data: T) => void,
     className?: string
     itemClassName?: string
     currentClassName?: string
+    listClassName?: string
     defValue?: T
 }) {
 
@@ -42,7 +43,7 @@ export function SimpleSelect<T extends OptionBase>({ options, value, defValue, o
             {isOpen ? <BsChevronUp /> : <BsChevronDown />}
         </div>
         {isOpen && (
-            <div className="mt-1 absolute overflow-hidden z-50 top-full w-full right-0 flex flex-col rounded bg-white dark:bg-black border-gray-400/60 border">
+            <div className={cn("mt-1 absolute overflow-hidden z-50 top-full w-full right-0 flex flex-col rounded bg-white dark:bg-black border-gray-400/60 border", listClassName)}>
                 {options.map(item => (
                     <div
                         key={typeof item === 'string' ? item : item.key}
