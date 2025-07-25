@@ -6,12 +6,11 @@ import { PageWrap } from '@/components/page-wrap'
 import { ConfigChainsProvider } from '@/components/support-chains'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721 } from '@/config/abi'
-import { abiLntProtocol, abiLntVault, abiAethirNFT, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor, abiAethirVToracle, abiAethirRedeemStrategy } from '@/config/abi/abiLNTVault'
+import { abiAethirNFT, abiAethirRedeemStrategy, abiAethirVToracle, abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { isTestnet } from '@/config/network'
 import { FMT, fmtDate, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import _, { toNumber } from 'lodash'
 import { useState } from 'react'
 
 export default function AdminPage() {
@@ -57,10 +56,16 @@ export default function AdminPage() {
                 <GeneralAction abi={abiMockERC721} tit={'mockErc721 setTester'} functionName='setTester' address={current.vc.asset} />
                 <GeneralAction abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName={'safeMint'} address={current.vc.asset} />
               </>}
+              
               {current.vc.AethirNFT && <ContractAll tit='MockAethirNFT' abi={abiAethirNFT} address={current.vc.AethirNFT} />}
               {current.vc.AethirVToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={current.vc.AethirVToracle} />}
               {current.vc.AethirRedeemStrategy && <ContractAll tit='AethirRedeemStrategy' abi={abiAethirRedeemStrategy} address={current.vc.AethirRedeemStrategy}
                 itemInfos={{
+                  updateRedeemStrategy: {
+                    ONLY_WITHIN_REDEEM_TIME_WINDOW: 0,
+                    ALLOWED: 1,
+                    FORBIDDEN: 2
+                  },
                   redeemTimeWindows: async () => {
                     const pc = getPC(current.vc.chain)
                     const count = await pc.readContract({ abi: abiAethirRedeemStrategy, address: current.vc.AethirRedeemStrategy!, functionName: 'redeemTimeWindowsCount' })
