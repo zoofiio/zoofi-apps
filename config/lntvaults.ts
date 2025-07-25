@@ -47,7 +47,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     isAethir: true,
     lpTYT: '0x123',
     test: true,
-    isIdle: true,
+    // isIdle: true,
     vtActive: true,
     ytEnable: false,
     lpYields: false,
