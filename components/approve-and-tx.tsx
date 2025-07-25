@@ -224,6 +224,7 @@ export function Txs({
             showTxsStat && useTxsStore.setState({ progress })
           }
           toast && tos.success("Transactions Success")
+          useTxsStore.setState({ progress: 0, txs: [] })
           onTxSuccess?.()
         }
       }

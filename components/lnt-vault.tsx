@@ -281,7 +281,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const vd = useLntVault(vc)
   const [inputAsset, setInputAsset] = useState(vc.isIdle ? '1' : '')
   const inputAssetBn = parseEthers(inputAsset)
-  const [isToggled, toggle] = useToggle(false)
+  const [isToggled, toggle] = useToggle(true)
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
