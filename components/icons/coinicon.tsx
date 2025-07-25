@@ -61,14 +61,17 @@ const SupportICONS: { [k: string]: string } = {
   Nodeops: 'Nodeops.svg',
   ReppoNft: 'ReppoNft.png',
   ['kodiak-logo']: 'kodiak-logo.svg',
+  // ZeroG
   ZeroG: 'ZeroG.png',
   ['0G']: '0G.png',
   ['v0G']: 'v0G.png',
   ['y0G']: 'y0G.png',
   ['lp0G']: 'lp0G.png',
+  // Aethir
   aethir: 'aethir.png',
   ATH: 'ATH.png',
-  vATH: 'vATH.png'
+  vATH: 'vATH.png',
+  lpATH: 'lpATH.png',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
