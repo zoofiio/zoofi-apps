@@ -112,7 +112,7 @@ export const abiAethirVToracle = parseAbi([
 export const abiAethirRedeemStrategy = parseAbi([
   'function canRedeem() external view returns (bool)',
   'function redeemTimeWindows(uint256 index, uint256 count) external view returns (uint256[] memory startTimes, uint256[] memory durations)',
-  'function updateRedeemStrategy(int8 newStrategy) external',
+  'function updateRedeemStrategy(uint8 newStrategy) external',
   'function appendRedeemTimeWindow(uint256 startTime, uint256 duration) external',
   'function removeLastRedeemTimeWindow() external',
   'function redeemTimeWindowsCount() external view returns (uint256)',
