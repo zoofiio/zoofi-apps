@@ -68,6 +68,7 @@ const SupportICONS: { [k: string]: string } = {
   ['y0G']: 'y0G.png',
   ['lp0G']: 'lp0G.png',
   // Aethir
+  Aethir2: 'Aethir2.svg',
   aethir: 'aethir.png',
   ATH: 'ATH.png',
   vATH: 'vATH.png',

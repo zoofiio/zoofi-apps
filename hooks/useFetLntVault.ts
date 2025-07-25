@@ -11,6 +11,7 @@ export const FET_KEYS = {
   LntVaultYTRewards: (vc: LntVaultConfig, yt?: Address, user?: string) => (yt && yt !== zeroAddress && user ? `fetLntVaultYTRewards:${yt}:${user}` : ''),
   LntVaultOperators: (vc: LntVaultConfig, nodeOP?: Address) => (nodeOP ? `fetLntVaultOperators:${nodeOP}` : ''),
   LntHookPoolkey: (vc: LntVaultConfig, hook?: Address) => (hook && hook !== zeroAddress ? `LntHookPoolkey:${vc.vault}:${hook}` : ''),
+  LntWithdrawPrice: (vc: LntVaultConfig) => `LntWithdrawPrice:${vc.vault}`,
 }
 export function useLntVault(vc: LntVaultConfig) {
   return useFet({
@@ -25,6 +26,14 @@ export function useLntVault(vc: LntVaultConfig) {
                 .then((endTime) => ({ ...res, expiryTime: endTime }))
             : { ...res, expiryTime: 1798560000n },
         ),
+  })
+}
+
+export function useLntWithdrawPrice(vc: LntVaultConfig) {
+  return useFet({
+    key: FET_KEYS.LntWithdrawPrice(vc),
+    initResult: 0n,
+    fetfn: async () => getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcRedeem', args: [vc.vault, 1n] }),
   })
 }
 

@@ -9,7 +9,7 @@ import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { useLntHookPoolkey, useLntVault, useLntVaultOperators } from '@/hooks/useFetLntVault'
+import { useLntHookPoolkey, useLntVault, useLntVaultOperators, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
 import { cn, fmtBn, fmtDuration, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
@@ -103,26 +103,23 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   const vtBalance = useBalance(vt)
   const maxByYT = floor(toNumber(fmtBn(ytBalance.result, yt.decimals)))
   const avt = vd.result?.aVT ?? 0n
-  const maxByVT = toNumber((avt > 0n ? vtBalance.result / avt : 1n).toString())
+  const maxByVT = toNumber((avt > 0n ? vtBalance.result / avt : 0n).toString())
   const maxByActive = toNumber((vd.result?.activeDepositCount ?? 0n).toString())
-  const [count, setCount] = useState(1)
+  const [count, setCount] = useState(0)
   const max = vc.ytEnable ? min([maxByYT, maxByVT, maxByActive])! : min([maxByVT, maxByActive])!
-  const { data: outAmountVT, isFetching: isFetchingOut } = useQuery({
-    queryKey: useCalcKey(['calcLntWithdraw', vc.chain, count, vd.result?.activeDepositCount]),
-    initialData: 0n,
-    queryFn: async () => {
-      if (count <= 0 || BigInt(count) > (vd.result?.activeDepositCount ?? 0n)) return 0n;
-      return getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcRedeem', args: [vc.vault, BigInt(count)] })
-    }
-  })
+  const withdrawPrice = useLntWithdrawPrice(vc)
+  const outAmountVT = withdrawPrice.result * BigInt(count);
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='flex flex-col gap-1 w-full'>
       <div className=' w-full'>Input:</div>
       {vc.ytEnable && <>
-        <AssetInput asset={yt.symbol} loading={isFetchingOut && count > 0} disable amount={count.toString()} balance={ytBalance.result} />
+        <AssetInput asset={yt.symbol} disable amount={count.toString()} balance={ytBalance.result} />
         <div className='w-full'>Pair With</div>
       </>}
-      <AssetInput asset={vt.symbol} loading={isFetchingOut && count > 0} disable amount={fmtBn(outAmountVT, vt.decimals)} balance={vtBalance.result} />
+      <AssetInput asset={vt.symbol} disable amount={fmtBn(outAmountVT, vt.decimals)} balance={vtBalance.result} />
+      <div className='mt-4 text-sm opacity-60 text-center'>
+        {`1 Licenses = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+      </div>
     </div>
     <div className='flex flex-col gap-1 w-full'>
       <div className='w-full'>Receive:</div>
@@ -134,7 +131,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       onTxSuccess={() => {
         onSuccess()
       }}
-      disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result || isFetchingOut}
+      disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result}
       txs={[{
         abi: abiLntVault,
         address: vc.vault,
@@ -175,7 +172,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   return (
     <div className={cn('animitem card overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
       <div className='flex items-center gap-5'>
-        <CoinIcon symbol={vc.icon} size={120} className='object-contain' style={{ height: 60 }} />
+        <CoinIcon symbol={vc.projectIcon} size={120} className='object-contain' style={{ height: 60 }} />
         <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet })} />
       </div>
       <div className={itemClassname}>

@@ -28,6 +28,7 @@ export type LntVaultConfig = {
   ytEnable: boolean
   lpYields: boolean
   test?: boolean
+  projectIcon: string
   icon: string
   tit: string
   info: string
@@ -47,6 +48,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     vtActive: true,
     ytEnable: true,
     lpYields: true,
+    projectIcon: 'ReppoNft',
     icon: 'ReppoNft',
     tit: 'Reppo Network LNT Vault',
     info: 'Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.',
@@ -65,6 +67,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     vtActive: true,
     ytEnable: true,
     lpYields: true,
+    projectIcon: 'ZeroG',
     icon: 'ZeroG',
     tit: '0G AI Alignment Node',
     info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
@@ -89,6 +92,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     vtActive: true,
     ytEnable: false,
     lpYields: false,
+    projectIcon: 'Aethir2',
     icon: 'aethir',
     tit: 'Aethir Checker Node',
     info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.

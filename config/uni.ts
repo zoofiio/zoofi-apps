@@ -62,7 +62,7 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
     poolmanager: '0x5cd9e7907522016160a8ce6ad58dc8a80909e79f',
     stateview: '0xe1dd9c3fa50edb962e442f60dfbc432e24537e4c',
   },
-  [421614]: {
+  [42161]: {
     unirouter: '0xefd1d4bd4cf1e86da286bb4cb1b8bced9c10ba47',
     permit2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
     positionmanager: '0xd88f38f930b7952f2db2432cb002e7abbf3dd869',

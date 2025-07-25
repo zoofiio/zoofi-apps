@@ -17,6 +17,15 @@ export type NumInputProps = {
     title?: string
     onChange?: (value: number) => void
 }
+
+const tryToNumber = (num: any, def: number = 0) => {
+    try {
+        return toNumber(num);
+    } catch (error) {
+        return def
+    }
+}
+
 export function NumInput({
     className,
     btnClassName,
@@ -57,9 +66,10 @@ export function NumInput({
                 type="number"
                 value={mvalue}
                 onChange={(e) => {
-                    const nv = integer ? _.round(e.target.valueAsNumber) : e.target.valueAsNumber
+                    const num = tryToNumber(e.target.value)
+                    const nv = integer ? _.round(num) : num
                     onChange?.(nv)
-                    setNewValue(e.target.valueAsNumber ?? toNumber(e.target.value))
+                    setNewValue(nv)
                 }}
             />
             {Boolean(title) && <div className="font-medium text-xs text-center absolute top-full leading-5 opacity-80">{title}</div>}
