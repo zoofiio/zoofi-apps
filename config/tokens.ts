@@ -35,11 +35,10 @@ export const TOKENS: Token[] = [
   { address: "0x937F60B54dA360b31D60372d2e19FE55Cb8eee53", symbol: 'y0G', decimals: 18, chain: [zeroGTestnet.id] },
   { address: "0x8D44BF9d72039C22dB4e8d7aB50d27038002fAC8", symbol: 'lp0G', decimals: 18, chain: [zeroGTestnet.id] },
   
-  
-  // { address: "0x8D44BF9d72039C22dB4e8d7aB50d27038002fAC8", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] },
-  // { address: "0x8D44BF9d72039C22dB4e8d7aB50d27038002fAC8", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
-  // { address: "0x8D44BF9d72039C22dB4e8d7aB50d27038002fAC8", symbol: 'lp0G', decimals: 18, chain: [arbitrum.id] },
-
+  // for aethir
+  { address: "0x776f5061f89aa8df62f8e52688516ab33e55b494", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] }, 
+  { address: "0xe951B012b722e22C9b2a2d0cb13d2f99E4945f34", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
+  { address: "0xE0acca187aE745C97E9974679AFFa6678774ba88", symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
 
 ]
 

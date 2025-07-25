@@ -76,7 +76,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     protocol: '0x0028b2137d90f52443287d63a7bb398580ee0158',
     protocalSettings: '0x67b02b199a45a6c158f7ec66ef01139432d4dcb0',
     onEnv: ['test'],
-    // MockT: '0xe01c85599300f9ed5de2d7d4fe3dc2dc4c5c3877',
+    MockT: '0x776f5061f89aa8df62f8e52688516ab33e55b494',
     // MockaVTOracle: '0xf1487677d2e09250d89efdb647e3e288503683d0',
     // MockNodeDelegator: '0xc7329fbb367f709b57f3945eb6ac18cebd711c7c',
     // MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',

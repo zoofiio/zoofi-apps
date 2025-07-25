@@ -1,14 +1,15 @@
 'use client'
 
 import { ApproveAndTx } from '@/components/approve-and-tx'
-import { ContractAll, Erc20Approve, Expandable, GeneralAction, inputClassname } from '@/components/general-action'
+import { AsyncInfo, ContractAll, Erc20Approve, Expandable, GeneralAction, inputClassname } from '@/components/general-action'
 import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
 import { Spinner } from '@/components/spinner'
 import { ConfigChainsProvider } from '@/components/support-chains'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721, abiProtocolSettings } from '@/config/abi'
-import { abiAethirNFT, abiAethirRedeemStrategy, abiAethirVToracle, abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor } from '@/config/abi/abiLNTVault'
+import { abiAethirNFT, abiAethirRedeemStrategy, abiAethirVToracle, abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { codeQueryLNT } from '@/config/codes'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { isTestnet } from '@/config/network'
 import { cn, FMT, fmtDate, promiseAll } from '@/lib/utils'
@@ -56,7 +57,7 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress, chain }: {
         placeholder='0'
       />
       <div className='text-sm flex flex-col items-start min-h-[300px] whitespace-pre-wrap'>
-        {isFetching && <Spinner className='text-xl'/>}
+        {isFetching && <Spinner className='text-xl' />}
         {JSON.stringify(data, undefined, 2)}
       </div>
       <ApproveAndTx
@@ -86,6 +87,7 @@ const LntVaultParams: ParamItem[] = [
   { show: '', value: 'initialVTTRate', units: 18 },
 ]
 
+
 export default function AdminPage() {
   const vcs = LNTVAULTS_CONFIG
   const options = vcs.map(item => ({ key: item.vault, show: `LNT-Vault(${item.vault})`, vc: item }))
@@ -104,6 +106,7 @@ export default function AdminPage() {
           <SimpleSelect className='w-full animitem z-50' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
             current && <ConfigChainsProvider chains={[current.vc.chain]}>
+              <AsyncInfo keys={[current.vc.vault]} infos={() => getPC(current.vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [current.vc.vault] })} />
               {current.vc.protocalSettings && <UpdateVaultParams chain={current.vc.chain} vault={current.vc.vault} protocoSettingAddress={current.vc.protocalSettings} paramList={LntVaultParams} />}
               <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />
               <GeneralAction abi={abiLntVault} functionName='close' address={current.vc.vault} />

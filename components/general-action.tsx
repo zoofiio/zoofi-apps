@@ -243,3 +243,17 @@ export function Erc20Approve() {
 
 
 
+
+export function AsyncInfo({ infos, keys, className }: { className?: string, infos?: any | (() => Promise<any>), keys?: any[] }) {
+  const { data: qInfo, isFetching, isError, refetch } = useQuery({
+    queryKey: ['queryAsyncInfo', keys, infos],
+    enabled: Boolean(infos),
+    queryFn: async () => promiseT(infos)
+  })
+  return <div className={cn('whitespace-pre-wrap', className)}>
+    {isFetching && <Spinner />}
+    {isError && !isFetching && <div className='text-red-400'>Error</div>}
+    {!isNil(qInfo) && JSON.stringify(qInfo, undefined, 2)}
+    <BBtn onClick={() => refetch()}>Refresh</BBtn>
+  </div>
+}
