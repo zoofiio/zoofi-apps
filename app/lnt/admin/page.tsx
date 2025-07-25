@@ -84,7 +84,7 @@ const LntVaultParams: ParamItem[] = [
   { show: '', value: 'initialAnchor', units: 18 },
   { show: '', value: 'scalarRoot', units: 18 },
   { show: '', value: 'vtSwapFee', units: 18 },
-  { show: '', value: 'initialVTTRate', units: 18 },
+  { show: '', value: 'R', units: 18 },
 ]
 
 
