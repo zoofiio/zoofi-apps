@@ -223,18 +223,18 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
     <div className='flex flex-col gap-5 justify-between px-8 my-auto'>
       <SimpleDialog
         triggerRef={depositRef}
-        triggerProps={{ className: 'flex-1' }}
+        triggerProps={{ className: 'flex-1', disabled: vc.isIdle }}
         trigger={
-          <BBtn className='flex-1'>Deposit</BBtn>
+          <BBtn disabled={vc.isIdle} className='flex-1'>Deposit</BBtn>
         }
       >
         <LntVaultDeposit vc={vc} onSuccess={() => depositRef.current?.click()} />
       </SimpleDialog>
       <SimpleDialog
         triggerRef={withdrawRef}
-        triggerProps={{ className: 'flex-1' }}
+        triggerProps={{ className: 'flex-1', disabled: vc.isIdle }}
         trigger={
-          <BBtn className='flex-1'>Withdraw</BBtn>
+          <BBtn disabled={vc.isIdle} className='flex-1'>Withdraw</BBtn>
         }
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
@@ -253,13 +253,14 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
     backdropFilter: 'blur(20px)'
   }} className="animitem card bg-white flex gap-5 h-full col-span-2" >
     <div className='flex flex-col'>
-      <div className="flex gap-5">
+      <div className="flex gap-5 relative">
         {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
         <CoinIcon symbol={vc.icon} size={161} className='object-contain' />
         <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
           <div className="text-base font-semibold">{vc.tit}</div>
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
+        {vc.isIdle && <div className='underline underline-offset-2 absolute top-0 right-0'>Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
       </div >
       <div className='my-4 flex justify-between opacity-60'>Duration <span>{remainStr}</span></div>
       <div className="flex w-full h-4 bg-gray-200 rounded-full ">
@@ -278,7 +279,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
 
 function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const vd = useLntVault(vc)
-  const [inputAsset, setInputAsset] = useState('')
+  const [inputAsset, setInputAsset] = useState(vc.isIdle ? '1' : '')
   const inputAssetBn = parseEthers(inputAsset)
   const [isToggled, toggle] = useToggle(false)
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
@@ -333,7 +334,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   // const outAmount = 0n
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
   return <div className='flex flex-col gap-1'>
-    <AssetInput asset={input.symbol} balance={inputBalance.result} amount={inputAsset} setAmount={setInputAsset} />
+    <AssetInput asset={input.symbol} disable={vc.isIdle} balance={inputBalance.result} amount={inputAsset} setAmount={setInputAsset} />
     <Swap onClick={() => toggle()} />
     <AssetInput checkBalance={false} asset={output.symbol} balance={outputBalance.result} loading={isFetchingCalc} disable amount={fmtBn(outAmount, output.decimals)} />
     <div className="flex justify-between items-center text-xs font-medium">
@@ -346,8 +347,8 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     </div>
     <Txs
       className='mx-auto mt-4'
-      tx='Swap'
-      disabled={disableTx}
+      tx={vc.isIdle ? 'Coming Soon' : 'Swap'}
+      disabled={disableTx || vc.isIdle}
       txs={() => encodeSingleSwap({
         chainId: vc.chain,
         poolkey: poolkey.result!,
@@ -483,7 +484,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     <Txs
       className='mx-auto mt-4'
       tx='Add'
-      disabled={disableTx}
+      disabled={disableTx || vc.isIdle}
       txs={txs}
       onTxSuccess={() => {
         setInput1Asset('')
@@ -569,7 +570,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     <Txs
       className='mx-auto mt-4'
       tx='Remove'
-      disabled={disableTx}
+      disabled={disableTx || vc.isIdle}
       txs={txs}
       onTxSuccess={() => {
         setInputAsset('')

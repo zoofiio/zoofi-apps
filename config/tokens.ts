@@ -29,6 +29,10 @@ export const TOKENS: Token[] = [
   { address: "0xd839962d55d9e8309f0f64c391887a33ab8cb4d0", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] }, 
   { address: "0x01e80CC2b282D6f926605c20e5aF7D74345615Ac", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
   { address: "0xf79f736e6787911a5167ebfac7ca5c3de4327a88", symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
+  
+  { address: "0xc87B37a581ec3257B734886d9d3a581F5A9d056c", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] }, 
+  { address: "0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
+  { address: "0xbf4b4A83708474528A93C123F817e7f2A0637a88", symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
 
 ]
 

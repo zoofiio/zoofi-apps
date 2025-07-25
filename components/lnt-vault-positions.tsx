@@ -39,7 +39,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         <TokenSymbol key={'vt'} t={vt} />,
         displayBalance(vtBalance.result, undefined, vt.decimals),
         vd.result.closed ? 'Mature' : 'Active',
-        <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} />,
+        vd.result.closed ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : '',
         <ApproveAndTx
             disabled={vd.result.aVT > 0n || vtBalance.result <= 0n || !address}
             onTxSuccess={() => reFet(vd.key, vtBalance.key)}

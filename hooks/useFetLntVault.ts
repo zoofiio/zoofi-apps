@@ -2,7 +2,7 @@ import { abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
-import { fmtDuration, promiseAll } from '@/lib/utils'
+import { aarToNumber, fmtDuration, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { now, round, toNumber } from 'lodash'
 import { Address, PublicClient, zeroAddress } from 'viem'
@@ -101,3 +101,13 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   const remain = fmtDuration((endTime - minStartTime) * 1000)
   return { progressPercent, remain, remainStr: `~ ${remain} remaining` }
 }
+
+// export function useT2VTPrice(vc: LntVaultConfig, vtchange: bigint = 0n, tChange: bigint = 0n) {
+//   const vd = useLntVault(vc)
+//   const vtt = useFet()
+//   const vPt = aarToNumber(logs.vPT + ptChange, 18)
+//   const BTtp = aarToNumber(logs.BTtp + btChange, 18)
+//   const Pt = vPt + BTtp > 0 ? vPt / (vPt + BTtp) : 0
+//   const nPrice = rateScalar > 0 && 1 - Pt != 0 ? (1 / rateScalar) * Math.log(Pt / (1 - Pt)) + rateAnchor : 0
+//   return nPrice
+// }
