@@ -26,19 +26,15 @@ export const TOKENS: Token[] = [
   { address: '0xf37b6ec18cee80634de01aef83701d6e726e7fc9', symbol: 'BT-INFRA', decimals: 18, chain: [sepolia.id] },
 
   // for 0G
-  /*
-
-  */
-
   { address: '0xe01C85599300f9ED5DE2d7D4FE3Dc2Dc4c5c3877', symbol: '0G', decimals: 18, chain: [zeroGTestnet.id] },
   { address: "0x78A8D4014000dF30b49eB0c29822B6C7C79D68cA", symbol: 'v0G', decimals: 18, chain: [zeroGTestnet.id] },
   { address: "0x937F60B54dA360b31D60372d2e19FE55Cb8eee53", symbol: 'y0G', decimals: 18, chain: [zeroGTestnet.id] },
   { address: "0x8D44BF9d72039C22dB4e8d7aB50d27038002fAC8", symbol: 'lp0G', decimals: 18, chain: [zeroGTestnet.id] },
   
   // for aethir
-  { address: "0x776f5061f89aa8df62f8e52688516ab33e55b494", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] }, 
-  { address: "0xe951B012b722e22C9b2a2d0cb13d2f99E4945f34", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
-  { address: "0xE0acca187aE745C97E9974679AFFa6678774ba88", symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
+  { address: "0xd839962d55d9e8309f0f64c391887a33ab8cb4d0", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] }, 
+  { address: "0x01e80CC2b282D6f926605c20e5aF7D74345615Ac", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
+  { address: "0xf79f736e6787911a5167ebfac7ca5c3de4327a88", symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
 
 ]
 
