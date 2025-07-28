@@ -61,6 +61,8 @@ const SupportICONS: { [k: string]: string } = {
   Nodeops: 'Nodeops.svg',
   ReppoNft: 'ReppoNft.png',
   ['kodiak-logo']: 'kodiak-logo.svg',
+  // Opensea
+  Opensea: 'Opensea.svg',
   // ZeroG
   ZeroG: 'ZeroG.png',
   ['0G']: '0G.png',

@@ -49,8 +49,9 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       return getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcDeposit', args: [vc.vault, tokenIds] })
     }
   })
+  const withdrawPrice = useLntWithdrawPrice(vc)
   return <div className='flex flex-col gap-5 items-center p-5'>
-    <div className='w-full text-start'>Licenses ID <span className='text-xs ml-5 opacity-70'>Wait about 5 minutes after MINT to retrieve the list.</span></div>
+    <div className='w-full text-start'>Licenses ID <span className={cn('text-xs ml-5 opacity-70', { "hidden": vc.isAethir },)}>Wait about 5 minutes after MINT to retrieve the list.</span></div>
     <div className='w-[32rem] h-72 overflow-y-auto'>
       <div className='w-full gap-2 grid grid-cols-4 '>
         {nfts.result.map(id => (
@@ -70,6 +71,14 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         <div className='w-full text-center'>And</div>
         <AssetInput asset={yt.symbol} loading={false} disable amount={fmtBn(DECIMAL * BigInt(tokenIds.length), yt.decimals)} />
       </>}
+    </div>
+    <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
+      <div>
+        {`1 Licenses = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+      </div>
+      <div>
+        {'Operation Fees : 5%'}
+      </div>
     </div>
     <Txs
       tx='Deposit'
@@ -260,7 +269,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
           <div className="text-base font-semibold">{vc.tit}</div>
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
-        {vc.isIdle && <div className='underline underline-offset-2 absolute top-0 right-0 text-red-500 flex items-center gap-2'><CoinIcon size={16} symbol='Fire'/> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
+        {vc.isIdle && <div className='underline underline-offset-2 absolute top-0 right-0 text-red-500 flex items-center gap-2'><CoinIcon size={16} symbol='Fire' /> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
       </div >
       <div className='my-4 flex justify-between opacity-60'>Duration <span>{remainStr}</span></div>
       <div className="flex w-full h-4 bg-gray-200 rounded-full ">
@@ -693,5 +702,15 @@ export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
       Faucet
     </Link>
     <Txs tx='Mint Test Node' className='w-[180px]' txs={txs} disabled={!address} />
+  </div>
+}
+
+export function LNTAethirHeader({ vc }: { vc: LntVaultConfig }) {
+  if (!vc.isAethir) return null
+  return <div className='flex justify-end items-center gap-10'>
+    <Link href={"https://opensea.io/collection/aethir-checker-license"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
+      <CoinIcon symbol='Opensea' size={24} className='object-contain' />
+      Buy Node on Opensea
+    </Link>
   </div>
 }

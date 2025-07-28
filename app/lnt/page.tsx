@@ -1,6 +1,6 @@
 'use client'
 
-import PreDepositPage from './pre-deposit/page';
+import LntVaultsPage from './vaults/page';
 export default function Page() {
-    return <PreDepositPage />
+    return <LntVaultsPage />
 }

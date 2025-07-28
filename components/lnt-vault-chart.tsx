@@ -101,7 +101,10 @@ function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVa
       <span className='text-base font-bold'>{tit} Chart</span>
       <SimpleSelect className="text-sm" options={types} onChange={(n) => setCT(n as any)} />
     </div>
-    <EChartsReact option={options} style={{ height: 240 }}></EChartsReact>
+    {/* <EChartsReact option={options} style={{ height: 240 }}></EChartsReact> */}
+    <div className='h-[240px] flex justify-center items-center bg-primary/10 rounded-xl'>
+      Coming Soon...
+    </div>
   </>
 }
 export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {

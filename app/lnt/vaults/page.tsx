@@ -1,6 +1,6 @@
 'use client'
 
-import { LNT_VT_YT, LNTInfo, LntOperators, LNTTestHeader, LNTVaultCard } from '@/components/lnt-vault'
+import { LNT_VT_YT, LNTAethirHeader, LNTInfo, LntOperators, LNTTestHeader, LNTVaultCard } from '@/components/lnt-vault'
 import LntVaultChart from '@/components/lnt-vault-chart'
 import { LntMyPositions } from '@/components/lnt-vault-positions'
 import { PageWrap } from '@/components/page-wrap'
@@ -23,6 +23,7 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
       {isLoading(vd) && <Spinner className="mt-10 mx-auto text-black dark:text-white" />}
       {isSuccess(vd) && <>
         <LNTTestHeader vc={vc} />
+        <LNTAethirHeader vc={vc} />
         <LNTInfo vc={vc} />
         <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4 xl:gap-5'>
           <LntVaultChart vc={vc} />

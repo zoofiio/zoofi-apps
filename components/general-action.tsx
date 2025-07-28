@@ -250,7 +250,7 @@ export function AsyncInfo({ infos, keys, className }: { className?: string, info
     enabled: Boolean(infos),
     queryFn: async () => promiseT(infos)
   })
-  return <div className={cn('whitespace-pre-wrap', className)}>
+  return <div className={cn('whitespace-pre-wrap animitem', className)}>
     {isFetching && <Spinner />}
     {isError && !isFetching && <div className='text-red-400'>Error</div>}
     {!isNil(qInfo) && JSON.stringify(qInfo, undefined, 2)}

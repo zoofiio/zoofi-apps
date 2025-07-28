@@ -102,6 +102,11 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   return { progressPercent, remain, remainStr: `~ ${remain} remaining` }
 }
 
+
+export function calcTPriceVT(tTotal: bigint, vtTotal: bigint){
+
+}
+
 // export function useT2VTPrice(vc: LntVaultConfig, vtchange: bigint = 0n, tChange: bigint = 0n) {
 //   const vd = useLntVault(vc)
 //   const vtt = useFet()
