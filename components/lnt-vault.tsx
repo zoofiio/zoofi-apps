@@ -260,7 +260,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
           <div className="text-base font-semibold">{vc.tit}</div>
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
-        {vc.isIdle && <div className='underline underline-offset-2 absolute top-0 right-0'>Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
+        {vc.isIdle && <div className='underline underline-offset-2 absolute top-0 right-0 text-red-500 flex items-center gap-2'><CoinIcon size={16} symbol='Fire'/> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
       </div >
       <div className='my-4 flex justify-between opacity-60'>Duration <span>{remainStr}</span></div>
       <div className="flex w-full h-4 bg-gray-200 rounded-full ">
