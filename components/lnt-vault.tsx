@@ -6,13 +6,13 @@ import { LntVaultConfig } from '@/config/lntvaults'
 import { zeroGTestnet } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
-import { DECIMAL } from '@/constants'
+import { DECIMAL, isLOCL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { useLntHookPoolkey, useLntVault, useLntVaultOperators, useLntVaultTimes, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
+import { useLntHookPoolkey, useLntVault, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
-import { cn, fmtBn, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
+import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
@@ -94,8 +94,9 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       }}
       disabled={tokenIds.length == 0}
       txs={() => [
-        ...tokenIds.map(id => ({ abi: erc721Abi, address: vc.asset, functionName: 'approve', args: [vc.vault, id] })),
+        ...tokenIds.map(id => ({ abi: erc721Abi, address: vc.asset, functionName: 'approve', args: [vc.vault, id], name: 'Approve NFT' })),
         {
+          name: 'Deposit',
           abi: abiLntVault,
           address: vc.vault,
           functionName: 'batchDeposit',
@@ -119,6 +120,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   const max = vc.ytEnable ? min([maxByYT, maxByVT, maxByActive])! : min([maxByVT, maxByActive])!
   const withdrawPrice = useLntWithdrawPrice(vc)
   const outAmountVT = withdrawPrice.result * BigInt(count);
+  const withdrawStat = useLntVaultWithdrawState(vc)
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='flex flex-col gap-1 w-full'>
       <div className=' w-full'>Input:</div>
@@ -130,18 +132,23 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       <div className='mt-4 text-sm opacity-60 text-center'>
         {`1 Licenses = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
+      {!withdrawStat.inWindow && withdrawStat.nWindow &&
+        <div className='text-sm opacity-60 text-center'>
+          The next withdraw window is from {fmtDate(withdrawStat.nWindow.startTime * 1000n)} to {fmtDate((withdrawStat.nWindow.startTime + withdrawStat.nWindow.duration) * 1000n)}.
+        </div>}
     </div>
     <div className='flex flex-col gap-1 w-full'>
       <div className='w-full'>Receive:</div>
       <NumInput title='Licenses' min={0} max={max} value={count} onChange={setCount} />
     </div>
+
     <Txs
       tx='Withdraw'
       className='mt-6'
       onTxSuccess={() => {
         onSuccess()
       }}
-      disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result}
+      disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result || !withdrawStat.inWindow}
       txs={[{
         abi: abiLntVault,
         address: vc.vault,
@@ -242,9 +249,9 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
       </SimpleDialog>
       <SimpleDialog
         triggerRef={withdrawRef}
-        triggerProps={{ className: 'flex-1', disabled: vc.isIdle }}
+        triggerProps={{ className: 'flex-1', disabled: vc.isIdle && !isLOCL }}
         trigger={
-          <BBtn disabled={vc.isIdle} className='flex-1'>Withdraw</BBtn>
+          <BBtn disabled={vc.isIdle && !isLOCL} className='flex-1'>Withdraw</BBtn>
         }
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
@@ -363,6 +370,8 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       tx={vc.isIdle ? 'Coming Soon' : 'Swap'}
       disabled={disableTx || vc.isIdle}
       txs={() => encodeSingleSwap({
+        approveName: `Approve ${input.symbol}`,
+        executeName: `Swap ${input.symbol} for ${output.symbol}`,
         chainId: vc.chain,
         poolkey: poolkey.result!,
         amountIn: inputAssetBn,
@@ -469,6 +478,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       user: address!,
       pc: getPC(vc.chain),
       tx: {
+        name: 'Add Liquidity',
         abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'addLiquidity', args: [{
           amount0Desired: token0IsInput1 ? input1AssetBn : input2AssetBn,
           amount1Desired: token0IsInput1 ? input2AssetBn : input1AssetBn,
@@ -596,6 +606,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
 function VT({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
+  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   const { data: walletClient } = useWalletClient()
   const onAddPToken = () => {
     walletClient?.watchAsset({ type: 'ERC20', options: vt }).catch(handleError)
@@ -607,7 +618,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         <CoinIcon size={48} symbol={vt.symbol} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{vt.symbol}</div>
-          <div className='text-xs leading-none text-black/60 font-medium'>1 VT is equal to 1 T at maturity</div>
+          <div className='text-xs leading-none text-black/60 font-medium'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
         </div>
       </div>
       <div className='flex whitespace-nowrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>

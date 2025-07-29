@@ -1,8 +1,8 @@
-import { abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { abiAethirRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
-import { fmtDuration, promiseAll } from '@/lib/utils'
+import { fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
@@ -15,6 +15,7 @@ export const FET_KEYS = {
   LntVaultOperators: (vc: LntVaultConfig, nodeOP?: Address) => (nodeOP ? `fetLntVaultOperators:${nodeOP}` : ''),
   LntHookPoolkey: (vc: LntVaultConfig, hook?: Address) => (hook && hook !== zeroAddress ? `LntHookPoolkey:${vc.vault}:${hook}` : ''),
   LntWithdrawPrice: (vc: LntVaultConfig) => `LntWithdrawPrice:${vc.vault}`,
+  LntWithdrawWindows: (vc: LntVaultConfig) => (vc.isAethir ? `LntWithdrawWindows:${vc.vault}` : ''),
 }
 export function useLntVault(vc: LntVaultConfig) {
   return useFet({
@@ -103,10 +104,7 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   return { progressPercent, remain, remainStr: `~ ${remain} remaining` }
 }
 
-
-export function calcTPriceVT(tTotal: bigint, vtTotal: bigint){
-
-}
+export function calcTPriceVT(tTotal: bigint, vtTotal: bigint) {}
 
 // export function useT2VTPrice(vc: LntVaultConfig, vtchange: bigint = 0n, tChange: bigint = 0n) {
 //   const vd = useLntVault(vc)
@@ -117,3 +115,29 @@ export function calcTPriceVT(tTotal: bigint, vtTotal: bigint){
 //   const nPrice = rateScalar > 0 && 1 - Pt != 0 ? (1 / rateScalar) * Math.log(Pt / (1 - Pt)) + rateAnchor : 0
 //   return nPrice
 // }
+
+export function useLntVaultWithdrawWindows(vc: LntVaultConfig) {
+  return useFet({
+    key: FET_KEYS.LntWithdrawWindows(vc),
+    initResult: [],
+    fetfn: async () => {
+      const pc = getPC(vc.chain)
+      const redeemStrategy = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'redeemStrategy' })
+      const windowCount = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindowsCount' })
+      const [sTimes, durations] = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindows', args: [0n, windowCount] })
+      return sTimes.map((st, i) => ({ startTime: st, duration: durations[i] })).sort((a, b) => (a.startTime > b.startTime ? 1 : a.startTime < b.startTime ? -1 : 0))
+    },
+  })
+}
+
+export function useLntVaultWithdrawState(vc: LntVaultConfig) {
+  const withdarwWindows = useLntVaultWithdrawWindows(vc)
+  const nowtime = nowUnix()
+  const inWindowI = withdarwWindows.result.findIndex((item) => item.startTime <= nowtime && nowtime <= item.startTime + item.duration)
+  const inWindow = !vc.isAethir || inWindowI >= 0
+  return {
+    inWindow: inWindow,
+    wWindow: inWindow ? (vc.isAethir ? withdarwWindows.result[inWindowI] : undefined) : undefined,
+    nWindow: inWindowI < 0 ? withdarwWindows.result.find((item) => item.startTime > nowtime) : undefined,
+  }
+}

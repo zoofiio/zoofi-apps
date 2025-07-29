@@ -135,7 +135,7 @@ export const fmtDate = (time: number | string | bigint | Date, fmt: string = FMT
 }
 
 // 'seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'
-const FMT_DURATION_TYPES = ['seconds', 'minutes', 'hours', 'days', 'months', 'years'] as const
+const FMT_DURATION_TYPES = ['seconds', 'minutes', 'hours', 'days', 'months'] as const
 type FMT_DURATION_TYPE = (typeof FMT_DURATION_TYPES)[number]
 export const fmtDuration = (duration: number | bigint, type: FMT_DURATION_TYPE | 'auto' = 'auto') => {
   let durationBn = typeof duration == 'number' ? BigInt(duration) : duration
@@ -147,7 +147,7 @@ export const fmtDuration = (duration: number | bigint, type: FMT_DURATION_TYPE |
     days: 1000n * 60n * 60n * 24n,
     // weeks: 1000n * 60n * 60n * 24n * 7n,
     months: 1000n * 60n * 60n * 24n * 7n * 30n,
-    years: 1000n * 60n * 60n * 24n * 365n,
+    // years: 1000n * 60n * 60n * 24n * 365n,
   }
   let fType: FMT_DURATION_TYPE
   if (type == 'auto') {
