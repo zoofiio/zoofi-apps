@@ -16,7 +16,7 @@ import { MouseEvent, useEffect, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
 import { AiFillApi } from "react-icons/ai"
 import { FiChevronRight } from "react-icons/fi"
-import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
+import { LuBox, LuChartLine, LuMenu, LuCircleUser, LuSquareSquare, LuSettings } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
 import { isAddressEqual } from "viem"
 import { useAccount } from "wagmi"
@@ -101,13 +101,13 @@ function MenusContent({ animitem }: { animitem?: boolean }) {
                 href: '/lnt',
                 name: "LNT-Vault",
                 subs: [
-                    { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuBox },
+                    { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuSquareSquare },
                     { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },
-                    { href: '/lnt/portfolio', name: 'Portfolio', icon: LuUserCircle, disabled: true },
-                    { href: '/lnt/dashboard', name: 'Dashboard', icon: LuLineChart, disabled: true },
+                    { href: '/lnt/portfolio', name: 'Portfolio', icon: LuCircleUser, disabled: true },
+                    { href: '/lnt/dashboard', name: 'Dashboard', icon: LuChartLine, disabled: true },
                     ...(showLntVaultAdmin ? [
                         { href: '/lnt/ops', name: 'Ops', icon: AiFillApi },
-                        { href: '/lnt/admin', name: 'Admin', icon: LuLineChart },
+                        { href: '/lnt/admin', name: 'Admin', icon: LuSettings },
                     ] : [])
                 ]
             },
@@ -116,9 +116,9 @@ function MenusContent({ animitem }: { animitem?: boolean }) {
                 name: "B-Vault",
                 subs: [
                     { href: '/b-vaults', name: 'B-Vault', icon: LuBox },
-                    { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuUserCircle },
-                    { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuLineChart },
-                    ...(showBvaultAdmin ? [{ href: '/b-vaults/admin', name: 'Admin', icon: LuLineChart }] : [])
+                    { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuCircleUser },
+                    { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuChartLine },
+                    ...(showBvaultAdmin ? [{ href: '/b-vaults/admin', name: 'Admin', icon: LuSettings }] : [])
                 ],
             }
         ] as MenuItem[]

@@ -22,9 +22,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
 import { useSetState, useToggle } from 'react-use'
-import { erc20Abi, erc721Abi, isAddressEqual, SimulateContractParameters, toHex } from 'viem'
+import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
-import { Txs, withTokenApprove } from './approve-and-tx'
+import { TxConfig, Txs, withTokenApprove } from './approve-and-tx'
 import { AssetInput } from './asset-input'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
@@ -564,7 +564,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const apy = 1.2
   const apyto = apy
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result
-  const txs = (): SimulateContractParameters[] => {
+  const txs = (): TxConfig[] => {
     if (type == 'yt') {
       return encodeModifyLP({ chainId: vc.chain, poolkey: poolkey.result!, lp: vd.result!.vtSwapPoolHook, liquidity: -inputAssetBn, })
     }
@@ -572,6 +572,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     return [
       // { abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, inputAssetBn] },
       {
+        name: 'Remove Liquidity',
         abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'removeLiquidity', args: [{
           liquidity: inputAssetBn,
           amount0Min: 0n,
@@ -618,7 +619,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         <CoinIcon size={48} symbol={vt.symbol} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{vt.symbol}</div>
-          <div className='text-xs leading-none text-black/60 font-medium'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
+          <div className='text-xs leading-none text-black/60 font-medium'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
         </div>
       </div>
       <div className='flex whitespace-nowrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>
@@ -650,6 +651,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
   const { data: walletClient } = useWalletClient()
   const vd = useLntVault(vc)
   const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
+  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   const onAddPToken = () => {
     walletClient?.watchAsset({ type: 'ERC20', options: yt }).catch(handleError)
   }
@@ -659,7 +661,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
         <CoinIcon size={48} symbol={yt.symbol} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{yt.symbol}</div>
-          <div className='text-xs leading-none text-black/60 font-medium'>1 YT is equal to1 T at maturity</div>
+          <div className='text-xs leading-none text-black/60 font-medium'>1 {yt.symbol} is equal to 1 {t.symbol} at maturity</div>
         </div>
       </div>
       <div className='flex whitespace-nowrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>

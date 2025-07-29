@@ -146,7 +146,7 @@ export const fmtDuration = (duration: number | bigint, type: FMT_DURATION_TYPE |
     hours: 1000n * 60n * 60n,
     days: 1000n * 60n * 60n * 24n,
     // weeks: 1000n * 60n * 60n * 24n * 7n,
-    months: 1000n * 60n * 60n * 24n * 7n * 30n,
+    months: 1000n * 60n * 60n * 24n * 30n,
     // years: 1000n * 60n * 60n * 24n * 365n,
   }
   let fType: FMT_DURATION_TYPE
