@@ -1,15 +1,16 @@
-import _ from 'lodash'
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { sliceBVaultsStore } from './sliceBVaultsStore'
 import { sliceTokenStore } from './sliceTokenStore'
 import { sliceUserBVaults } from './sliceUserBVaults'
+import { mapValues } from 'es-toolkit'
+import { get } from 'es-toolkit/compat'
 
 type SliceType<T> = { [k in keyof T]: (set: (data: Partial<T[k]>) => void, get: () => T[k], init?: Partial<T[k]>) => T[k] }
 
 function sliceStores<T>(slices: SliceType<T>, init: Partial<T> = {}) {
   return (set: (data: Partial<T>) => void, get: () => T) => {
-    return _.mapValues(slices, (value, key) =>
+    return mapValues(slices, (value, key) =>
       value(
         (data) => set({ [key as keyof T]: { ...get()[key as keyof T], ...data } } as any),
         () => get()[key as keyof T],
@@ -41,6 +42,6 @@ export function useStore<T>(selector: (s: BoundStoreType) => T, dependsPaths: ('
   const store = useBoundStore()
   return useMemo(
     () => selector(store),
-    dependsPaths.map((path) => (!path ? store : _.get(store, path))),
+    dependsPaths.map((path) => (!path ? store : get(store, path))),
   )
 }

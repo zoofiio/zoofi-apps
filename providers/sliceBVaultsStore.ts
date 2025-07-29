@@ -5,7 +5,8 @@ import { LP_TOKENS } from '@/config/lpTokens'
 import { berachain } from '@/config/network'
 import { DECIMAL } from '@/constants'
 import { toDecimal18 } from '@/lib/utils'
-import _ from 'lodash'
+import { mapValues, range } from 'es-toolkit'
+import { filter, keys, now } from 'es-toolkit/compat'
 import { Address, erc20Abi, parseAbi, parseAbiItem, PublicClient } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
@@ -104,7 +105,7 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     }
   }
   const updateBvaults = async (chainId: number, bvcs: BVaultConfig[]) => {
-    const start = _.now()
+    const start = now()
     console.info('timeStart:updateBvaults', start)
     const pc = getPC(chainId)
     const [datas, lpdatas, ptRates] = await Promise.all([
@@ -126,8 +127,8 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
         ),
       ),
     ])
-    console.info('timeEND:updateBvaults', _.now() - start)
-    const map = _.filter(datas, (item) => item != null).reduce<BVaultsStore['bvaults']>(
+    console.info('timeEND:updateBvaults', now() - start)
+    const map = filter(datas, (item) => item != null).reduce<BVaultsStore['bvaults']>(
       (map, item, i) => ({ ...map, [item.vault]: { ...item.item, ptRebaseRate: ptRates[i] } }),
       {},
     )
@@ -159,7 +160,7 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
   }
 
   const updateEpoches = async (chainId: number, bvc: BVaultConfig, ids?: bigint[]) => {
-    const mIds = ids || _.range(1, parseInt(((get().bvaults[bvc.vault]?.epochCount || 0n) + 1n).toString())).map((num) => BigInt(num))
+    const mIds = ids || range(1, parseInt(((get().bvaults[bvc.vault]?.epochCount || 0n) + 1n).toString())).map((num) => BigInt(num))
     if (mIds.length == 0) return {}
     const pc = getPC(chainId)
     const datas = await Promise.all(
@@ -173,12 +174,12 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
   }
 
   const updateYTokenSythetic = async (chainId: number, bvcs?: BVaultConfig[]) => {
-    const vaults = bvcs?.map((b) => b.vault) || (_.keys(get().bvaults) as Address[])
+    const vaults = bvcs?.map((b) => b.vault) || (keys(get().bvaults) as Address[])
     // const data = await Promise.all(vaults.map((vault) => getBvaultPtSynthetic(vault, 100n))).then((data) =>
     //   data.reduce<{ [k: Address]: bigint }>((map, item, i) => ({ ...map, [vaults[i]]: BigInt(item) }), {}),
     // )
     const data = await getBvaultsPtSynthetic(chainId, vaults)
-    const datas = _.mapValues(data, (v) => BigInt(v))
+    const datas = mapValues(data, (v) => BigInt(v))
     set({ yTokenSythetic: { ...get().yTokenSythetic, ...datas } })
     return datas
   }

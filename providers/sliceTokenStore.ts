@@ -5,7 +5,7 @@ import { LP_TOKENS } from '@/config/lpTokens'
 import { berachain, berachainTestnet } from '@/config/network'
 import { isNativeToken } from '@/config/tokens'
 import { DECIMAL } from '@/constants'
-import _ from 'lodash'
+import { groupBy, mapValues } from 'es-toolkit'
 import { Address, erc20Abi } from 'viem'
 import { getPC } from './publicClient'
 import { SliceFun } from './types'
@@ -101,7 +101,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
   }
 
   const updateTokenPrices = async (chainId: number, tokens: Address[]) => {
-    const groups = _.groupBy(tokens, (token) => (LP_TOKENS[token] ? 'lp' : 'token'))
+    const groups = groupBy(tokens, (token) => (LP_TOKENS[token] ? 'lp' : 'token'))
     const mLps = groups['lp'] || []
     // const mTokens = groups['token'] || []
     if (mLps.length !== 0) {
@@ -153,7 +153,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
 
   const updateNftBalance = async (chainId: number, tokens: Address[], user: Address) => {
     const data = await getNftTokensIdsByUser(chainId, tokens, user)
-    const idsMap = _.mapValues(data, (item) => item.map((id) => BigInt(id)))
+    const idsMap = mapValues(data, (item) => item.map((id) => BigInt(id)))
     set({ nftBalance: { ...get().nftBalance, ...idsMap } })
     return {}
   }

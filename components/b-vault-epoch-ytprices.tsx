@@ -3,22 +3,22 @@ import { BVaultConfig } from '@/config/bvaults'
 import { useQuery } from '@tanstack/react-query'
 import EChartsReact from 'echarts-for-react'
 
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, FMT, fmtDate } from '@/lib/utils'
 import { graphic } from 'echarts'
-import _ from 'lodash'
+import { round } from 'es-toolkit'
 import { useMemo } from 'react'
 import { useMeasure, useToggle } from 'react-use'
 import { formatEther } from 'viem'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 
-const bnToNum = (bn: string) => _.round(parseFloat(formatEther(BigInt(bn))), 5)
+const bnToNum = (bn: string) => round(parseFloat(formatEther(BigInt(bn))), 5)
 
 // const absLog10 = (num: number) => Math.abs(Math.log10(num))
 const multip = 90
-const logTrans = (num: number) => _.round(Math.log10(num * multip + 1), 5)
-const revertLog = (num: number) => _.round((Math.pow(10, num) - 1) / multip, 5)
-// const logTrans = (num: number) => _.round(Math.log10(num * 10000), 5)
-// const revertLog = (num: number) => _.round(Math.pow(10, num) / 10000, 5)
+const logTrans = (num: number) => round(Math.log10(num * multip + 1), 5)
+const revertLog = (num: number) => round((Math.pow(10, num) - 1) / multip, 5)
+// const logTrans = (num: number) => round(Math.log10(num * 10000), 5)
+// const revertLog = (num: number) => round(Math.pow(10, num) / 10000, 5)
 export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfig; epochId: bigint }) {
   const chainId = useCurrentChainId()
   const { data: prices } = useQuery({

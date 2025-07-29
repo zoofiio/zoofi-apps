@@ -3,7 +3,7 @@ import { ENV } from '@/constants'
 import { BVaultEpochDTO } from '@/providers/sliceBVaultsStore'
 import { useBoundStore, useStore } from '@/providers/useBoundStore'
 import { useQuery } from '@tanstack/react-query'
-import _ from 'lodash'
+import { keys } from 'es-toolkit/compat'
 import { useMemo } from 'react'
 import { Address } from 'viem'
 import { useAccount } from 'wagmi'
@@ -61,7 +61,7 @@ export function useLoadUserBVaults() {
   const { address } = useAccount()
   const chainId = useCurrentChainId()
   const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((vc) => (vc.onEnv || []).includes(ENV)), [chainId, ENV])
-  const bvaultsKeys = useStore((s) => _.keys(s.sliceBVaultsStore.bvaults).toString(), ['sliceBVaultsStore.bvaults'])
+  const bvaultsKeys = useStore((s) => keys(s.sliceBVaultsStore.bvaults).toString(), ['sliceBVaultsStore.bvaults'])
   useQuery({
     queryKey: ['UpdateAllUserBvaults', bvcs, chainId, address, bvaultsKeys],
     queryFn: async () => {

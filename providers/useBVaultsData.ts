@@ -3,13 +3,13 @@ import { DECIMAL, YEAR_SECONDS } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { fmtPercent, getBigint, proxyGetDef, retry } from '@/lib/utils'
 import { displayBalance } from '@/utils/display'
-import _ from 'lodash'
 import { useEffect, useMemo } from 'react'
 import { Address } from 'viem'
 import { useAccount } from 'wagmi'
 import { BVaultEpochDTO } from './sliceBVaultsStore'
 import { BoundStoreType, useBoundStore, useStore } from './useBoundStore'
 import { LP_TOKENS } from '@/config/lpTokens'
+import { range } from 'es-toolkit'
 
 export function useResetBVaultsData() {
   const chainId = useCurrentChainId()
@@ -36,7 +36,7 @@ export function useBVaultEpoches(vault: Address) {
     (s: BoundStoreType) => {
       const bvd = s.sliceBVaultsStore.bvaults[vault]
       if (!bvd || bvd.epochCount <= 0n) return []
-      const ids = _.range(1, parseInt((bvd.epochCount + 1n).toString())).reverse()
+      const ids = range(1, parseInt((bvd.epochCount + 1n).toString())).reverse()
       const epochesMap = s.sliceBVaultsStore.epoches
       return ids.map((eppchId) => epochesMap[`${vault}_${eppchId}`]).filter((item) => item != null)
     },
@@ -141,7 +141,7 @@ export function useUpBVaultForUserAction(bvc: BVaultConfig, onUserAction?: () =>
           epoches.push(epoch)
         }
         console.info('onUserAction:epoches', epoches)
-        await useBoundStore.getState().sliceUserBVaults.updateEpoches(chainId,bvc, address, epoches)
+        await useBoundStore.getState().sliceUserBVaults.updateEpoches(chainId, bvc, address, epoches)
       },
       3,
       1000,

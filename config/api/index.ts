@@ -3,8 +3,8 @@ import api from '../../utils/api'
 import axios from 'axios'
 import { parseEthers } from '@/lib/utils'
 import { DECIMAL } from '@/constants'
-import _ from 'lodash'
 import { arbitrum, base, berachain, sepolia } from '../network'
+import { concat } from 'es-toolkit/compat'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -107,7 +107,7 @@ export const getIBGTPrice = () =>
         symbol: string
       }[]
     }>('https://api.zoofi.io/api/third/ibgt')
-    .then((res) => _.concat(res.data.underlyingTokens, res.data.rewardTokens)?.find((item) => item.symbol === 'iBGT'))
+    .then((res) => concat(res.data.underlyingTokens, res.data.rewardTokens)?.find((item) => item.symbol === 'iBGT'))
     .then((data) => (data ? parseEthers(data.price.toFixed(6)) : DECIMAL))
 
 const aclchemyMap: { [k: number]: string } = {

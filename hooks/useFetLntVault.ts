@@ -2,9 +2,10 @@ import { abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
-import { aarToNumber, fmtDuration, promiseAll } from '@/lib/utils'
+import { fmtDuration, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { now, round, toNumber } from 'lodash'
+import { round } from 'es-toolkit'
+import { now, toNumber } from 'es-toolkit/compat'
 import { Address, PublicClient, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 

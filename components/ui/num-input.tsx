@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import _, { toNumber } from "lodash"
+import { isNumber, round, toNumber } from "es-toolkit/compat"
 import { IoIosAdd, IoIosRemove } from "react-icons/io"
 
 export type NumInputProps = {
@@ -42,9 +42,9 @@ export function NumInput({
     onChange
 }: NumInputProps) {
     const clampValue = (v: number) => {
-        let nv = _.round(v, integer ? 0 : decimals)
-        if (_.isNumber(min) && nv < min) nv = min
-        if (_.isNumber(max) && nv > max) nv = max
+        let nv = round(v, integer ? 0 : decimals)
+        if (isNumber(min) && nv < min) nv = min
+        if (isNumber(max) && nv > max) nv = max
         return nv
     }
     const setNewValue = (v: number) => {
@@ -67,7 +67,7 @@ export function NumInput({
                 value={mvalue}
                 onChange={(e) => {
                     const num = tryToNumber(e.target.value)
-                    const nv = integer ? _.round(num) : num
+                    const nv = integer ? round(num) : num
                     onChange?.(nv)
                     setNewValue(nv)
                 }}
@@ -78,6 +78,6 @@ export function NumInput({
             onClick={() => setNewValue((mvalue ?? 0) + step)}>
             <IoIosAdd />
         </div>
-        {_.isNumber(max) && <div className="shrink-0 text-xs font-medium cursor-pointer dark:text-white" onClick={() => setNewValue(max)}>Max</div>}
+        {isNumber(max) && <div className="shrink-0 text-xs font-medium cursor-pointer dark:text-white" onClick={() => setNewValue(max)}>Max</div>}
     </div>
 }

@@ -3,10 +3,10 @@ import { NodeLicense } from '@/config/prelnt'
 import { bnMin, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
-import { flatten } from 'lodash'
 import { parseAbi } from 'viem'
 import { useAccount } from 'wagmi'
 import { useCurrentChainId } from './useCurrentChainId'
+import { flatten } from 'es-toolkit'
 
 export const abiPreDeposit = parseAbi([
   'function deposit(uint256 nftId) external',
@@ -72,7 +72,7 @@ export function usePreDepositByUser(node: NodeLicense) {
 
         return await promiseAll({
           deposited,
-          nfts: getNftsByAlchemy(chainId,nft, user),
+          nfts: getNftsByAlchemy(chainId, nft, user),
         })
       } catch (error) {
         console.error('preDepositData:', error)

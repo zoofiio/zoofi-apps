@@ -8,6 +8,7 @@ import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL } from '@/constants'
 import { useBvaultROI } from '@/hooks/useBVaultROI'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { useGetAdditionalConfig } from '@/hooks/useGetConfigs'
 import { cn, FMT, fmtBn, fmtDate, fmtDuration, fmtPercent, getBigint, handleError, parseEthers, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useStore } from '@/providers/useBoundStore'
@@ -15,7 +16,7 @@ import { useBVault, useBVaultApy, useBVaultBoost, useCalcClaimable, useEpochesDa
 import { displayBalance } from '@/utils/display'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ProgressBar } from '@tremor/react'
-import _ from 'lodash'
+import { now } from 'es-toolkit/compat'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { RiLoopLeftFill } from 'react-icons/ri'
@@ -35,7 +36,6 @@ import { BBtn } from './ui/bbtn'
 import { Switch } from './ui/switch'
 import { Tip } from './ui/tip'
 import { itemClassname, renderChoseSide, renderStat, renderToken } from './vault-card-ui'
-import { useGetAdditionalConfig } from '@/hooks/useGetConfigs'
 
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
@@ -55,7 +55,7 @@ export function BVaultRedeem({ bvc }: { bvc: BVaultConfig }) {
   const epoch = useEpochesData(bvc.vault)[0]
   const pTokenBalance = useStore((s) => s.sliceTokenStore.balances[bvc.pToken] || 0n, [`sliceTokenStore.balances.${bvc.pToken}`])
   const upForUserAction = useUpBVaultForUserAction(bvc)
-  const waitTimeFmt = bvd.current.duration > 0n ? `Waiting Time: ~${fmtDuration((bvd.current.duration + bvd.current.startTime) * 1000n - BigInt(_.now()))}` : ''
+  const waitTimeFmt = bvd.current.duration > 0n ? `Waiting Time: ~${fmtDuration((bvd.current.duration + bvd.current.startTime) * 1000n - BigInt(now()))}` : ''
   return (
     <div className={cn('flex flex-col gap-1')}>
       <AssetInput asset={bvc.pTokenSymbol} assetIcon='Panda' amount={inputPToken} balance={pTokenBalance} setAmount={setInputPToken} />
@@ -167,7 +167,7 @@ export function BVaultClaim({ bvc }: { bvc: BVaultConfig }) {
             <span className='text-black/60 dark:text-white/60'>{displayBalance(redeemingBalance)}</span>
             <div className='ml-auto text-xs text-black/60 dark:text-white/60 '>
               Settlement Time : <span className='text-black dark:text-white font-semibold pr-2'>{fmtDate((bvd.current.duration + bvd.current.startTime) * 1000n, FMT.DATE2)}</span>{' '}
-              {fmtDuration((bvd.current.duration + bvd.current.startTime) * 1000n - BigInt(_.now()))}
+              {fmtDuration((bvd.current.duration + bvd.current.startTime) * 1000n - BigInt(now()))}
             </div>
           </div>
         }
@@ -357,12 +357,6 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
     enabled: inputAssetBn > 0n,
     queryFn: () => getPC(chainId).readContract({ abi: abiBVault, address: bvc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
   })
-  // const { data: perReturnsIBGT } = useReturnsIBGT(bvc.vault)
-  // const endTime = bvd.current.duration + bvd.current.startTime;
-  // const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
-  // const expectYTAmount = bvd.current.yTokenAmountForSwapYT + 1000n;
-  // const returnsIBGTBy1000YT = perReturnsIBGT * DECIMAL * remainDur * 1000n / expectYTAmount
-
   const [priceSwap, togglePriceSwap] = useToggle(false)
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const outputYTokenForInput = inputAssetBn > 0n ? getBigint(result, '1') : 0n
@@ -724,7 +718,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   const [fmtApy] = useBVaultApy(vc)
   const epochName = `Epoch ${(bvd?.epochCount || 0n).toString()}`
   const settleTime = bvd.epochCount == 0n ? '-- -- --' : fmtDate((bvd.current.startTime + bvd.current.duration) * 1000n, FMT.DATE2)
-  const settleDuration = bvd.epochCount == 0n ? '' : fmtDuration((bvd.current.startTime + bvd.current.duration) * 1000n - BigInt(_.now()))
+  const settleDuration = bvd.epochCount == 0n ? '' : fmtDuration((bvd.current.startTime + bvd.current.duration) * 1000n - BigInt(now()))
   const { roi } = useBvaultROI(vc)
   return (
     <div className={cn('animitem card !p-0 grid grid-cols-2 overflow-hidden', {})}>

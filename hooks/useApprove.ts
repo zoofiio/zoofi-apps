@@ -1,12 +1,12 @@
+import { isNativeToken } from '@/config/tokens'
 import { getBigint, getErrorMsg } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import _ from 'lodash'
+import { keys } from 'es-toolkit/compat'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { Address, erc20Abi, erc721Abi, zeroAddress } from 'viem'
+import { Address, erc20Abi, erc721Abi } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { useCurrentChainId } from './useCurrentChainId'
-import { isNativeToken } from '@/config/tokens'
 
 const cacheAllowance: { [k: Address]: { [k: Address]: bigint } } = {}
 
@@ -77,7 +77,7 @@ export const useNftApproves = (needAllownce: { [k: Address]: true }, spender: Ad
   const chainId = useCurrentChainId()
   const { data: walletClient } = useWalletClient()
   const [isSuccess, setSuccess] = useState(false)
-  const tokens = _.keys(needAllownce) as Address[]
+  const tokens = keys(needAllownce) as Address[]
   const [allowance, setAllownce] = useState<{ [k: Address]: boolean }>(spender ? cacheNftAllowance[spender] || {} : {})
   const updateAllownce = (token: Address, value: boolean) => {
     if (!spender) return

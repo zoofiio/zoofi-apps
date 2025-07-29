@@ -12,11 +12,12 @@ import { useCurrentChain } from '@/hooks/useCurrentChainId'
 import { useLntHookPoolkey, useLntVault, useLntVaultOperators, useLntVaultTimes, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
-import { cn, fmtBn, fmtDuration, fmtPercent, formatPercent, genDeadline, handleError, nowUnix, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
+import { cn, fmtBn, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
-import _, { floor, min, now, toNumber } from 'lodash'
+import { debounce } from 'es-toolkit'
+import { floor, keys, min, toNumber } from 'es-toolkit/compat'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
@@ -37,7 +38,7 @@ import { NumInput } from './ui/num-input'
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
-  const tokenIds = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+  const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
   const nfts = useErc721Balance(vd.result!.NFT, vc.chain == zeroGTestnet.id ? 'zoofi' : 'alchemy')
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
@@ -171,7 +172,7 @@ export function LntOperators({ vc }: { vc: LntVaultConfig }) {
 export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
-  const itemClassname = "flex flex-col gap-1 font-medium text-sm"
+  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0"
   const itemTitClassname = "opacity-60 text-xs font-semibold"
   const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, vc.chain, { symbol: 'VT' }))
   const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
@@ -180,8 +181,8 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const { remainStr } = useLntVaultTimes(vc)
   const chain = useCurrentChain()
   return (
-    <div className={cn('animitem card overflow-hidden flex p-6 items-center justify-between cursor-pointer', {})} onClick={() => toLntVault(r, vc.vault)}>
-      <div className='flex items-center gap-5'>
+    <div className={cn('animitem card overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
+      <div className='flex items-center gap-5 shrink-0'>
         <CoinIcon symbol={vc.projectIcon} size={120} className='object-contain' style={{ height: 60 }} />
         <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet })} />
       </div>
@@ -223,7 +224,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const withdrawPrice = useLntWithdrawPrice(vc)
-  return <div className=' flex flex-col h-full justify-between shrink-0 gap-10'>
+  return <div className=' flex flex-col h-full justify-between shrink-0 gap-10 w-full md:w-fit'>
     <div className='flex items-center text-sm justify-center whitespace-nowrap'>
       <span className=''>Total Deposited</span>
       <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
@@ -260,16 +261,19 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   const { progressPercent, remainStr } = useLntVaultTimes(vc)
   return <div style={{
     backdropFilter: 'blur(20px)'
-  }} className="animitem card bg-white flex gap-5 h-full col-span-2" >
+  }} className="animitem card bg-white flex gap-5 h-full col-span-2 flex-wrap justify-center md:flex-nowrap" >
     <div className='flex flex-col'>
-      <div className="flex gap-5 relative">
+      <div className="flex gap-5 relative justify-center flex-wrap md:flex-nowrap">
         {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
         <CoinIcon symbol={vc.icon} size={161} className='object-contain' />
         <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
-          <div className="text-base font-semibold">{vc.tit}</div>
+          <div className='flex justify-between gap-5 flex-wrap'>
+            <div className="text-base font-semibold">{vc.tit}</div>
+            {vc.isIdle && <div className='underline underline-offset-2 text-red-500 flex items-center gap-2 whitespace-pre-wrap'><CoinIcon size={16} symbol='Fire' /> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
+          </div>
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
-        {vc.isIdle && <div className='underline underline-offset-2 absolute top-0 right-0 text-red-500 flex items-center gap-2'><CoinIcon size={16} symbol='Fire' /> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
+
       </div >
       <div className='my-4 flex justify-between opacity-60'>Duration <span>{remainStr}</span></div>
       <div className="flex w-full h-4 bg-gray-200 rounded-full ">
@@ -401,7 +405,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const apyto = apy
   const [calcKey, setCalcKey] = useState<any[]>(['calcLPAdd'])
   const wrapSetCalcKey = useMemo(() =>
-    _.debounce((isToken0: boolean, amount: bigint) => {
+    debounce((isToken0: boolean, amount: bigint) => {
       console.info('setCalcKey:', isToken0, amount, token0IsInput1)
       setCalcKey([isToken0, amount, 'calcLPAdd', token0IsInput1])
     }, 300), [token0IsInput1])

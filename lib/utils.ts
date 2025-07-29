@@ -1,10 +1,12 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { formatUnits, parseUnits, parseEther as _parseEther, etherUnits, Address, zeroAddress, hexToBigInt } from 'viem'
-import _, { get, now, round, toNumber } from 'lodash'
-import { toast } from 'sonner'
-import dayjs from 'dayjs'
+import { parseEther as _parseEther, Address, etherUnits, formatUnits, hexToBigInt, parseUnits } from 'viem'
+
 import { DECIMAL } from '@/constants'
+import dayjs from 'dayjs'
+import { round, trimEnd, trimStart } from 'es-toolkit'
+import { get, now, toNumber } from 'es-toolkit/compat'
+import { toast } from 'sonner'
 
 export type UnwrapPromise<T> = T extends Promise<infer S> ? S : T
 export type UnPromise<T> = T extends () => Promise<infer U> ? U : UnwrapPromise<T>
@@ -73,7 +75,7 @@ export function formatPercent(percet: number, decimals: number = 2) {
     return `<${minValue * 100}%`
   }
 
-  return `${_.round(percet * 100, decimals)} %`
+  return `${round(percet * 100, decimals)} %`
 }
 
 export function getBigint(result: any, path: string | (string | number)[], def: bigint = 0n) {
@@ -180,12 +182,12 @@ export const fmtBn = (bn: bigint, decimals: bigint | number = 18, autoDecimals?:
     if (r.length > 3) {
       let end = ''
       if (l == '0') {
-        const trim0 = _.trimStart(r, '0')
+        const trim0 = trimStart(r, '0')
         const trimd0Count = r.length - trim0.length
-        const sliced = _.trimEnd(trim0.slice(0, 3), '0')
+        const sliced = trimEnd(trim0.slice(0, 3), '0')
         end = '.' + sliced.padStart(trimd0Count + sliced.length, '0')
       } else {
-        const trim0 = _.trimEnd(r.slice(0, 3), '0')
+        const trim0 = trimEnd(r.slice(0, 3), '0')
         trim0 && (end = `.${trim0}`)
       }
       return `${l}${end}`

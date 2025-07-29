@@ -8,7 +8,6 @@ import { useBVault } from '@/providers/useBVaultsData'
 import { useBalances } from '@/providers/useTokenStore'
 import { displayBalance } from '@/utils/display'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import _ from 'lodash'
 import { useMemo, useRef, useState } from 'react'
 import { FiArrowDown } from 'react-icons/fi'
 import { useDebounce } from 'react-use'
@@ -23,6 +22,7 @@ import { BBtn } from './ui/bbtn'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { berachain } from '@/config/network'
 import { isNativeToken } from '@/config/tokens'
+import { isEmpty } from 'es-toolkit/compat'
 
 const defTokens: TokenItem[] = [
   { symbol: 'HONEY', name: 'HONEY Token', address: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03', decimals: 18, },
@@ -45,7 +45,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
   const chainId = useCurrentChainId()
   const defTokenList = useStore((s) => s.sliceTokenStore.defTokenList)
   const originTokens = useMemo(() => {
-    const list = !_.isEmpty(tokens) ? tokens! : !_.isEmpty(defTokenList) ? defTokenList! : chainId == berachain.id ? beraTokens : defTokens
+    const list = !isEmpty(tokens) ? tokens! : isEmpty(defTokenList) ? defTokenList! : chainId == berachain.id ? beraTokens : defTokens
     if (hiddenNative) return list.filter((item) => !isNativeToken(item.address))
     return list
   }, [tokens, defTokenList, hiddenNative, chainId])
@@ -139,7 +139,7 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
   const balances = useBalances()
   const bvd = useBVault(bvc.vault)
   const defTokenList = useStore((s) => s.sliceTokenStore.defTokenList)
-  const defToken = !_.isEmpty(defTokenList) ? defTokenList[0] : defTokens[0]
+  const defToken = !isEmpty(defTokenList) ? defTokenList[0] : defTokens[0]
   const [stoken, setStoken] = useState(defToken)
   const [input, setInput] = useState('')
   const balance = balances[stoken.address]

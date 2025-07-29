@@ -1,7 +1,7 @@
 import { promiseAll } from '@/lib/utils'
 import { Token } from '@uniswap/sdk-core'
 import { Pool, Position } from '@uniswap/v4-sdk'
-import _ from 'lodash'
+import { now } from 'es-toolkit/compat'
 import {
   Address,
   encodeAbiParameters,
@@ -91,7 +91,7 @@ export function withPermit2({
   permit2,
   spender,
   amountIn,
-  expiration = Math.round(_.now() / 1000 + 60 * 10),
+  expiration = Math.round(now() / 1000 + 60 * 10),
   tx,
 }: {
   input: Address
@@ -122,7 +122,7 @@ export async function encodeSingleSwap({ chainId, poolkey, is0To1 = true, amount
   const actions = encodePacked(['uint8', 'uint8', 'uint8'], [0x06, 0x0c, 0x0f])
   const input = is0To1 ? poolkey.currency0 : poolkey.currency1
   const out = is0To1 ? poolkey.currency1 : poolkey.currency0
-  const expiration = Math.round(_.now() / 1000 + deadline)
+  const expiration = Math.round(now() / 1000 + deadline)
   const params: Hex[] = ['0x', '0x', '0x']
   if (!poolkey.hooks) poolkey.hooks = zeroAddress
   params[0] = encodeAbiParameters(
@@ -191,7 +191,7 @@ export function encodeModifyLP({
   deadline = 60 * 10,
 }: UniModifyLP): SimulateContractParameters[] {
   const cf = UNI_CONFIGS[chainId]
-  const expiration = Math.round(_.now() / 1000 + deadline)
+  const expiration = Math.round(now() / 1000 + deadline)
   const poolKey = {
     ...poolkey,
     hooks: poolkey.hooks ?? zeroAddress,

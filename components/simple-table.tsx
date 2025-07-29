@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import _ from 'lodash'
+import { floor } from 'es-toolkit/compat'
 import React, { CSSProperties, ReactNode } from 'react'
 
 export interface TableProps {
@@ -13,7 +13,7 @@ export interface TableProps {
   rowClassName?: string | ((index: number) => string)
   rowStyle?: CSSProperties | ((index: number) => CSSProperties)
   cellClassName?: string | ((index: number, cellIndex: number) => string)
-  headerItemClassName?: string
+  headerItemClassName?: string | ((index: number) => string)
   onClickRow?: (rowIndex: number) => void
   // index -1 表示没有hover在row上
   onRowMouseHover?: (index: number) => void
@@ -32,7 +32,7 @@ export const STable = ({
   data,
   span = {},
   empty = <DefEmpty />,
-  className = 'relative min-w-full bg-transparent ',
+  className,
   headerClassName,
   headerItemClassName,
   tbodyClassName = '',
@@ -46,7 +46,7 @@ export const STable = ({
   const cols = header.reduce<number>((sum, _item, i) => sum + (span[i] ?? 1), 0);
   const baseSize = cols > 0 ? 100 / cols : 0;
   return (
-    <table className={cn('relative min-w-full bg-transparent ', className)}>
+    <table className={cn('relative w-full bg-transparent ', className)}>
       <thead className=''>
         <tr
           className={cn(
@@ -57,10 +57,10 @@ export const STable = ({
           {header.map((head, i) => {
             return (
               <th
-                style={{ width: `${_.floor(baseSize * (span[i] ?? 1), 2)}%` }}
+                style={{ width: `${floor(baseSize * (span[i] ?? 1), 2)}%` }}
                 key={i}
                 scope='col'
-                className={cn(span[i] == 0 ? 'p-0 w-0' : 'p-3 font-normal text-sm', headerItemClassName)}
+                className={cn(span[i] == 0 ? 'p-0 w-0' : 'p-3 font-normal text-sm', typeof headerItemClassName == 'function' ? headerItemClassName(i) : headerItemClassName)}
               >
                 {head}
               </th>

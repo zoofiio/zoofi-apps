@@ -1,28 +1,29 @@
 'use client'
 
+import { abiZooProtocol } from "@/config/abi"
+import { abiLntProtocol } from "@/config/abi/abiLNTVault"
+import { BVAULTS_CONFIG } from "@/config/bvaults"
+import { LNTVAULTS_CONFIG } from "@/config/lntvaults"
+import { isLOCL } from "@/constants"
 import { useCurrentChainId } from "@/hooks/useCurrentChainId"
 import { cn } from "@/lib/utils"
+import { getPC } from "@/providers/publicClient"
 import { useQuery } from "@tanstack/react-query"
-import _, { size } from "lodash"
+import { uniq, uniqBy } from "es-toolkit"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { MouseEvent, useEffect, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
+import { AiFillApi } from "react-icons/ai"
 import { FiChevronRight } from "react-icons/fi"
 import { LuBox, LuLineChart, LuMenu, LuUserCircle } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
+import { isAddressEqual } from "viem"
+import { useAccount } from "wagmi"
 import { CoinIcon } from "./icons/coinicon"
 import { usePageLoad } from "./page-loading"
 import { Tip } from "./ui/tip"
-import { BVAULTS_CONFIG } from "@/config/bvaults"
-import { getPC } from "@/providers/publicClient"
-import { abiZooProtocol } from "@/config/abi"
-import { useAccount } from "wagmi"
-import { isAddressEqual } from "viem"
-import { LNTVAULTS_CONFIG } from "@/config/lntvaults"
-import { abiLntProtocol } from "@/config/abi/abiLNTVault"
-import { isLOCL } from "@/constants"
-import { AiFillApi } from "react-icons/ai";
+import { size } from "es-toolkit/compat"
 
 export type MenuItem = {
     name: string,
@@ -71,7 +72,7 @@ function useShowBvaultAdmin() {
         enabled: Boolean(address),
         initialData: false,
         queryFn: async () => {
-            const admins = await Promise.all(_.union(BVAULTS_CONFIG[chainId].map(item => item.protocolAddress)).map(item => getPC(chainId).readContract({ abi: abiZooProtocol, address: item, functionName: 'protocolOwner' })))
+            const admins = await Promise.all(uniq(BVAULTS_CONFIG[chainId].map(item => item.protocolAddress)).map(item => getPC(chainId).readContract({ abi: abiZooProtocol, address: item, functionName: 'protocolOwner' })))
             return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })
@@ -85,7 +86,7 @@ function useShowLntVaultAdmin() {
         enabled: Boolean(address),
         initialData: false,
         queryFn: async () => {
-            const admins = await Promise.all(_.unionBy(LNTVAULTS_CONFIG, item => item.protocol).map(item => getPC(item.chain).readContract({ abi: abiLntProtocol, address: item.protocol, functionName: 'owner' })))
+            const admins = await Promise.all(uniqBy(LNTVAULTS_CONFIG, item => item.protocol).map(item => getPC(item.chain).readContract({ abi: abiLntProtocol, address: item.protocol, functionName: 'owner' })))
             return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })

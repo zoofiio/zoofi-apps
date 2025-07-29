@@ -1,23 +1,23 @@
-import EChartsReact from 'echarts-for-react'
 
 import { LntVaultConfig } from '@/config/lntvaults'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { cn, FMT, fmtDate } from '@/lib/utils'
+import { FMT, fmtDate } from '@/lib/utils'
 import { graphic } from 'echarts'
-import _, { now, random, range, round } from 'lodash'
+import { random, range, round } from 'es-toolkit'
+import { now } from 'es-toolkit/compat'
 import { useMemo, useState } from 'react'
 import { useToggle } from 'react-use'
 import { formatEther } from 'viem'
 import { SimpleSelect } from './ui/select'
 
-const bnToNum = (bn: string) => _.round(parseFloat(formatEther(BigInt(bn))), 5)
+const bnToNum = (bn: string) => round(parseFloat(formatEther(BigInt(bn))), 5)
 
 // const absLog10 = (num: number) => Math.abs(Math.log10(num))
 const multip = 90
-const logTrans = (num: number) => _.round(Math.log10(num * multip + 1), 5)
-const revertLog = (num: number) => _.round((Math.pow(10, num) - 1) / multip, 5)
-// const logTrans = (num: number) => _.round(Math.log10(num * 10000), 5)
-// const revertLog = (num: number) => _.round(Math.pow(10, num) / 10000, 5)
+const logTrans = (num: number) => round(Math.log10(num * multip + 1), 5)
+const revertLog = (num: number) => round((Math.pow(10, num) - 1) / multip, 5)
+// const logTrans = (num: number) => round(Math.log10(num * 10000), 5)
+// const revertLog = (num: number) => round(Math.pow(10, num) / 10000, 5)
 
 function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVaultConfig }) {
   const chainId = useCurrentChainId()
@@ -26,7 +26,7 @@ function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVa
   const { options } = useMemo(() => {
     const nowtime = now()
     const total = 20
-    const data = range(0, total).map(item => [fmtDate(nowtime - (total - item) * 60 * 60 * 1000, FMT.ALL), round(random(0.9, 1.1, true), 3)])
+    const data = range(0, total).map(item => [fmtDate(nowtime - (total - item) * 60 * 60 * 1000, FMT.ALL), round(random(0.9, 1.1), 3)])
     // const data = prices.map((p) => [fmtDate(p.time * 1000, FMT.ALL), isLOG ? logTrans(bnToNum(p.price)) : bnToNum(p.price)])
     const valueFormater = (value: number) => (isLOG ? revertLog(value).toString() : value.toString())
     const calcMax = (v: any) => {

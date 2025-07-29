@@ -1,7 +1,6 @@
 import { NodeLicense } from "@/config/prelnt";
 import { abiPreDeposit, usePreDepositByUser, usePreDepositData } from "@/hooks/usePreDeposit";
 import { cn } from "@/lib/utils";
-import _ from "lodash";
 import Link from "next/link";
 import { ButtonHTMLAttributes, ReactNode, useMemo, useRef } from "react";
 import { useSetState } from "react-use";
@@ -10,6 +9,7 @@ import { useAccount } from "wagmi";
 import { NftApproveAndTx } from "./approve-and-tx";
 import { CoinIcon } from "./icons/coinicon";
 import { SimpleDialog } from "./simple-dialog";
+import { keys, now } from "es-toolkit/compat";
 
 
 
@@ -160,9 +160,9 @@ function OutSvg() {
 
 function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () => void }) {
     const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
-    const tokenIds = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+    const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
     const data = useMemo(() => {
-        const ids = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+        const ids = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
         return ids.map(id => encodeFunctionData({ abi: abiPreDeposit, functionName: 'deposit', args: [id] }))
     }, [selectedNft])
     const pre = node.preDeposit!
@@ -202,9 +202,9 @@ function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () =
 }
 function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () => void }) {
     const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
-    const tokenIds = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+    const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
     const data = useMemo(() => {
-        const ids = _.keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
+        const ids = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
         return ids.map(id => encodeFunctionData({ abi: abiPreDeposit, functionName: 'withdraw', args: [id] }))
     }, [selectedNft])
     const { data: { deposited } , refetch} = usePreDepositByUser(node)
@@ -288,9 +288,9 @@ export function PrePool({ data }: { data: NodeLicense }) {
                 <OutSvg />
                 <SimpleDialog
                     triggerRef={withdrawRef}
-                    triggerProps={{ className: 'flex-1', disabled: !data.preDeposit || (data.preDeposit.withdrawTime || 0) > _.now() }}
+                    triggerProps={{ className: 'flex-1', disabled: !data.preDeposit || (data.preDeposit.withdrawTime || 0) > now() }}
                     trigger={
-                        <BtnB disabled={!data.preDeposit || (data.preDeposit.withdrawTime || 0) > _.now()}>Withdraw</BtnB>
+                        <BtnB disabled={!data.preDeposit || (data.preDeposit.withdrawTime || 0) > now()}>Withdraw</BtnB>
                     }
                 >
                     <LntPreWithdraw node={data} onSuccess={() => { withdrawRef.current?.click(); reFetData(); reFetUser() }} />

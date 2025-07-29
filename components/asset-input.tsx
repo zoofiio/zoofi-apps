@@ -10,7 +10,9 @@ import { CoinIcon } from './icons/coinicon'
 import { useThemeState } from './theme-mode'
 import { Spinner } from './spinner'
 import { useMeasure } from 'react-use'
-import _, { ceil, floor, toNumber } from 'lodash'
+import { round } from 'es-toolkit'
+import { toNumber } from 'es-toolkit/compat'
+
 
 export function AssetInput({
   asset = 'ETH',
@@ -136,7 +138,7 @@ export function AssetInput({
           ref={inputRef}
           type='number'
           disabled={disable}
-          style={{ paddingLeft: `${_.round((coinSymbolWidth + 32) / 16, 3)}rem` }}
+          style={{ paddingLeft: `${round((coinSymbolWidth + 32) / 16, 3)}rem` }}
           className={clsx(
             readonly ? 'bg-slate-50 cursor-not-allowed dark:bg-slate-800' : 'bg-white dark:bg-transparent',
             {
@@ -166,7 +168,7 @@ export function AssetInput({
               className='text-primary ml-2'
               onClick={() => {
                 let fmtAmount = formatUnits(balance, decimals)
-                if (integer) fmtAmount = floor(toNumber(fmtAmount)).toString()
+                if (integer) fmtAmount = Math.floor(toNumber(fmtAmount)).toString()
                 setAmount(fmtAmount)
                 onClick && !disable && onClick()
               }}

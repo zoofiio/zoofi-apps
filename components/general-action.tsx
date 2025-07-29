@@ -2,7 +2,6 @@ import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, handleError, parseEthers, promiseT } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { isNil, toString } from 'lodash'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
@@ -14,6 +13,7 @@ import { ApproveAndTx, Txs } from './approve-and-tx'
 import { BBtn } from './ui/bbtn'
 import { AddMultiTx } from './multitxs'
 import { Spinner } from './spinner'
+import { isNil } from 'es-toolkit'
 
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {

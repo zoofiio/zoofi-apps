@@ -5,12 +5,13 @@ import { getPC } from '@/providers/publicClient'
 import { useStore } from '@/providers/useBoundStore'
 import { calcLPPrice, useBVault } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
-import _ from 'lodash'
 import { Address, formatEther, parseEther } from 'viem'
 import { AdditionalSupportTokens, useGetAdditionalConfig } from './useGetConfigs'
 import { useReturnsIBGT } from './useReturnsIBGT'
 import { getBigint } from '@/lib/utils'
 import { useCurrentChainId } from './useCurrentChainId'
+import { round } from 'es-toolkit'
+import { now } from 'es-toolkit/compat'
 
 export function useYTPoints(vault: Address) {
   const bvd = useBVault(vault)
@@ -48,7 +49,7 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n, afterYtPri
   const { data: perReturnsIBGT, isLoading: isLoading1 } = useReturnsIBGT(vc.vault)
   const { data: additionalConfig, isLoading: isLoading2 } = useGetAdditionalConfig()
   const endTime = bvd.current.duration + bvd.current.startTime
-  const remainDur = endTime > 0n ? endTime - BigInt(_.round(_.now() / 1000)) : 0n
+  const remainDur = endTime > 0n ? endTime - BigInt(round(now() / 1000)) : 0n
 
   const ytAmount = bvd.current.yTokenAmountForSwapYT
   const returnsIBGTByYT = ytAmount > 0n ? (perReturnsIBGT * DECIMAL * remainDur) / ytAmount : 0n
