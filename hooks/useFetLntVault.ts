@@ -1,8 +1,9 @@
 import { abiAethirRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
+import { getTokenBy } from '@/config/tokens'
 import { useFet } from '@/lib/useFet'
-import { fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
+import { aarToNumber, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
@@ -11,6 +12,7 @@ import { useAccount } from 'wagmi'
 
 export const FET_KEYS = {
   LntVault: (vc: LntVaultConfig) => `fetLntVault:${vc.vault}`,
+  LntVaultLogs: (vc: LntVaultConfig) => `LntVaultLogs:${vc.vault}`,
   LntVaultYTRewards: (vc: LntVaultConfig, yt?: Address, user?: string) => (yt && yt !== zeroAddress && user ? `fetLntVaultYTRewards:${yt}:${user}` : ''),
   LntVaultOperators: (vc: LntVaultConfig, nodeOP?: Address) => (nodeOP ? `fetLntVaultOperators:${nodeOP}` : ''),
   LntHookPoolkey: (vc: LntVaultConfig, hook?: Address) => (hook && hook !== zeroAddress ? `LntHookPoolkey:${vc.vault}:${hook}` : ''),
@@ -24,8 +26,8 @@ export function useLntVault(vc: LntVaultConfig) {
       const pc = getPC(vc.chain)
       const { lntdata, ...other } = await promiseAll({
         lntdata: pc.readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
-        expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }).catch(() => 1784968222n),
-        startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }).catch(() => 1750840222n),
+        expiryTime: vc.isAethir ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }) : Promise.resolve(1784968222n),
+        startTime: vc.isAethir ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }) : Promise.resolve(1750840222n),
       })
       return { ...lntdata, ...other }
     },
@@ -104,7 +106,32 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   return { progressPercent, remain, remainStr: `~ ${remain} remaining` }
 }
 
-export function calcTPriceVT(tTotal: bigint, vtTotal: bigint) {}
+export function useLntVaultLogs(vc: LntVaultConfig) {
+  return useFet({
+    key: FET_KEYS.LntVaultLogs(vc),
+    fetfn: async () => getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'getLog', args: [vc.vault] }),
+  })
+}
+
+export function calcTPriceVT(
+  vc: LntVaultConfig,
+  vd: ReturnType<typeof useLntVault>['result'],
+  logs: ReturnType<typeof useLntVaultLogs>['result'],
+  tChange: bigint = 0n,
+  vtChange: bigint = 0n,
+) {
+  if (!logs || !vd) return 0
+  const T = getTokenBy(vd.T, vc.chain)!
+  const VT = getTokenBy(vd.VT, vc.chain)!
+  const tNum = aarToNumber(logs.t + tChange, T.decimals)
+  const vtNum = aarToNumber(logs.vt + vtChange, VT.decimals)
+  const RNum = aarToNumber(logs.R, 18)
+  const vtPecent = tNum + vtNum > 0 ? vtNum / (tNum + vtNum) : 0
+  const rateScalar = aarToNumber(logs.rateScalar, 18)
+  const rateAnchor = aarToNumber(logs.rateAnchor, 18)
+  const tPriceVt = rateScalar > 0 && 1 - vtPecent != 0 ? Math.log(vtPecent / (1 - vtPecent) / RNum) / rateScalar + rateAnchor : 0
+  return tPriceVt;
+}
 
 // export function useT2VTPrice(vc: LntVaultConfig, vtchange: bigint = 0n, tChange: bigint = 0n) {
 //   const vd = useLntVault(vc)

@@ -113,7 +113,7 @@ export default function AdminPage() {
               <GeneralAction abi={abiLntVault} functionName='updateAutoBuyback' address={current.vc.vault}
                 infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'autoBuyback' })} />
               <GeneralAction abi={abiLntVault} functionName='updateCheckerNode' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='setUser' address={current.vc.vault} argsDef={['', '', (2n**64n).toString()]} />
+              <GeneralAction abi={abiLntVault} functionName='setUser' address={current.vc.vault} argsDef={['', '', (2n ** 63n).toString()]} />
               <GeneralAction abi={abiLntVault} functionName='batchSetUser' address={current.vc.vault} />
               <GeneralAction abi={abiLntVault} functionName='removeLastSetUserRecords' address={current.vc.vault} />
               <GeneralAction abi={abiLntVault} functionName='buybackVT' address={current.vc.vault} />

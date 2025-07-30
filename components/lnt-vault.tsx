@@ -9,14 +9,14 @@ import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL, isLOCL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { useLntHookPoolkey, useLntVault, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
+import { calcTPriceVT, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
 import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
-import { debounce } from 'es-toolkit'
+import { debounce, round } from 'es-toolkit'
 import { floor, keys, min, toNumber } from 'es-toolkit/compat'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -299,6 +299,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
 
 function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const vd = useLntVault(vc)
+  const logs = useLntVaultLogs(vc)
   const [inputAsset, setInputAsset] = useState(vc.isIdle ? '1' : '')
   const inputAssetBn = parseEthers(inputAsset)
   const [isToggled, toggle] = useToggle(true)
@@ -345,7 +346,8 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   })
 
   const fees = inputAssetBn > 0n ? `${fmtBn(inputAssetBn * feeRate / 10000n, input.decimals)} ${input.symbol}` : ''
-
+  const tPriceVt = calcTPriceVT(vc, vd.result, logs.result)
+  // const swapPrice = type == 'vt' ? `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}` : '-'
   const swapPrice = '-'
   const errorInput = ''
   const priceimpcat = '-'

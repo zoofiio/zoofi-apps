@@ -13,7 +13,7 @@ import './globals.css'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
 const inter = Inter({ subsets: ['latin'] })
-const PageLayout = dynamic(() => import("./pagelayout"))
+const PageLayout = dynamic(() => import("./pagelayout"), { ssr: false })
 
 const baseMeta = {
   title: 'Zoo Finance',
