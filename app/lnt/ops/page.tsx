@@ -2,33 +2,37 @@
 
 import { PageWrap } from "@/components/page-wrap";
 import { LntVaultConfig, LNTVAULTS_CONFIG } from "@/config/lntvaults";
-import { useLntVault } from "@/hooks/useFetLntVault";
-import { cn } from "@/lib/utils";
-import { displayBalance } from "@/utils/display";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useSetState } from "react-use";
 
+function AethirOpsManager({ vc }: { vc: LntVaultConfig }) {
+    const [ss, setSS] = useSetState({
+        token: ''
+    })
+    const {} = useQuery({
+        queryKey: ['VaultNFTRecodes', vc],
+        queryFn: async () => {
 
-function LntVaultCount({ vc }: { vc: LntVaultConfig }) {
-    const vd = useLntVault(vc)
-    const activeCount = vd.result?.activeDepositCount ?? 0n
-    const successDelegateCount = activeCount
-    const hasError = successDelegateCount !== activeCount
-    return <div className="animitem card flex flex-col items-center gap-5">
-        <div className="font-semibold text-xl">{vc.tit}</div>
-        <div className="flex items-baseline gap-5">
-            Deposited:
-            <div className="font-bold text-5xl text-primary">{displayBalance(activeCount, 0, 0)}</div>
-        </div>
-        <div className="flex items-baseline gap-5">
-            Delegated:
-            <div className={cn("font-bold text-5xl text-primary", { "text-red-500": hasError })}>{displayBalance(successDelegateCount, 0, 0)}</div>
+        }
+    })
+    const { mutate: orderNodeOps } = useMutation({
+        mutationFn: async () => {
+
+        }
+    })
+
+    return <div className="flex flex-col gap-5">
+        <div className="animitem font-semibold text-xl">{vc.tit}</div>
+        
+
+        <div className="">
+
         </div>
     </div>
 }
 
 export default function Page() {
     return <PageWrap>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5 p-5">
-            <>{LNTVAULTS_CONFIG.map((vc, i) => <LntVaultCount key={`lvc_${i}`} vc={vc} />)}</>
-        </div>
+        {LNTVAULTS_CONFIG.filter(item => item.isAethir && !item.test).map(vc => <AethirOpsManager vc={vc} key={vc.vault} />)}
     </PageWrap>
 }

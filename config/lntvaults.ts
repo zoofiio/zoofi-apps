@@ -46,7 +46,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     AethirRedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
     isAethir: true,
     lpTYT: '0x123',
-    test: true,
+    test: false,
     isIdle: true,
     vtActive: true,
     ytEnable: false,

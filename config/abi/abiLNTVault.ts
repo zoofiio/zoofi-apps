@@ -28,6 +28,8 @@ export const abiLntVault = parseAbi([
   // owner
   'function updateAutoBuyback(bool newAutoBuyback) external',
   'function updateCheckerNode(address newCheckerNode) external',
+  'function checkerNode() external view returns(address)',
+
   'function setUser(uint256 tokenId, address user, uint64 expires) external',
   'function batchSetUser(uint256[] calldata tokenIds, address[] calldata users, uint64 expires) external',
   'function removeLastSetUserRecords(uint256 count, bool force) external',
