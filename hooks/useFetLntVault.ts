@@ -126,11 +126,11 @@ export function calcTPriceVT(
   const tNum = aarToNumber(logs.t + tChange, T.decimals)
   const vtNum = aarToNumber(logs.vt + vtChange, VT.decimals)
   const RNum = aarToNumber(logs.R, 18)
-  const vtPecent = tNum + vtNum > 0 ? vtNum / (tNum + vtNum) : 0
+  const vtPecent = tNum + vtNum > 0 ? Math.min(vtNum / (tNum + vtNum), 1) : 0
   const rateScalar = aarToNumber(logs.rateScalar, 18)
   const rateAnchor = aarToNumber(logs.rateAnchor, 18)
-  const tPriceVt = rateScalar > 0 && 1 - vtPecent != 0 ? Math.log(vtPecent / (1 - vtPecent) / RNum) / rateScalar + rateAnchor : 0
-  return tPriceVt;
+  const tPriceVt = rateScalar != 0 && 1 - vtPecent != 0 ? Math.log(vtPecent / (1 - vtPecent) / RNum) / rateScalar + rateAnchor : 0
+  return tPriceVt
 }
 
 // export function useT2VTPrice(vc: LntVaultConfig, vtchange: bigint = 0n, tChange: bigint = 0n) {
@@ -150,6 +150,8 @@ export function useLntVaultWithdrawWindows(vc: LntVaultConfig) {
     fetfn: async () => {
       const pc = getPC(vc.chain)
       const redeemStrategy = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'redeemStrategy' })
+      const canRedeem = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'canRedeem' })
+      if (canRedeem) return [{ startTime: nowUnix(), duration: 10000000000n }]
       const windowCount = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindowsCount' })
       const [sTimes, durations] = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindows', args: [0n, windowCount] })
       return sTimes.map((st, i) => ({ startTime: st, duration: durations[i] })).sort((a, b) => (a.startTime > b.startTime ? 1 : a.startTime < b.startTime ? -1 : 0))

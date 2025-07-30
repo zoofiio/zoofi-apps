@@ -66,7 +66,7 @@ export function parseEthers(num: string, unit?: Parameters<typeof _parseEther>[1
 export function fmtPercent(percent: bigint, decimals: number | bigint, showDecimals: number = 2) {
   const _decimals = typeof decimals == 'bigint' ? parseInt(decimals.toString()) : decimals
   const _percent = formatUnits(percent * 100n, _decimals)
-  return parseFloat(_percent.replaceAll(',', '')).toFixed(showDecimals) + '%'
+  return round(parseFloat(_percent.replaceAll(',', '')), showDecimals) + '%'
 }
 export function formatPercent(percet: number, decimals: number = 2) {
   const minValue = 1 / Math.pow(10, decimals + 2)
@@ -157,7 +157,7 @@ export const fmtDuration = (duration: number | bigint, type: FMT_DURATION_TYPE |
     fType = type
   }
   const count = ((durationBn * 100n) / divVauleMap[fType]).toString()
-  return `${round(toNumber(count)/100)} ${fType}`
+  return `${round(toNumber(count) / 100)} ${fType}`
 }
 
 export const decimalBn = (decimals: bigint | number = 10n) => 10n ** BigInt(decimals || 10n)

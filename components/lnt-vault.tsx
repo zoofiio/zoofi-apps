@@ -339,18 +339,26 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       }).then(([out]) => out).catch(() => 0n)
     }
   })
-  const { data: feeRate } = useQuery({
-    queryKey: ['calcFee', vc.vault, vt.address, type],
-    initialData: 30n,
-    queryFn: async () => 30n
-  })
-
-  const fees = inputAssetBn > 0n ? `${fmtBn(inputAssetBn * feeRate / 10000n, input.decimals)} ${input.symbol}` : ''
-  const tPriceVt = calcTPriceVT(vc, vd.result, logs.result)
-  // const swapPrice = type == 'vt' ? `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}` : '-'
-  const swapPrice = '-'
-  const errorInput = ''
-  const priceimpcat = '-'
+  // const { data: feeRate } = useQuery({
+  //   queryKey: ['calcFee', vc.vault, vt.address, type],
+  //   initialData: 30n,
+  //   queryFn: async () => 30n
+  // })
+  let fees = '-'
+  if (logs.result && logs.result.Feerate > DECIMAL) {
+    fees = `${fmtPercent(logs.result.Feerate - DECIMAL, 18, 3)}`
+  }
+  let swapPrice = '-'
+  let priceimpcat = '-'
+  if (type == 'vt') {
+    const tPriceVt = calcTPriceVT(vc, vd.result, logs.result)
+    const tPriceVtAfter = calcTPriceVT(vc, vd.result, logs.result, isToggled ? outAmount : -inputAssetBn, isToggled ? -inputAssetBn : outAmount)
+    swapPrice = isToggled ? `1 ${vt.symbol} = ${round(1 / tPriceVt, 2)} ${t.symbol}` : `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}`
+    if (tPriceVt > 0) {
+      console.info("priceimpcat:", tPriceVtAfter, tPriceVt)
+      priceimpcat = formatPercent(Math.abs(tPriceVtAfter - tPriceVt) / tPriceVt)
+    }
+  }
   const apy = 1
   const apyto = apy
   // const outAmount = 0n
@@ -361,7 +369,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     <AssetInput checkBalance={false} asset={output.symbol} balance={outputBalance.result} loading={isFetchingCalc} disable amount={fmtBn(outAmount, output.decimals)} />
     <div className="flex justify-between items-center text-xs font-medium">
       <div>Price: {swapPrice}</div>
-      <div>Price Impact: {'-'}</div>
+      <div>Price Impact: {priceimpcat}</div>
     </div>
     <div className="flex justify-between items-center text-xs font-medium opacity-60">
       <div>Implied APY Change: {formatPercent(apy)} → {formatPercent(apyto)}</div>
@@ -733,3 +741,4 @@ export function LNTAethirHeader({ vc }: { vc: LntVaultConfig }) {
     </Link>
   </div>
 }
+
