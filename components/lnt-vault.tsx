@@ -240,18 +240,18 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
     <div className='flex flex-col gap-5 justify-between px-8 my-auto'>
       <SimpleDialog
         triggerRef={depositRef}
-        triggerProps={{ className: 'flex-1', disabled: vc.isIdle }}
+        triggerProps={{ className: 'flex-1'}}
         trigger={
-          <BBtn disabled={vc.isIdle} className='flex-1'>Deposit</BBtn>
+          <BBtn className='flex-1'>Deposit</BBtn>
         }
       >
         <LntVaultDeposit vc={vc} onSuccess={() => depositRef.current?.click()} />
       </SimpleDialog>
       <SimpleDialog
         triggerRef={withdrawRef}
-        triggerProps={{ className: 'flex-1', disabled: vc.isIdle && !isLOCL }}
+        triggerProps={{ className: 'flex-1' }}
         trigger={
-          <BBtn disabled={vc.isIdle && !isLOCL} className='flex-1'>Withdraw</BBtn>
+          <BBtn className='flex-1'>Withdraw</BBtn>
         }
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
@@ -517,7 +517,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     <Txs
       className='mx-auto mt-4'
       tx='Add'
-      disabled={disableTx || vc.isIdle}
+      disabled={disableTx}
       txs={txs}
       onTxSuccess={() => {
         setInput1Asset('')
@@ -604,7 +604,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     <Txs
       className='mx-auto mt-4'
       tx='Remove'
-      disabled={disableTx || vc.isIdle}
+      disabled={disableTx}
       txs={txs}
       onTxSuccess={() => {
         setInputAsset('')
