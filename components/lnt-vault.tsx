@@ -34,9 +34,11 @@ import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
+import { toast } from 'sonner'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
+  const maxSelected = 30;
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
   const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
   const nfts = useErc721Balance(vd.result!.NFT, vc.chain == zeroGTestnet.id ? 'zoofi' : 'alchemy')
@@ -51,6 +53,29 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     }
   })
   const withdrawPrice = useLntWithdrawPrice(vc)
+  const onClickOne = (id: string) => {
+    if (selectedNft[id.toString()]) {
+      setSelectNft({ [id.toString()]: false })
+    } else {
+      if (tokenIds.length >= maxSelected) {
+        toast.error(`Up to ${maxSelected}`)
+      } else {
+        setSelectNft({ [id.toString()]: true })
+      }
+    }
+  }
+  const onClickAll = () => {
+    if (tokenIds.length >= maxSelected) {
+      toast.error(`Up to ${maxSelected}`)
+    } else {
+      const snft: { [tokenId: string]: boolean } = {}
+      nfts.result.filter(item => !selectedNft[item.toString()]).slice(0, maxSelected - tokenIds.length).forEach(item => {
+        snft[item] = true
+      })
+      console.info('onClickAll:', snft, selectedNft, tokenIds)
+      setSelectNft(snft)
+    }
+  }
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='w-full text-start'>Licenses ID <span className={cn('text-xs ml-5 opacity-70', { "hidden": vc.isAethir },)}>Wait about 5 minutes after MINT to retrieve the list.</span></div>
     <div className='w-[32rem] h-72 overflow-y-auto'>
@@ -58,13 +83,14 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         {nfts.result.map(id => (
           <div key={id.toString()}
             className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })}
-            onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}
+            onClick={() => onClickOne(id)}
           >
             <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
             #{id.toString()}
           </div>))}
       </div>
     </div>
+    <BBtn className='' onClick={onClickAll}>Select All</BBtn>
     <div className='flex flex-col gap-1 w-full'>
       <div className='w-full'>Receive</div>
       <AssetInput asset={vt.symbol} loading={false} disable amount={fmtBn(outAmountVT, vt.decimals)} />
