@@ -117,6 +117,7 @@ export default function AdminPage() {
               />
               <GeneralAction abi={abiLntVault} functionName='setUser' address={current.vc.vault} argsDef={['', '', (2n ** 63n).toString()]} />
               <GeneralAction abi={abiLntVault} functionName='batchSetUser' address={current.vc.vault} />
+              <GeneralAction abi={abiLntVault} functionName='setUserRecordsInfo' address={current.vc.vault} />
               <GeneralAction abi={abiLntVault} functionName='removeLastSetUserRecords' address={current.vc.vault} />
               <GeneralAction abi={abiLntVault} functionName='buybackVT' address={current.vc.vault} />
               <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={current.vc.vault}
@@ -131,6 +132,10 @@ export default function AdminPage() {
               <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={current.vc.vault} />
               <GeneralAction abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='acceptOwnership' address={current.vc.protocol} />
+              <GeneralAction abi={abiLntProtocol} functionName='addOperator' address={current.vc.protocol} />
+              <GeneralAction abi={abiLntProtocol} functionName='removeOperator' address={current.vc.protocol} />
+              <GeneralAction abi={abiLntProtocol} functionName='addUpgrader' address={current.vc.protocol} />
+              <GeneralAction abi={abiLntProtocol} functionName='removeUpgrader' address={current.vc.protocol} />
               {(isTestnet(current.vc.chain)) && <>
                 <GeneralAction abi={abiMockERC721} tit={'mockErc721 setTester'} functionName='setTester' address={current.vc.asset} />
                 <GeneralAction abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName={'safeMint'} address={current.vc.asset} />

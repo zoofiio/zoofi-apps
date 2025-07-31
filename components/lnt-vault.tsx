@@ -9,7 +9,7 @@ import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL, isLOCL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { calcTPriceVT, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
+import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
 import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
@@ -240,7 +240,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
     <div className='flex flex-col gap-5 justify-between px-8 my-auto'>
       <SimpleDialog
         triggerRef={depositRef}
-        triggerProps={{ className: 'flex-1'}}
+        triggerProps={{ className: 'flex-1' }}
         trigger={
           <BBtn className='flex-1'>Deposit</BBtn>
         }
@@ -276,7 +276,8 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
         <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
           <div className='flex justify-between gap-5 flex-wrap'>
             <div className="text-base font-semibold">{vc.tit}</div>
-            {vc.isIdle && <div className='underline underline-offset-2 text-red-500 flex items-center gap-2 whitespace-pre-wrap'><CoinIcon size={16} symbol='Fire' /> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>}
+            <div></div>
+            {/* {vc.isIdle && <div className='underline underline-offset-2 text-red-500 flex items-center gap-2 whitespace-pre-wrap'><CoinIcon size={16} symbol='Fire' /> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>} */}
           </div>
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
@@ -339,28 +340,25 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       }).then(([out]) => out).catch(() => 0n)
     }
   })
-  // const { data: feeRate } = useQuery({
-  //   queryKey: ['calcFee', vc.vault, vt.address, type],
-  //   initialData: 30n,
-  //   queryFn: async () => 30n
-  // })
   let fees = '-'
   if (logs.result && logs.result.Feerate > DECIMAL) {
     fees = `${fmtPercent(logs.result.Feerate - DECIMAL, 18, 3)}`
   }
   let swapPrice = '-'
   let priceimpcat = '-'
+  let apy = 0
+  let apyto = 0
   if (type == 'vt') {
     const tPriceVt = calcTPriceVT(vc, vd.result, logs.result)
     const tPriceVtAfter = calcTPriceVT(vc, vd.result, logs.result, isToggled ? outAmount : -inputAssetBn, isToggled ? -inputAssetBn : outAmount)
     swapPrice = isToggled ? `1 ${vt.symbol} = ${round(1 / tPriceVt, 2)} ${t.symbol}` : `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}`
     if (tPriceVt > 0) {
-      console.info("priceimpcat:", tPriceVtAfter, tPriceVt)
       priceimpcat = formatPercent(Math.abs(tPriceVtAfter - tPriceVt) / tPriceVt)
     }
+    apy = calcVtApy(vc, vd.result, logs.result)
+    apyto = calcVtApy(vc, vd.result, logs.result, isToggled ? outAmount : -inputAssetBn, isToggled ? -inputAssetBn : outAmount)
+    console.info("SwapVT:", tPriceVt, tPriceVtAfter, apy, apyto)
   }
-  const apy = 1
-  const apyto = apy
   // const outAmount = 0n
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
   return <div className='flex flex-col gap-1'>
@@ -616,6 +614,8 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
 
 function VT({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
+  const logs = useLntVaultLogs(vc)
+  const apy = calcVtApy(vc, vd.result, logs.result)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   const { data: walletClient } = useWalletClient()
@@ -633,7 +633,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         </div>
       </div>
       <div className='flex whitespace-nowrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>
-        <div className="text-lg font-medium">{formatPercent(1)}</div>
+        <div className="text-lg font-medium">{formatPercent(apy)}</div>
         <div className="text-xs font-semibold opacity-60">Fixed APY</div>
         <div className="text-xs font-semibold opacity-60 ml-auto">Circulation amount</div>
         <div className="text-lg font-medium">{displayBalance(vtTotal.result, undefined, vt.decimals)}</div>

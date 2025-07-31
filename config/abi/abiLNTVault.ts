@@ -48,6 +48,10 @@ export const abiLntProtocol = parseAbi([
   'function owner() public view returns (address)',
   'function transferOwnership(address newowner) public',
   'function acceptOwnership() public',
+  'function addOperator(address operator) external',
+  'function removeOperator(address operator) external',
+  'function addUpgrader(address upgrader) external',
+  'function removeUpgrader(address upgrader) external',
 ])
 
 /**

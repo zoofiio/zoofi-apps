@@ -2,8 +2,9 @@ import { abiAethirRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDele
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { getTokenBy } from '@/config/tokens'
+import { YEAR_SECONDS } from '@/constants'
 import { useFet } from '@/lib/useFet'
-import { aarToNumber, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
+import { aarToNumber, bnMin, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
@@ -113,36 +114,6 @@ export function useLntVaultLogs(vc: LntVaultConfig) {
   })
 }
 
-export function calcTPriceVT(
-  vc: LntVaultConfig,
-  vd: ReturnType<typeof useLntVault>['result'],
-  logs: ReturnType<typeof useLntVaultLogs>['result'],
-  tChange: bigint = 0n,
-  vtChange: bigint = 0n,
-) {
-  if (!logs || !vd) return 0
-  const T = getTokenBy(vd.T, vc.chain)!
-  const VT = getTokenBy(vd.VT, vc.chain)!
-  const tNum = aarToNumber(logs.t + tChange, T.decimals)
-  const vtNum = aarToNumber(logs.vt + vtChange, VT.decimals)
-  const RNum = aarToNumber(logs.R, 18)
-  const vtPecent = tNum + vtNum > 0 ? Math.min(vtNum / (tNum + vtNum), 1) : 0
-  const rateScalar = aarToNumber(logs.rateScalar, 18)
-  const rateAnchor = aarToNumber(logs.rateAnchor, 18)
-  const tPriceVt = rateScalar != 0 && 1 - vtPecent != 0 ? Math.log(vtPecent / (1 - vtPecent) / RNum) / rateScalar + rateAnchor : 0
-  return tPriceVt
-}
-
-// export function useT2VTPrice(vc: LntVaultConfig, vtchange: bigint = 0n, tChange: bigint = 0n) {
-//   const vd = useLntVault(vc)
-//   const vtt = useFet()
-//   const vPt = aarToNumber(logs.vPT + ptChange, 18)
-//   const BTtp = aarToNumber(logs.BTtp + btChange, 18)
-//   const Pt = vPt + BTtp > 0 ? vPt / (vPt + BTtp) : 0
-//   const nPrice = rateScalar > 0 && 1 - Pt != 0 ? (1 / rateScalar) * Math.log(Pt / (1 - Pt)) + rateAnchor : 0
-//   return nPrice
-// }
-
 export function useLntVaultWithdrawWindows(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntWithdrawWindows(vc),
@@ -168,5 +139,74 @@ export function useLntVaultWithdrawState(vc: LntVaultConfig) {
     inWindow: inWindow,
     wWindow: inWindow ? (vc.isAethir ? withdarwWindows.result[inWindowI] : undefined) : undefined,
     nWindow: inWindowI < 0 ? withdarwWindows.result.find((item) => item.startTime > nowtime) : undefined,
+  }
+}
+
+export function calcTPriceVT(
+  vc: LntVaultConfig,
+  vd: ReturnType<typeof useLntVault>['result'],
+  logs: ReturnType<typeof useLntVaultLogs>['result'],
+  tChange: bigint = 0n,
+  vtChange: bigint = 0n,
+) {
+  if (!logs || !vd) return 0
+  const T = getTokenBy(vd.T, vc.chain)!
+  const VT = getTokenBy(vd.VT, vc.chain)!
+  const tNum = aarToNumber(logs.t + tChange, T.decimals)
+  const vtNum = aarToNumber(logs.vt + vtChange, VT.decimals)
+  const RNum = aarToNumber(logs.R, 18)
+  const vtPecent = tNum + vtNum > 0 ? Math.min(vtNum / (tNum + vtNum), 1) : 0
+  const rateScalar = aarToNumber(logs.rateScalar, 18)
+  const rateAnchor = aarToNumber(logs.rateAnchor, 18)
+  const tPriceVt = rateScalar != 0 && 1 - vtPecent != 0 ? Math.log(vtPecent / (1 - vtPecent) / RNum) / rateScalar + rateAnchor : 0
+  return tPriceVt
+}
+
+export function calcLntVaultYearsExpiry(vd: ReturnType<typeof useLntVault>['result']) {
+  if (!vd || vd.expiryTime <= nowUnix()) return 0
+  return aarToNumber(((vd.expiryTime - nowUnix()) * 10000n) / YEAR_SECONDS, 4)
+}
+
+export function calcVtApy(
+  vc: LntVaultConfig,
+  vd: ReturnType<typeof useLntVault>['result'],
+  logs: ReturnType<typeof useLntVaultLogs>['result'],
+  tChange: bigint = 0n,
+  vtChange: bigint = 0n,
+) {
+  if (!logs || !vd) return 0
+  const tPriceVt = calcTPriceVT(vc, vd, logs, tChange, vtChange)
+  const yearsExpriy = calcLntVaultYearsExpiry(vd)
+  const apy = Math.pow(tPriceVt, 1 / yearsExpriy) - 1
+  return apy
+}
+
+export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>['result'], logs: ReturnType<typeof useLntVaultLogs>['result']) {
+  let apyFromVT = 0
+  let apyFromSwap = 0
+  let apyFromAirdrop = 0
+  if (logs && vd) {
+    // from VT
+    const vtApy = calcVtApy(vc, vd, logs)
+    const tPriceVt = calcTPriceVT(vc, vd, logs)
+    const vt = aarToNumber(logs.vt, getTokenBy(vd.VT, vc.chain)!.decimals)
+    const t = aarToNumber(logs.t, getTokenBy(vd.T, vc.chain)!.decimals)
+    // console.info('calcLPApy:', vt, t, tPriceVt, vtApy)
+    apyFromVT = (vt / (t * tPriceVt + vt)) * vtApy
+
+    // from swap
+    const C = 0
+    const D = (C / 7) * 365
+    apyFromSwap = D / (vt / tPriceVt + t)
+
+    // fro airdrop
+  }
+  return {
+    apy: apyFromVT + apyFromSwap + apyFromAirdrop,
+    items: [
+      { name: 'VT APY', value: apyFromVT },
+      { name: 'SwapFee', value: apyFromSwap },
+      { name: 'Airdrop', value: apyFromAirdrop },
+    ],
   }
 }

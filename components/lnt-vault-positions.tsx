@@ -1,8 +1,8 @@
 import { LntVaultConfig } from "@/config/lntvaults";
 import STable from "./simple-table"
-import { useLntVault, useLntVaultYTRewards } from "@/hooks/useFetLntVault";
+import { calcLPApy, calcVtApy, useLntVault, useLntVaultLogs, useLntVaultYTRewards } from "@/hooks/useFetLntVault";
 import { getTokenBy, Token } from "@/config/tokens";
-import { cn } from "@/lib/utils";
+import { cn, formatPercent } from "@/lib/utils";
 import { CoinIcon } from "./icons/coinicon";
 import { useCurrentChainId } from "@/hooks/useCurrentChainId";
 import { displayBalance } from "@/utils/display";
@@ -13,6 +13,7 @@ import { reFet } from "@/lib/useFet";
 import { useAccount } from "wagmi";
 import { abiRewardManager } from "@/config/abi/abiRewardManager";
 import { abiLntVault } from "@/config/abi/abiLNTVault";
+import { Tip } from "./ui/tip";
 const claimColSize = 1.3;
 const statuColSize = 1.6
 
@@ -32,12 +33,15 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     const chainId = useCurrentChainId()
     const { address } = useAccount()
     const vd = useLntVault(vc)
+    const logs = useLntVaultLogs(vc)
+    const apy = calcVtApy(vc, vd.result, logs.result)
     const vt = getTokenBy(vd.result?.VT, chainId, { symbol: 'VT' })!
     const t = getTokenBy(vd.result?.T, chainId, { symbol: 'T' })!
     const vtBalance = useBalance(vt)
     const data = vd.result ? [[
         <TokenSymbol key={'vt'} t={vt} />,
         displayBalance(vtBalance.result, undefined, vt.decimals),
+        formatPercent(apy),
         vd.result.closed ? 'Mature' : 'Active',
         vd.result.closed ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : '',
         <ApproveAndTx
@@ -49,7 +53,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
             config={{ abi: abiLntVault, functionName: 'redeemT', address: vc.vault, args: [vtBalance.result] }}
         />,
     ]] : []
-    const header = ['VT', 'Value', 'Status', 'Redeemable', '']
+    const header = ['VT', 'Value', 'APY', 'Status', 'Redeemable', '']
     return <div className="animitem card !p-4 bg-white overflow-x-auto">
         <STable
             headerClassName='text-left font-semibold border-b-0'
@@ -105,12 +109,19 @@ function LP({ vc }: { vc: LntVaultConfig }) {
     const chainId = useCurrentChainId()
     const { address } = useAccount()
     const vd = useLntVault(vc)
+    const logs = useLntVaultLogs(vc)
+    const { apy, items } = calcLPApy(vc, vd.result, logs.result)
     const lpTVT = getTokenBy(vd.result?.vtSwapPoolHook, chainId, { symbol: 'lpTVT' })!
     const lpTVTBalance = useBalance(lpTVT)
 
     const data = vd.result ? [[
         <TokenSymbol key={'lpTVT'} t={lpTVT} />,
         displayBalance(lpTVTBalance.result, undefined, lpTVT.decimals),
+        <Tip key={"apy"} node={<div className="underline underline-offset-2">{formatPercent(apy)}</div>}>
+            {items.map(item => <div className="" key={item.name}>
+                {item.name}: {formatPercent(item.value)}
+            </div>)}
+        </Tip>,
         '',
         '',
         '',
@@ -123,7 +134,7 @@ function LP({ vc }: { vc: LntVaultConfig }) {
             config={{ abi: abiRewardManager, functionName: 'claimRewards', address: lpTVT.address, args: [address!] }}
         /> : ''
     ]] : []
-    const header = ['LP', 'Value', '', vc.lpYields ? 'Yield' : '', vc.lpYields ? 'Airdrops' : '', '']
+    const header = ['LP', 'Value', 'APY', '', vc.lpYields ? 'Yield' : '', vc.lpYields ? 'Airdrops' : '', '']
     return <div className="animitem card !p-4 bg-white overflow-x-auto">
         <STable
             headerClassName='text-left font-semibold border-b-0'
