@@ -181,7 +181,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
                 header={['Item', 'Burner Address', 'Delegated', 'Remaining', 'Created', 'Expires']}
                 data={bunners.map((buner, i) => [
                     `${i + 1}`,
-                    <div className="flex items-center gap-2">{shortStr(buner.burner_wallet)} <FaCopy className="cursor-pointer" onClick={(e) => {
+                    <div key={'burneraddress'} className="flex items-center gap-2">{shortStr(buner.burner_wallet)} <FaCopy className="cursor-pointer" onClick={(e) => {
                         copyTextToClipboard(buner.burner_wallet)
                         e.stopPropagation()
                         e.preventDefault()
