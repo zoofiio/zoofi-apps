@@ -248,8 +248,8 @@ export const getOpsStatsAethir = (chainId: number, token: string) =>
       subscription_id: string
       is_slots_full: boolean
     }[]
-    bunners: {
-      burner_wallet: string
+    burners: {
+      burner_wallet: Address
       delegated_nfts: string[]
       plan_id: string
       delegated_nfts_count: number

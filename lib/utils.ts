@@ -291,3 +291,11 @@ export function uniSortTokens([token0, token1]: [Address, Address]) {
   if (hexToBigInt(token0) > hexToBigInt(token1)) return [token1, token0]
   return [token0, token1]
 }
+
+export function tryToBn(value: any, def: bigint = 0n) {
+  try {
+    return BigInt(value)
+  } catch (error) {
+    return def
+  }
+}
