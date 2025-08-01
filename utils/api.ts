@@ -27,11 +27,6 @@ export type Res<T> = {
 }
 
 export async function get<T>(chainId: number, url: `/${string}`, params: any = {}, config: AxiosRequestConfig = {}) {
-  if (url.startsWith('/auth')) {
-    const token = localStorage.getItem('earlyaccess-token')
-    if (!token) throw 'Need token'
-    config.headers = { ...(config.headers || {}), Authorization: token }
-  }
   const res = await instance(chainId).get<Res<T>>(url, {
     ...config,
     params: params,
@@ -42,22 +37,13 @@ export async function get<T>(chainId: number, url: `/${string}`, params: any = {
 }
 
 export async function post<T>(chainId: number, url: `/${string}`, data: any = {}, config: AxiosRequestConfig = {}) {
-  if (url.startsWith('/auth')) {
-    const token = localStorage.getItem('earlyaccess-token')
-    if (!token) throw 'Need token'
-    config.headers = { ...(config.headers || {}), Authorization: token }
-  }
   const res = await instance(chainId).post<Res<T>>(url, data, config)
   if (res?.data?.code !== 200) throw res.data
   return res.data.data
 }
 
-// export function put(url: string, data: any) {
-//   return instance.put(url, data);
-// }
 const apis = {
   get,
   post,
-  // put,
 }
 export default apis

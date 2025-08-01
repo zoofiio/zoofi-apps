@@ -5,6 +5,7 @@ import { parseEthers } from '@/lib/utils'
 import { DECIMAL } from '@/constants'
 import { arbitrum, base, berachain, sepolia } from '../network'
 import { concat } from 'es-toolkit/compat'
+import { url } from 'inspector'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -190,3 +191,71 @@ export const getNftTxsByAlchemy = async (chainId: number, opt: { nft: Address; f
   }
   return res
 }
+
+export const getOpsAdmins = (chainId: number, token: string) => api.get<{ name: Address; role: string }[]>(chainId, '/api/ops/admins', {}, { headers: { Authorization: token } })
+export const modifyOpsAdmins = (chainId: number, token: string, config: { type: 'add' | 'del'; user: Address }) =>
+  api.post(chainId, '/api/ops/modify-admins', config, { headers: { Authorization: token } })
+export const getOpsStatsAethir = (chainId: number, token: string) =>
+  api.get<{
+    deployments: {
+      chain_name: string
+      network: string
+      cpu_usage: string
+      memory_usage: string
+      expire_at: string
+      node_type: string
+      pod_name: string
+      namespace: string
+      pod_status: string
+      is_action_required: boolean
+      node_name: string
+      uuid: string
+      product_details: {
+        id: string
+        name: string
+        metadata: {
+          tags: string[]
+          chain: string
+          banner: string
+          status: string
+          logoUrl: string
+          network: string
+          node_type: string
+          categories: string[]
+          chain_name: string
+          description: string
+          displayName: string
+          displayNetwork: string
+          nodeops_doc_link: string
+          product_doc_link: string
+          market_share_percentage: number
+        }
+        is_active: boolean
+        created_at: string
+        updated_at: string
+      }
+      plan_id: string
+      no_of_nodes: number
+      start_date: string
+      key: string
+      rewards: string
+      tokens: string
+      wallet_id: string
+      is_burner_wallet_connected: boolean
+      delegated_licenses_count: number
+      delegated_licenses: any
+      pending_licenses: string[]
+      subscription_id: string
+      is_slots_full: boolean
+    }[]
+    bunners: {
+      burner_wallet: string
+      delegated_nfts: string[]
+      plan_id: string
+      delegated_nfts_count: number
+      is_slot_full: boolean
+      expire_at: string
+    }[]
+  }>(chainId, '/api/ops/nodeops-stats-aethir', {}, { headers: { Authorization: token } })
+export const opsOrderAethir = (chainId: number, token: string, quantity: number) =>
+  api.post(chainId, `/api/ops/nodeops-order/${quantity}`, {}, { headers: { Authorization: token } })

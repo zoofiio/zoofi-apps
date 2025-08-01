@@ -98,12 +98,11 @@ export function useLntVaultOperators(vc: LntVaultConfig) {
 export function useLntVaultTimes(vc: LntVaultConfig) {
   const vd = useLntVault(vc)
   const nowtime = round(now() / 1000)
-  const startTime = toNumber((vd.result?.startTime ?? 0n).toString())
-  const minStartTime = Math.min(nowtime, startTime)
+  const startTime = toNumber((vc.startTime ?? 0n).toString())
   const endTime = toNumber((vd.result?.expiryTime ?? 0n).toString())
-  const progress = endTime > minStartTime ? Math.min(Math.max(((nowtime - minStartTime) * 100) / (endTime - minStartTime), 0), 100) : 100
-  const progressPercent = `${round(progress)}%`
-  const remain = fmtDuration((endTime - minStartTime) * 1000)
+  const progress = endTime > startTime ? Math.min(Math.max(((nowtime - startTime) * 100) / (endTime - startTime), 0), 100) : 100
+  const progressPercent = `${round(progress, 2)}%`
+  const remain = fmtDuration((endTime - nowtime) * 1000)
   return { progressPercent, remain, remainStr: `~ ${remain} remaining` }
 }
 

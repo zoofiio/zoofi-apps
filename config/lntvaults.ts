@@ -33,6 +33,7 @@ export type LntVaultConfig = {
   tit: string
   info: string
   isIdle?: boolean
+  startTime?: bigint
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
@@ -41,17 +42,18 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     asset: '0xc227e25544edd261a9066932c71a25f4504972f1',
     protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
     protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
-    onEnv: ['test','prod'],
+    onEnv: ['test', 'prod'],
     AethirVToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
     AethirRedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
     isAethir: true,
     lpTYT: '0x123',
     test: false,
-    isIdle: true,
+    isIdle: false,
     vtActive: true,
     ytEnable: false,
     lpYields: false,
     projectIcon: 'Aethir2',
+    startTime: 1753955184n,
     icon: 'aethir',
     tit: 'Aethir Checker Node',
     info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.
