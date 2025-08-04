@@ -1,16 +1,18 @@
 
+import { getLntVaultVTPriceApy } from '@/config/api'
 import { LntVaultConfig } from '@/config/lntvaults'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { useFet } from '@/lib/useFet'
 import { FMT, fmtDate } from '@/lib/utils'
 import { graphic } from 'echarts'
-import { random, range, round } from 'es-toolkit'
+import { round } from 'es-toolkit'
 import { now } from 'es-toolkit/compat'
 import { useMemo, useState } from 'react'
 import { useToggle } from 'react-use'
-import { formatEther } from 'viem'
+import { formatUnits } from 'viem'
 import { SimpleSelect } from './ui/select'
+import EChartsReact from 'echarts-for-react'
 
-const bnToNum = (bn: string) => round(parseFloat(formatEther(BigInt(bn))), 5)
+const bnToNum = (bn: string, decimal: number = 18) => round(parseFloat(formatUnits(BigInt(bn), decimal)), 5)
 
 // const absLog10 = (num: number) => Math.abs(Math.log10(num))
 const multip = 90
@@ -19,25 +21,19 @@ const revertLog = (num: number) => round((Math.pow(10, num) - 1) / multip, 5)
 // const logTrans = (num: number) => round(Math.log10(num * 10000), 5)
 // const revertLog = (num: number) => round(Math.pow(10, num) / 10000, 5)
 
-function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVaultConfig }) {
-  const chainId = useCurrentChainId()
+function ChartItem({ tit, types, vc, data }: { tit: string, types: string[], vc: LntVaultConfig, data: [string, number][] }) {
+  // const chainId = useCurrentChainId()
   const [ct, setCT] = useState(types[0])
   const [isLOG, togLOG] = useToggle(true)
   const { options } = useMemo(() => {
-    const nowtime = now()
-    const total = 20
-    const data = range(0, total).map(item => [fmtDate(nowtime - (total - item) * 60 * 60 * 1000, FMT.ALL), round(random(0.9, 1.1), 3)])
-    // const data = prices.map((p) => [fmtDate(p.time * 1000, FMT.ALL), isLOG ? logTrans(bnToNum(p.price)) : bnToNum(p.price)])
-    const valueFormater = (value: number) => (isLOG ? revertLog(value).toString() : value.toString())
-    const calcMax = (v: any) => {
-      //    const max = value.max * 1.1
-    }
+
+
     const options = {
       animation: true,
       animationDuration: 200,
       tooltip: {
         trigger: 'axis',
-        valueFormatter: valueFormater,
+        // valueFormatter: ,
       },
       grid: { top: 30, bottom: 30, right: 20, show: false },
       toolbox: { show: false },
@@ -54,7 +50,7 @@ function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVa
         splitLine: { show: false },
         max: (value: any) => value.max * 1.1,
         axisLabel: {
-          formatter: valueFormater,
+          // formatter: ,
         },
       },
       dataZoom: [
@@ -70,7 +66,7 @@ function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVa
       ],
       series: [
         {
-          name: 'YT Price',
+          name: ct,
           type: 'line',
           symbol: 'none',
           sampling: 'lttb',
@@ -95,23 +91,29 @@ function ChartItem({ tit, types, vc }: { tit: string, types: string[], vc: LntVa
       ],
     }
     return { options }
-  }, [isLOG, ct])
+  }, [isLOG, ct, data])
   return <>
     <div className='flex justify-between gap-2 items-center'>
       <span className='text-base font-bold'>{tit} Chart</span>
       <SimpleSelect className="text-sm" options={types} onChange={(n) => setCT(n as any)} />
     </div>
-    {/* <EChartsReact option={options} style={{ height: 240 }}></EChartsReact> */}
-    <div className='h-[240px] flex justify-center items-center bg-primary/10 rounded-xl'>
-      Coming Soon...
-    </div>
+    <EChartsReact option={options} style={{ height: 240 }}></EChartsReact>
   </>
 }
 export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
+  const endTime = Math.round(now() / 1000)
+  const startTime = Math.round(endTime - 60 * 60 * 24 * 90)
+  const data = useFet({
+    key: `LntVaultVTChartData:${vc.vault}`,
+    initResult: [],
+    fetfn: async () => getLntVaultVTPriceApy(vc.chain, vc.vault, startTime, endTime)
+  })
+  const vtApy = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.apy)] as [string, number]);
+  const vtPrice = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.price)] as [string, number]);
   return (
     <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5'>
-      <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} />
-      <ChartItem tit='Price' types={vc.ytEnable ? ["YT Price", 'VT Price'] : ['VT Price']} vc={vc} />
+      <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} data={vtApy} />
+      <ChartItem tit='Price' types={vc.ytEnable ? ["YT Price", 'VT Price'] : ['VT Price']} vc={vc} data={vtPrice} />
     </div>
   )
 }

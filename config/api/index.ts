@@ -27,6 +27,9 @@ export const getNftTokensIdsByUser = (chainId: number, tokens: Address[], user: 
 
 export const getNftsByZoofi = (chainId: number, token: Address, user: Address) => api.get<string[]>(chainId, `/api/nft/erc721Balance/${chainId}/${token}/${user}`)
 
+export const getLntVaultVTPriceApy = (chainId: number, vault: Address, start: number, end: number) =>
+  api.get<{ price: string; apy: string; time: number }[]>(chainId, `/api/lnt/vt-price-apy/${vault}/${start}/${end}`)
+
 export const getBeraTokensPrices = (
   tokens: Address[] = [
     '0x6969696969696969696969696969696969696969', // BERA,WBERA
