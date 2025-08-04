@@ -101,7 +101,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
       <div>
-        {`1 Licenses = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+        {`1 License = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
         {'Operation Fees : 5%'}
@@ -156,7 +156,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       </>}
       <AssetInput asset={vt.symbol} disable amount={fmtBn(outAmountVT, vt.decimals)} balance={vtBalance.result} />
       <div className='mt-4 text-sm opacity-60 text-center'>
-        {`1 Licenses = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+        {`1 License = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       {!withdrawStat.inWindow && withdrawStat.nWindow &&
         <div className='text-sm opacity-60 text-center'>
@@ -283,7 +283,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
       </SimpleDialog>
       <div className='mt-4 text-sm opacity-60 text-center'>
-        {`1 Licenses = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+        {`1 License = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
     </div>
 
