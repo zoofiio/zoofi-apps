@@ -259,7 +259,7 @@ export async function withTokenApprove({ approves, pc, user, tx }: {
     const allowance = await pc.readContract({ abi: erc20Abi, address: item.token, functionName: 'allowance', args: [user, item.spender] })
     if (allowance >= item.amount) return null
     const name = item.name ?? `Approve ${getTokenBy(item.token, await pc.getChainId())!.symbol}`
-    return { name, abi: erc20Abi, address: item.token, functionName: 'approve', args: [item.spender, item.amount - allowance] } as TxConfig
+    return { name, abi: erc20Abi, address: item.token, functionName: 'approve', args: [item.spender, item.amount] } as TxConfig
   })).then(txs => txs.filter(item => item !== null))
   return [...needApproves, { ...tx, ...(nativeAmount > 0n ? { value: nativeAmount } : {}) }]
 }
