@@ -48,7 +48,8 @@ function ChartItem({ tit, types, vc, data }: { tit: string, types: string[], vc:
         type: 'value',
         boundaryGap: [0, '100%'],
         splitLine: { show: false },
-        max: (value: any) => value.max * 1.1,
+        max: (value: any) => ((value.max - value.min) * 0.1 + value.max),
+        min: (value: any) => (value.min - (value.max - value.min) * 0.1),
         axisLabel: {
           // formatter: ,
         },
