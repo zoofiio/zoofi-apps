@@ -2,7 +2,7 @@
 import { getLntVaultVTPriceApy } from '@/config/api'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
-import { FMT, fmtDate } from '@/lib/utils'
+import { FMT, fmtDate, formatPercent } from '@/lib/utils'
 import { graphic } from 'echarts'
 import { round } from 'es-toolkit'
 import { now } from 'es-toolkit/compat'
@@ -21,19 +21,17 @@ const revertLog = (num: number) => round((Math.pow(10, num) - 1) / multip, 5)
 // const logTrans = (num: number) => round(Math.log10(num * 10000), 5)
 // const revertLog = (num: number) => round(Math.pow(10, num) / 10000, 5)
 
-function ChartItem({ tit, types, vc, data }: { tit: string, types: string[], vc: LntVaultConfig, data: [string, number][] }) {
+function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: string[], vc: LntVaultConfig, data: [string, number][], yFormater?: (v: number) => string }) {
   // const chainId = useCurrentChainId()
   const [ct, setCT] = useState(types[0])
   const [isLOG, togLOG] = useToggle(true)
   const { options } = useMemo(() => {
-
-
     const options = {
       animation: true,
       animationDuration: 200,
       tooltip: {
         trigger: 'axis',
-        // valueFormatter: ,
+        valueFormatter: yFormater,
       },
       grid: { top: 30, bottom: 30, right: 20, show: false },
       toolbox: { show: false },
@@ -51,7 +49,7 @@ function ChartItem({ tit, types, vc, data }: { tit: string, types: string[], vc:
         max: (value: any) => ((value.max - value.min) * 0.1 + value.max),
         min: (value: any) => (value.min - (value.max - value.min) * 0.1),
         axisLabel: {
-          // formatter: ,
+          formatter: yFormater,
         },
       },
       dataZoom: [
@@ -107,7 +105,7 @@ export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
   const vtPrice = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.price)] as [string, number]);
   return (
     <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5 shrink-0'>
-      <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} data={vtApy} />
+      <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} data={vtApy} yFormater={(v) => formatPercent(v, 2, false)} />
       <ChartItem tit='Price' types={vc.ytEnable ? ["YT Price", 'VT Price'] : ['VT Price']} vc={vc} data={vtPrice} />
     </div>
   )

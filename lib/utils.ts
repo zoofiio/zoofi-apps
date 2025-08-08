@@ -68,14 +68,15 @@ export function fmtPercent(percent: bigint, decimals: number | bigint, showDecim
   const _percent = formatUnits(percent * 100n, _decimals)
   return round(parseFloat(_percent.replaceAll(',', '')), showDecimals) + '%'
 }
-export function formatPercent(percet: number, decimals: number = 2) {
+export function formatPercent(percet: number, decimals: number = 2, usemin: boolean = true) {
   if (percet == 0) return '0.00%'
-  const minValue = 1 / Math.pow(10, decimals + 2)
-  if (Math.abs(percet) < minValue) {
-    if (percet < 0) return `>-${minValue * 100}%`
-    return `<${minValue * 100}%`
+  if (usemin) {
+    const minValue = 1 / Math.pow(10, decimals + 2)
+    if (Math.abs(percet) < minValue) {
+      if (percet < 0) return `>-${minValue * 100}%`
+      return `<${minValue * 100}%`
+    }
   }
-
   return `${round(percet * 100, decimals)} %`
 }
 
