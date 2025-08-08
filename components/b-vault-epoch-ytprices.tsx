@@ -81,14 +81,8 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
           areaStyle: {
             origin: 'start',
             color: new graphic.LinearGradient(0, 0, 0, 1, [
-              {
-                offset: 0,
-                color: 'rgb(30, 202, 83)',
-              },
-              {
-                offset: 1,
-                color: 'rgba(30, 202, 83, 0.2)',
-              },
+              { offset: 0, color: 'rgba(30, 202, 83, 0.26)' },
+              { offset: 1, color: 'rgba(30, 202, 83, 0.07)' },
             ]),
           },
           data: data,
