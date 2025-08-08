@@ -310,7 +310,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
 
       </div >
       <div className='my-4 flex justify-between opacity-60'>Duration <span>{remainStr}</span></div>
-      <div className="flex w-full h-4 bg-gray-200 rounded-full ">
+      <div className="flex w-full h-4 bg-gray-200 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full"
           style={{ width: progressPercent, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}

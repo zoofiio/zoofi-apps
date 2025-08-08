@@ -76,14 +76,8 @@ function ChartItem({ tit, types, vc, data }: { tit: string, types: string[], vc:
           areaStyle: {
             origin: 'start',
             color: new graphic.LinearGradient(0, 0, 0, 1, [
-              {
-                offset: 0,
-                color: 'rgb(30, 202, 83)',
-              },
-              {
-                offset: 1,
-                color: 'rgba(30, 202, 83, 0.2)',
-              },
+              { offset: 0, color: 'rgba(30, 202, 83, 0.26)' },
+              { offset: 1, color: 'rgba(30, 202, 83, 0.07)' },
             ]),
           },
           data: data,
@@ -111,7 +105,7 @@ export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
   const vtApy = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.apy)] as [string, number]);
   const vtPrice = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.price)] as [string, number]);
   return (
-    <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5'>
+    <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5 shrink-0'>
       <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} data={vtApy} />
       <ChartItem tit='Price' types={vc.ytEnable ? ["YT Price", 'VT Price'] : ['VT Price']} vc={vc} data={vtPrice} />
     </div>

@@ -21,19 +21,18 @@ export const TOKENS: Token[] = [
 
   // for 0G
   { address: '0xe01C85599300f9ED5DE2d7D4FE3Dc2Dc4c5c3877', symbol: '0G', decimals: 18, chain: [zeroGTestnet.id] },
-  { address: "0x78A8D4014000dF30b49eB0c29822B6C7C79D68cA", symbol: 'v0G', decimals: 18, chain: [zeroGTestnet.id] },
-  { address: "0x937F60B54dA360b31D60372d2e19FE55Cb8eee53", symbol: 'y0G', decimals: 18, chain: [zeroGTestnet.id] },
-  { address: "0x8D44BF9d72039C22dB4e8d7aB50d27038002fAC8", symbol: 'lp0G', decimals: 18, chain: [zeroGTestnet.id] },
-  
-  // for aethir
-  { address: "0xd839962d55d9e8309f0f64c391887a33ab8cb4d0", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] }, 
-  { address: "0x01e80CC2b282D6f926605c20e5aF7D74345615Ac", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
-  { address: "0xf79f736e6787911a5167ebfac7ca5c3de4327a88", symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
-  
-  { address: "0xc87B37a581ec3257B734886d9d3a581F5A9d056c", symbol: 'ATH', decimals: 18, chain: [arbitrum.id] }, 
-  { address: "0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46", symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
-  { address: "0xbf4b4A83708474528A93C123F817e7f2A0637a88", symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
+  { address: '0x78A8D4014000dF30b49eB0c29822B6C7C79D68cA', symbol: 'v0G', decimals: 18, chain: [zeroGTestnet.id] },
+  { address: '0x937F60B54dA360b31D60372d2e19FE55Cb8eee53', symbol: 'y0G', decimals: 18, chain: [zeroGTestnet.id] },
+  { address: '0x8D44BF9d72039C22dB4e8d7aB50d27038002fAC8', symbol: 'lp0G', decimals: 18, chain: [zeroGTestnet.id] },
 
+  // for aethir
+  { address: '0xd839962d55d9e8309f0f64c391887a33ab8cb4d0', symbol: 'ATH', decimals: 18, chain: [arbitrum.id] },
+  { address: '0x01e80CC2b282D6f926605c20e5aF7D74345615Ac', symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
+  { address: '0xf79f736e6787911a5167ebfac7ca5c3de4327a88', symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
+
+  { address: '0xc87B37a581ec3257B734886d9d3a581F5A9d056c', symbol: 'ATH', decimals: 18, chain: [arbitrum.id] },
+  { address: '0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46', symbol: 'vATH', decimals: 18, chain: [arbitrum.id] },
+  { address: '0xbf4b4A83708474528A93C123F817e7f2A0637a88', symbol: 'lpATH', decimals: 18, chain: [arbitrum.id] },
 ]
 
 export const TOKENS_MAP: { [k: `${number}_${Address}`]: Token } = TOKENS.reduce((map, item) => {
@@ -42,10 +41,12 @@ export const TOKENS_MAP: { [k: `${number}_${Address}`]: Token } = TOKENS.reduce(
 
 export function getTokenBy(address?: Address, chainId?: number, defOpt?: Partial<Exclude<Token, 'address' | 'chain'>>) {
   if (!address || !chainId) return undefined
-  const token = TOKENS_MAP[`${chainId}_${address.toLowerCase() as Address}`]
+  const key: `${number}_${Address}` = `${chainId}_${address.toLowerCase() as Address}`
+  const token = TOKENS_MAP[key]
   if (!token) {
     const { symbol = 'Token', decimals = 18, isNative } = defOpt ?? {}
-    return { address, chain: [chainId], symbol, decimals, isNative } as Token
+    TOKENS_MAP[key] = { address, chain: [chainId], symbol, decimals, isNative } as Token
+    return TOKENS_MAP[key]
   }
   return token
 }
