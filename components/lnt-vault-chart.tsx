@@ -50,6 +50,8 @@ function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: st
         min: (value: any) => (value.min - (value.max - value.min) * 0.1),
         axisLabel: {
           formatter: yFormater,
+          showMinLabel: false,
+          showMaxLabel: false,
         },
       },
       dataZoom: [
