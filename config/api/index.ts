@@ -1,10 +1,10 @@
-import { Address, Hex } from 'viem'
+import { Address, Hex, parseUnits } from 'viem'
 import api from '../../utils/api'
 import axios from 'axios'
 import { parseEthers } from '@/lib/utils'
 import { DECIMAL } from '@/constants'
 import { arbitrum, base, berachain, sepolia } from '../network'
-import { concat } from 'es-toolkit/compat'
+import { concat, keys } from 'es-toolkit/compat'
 import { url } from 'inspector'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
@@ -30,89 +30,34 @@ export const getNftsByZoofi = (chainId: number, token: Address, user: Address) =
 export const getLntVaultVTPriceApy = (chainId: number, vault: Address, start: number, end: number) =>
   api.get<{ price: string; apy: string; time: number }[]>(chainId, `/api/lnt/vt-price-apy/${vault}/${start}/${end}`)
 
-export const getBeraTokensPrices = (
-  tokens: Address[] = [
-    '0x6969696969696969696969696969696969696969', // BERA,WBERA
-    '0x0000000000000000000000000000000000000000', // BERA,WBERA
-    '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce', // HONEY
-    '0x656b95E550C07a9ffe548bd4085c72418Ceb1dba', // BGT
-    '0x549943e04f40284185054145c6E4e9568C1D3241', // USDC
-    '0x779Ded0c9e1022225f8E0630b35a9b54bE713736', // USDT
-    '0x688e72142674041f8f6Af4c808a4045cA1D6aC82', // BYUSD
-    '0x0555E30da8f98308EdB960aa94C0Db47230d2B9c', // WBTC,
-    '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590', // WETH,
-    '0x9b6761bf2397Bb5a6624a856cC84A3A14Dcd3fe5', // iBERA
-    '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b', // iBGT
-  ],
-) =>
-  axios
-    .post<{
-      data: {
-        tokenGetCurrentPrices: {
-          address: Address
-          chain: 'BERACHAIN'
-          price: number
-          updatedAt: number
-          updatedBy: string
-          __typename: string
-        }[]
-      }
-    }>('https://chgbtcc9ffu7rbdw2kmu4urwy.stellate.sh/', {
-      operationName: 'GetTokenCurrentPrices',
-      variables: {
-        chains: ['BERACHAIN'],
-        addressIn: tokens,
-      },
-      query:
-        'query GetTokenCurrentPrices($chains: [GqlChain!]!, $addressIn: [String!]!) {\n  tokenGetCurrentPrices(chains: $chains, addressIn: $addressIn) {\n    address\n    chain\n    price\n    updatedAt\n    updatedBy\n    __typename\n  }\n}',
-    })
-    .then((res) => {
-      const prices = res.data.data.tokenGetCurrentPrices
-      const priceDataMap: {
-        [k: Address]: {
-          address: Address
-          chain: 'BERACHAIN'
-          price: number
-          updatedAt: number
-          updatedBy: string
-          __typename: string
-        }
-      } = {}
-      for (const price of prices) {
-        priceDataMap[price.address] = price
-      }
-      const priceMap: { [k: Address]: bigint } = {}
-      for (const token of tokens) {
-        const pd = priceDataMap[token.toLowerCase() as Address]
-        if (pd) {
-          priceMap[token] = parseEthers(pd.price.toFixed(6))
-        }
-      }
-      return priceMap
-    })
-
-export const getIBGTPrice = () =>
-  axios
-    .post<{
-      rewardTokens: {
-        address: Address
-        decimals: number
-        image: string
-        name: string
-        price: number
-        symbol: string
-      }[]
-      underlyingTokens: {
-        address: Address
-        decimals: number
-        image: string
-        name: string
-        price: number
-        symbol: string
-      }[]
-    }>('https://api.zoofi.io/api/third/ibgt')
-    .then((res) => concat(res.data.underlyingTokens, res.data.rewardTokens)?.find((item) => item.symbol === 'iBGT'))
-    .then((data) => (data ? parseEthers(data.price.toFixed(6)) : DECIMAL))
+const pythMap: { [k: Hex]: Address[] } = {
+  '0x962088abcfdbdb6e30db2e340c8cf887d9efb311b1f2f17b155a63dbb6d40265': ['0x6969696969696969696969696969696969696969', '0x0000000000000000000000000000000000000000'], // BERA,WBERA
+  '0xf67b033925d73d43ba4401e00308d9b0f26ab4fbd1250e8b5407b9eaade7e1f4': ['0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce'], // HONEY
+  '0xc929105a1af143cbfc887c4573947f54422a9ca88a9e622d151b8abdf5c2962f': ['0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b'], // iBGT
+  '0x2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b': ['0x779Ded0c9e1022225f8E0630b35a9b54bE713736'], // USDT
+  '0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a': ['0x549943e04f40284185054145c6E4e9568C1D3241'], // USDC
+  '0x00456705ae9007ea761e95c724035a23a62fe9e444bbc744e11af7f050ab53c3': ['0x688e72142674041f8f6Af4c808a4045cA1D6aC82'], // BYUSD
+  '0x9d4294bbcd1174d6f2003ec365831e64cc31d9f6f15a2b85399db8d5000960f6': ['0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590'], // WETH
+  '0xeb943c0b5c9e02a529f799ac91070c3b7046f9412f3e5b0a90ba00267b838f34': ['0x9b6761bf2397Bb5a6624a856cC84A3A14Dcd3fe5'], // iBERA
+}
+export const getTokensPriceByPyth = async () => {
+  const ids = keys(pythMap)
+  const res = await axios.get<{ parsed: { id: string; price: { price: string; conf: string; expo: number; publish_time: number } }[] }>(
+    'https://hermes.pyth.network/v2/updates/price/latest',
+    {
+      params: { 'ids[]': ids },
+    },
+  )
+  const prices = res.data.parsed
+  const priceMap: { [k: Address]: bigint } = {}
+  for (const item of prices) {
+    const itemPrice = parseUnits(item.price.price, 18 + item.price.expo)
+    for (const token of pythMap[`0x${item.id}`]) {
+      priceMap[token] = itemPrice
+    }
+  }
+  return priceMap
+}
 
 const aclchemyMap: { [k: number]: string } = {
   [sepolia.id]: 'eth-sepolia',

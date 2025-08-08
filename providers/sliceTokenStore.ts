@@ -1,5 +1,5 @@
 import { abiCrocQuery } from '@/config/abi'
-import { getBeraTokensPrices, getIBGTPrice, getNftTokensIdsByUser } from '@/config/api'
+import { getNftTokensIdsByUser, getTokensPriceByPyth } from '@/config/api'
 import { CrocQueryAddress, HONEY_Address } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
 import { berachain, berachainTestnet } from '@/config/network'
@@ -110,9 +110,8 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
       if (chainId === berachainTestnet.id) {
         await updateLPTokensStatForTest(chainId, mLps)
       } else if (chainId === berachain.id) {
-        const map = await getBeraTokensPrices()
-        const iBGTprice = await getIBGTPrice()
-        set({ prices: { ...get().prices, ...map, '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b': iBGTprice } })
+        const map = await getTokensPriceByPyth()
+        set({ prices: { ...get().prices, ...map } })
       }
     }
     return {}
