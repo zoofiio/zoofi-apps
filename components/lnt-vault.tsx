@@ -193,7 +193,7 @@ export function LntOperators({ vc }: { vc: LntVaultConfig }) {
         `Operator${index + 1}`,
         shortStr(item.address),
         `${item.delegations.toString()}`,
-        `${fmtPercent(item.delegations * DECIMAL / item.capacity, 18, 2)}`,
+        `${item.capacity > 0n ? fmtPercent(item.delegations * DECIMAL / item.capacity, 18, 2) : '100%'}`,
         <div key="status" className='px-2 py-1 rounded-xl bg-green-400 w-fit text-white dark:text-black'>Active</div>
       ])}
     />

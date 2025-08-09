@@ -20,7 +20,7 @@ export function LntVaultActivity({ vc }: { vc: LntVaultConfig }) {
         .concat(data.result.redeems.map((item) => ({ ...item, type: 'Withdraw' })))
         .sort((a, b) => toNumber(b.block) - toNumber(a.block))
     return <div className="flex flex-col gap-5">
-        <div className="font-semibold text-2xl leading-none">Activity</div>
+        <div className="animitem font-semibold text-2xl leading-none">Activity</div>
         <div className='animitem card overflow-x-auto'>
             {
                 isLoading(data) && <div className="flex justify-center items-center py-10 w-full"><Spinner /></div>

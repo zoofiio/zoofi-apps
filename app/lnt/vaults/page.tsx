@@ -31,11 +31,12 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
           <LNT_VT_YT vc={vc} />
         </div>
         <LntMyPositions vc={vc} />
-        <LntVaultActivity vc={vc} />
+
         {vc.MockNodeDelegator && <>
-          <div>Operators</div>
+          <div className='animitem'>Operators</div>
           <LntOperators vc={vc} />
         </>}
+        {vc.isAethir && <LntVaultActivity vc={vc} />}
       </>}
     </div>
   )
