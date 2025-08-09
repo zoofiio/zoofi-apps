@@ -142,6 +142,10 @@ export function isTestnet(chainId: number, def: boolean = false) {
   return SUPPORT_CHAINS.find((item) => item.id === chainId)?.testnet ?? def
 }
 
+export function getChain(chainId: number) {
+  return SUPPORT_CHAINS.find((item) => item.id === chainId)
+}
+
 export const refEthersProvider: {
   provider?: providers.FallbackProvider | providers.JsonRpcProvider
 } = {}

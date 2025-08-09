@@ -1,11 +1,8 @@
+import axios from 'axios'
+import { keys } from 'es-toolkit/compat'
 import { Address, Hex, parseUnits } from 'viem'
 import api from '../../utils/api'
-import axios from 'axios'
-import { parseEthers } from '@/lib/utils'
-import { DECIMAL } from '@/constants'
 import { arbitrum, base, berachain, sepolia } from '../network'
-import { concat, keys } from 'es-toolkit/compat'
-import { url } from 'inspector'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -29,6 +26,11 @@ export const getNftsByZoofi = (chainId: number, token: Address, user: Address) =
 
 export const getLntVaultVTPriceApy = (chainId: number, vault: Address, start: number, end: number) =>
   api.get<{ price: string; apy: string; time: number }[]>(chainId, `/api/lnt/vt-price-apy/${vault}/${start}/${end}`)
+export const getLntVaultActivity = (chainId: number, vault: Address, start: number, end: number) =>
+  api.get<{
+    deposits: { tokenId: string; user: Address; tx: Hex; block: string; block_time: string }[]
+    redeems: { tokenId: string; user: Address; tx: Hex; block: string; block_time: string }[]
+  }>(chainId, `/api/lnt/activity/${vault}/${start}/${end}`)
 
 const pythMap: { [k: Hex]: Address[] } = {
   '0x962088abcfdbdb6e30db2e340c8cf887d9efb311b1f2f17b155a63dbb6d40265': ['0x6969696969696969696969696969696969696969', '0x0000000000000000000000000000000000000000'], // BERA,WBERA
