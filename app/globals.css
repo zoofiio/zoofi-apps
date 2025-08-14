@@ -50,9 +50,6 @@
   background-clip: padding-box, border-box;
   background-origin: padding-box, border-box;
 }
-.aarslider .recharts-tooltip-wrapper {
-  display: none;
-}
 
 /* html {
   height: 100%;
