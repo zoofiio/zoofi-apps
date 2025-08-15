@@ -130,10 +130,13 @@ export default function AdminPage() {
                 infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'redeemStrategy' })}
               />
               <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={current.vc.vault} />
+              <GeneralAction abi={abiLntVault} functionName='updateAethirClaimAndWithdraw' address={current.vc.vault} />
+              <GeneralAction abi={abiLntProtocol} functionName='owner' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='acceptOwnership' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='addOperator' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='removeOperator' address={current.vc.protocol} />
+              <GeneralAction abi={abiLntProtocol} functionName='isUpgrader' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='addUpgrader' address={current.vc.protocol} />
               <GeneralAction abi={abiLntProtocol} functionName='removeUpgrader' address={current.vc.protocol} />
               {(isTestnet(current.vc.chain)) && <>

@@ -170,10 +170,11 @@ export type TxConfig = SimulateContractParameters & { name?: string }
 export type TX = TxConfig | (() => Promise<TxConfig>)
 export const useTxsStore = create(() => ({ txs: [] as TxConfig[], progress: 0 }))
 export function Txs({
-  className, tx, txs, disabled, disableSendCalls = true, disableProgress, busyShowTxet = true, toast = true, onTxSuccess }:
+  className, tx, txs, disabled, disableSendCalls = true, disableProgress, beforeSimulate, busyShowTxet = true, toast = true, onTxSuccess }:
   {
     disableSendCalls?: boolean,
     disableProgress?: boolean,
+    beforeSimulate?: boolean,
     className?: string, tx: string, disabled?: boolean, txs: TX[] | (() => Promise<TX[]> | TX[]), busyShowTxet?: boolean, toast?: boolean
     onTxSuccess?: () => void
   }) {
@@ -195,9 +196,11 @@ export function Txs({
         if (calls.length == 1) {
           throw new Error('calls length one wallet_sendCalls')
         }
+        const callsTxs = calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address }));
+        // const sendCalls = beforeSimulate ? (await pc.simulateCalls({ account: wc.account.address, calls: callsTxs }))
         const { id } = await wc.sendCalls({
           account: wc.account.address,
-          calls: calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address })),
+          calls: callsTxs,
         })
         while (true) {
           const res = await wc.waitForCallsStatus({ id })
@@ -217,7 +220,8 @@ export function Txs({
           let progress = 0;
           showTxsStat && useTxsStore.setState({ txs: calls, progress })
           for (const item of calls) {
-            const tx = await wc.writeContract(item)
+            const txconfig = beforeSimulate ? (await pc.simulateContract(item)).request : item;
+            const tx = await wc.writeContract(txconfig)
             const res = await pc.waitForTransactionReceipt({ hash: tx, confirmations: 1 })
             if (res.status !== 'success') throw new Error('Transactions Reverted')
             progress++

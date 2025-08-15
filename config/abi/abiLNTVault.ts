@@ -29,6 +29,7 @@ export const abiLntVault = parseAbi([
   'function updateAutoBuyback(bool newAutoBuyback) external',
   'function updateCheckerNode(address newCheckerNode) external',
   'function checkerNode() external view returns(address)',
+  'function updateAethirClaimAndWithdraw(address _signerOracle, address _claimAndWithdraw) external',
 
   'function setUser(uint256 tokenId, address user, uint64 expires) external',
   'function batchSetUser(uint256[] calldata tokenIds, address[] calldata users, uint64 expires) external',
@@ -52,6 +53,8 @@ export const abiLntProtocol = parseAbi([
   'function removeOperator(address operator) external',
   'function addUpgrader(address upgrader) external',
   'function removeUpgrader(address upgrader) external',
+  'function isUpgrader(address account) public view returns (bool)',
+  'function isOperator(address account) public view returns (bool)',
 ])
 
 /**
