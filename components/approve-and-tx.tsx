@@ -44,6 +44,7 @@ export function ApproveAndTx<
   toast = true,
   skipSimulate = false,
   disabled,
+  disabledHidden,
   confirmations,
   onTxSuccess,
   onApproveSuccess,
@@ -60,6 +61,7 @@ export function ApproveAndTx<
   toast?: boolean
   skipSimulate?: boolean
   disabled?: boolean
+  disabledHidden?: boolean
   confirmations?: number
   onTxSuccess?: (txr: TransactionReceipt) => void
   onApproveSuccess?: () => void
@@ -74,6 +76,7 @@ export function ApproveAndTx<
   }, [isApproveSuccess])
   const approveDisabled = disabled || !approve || isApproveLoading
   const isNetWrong = useNetworkWrong()
+  if (disabledHidden && (txDisabled || approveDisabled)) return null
   if (isNetWrong) {
     return <SwitchNet className={className} />
   }

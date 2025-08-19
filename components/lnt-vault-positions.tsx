@@ -43,9 +43,10 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         displayBalance(vtBalance.result, undefined, vt.decimals),
         formatPercent(apy),
         vd.result.closed ? 'Mature' : 'Active',
-        vd.result.closed ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : '',
+        vd.result.closed ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : `1 ${vt.symbol} is equal to 1 ${t.symbol} at maturity`,
         <ApproveAndTx
             disabled={vd.result.aVT > 0n || vtBalance.result <= 0n || !address}
+            disabledHidden
             onTxSuccess={() => reFet(vd.key, vtBalance.key)}
             key="claim"
             className="w-28 font-semibold h-7"
@@ -85,6 +86,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
             '',
             <ApproveAndTx
                 disabled={!rewrads.result.length || !address}
+                disabledHidden
                 onTxSuccess={() => reFet(vd.key, rewrads.key)}
                 key="claim"
                 className="w-28 font-semibold h-7"
@@ -127,6 +129,7 @@ function LP({ vc }: { vc: LntVaultConfig }) {
         '',
         vc.lpYields ? <ApproveAndTx
             disabled={true}
+            disabledHidden
             onTxSuccess={() => reFet(vd.key, lpTVTBalance.key)}
             key="claim"
             className="w-28 font-semibold h-7"
