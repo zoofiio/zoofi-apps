@@ -22,7 +22,7 @@ export function LntVaultActivity({ vc }: { vc: LntVaultConfig }) {
         .concat(data.result.redeems.map((item) => ({ ...item, type: 'Withdraw' })))
         .sort((a, b) => toNumber(b.block) - toNumber(a.block)), [data.result])
     const pagis = usePagination(items)
-    const pagedata = pagis.datas[pagis.currentPage - 1]
+    const pagedata = pagis.datas[pagis.currentPage - 1] ?? []
     return <div className="flex flex-col gap-5">
         <div className="animitem font-semibold text-2xl leading-none">Activity</div>
         <div className='animitem card overflow-x-auto'>
