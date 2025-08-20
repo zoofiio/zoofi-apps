@@ -15,12 +15,11 @@ import { arbitrum } from "@/config/network";
 import useCopy from "@/hooks/useCopy";
 import { useLntVault } from "@/hooks/useFetLntVault";
 import { isError, isLoading, isSuccess, reFet, useFet } from "@/lib/useFet";
-import { cn, FMT, fmtDate, handleError, promiseAll, shortStr, tryParse, tryToBn, UnPromise } from "@/lib/utils";
+import { cn, FMT, fmtDate, handleError, promiseAll, shortStr, tryToBn, UnPromise } from "@/lib/utils";
 import { getPC } from "@/providers/publicClient";
 import { displayBalance } from "@/utils/display";
 import { useMutation } from "@tanstack/react-query";
 import { flatten, range, trim } from "es-toolkit";
-import { toNumber } from "es-toolkit/compat";
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa6";
 import { useLocalStorage, useSetState } from "react-use";
@@ -30,7 +29,7 @@ import { useAccount, useSignMessage, useWalletClient } from "wagmi";
 
 
 function NumItem({ num, tit, numClassName }: { num?: number | string, tit: string, numClassName?: string }) {
-    return <div className="animitem flex flex-col p-5 items-center gap-6 rounded-xl border border-primary/10">
+    return <div className="animitem flex flex-col p-5 items-center gap-6 rounded-xl border border-primary/60">
         <div className="text-center text-base">{tit}</div>
         <div className={cn("text-5xl font-medium text-center", numClassName)}>{num ?? '-'}</div>
     </div>
@@ -201,11 +200,12 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
             />
         </div>
         <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Rewards">
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-5">
-                <NumItem tit="Un Calim" num={displayBalance(parseEther(data.result?.rewards.claimable_ath ?? '0'))} numClassName="" />
-                <NumItem tit="Calimed" num={displayBalance(data.result?.rewards.totalClaimed)} numClassName="text-yellow-500" />
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
+                <NumItem tit="Un Claim" num={displayBalance(parseEther(data.result?.rewards.claimable_ath ?? '0'))} numClassName="" />
+                <NumItem tit="Claimed" num={displayBalance(data.result?.rewards.totalClaimed)} numClassName="text-yellow-500" />
                 <NumItem tit="Un Withdraw" num={displayBalance(data.result?.rewards.pendingClaimed)} numClassName="text-red-500" />
                 <NumItem tit="Withdrawal" num={displayBalance(data.result?.rewards.withdrawAmount)} numClassName="text-green-500" />
+                <NumItem tit="Claim Fee" num={5 * (data.result?.rewards.claims.length ?? 0)} numClassName="text-orange-500" />
             </div>
             <div>Un withdraw list:</div>
             <STable

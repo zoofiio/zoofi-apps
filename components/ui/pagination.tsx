@@ -41,3 +41,8 @@ export function usePagination<T>(list: T[], pagesize: number = 20) {
     const [currentPage, setCurrentPage] = useState(1)
     return useMemo(() => ({ datas, pages, currentPage, onPageChange: (page: number) => setCurrentPage(page) }), [list, pagesize, pages, currentPage])
 }
+
+export function usePaginationByTotal(total: number, pagesize: number = 20) {
+    const [currentPage, setCurrentPage] = useState(1)
+    return useMemo(() => ({ pages: Math.ceil(total / pagesize), currentPage, onPageChange: (page: number) => setCurrentPage(page) }), [currentPage, total, pagesize])
+}

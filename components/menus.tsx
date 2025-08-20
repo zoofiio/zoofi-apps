@@ -18,7 +18,7 @@ import { AiFillApi } from "react-icons/ai"
 import { FiChevronRight } from "react-icons/fi"
 import { LuBox, LuChartLine, LuMenu, LuCircleUser, LuSquareSquare, LuSettings } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
-import { isAddressEqual } from "viem"
+import { Address, isAddressEqual } from "viem"
 import { useAccount } from "wagmi"
 import { CoinIcon } from "./icons/coinicon"
 import { usePageLoad } from "./page-loading"
@@ -54,7 +54,7 @@ function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { me
         <Link target={menu.target} onClickCapture={() => {
             (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
         }} href={menu.disabled ? 'javascript:void(0)' : menu.href} style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
-            className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed opacity-60': menu.disabled, "text-primary": isActive, 'animitem': animitem }, className)}>
+            className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed text-black/60 dark:text-white/60': menu.disabled, "text-primary": isActive, 'animitem': animitem }, className)}>
             {menu.icon && <menu.icon />}
             {menu.disabled ? <Tip node={menu.name}>Coming Soon</Tip> : menu.name}
             {menu.subs && <FiChevronRight className={cn('cursor-pointer ml-auto', { "-rotate-90": isExpand })} onClick={onClickToggle} />}
@@ -87,7 +87,8 @@ function useShowLntVaultAdmin() {
         initialData: false,
         queryFn: async () => {
             const admins = await Promise.all(uniqBy(LNTVAULTS_CONFIG, item => item.protocol).map(item => getPC(item.chain).readContract({ abi: abiLntProtocol, address: item.protocol, functionName: 'owner' })))
-            return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
+            const exts = ["0xFE18Aa1EFa652660F36Ab84F122CD36108f903B6", "0xc56f7063fd6d199ccc443dbbf4283be602d46343"] as Address[]
+            return [...admins, ...exts].findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })
     return showAdmin || isLOCL
