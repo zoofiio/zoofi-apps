@@ -209,3 +209,16 @@ export const getOpsStatsAethir = (chainId: number, token: string) =>
   }>(chainId, '/api/ops/nodeops-stats-aethir', {}, { headers: { Authorization: token } })
 export const opsOrderAethir = (chainId: number, token: string, quantity: number) =>
   api.post(chainId, `/api/ops/nodeops-order/${quantity}`, {}, { headers: { Authorization: token } })
+
+export const getOpsAethirRewards = (chainId: number, token: string) =>
+  api.get<{
+    account_id: number
+    claimable_ath: string
+    withdrawable_ath: string
+    claims: { orderId: string; cliffSecond: number; amount: string; time: number }[]
+    withdraws: { time: number; orderIds: string[] }[]
+    withdrawsOrderIds: string[]
+    totalClaimed: string
+    pendingClaimed: string
+    withdrawAmount: string
+  }>(chainId, '/api/ops/aethir-rewards', {}, { headers: { Authorization: token } })

@@ -35,6 +35,7 @@ import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
 import { toast } from 'sonner'
+import { FaYoutube } from "react-icons/fa6";
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
@@ -761,6 +762,10 @@ export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
 export function LNTAethirHeader({ vc }: { vc: LntVaultConfig }) {
   if (!vc.isAethir) return null
   return <div className='flex justify-end items-center gap-10'>
+    <Link href={"https://youtu.be/mK2ZBujbuR4"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
+      <FaYoutube className='text-2xl text-red-500' />
+      Tutorial
+    </Link>
     <Link href={"https://opensea.io/collection/aethir-checker-license"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
       <CoinIcon symbol='Opensea' size={24} className='object-contain' />
       Buy Node on Opensea

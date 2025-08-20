@@ -46,11 +46,11 @@ const convertArgs = (args: string[], inputs: readonly AbiParameter[], ca?: (arg:
   }
 }
 
-export function Expandable({ children, tit, disable }: { tit: string; children?: ReactNode; disable?: boolean }) {
+export function Expandable({ children, tit, disable, className }: { tit: string; children?: ReactNode; disable?: boolean, className?: string }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className='animitem flex flex-col w-full bg-white dark:bg-transparent rounded-lg overflow-hidden border border-solid border-primary/40'>
+    <div className={cn('animitem flex flex-col w-full bg-white dark:bg-transparent rounded-lg overflow-hidden border border-solid border-primary/40', className)}>
       <div className='px-5 py-2 min-h-[58px] flex justify-between items-center text-sm'>
         <div className='font-medium text-base'>{tit}</div>
         {disable ? (

@@ -1,7 +1,7 @@
 'use client'
 
 import ConnectBtn from "@/components/connet-btn";
-import { GeneralAction, inputClassname } from "@/components/general-action";
+import { Expandable, GeneralAction, inputClassname } from "@/components/general-action";
 import { PageWrap } from "@/components/page-wrap";
 import { SimpleDialog } from "@/components/simple-dialog";
 import STable from "@/components/simple-table";
@@ -9,25 +9,27 @@ import { Spinner } from "@/components/spinner";
 import { BBtn } from "@/components/ui/bbtn";
 import { SimpleSelect } from "@/components/ui/select";
 import { abiLntVault } from "@/config/abi/abiLNTVault";
-import { getOpsAdmins, getOpsStatsAethir, modifyOpsAdmins, opsOrderAethir } from "@/config/api";
+import { getOpsAdmins, getOpsAethirRewards, getOpsStatsAethir, modifyOpsAdmins, opsOrderAethir } from "@/config/api";
 import { LntVaultConfig, LNTVAULTS_CONFIG } from "@/config/lntvaults";
 import { arbitrum } from "@/config/network";
 import useCopy from "@/hooks/useCopy";
 import { useLntVault } from "@/hooks/useFetLntVault";
-import { isError, isLoading, reFet, useFet } from "@/lib/useFet";
-import { cn, handleError, promiseAll, shortStr, tryParse, tryToBn, UnPromise } from "@/lib/utils";
+import { isError, isLoading, isSuccess, reFet, useFet } from "@/lib/useFet";
+import { cn, FMT, fmtDate, handleError, promiseAll, shortStr, tryParse, tryToBn, UnPromise } from "@/lib/utils";
 import { getPC } from "@/providers/publicClient";
+import { displayBalance } from "@/utils/display";
 import { useMutation } from "@tanstack/react-query";
 import { flatten, range, trim } from "es-toolkit";
+import { toNumber } from "es-toolkit/compat";
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa6";
 import { useLocalStorage, useSetState } from "react-use";
 import { toast } from "sonner";
-import { Address, erc721Abi, isAddress, isAddressEqual, parseAbi } from "viem";
+import { Address, erc721Abi, isAddress, isAddressEqual, parseAbi, parseEther } from "viem";
 import { useAccount, useSignMessage, useWalletClient } from "wagmi";
 
 
-function NumItem({ num, tit, numClassName }: { num?: number, tit: string, numClassName?: string }) {
+function NumItem({ num, tit, numClassName }: { num?: number | string, tit: string, numClassName?: string }) {
     return <div className="animitem flex flex-col p-5 items-center gap-6 rounded-xl border border-primary/10">
         <div className="text-center text-base">{tit}</div>
         <div className={cn("text-5xl font-medium text-center", numClassName)}>{num ?? '-'}</div>
@@ -45,6 +47,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
             const nftIs = range(parseInt(vaultNftCount.toString())).map(index => BigInt(index))
             const erc721AbiMore = parseAbi(['function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)'])
             const setUserCount = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'setUserRecordCount' })
+            console.info('setUserCount:', setUserCount)
             const getSetUsers = async () => {
                 const chunkSize = 100n
                 const chunkList: { index: bigint, count: bigint }[] = []
@@ -62,10 +65,12 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
                     }
                 ))).then(flatten)
             }
+            const getVaultNft = async () => Promise.all(nftIs.map(i => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenOfOwnerByIndex', address: vd.result!.NFT, args: [vc.vault, i] }).then(item => item.toString())))
             const data = await promiseAll({
-                vaultNft: Promise.all(nftIs.map(i => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenOfOwnerByIndex', address: vd.result!.NFT, args: [vc.vault, i] }).then(item => item.toString()))),
+                vaultNft: getVaultNft(),
                 setUsers: getSetUsers(),
                 opsStats: getOpsStatsAethir(vc.chain, token),
+                rewards: getOpsAethirRewards(vc.chain, token),
             })
             // calc
             const inBunnerNftMap: { [k: string]: (typeof data.opsStats.burners)[number] } = {}
@@ -167,6 +172,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
         <div>Network error!</div>
         <BBtn onClick={() => reFet(data.key)}>Refresh</BBtn>
     </div>
+    if (!isSuccess(data)) return null
     return <div className={cn(itemClassName, 'gap-5')}>
         <div className=" font-semibold text-2xl">{vc.tit}</div>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-5">
@@ -194,20 +200,34 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
                 onClickRow={(i) => setState({ detailBuner: bunners[i] })}
             />
         </div>
-        <div className={itemClassName}>
-            <div>Set Delegate (batchSetUser)</div>
-            <div className="flex flex-col gap-2">
-                <input className={cn(inputClassname)} placeholder="Burner address" value={delegateToAdd} onChange={(e) => setState({ delegateTo: e.target.value })} />
-                <input className={cn(inputClassname)} placeholder="NftIds(,分割多个)" value={delegateIdsStr} onChange={(e) => setState({ delegateIds: e.target.value })} />
-                <input className={cn(inputClassname)} placeholder="ExpireTime" value={delegateExpire.toString()} onChange={(e) => setState({ delegateExpire: tryToBn(e.target.value) })} />
-                <BBtn onClick={doDelegate as any} busy={isBusyDelegate} disabled={isBusyDelegate}>Delegate</BBtn>
+        <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Rewards">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-5">
+                <NumItem tit="Un Calim" num={displayBalance(parseEther(data.result?.rewards.claimable_ath ?? '0'))} numClassName="" />
+                <NumItem tit="Calimed" num={displayBalance(data.result?.rewards.totalClaimed)} numClassName="text-yellow-500" />
+                <NumItem tit="Un Withdraw" num={displayBalance(data.result?.rewards.pendingClaimed)} numClassName="text-red-500" />
+                <NumItem tit="Withdrawal" num={displayBalance(data.result?.rewards.withdrawAmount)} numClassName="text-green-500" />
             </div>
-        </div>
+            <div>Un withdraw list:</div>
+            <STable
+                header={['OrderID', 'Amount', 'Claim At', 'Can Withdraw At']}
+                data={(data.result?.rewards.claims ?? []).filter(item => !data.result?.rewards.withdrawsOrderIds.includes(item.orderId)).map((item, i) => [
+                    `${item.orderId}`,
+                    displayBalance(item.amount),
+                    fmtDate(item.time * 1000, FMT.ALL),
+                    fmtDate((item.time + item.cliffSecond) * 1000, FMT.ALL),
+                ])}
+            />
+        </Expandable>
+        <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Set Delegate (batchSetUser)">
+            <input className={cn(inputClassname)} placeholder="Burner address" value={delegateToAdd} onChange={(e) => setState({ delegateTo: e.target.value })} />
+            <input className={cn(inputClassname)} placeholder="NftIds(,分割多个)" value={delegateIdsStr} onChange={(e) => setState({ delegateIds: e.target.value })} />
+            <input className={cn(inputClassname)} placeholder="ExpireTime" value={delegateExpire.toString()} onChange={(e) => setState({ delegateExpire: tryToBn(e.target.value) })} />
+            <BBtn onClick={doDelegate as any} busy={isBusyDelegate} disabled={isBusyDelegate}>Delegate</BBtn>
+        </Expandable>
         <div className={cn(itemClassName, "flex-row items-center gap-6")}>
             <GeneralAction abi={abiLntVault} functionName='updateCheckerNode' address={vc.vault}
                 infos={() => getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'checkerNode' })}
             />
-
             <BBtn onDoubleClick={() => setState({ openCofrimOrder: true })}>Order from Nodeops(Double Click)</BBtn>
             <SimpleDialog
                 open={openCofrimOrder}
@@ -280,15 +300,14 @@ export default function Page() {
     return <PageWrap className="flex flex-col gap-5 max-w-6xl">
         {
             opsToken ? <>
-                <div className="flex flex-col gap-2 p-5 bg-black/10 dark:bg-white/10 rounded-xl">
-                    <div className="font-semibold text-2xl">OpsAdmins</div>
+                <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Admins">
                     <div className="p-5 rounded bg-primary/10">
                         {JSON.stringify(admins.result, undefined, 2)}
                     </div>
                     <input className={cn(inputClassname)} value={modifyAdd} onChange={(e) => setModifyAdd(e.target.value)} />
                     <SimpleSelect options={modifytypes} onChange={setModifyType} />
                     <BBtn className="flex gap-5 items-center justify-center" onClick={() => modifyAdmins(modifyType)} busy={isBusyModify} disabled={isBusyModify}>Modify Admins</BBtn>
-                </div>
+                </Expandable>
                 {LNTVAULTS_CONFIG.filter(item => item.isAethir && !item.test).map(vc => <AethirOpsManager vc={vc} token={opsToken} key={vc.vault} />)}
             </> : <div className="py-36 px-5">
                 {

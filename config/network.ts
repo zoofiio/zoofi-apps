@@ -1,6 +1,6 @@
 import { providers } from 'ethers'
 import { Address, Chain, defineChain } from 'viem'
-import { base as baseMainnet, zeroG, arbitrum as arbitrumMain } from 'viem/chains'
+import { base as baseMainnet, zeroG, arbitrum as arbitrumMain, zksync } from 'viem/chains'
 import { LP_TOKENS } from './lpTokens'
 import { BASE_PATH } from './env'
 

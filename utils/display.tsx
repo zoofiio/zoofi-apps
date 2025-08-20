@@ -12,15 +12,15 @@ export const ellipseAddress = (address: string | null | undefined, width = 4): s
   return `${address.slice(0, width)}...${address.slice(-width)}`
 }
 
-export const displayBalance = (balance: bigint | undefined, toFixed: number = 3, unit: number = 18): string => {
+export const displayBalance = (balance: string | bigint | undefined, toFixed: number = 3, unit: number = 18): string => {
   if (!balance) return '0'
 
   const fmtNumber = (num: number) =>
     num.toLocaleString('en-US', {
       maximumFractionDigits: toFixed,
     })
-
-  const value = Number(formatUnits(balance, unit))
+  const bn = typeof balance == 'bigint' ? balance: BigInt(balance)  
+  const value = Number(formatUnits(bn, unit))
   const minFixed = Number((0.1 ** toFixed).toFixed(toFixed))
   if (value > 0 && value < minFixed) {
     // if (value < 0.001) {
