@@ -194,7 +194,7 @@ export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>
     apyFromVT = (vt / (t * tPriceVt + vt)) * vtApy
 
     // from swap
-    const C = 0
+    const C = 0 // last 7 days swap fee to T amount
     const D = (C / 7) * 365
     apyFromSwap = D / (vt / tPriceVt + t)
 

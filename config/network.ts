@@ -122,7 +122,7 @@ export const arbitrum = defineChain({
 })
 
 export const apiBatchConfig = { batchSize: 30, wait: 300 }
-export const multicallBatchConfig = { batchSize: 100, wait: 300 }
+export const multicallBatchConfig = { batchSize: 1024, wait: 500 }
 
 export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia, base]

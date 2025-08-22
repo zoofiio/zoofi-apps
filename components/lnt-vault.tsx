@@ -6,7 +6,7 @@ import { LntVaultConfig } from '@/config/lntvaults'
 import { zeroGTestnet } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
-import { DECIMAL, isLOCL } from '@/constants'
+import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
 import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
@@ -21,7 +21,9 @@ import { floor, keys, min, toNumber } from 'es-toolkit/compat'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
+import { FaYoutube } from "react-icons/fa6"
 import { useSetState, useToggle } from 'react-use'
+import { toast } from 'sonner'
 import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { TxConfig, Txs, withTokenApprove } from './approve-and-tx'
@@ -34,8 +36,6 @@ import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
-import { toast } from 'sonner'
-import { FaYoutube } from "react-icons/fa6";
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
