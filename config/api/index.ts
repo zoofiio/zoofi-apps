@@ -36,6 +36,7 @@ export const getLntVaultActivityPage = (chainId: number, vault: Address, page: n
     items: { tokenId: string; user: Address; tx: Hex; block: string; block_time: string; type: 'Deposit' | 'Redeem' }[]
     total: number
   }>(chainId, `/api/lnt/activity/page/${vault}`, { page, size })
+export const getLntVaultSwapFee7Days = (chainId: number, vault: Address) => api.get<string>(chainId, `/api/lnt/${vault}/swapfee7days`).then((res) => BigInt(res))
 
 const pythMap: { [k: Hex]: Address[] } = {
   '0x962088abcfdbdb6e30db2e340c8cf887d9efb311b1f2f17b155a63dbb6d40265': ['0x6969696969696969696969696969696969696969', '0x0000000000000000000000000000000000000000'], // BERA,WBERA

@@ -1,6 +1,6 @@
 import { LntVaultConfig } from "@/config/lntvaults";
 import STable from "./simple-table"
-import { calcLPApy, calcVtApy, useLntVault, useLntVaultLogs, useLntVaultYTRewards } from "@/hooks/useFetLntVault";
+import { calcLPApy, calcVtApy, useLntVault, useLntVaultLogs, useLntVaultSwapFee7Days, useLntVaultYTRewards } from "@/hooks/useFetLntVault";
 import { getTokenBy, Token } from "@/config/tokens";
 import { cn, formatPercent } from "@/lib/utils";
 import { CoinIcon } from "./icons/coinicon";
@@ -112,7 +112,9 @@ function LP({ vc }: { vc: LntVaultConfig }) {
     const { address } = useAccount()
     const vd = useLntVault(vc)
     const logs = useLntVaultLogs(vc)
-    const { apy, items } = calcLPApy(vc, vd.result, logs.result)
+    const swapfee7days = useLntVaultSwapFee7Days(vc)
+    const { apy, items } = calcLPApy(vc, vd.result, logs.result, swapfee7days.result)
+
     const lpTVT = getTokenBy(vd.result?.vtSwapPoolHook, chainId, { symbol: 'lpTVT' })!
     const lpTVTBalance = useBalance(lpTVT)
 

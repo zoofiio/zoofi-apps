@@ -67,13 +67,21 @@ function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { me
 function useShowBvaultAdmin() {
     const chainId = useCurrentChainId()
     const { address } = useAccount()
+    // console.info('useShowBvaultAdmin:', chainId, address)
     const { data: showAdmin } = useQuery({
-        queryKey: ['showAdmin:', chainId, address],
+        queryKey: ['showAdminBVault:', chainId, address],
         enabled: Boolean(address),
         initialData: false,
+
         queryFn: async () => {
             const admins = await Promise.all(uniq(BVAULTS_CONFIG[chainId].map(item => item.protocolAddress)).map(item => getPC(chainId).readContract({ abi: abiZooProtocol, address: item, functionName: 'protocolOwner' })))
-            return admins.findIndex(item => isAddressEqual(item, address!)) >= 0
+                .catch((error) => {
+                    console.error('Error fetching BVault admins:', error)
+                    return []
+                })
+            const exts = ["0xFE18Aa1EFa652660F36Ab84F122CD36108f903B6", "0xc56f7063fd6d199ccc443dbbf4283be602d46343"] as Address[]
+            console.info('useShowBvaultAdmin:', admins, exts, address)
+            return [...admins, ...exts].findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })
     return showAdmin || isLOCL
@@ -81,13 +89,19 @@ function useShowBvaultAdmin() {
 function useShowLntVaultAdmin() {
     const chainId = useCurrentChainId()
     const { address } = useAccount()
+    // console.info('useShowLntVaultAdmin:', chainId, address)
     const { data: showAdmin } = useQuery({
-        queryKey: ['showAdmin:', chainId, address],
+        queryKey: ['showAdminLNT:', chainId, address],
         enabled: Boolean(address),
         initialData: false,
         queryFn: async () => {
             const admins = await Promise.all(uniqBy(LNTVAULTS_CONFIG, item => item.protocol).map(item => getPC(item.chain).readContract({ abi: abiLntProtocol, address: item.protocol, functionName: 'owner' })))
+                .catch((error) => {
+                    console.error('Error fetching LNT Vault admins:', error)
+                    return []
+                })
             const exts = ["0xFE18Aa1EFa652660F36Ab84F122CD36108f903B6", "0xc56f7063fd6d199ccc443dbbf4283be602d46343"] as Address[]
+            console.info('useShowLntVaultAdmin:', admins, exts, address)
             return [...admins, ...exts].findIndex(item => isAddressEqual(item, address!)) >= 0
         }
     })

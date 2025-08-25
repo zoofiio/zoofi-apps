@@ -1,4 +1,5 @@
 import { abiAethirRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { getLntVaultSwapFee7Days } from '@/config/api'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { getTokenBy } from '@/config/tokens'
@@ -113,6 +114,14 @@ export function useLntVaultLogs(vc: LntVaultConfig) {
   })
 }
 
+export function useLntVaultSwapFee7Days(vc: LntVaultConfig) {
+  return useFet({
+    key: `LntVaultSwapFee7Days:${vc.vault}`,
+    initResult: 0n,
+    fetfn: async () => getLntVaultSwapFee7Days(vc.chain, vc.vault),
+  })
+}
+
 export function useLntVaultWithdrawWindows(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntWithdrawWindows(vc),
@@ -180,7 +189,7 @@ export function calcVtApy(
   return apy
 }
 
-export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>['result'], logs: ReturnType<typeof useLntVaultLogs>['result']) {
+export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>['result'], logs: ReturnType<typeof useLntVaultLogs>['result'], swapfee7days: bigint = 0n) {
   let apyFromVT = 0
   let apyFromSwap = 0
   let apyFromAirdrop = 0
@@ -194,7 +203,7 @@ export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>
     apyFromVT = (vt / (t * tPriceVt + vt)) * vtApy
 
     // from swap
-    const C = 0 // last 7 days swap fee to T amount
+    const C = aarToNumber(swapfee7days, 18) // last 7 days swap fee to T amount
     const D = (C / 7) * 365
     apyFromSwap = D / (vt / tPriceVt + t)
 
