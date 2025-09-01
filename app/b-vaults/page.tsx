@@ -15,7 +15,6 @@ import { getPC } from '@/providers/publicClient'
 import { useBoundStore, useStore } from '@/providers/useBoundStore'
 import { useBVault, useBVaultEpoches } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
-import { Grid } from '@tremor/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useMemo, useState } from 'react'
 import { isAddressEqual } from 'viem'
@@ -154,7 +153,7 @@ export default function Vaults() {
 
             {loading ? <div className='w-full flex items-center justify-center pt-40'>
               <FaSpinner className='animate-spin text-4xl opacity-80' />
-            </div> : <Grid numItems={1} numItemsMd={2} numItemsLg={3} className='gap-5 mt-4'>
+            </div> : <div className='grid grid-cols-[repeat(auto-fill,minmax(330px,1fr))] gap-5 mt-4'>
               {fVcs.map((item, index) => (
                 <BVaultCard key={`group_vault_item_${index}`} vc={item} />
               ))}
@@ -176,7 +175,7 @@ export default function Vaults() {
                   <BVaultCardComming symbol='HONEY-WETH' />
                 </>
               )}
-            </Grid>}
+            </div>}
 
           </>
         ) : (

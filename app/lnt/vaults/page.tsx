@@ -12,7 +12,6 @@ import { ENV } from '@/constants'
 import { useLntVault } from '@/hooks/useFetLntVault'
 import { isError, isLoading, isSuccess } from '@/lib/useFet'
 
-import { Grid } from '@tremor/react'
 import { useSearchParams } from 'next/navigation'
 
 
@@ -55,13 +54,13 @@ export default function Vaults() {
           <>
             <div className='page-title'>LNT-Vaults</div>
             {/* <Noti data='Deposit assets into the Vaults to pair-mint stablecoin and margin token' /> */}
-            <Grid numItems={1} className='gap-5 mt-4'>
+            <div className='flex flex-col gap-5 mt-4'>
               {vcs.map((item, index) => (
                 <ConfigChainsProvider key={`group_vault_item_${index}`} chains={[item.chain]}>
                   <LNTVaultCard vc={item} />
                 </ConfigChainsProvider>
               ))}
-            </Grid>
+            </div>
           </>
         ) : (
           <ConfigChainsProvider chains={[currentVc.chain]}>

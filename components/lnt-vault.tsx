@@ -377,13 +377,13 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   let apyto = 0
   if (type == 'vt') {
     const tPriceVt = calcTPriceVT(vc, vd.result, logs.result)
-    const tPriceVtAfter = calcTPriceVT(vc, vd.result, logs.result, isToggled ? outAmount : -inputAssetBn, isToggled ? -inputAssetBn : outAmount)
+    const tPriceVtAfter = calcTPriceVT(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
     swapPrice = isToggled ? `1 ${vt.symbol} = ${round(1 / tPriceVt, 2)} ${t.symbol}` : `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}`
     if (tPriceVt > 0) {
       priceimpcat = formatPercent(Math.abs(tPriceVtAfter - tPriceVt) / tPriceVt)
     }
     apy = calcVtApy(vc, vd.result, logs.result)
-    apyto = calcVtApy(vc, vd.result, logs.result, isToggled ? outAmount : -inputAssetBn, isToggled ? -inputAssetBn : outAmount)
+    apyto = calcVtApy(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
     console.info("SwapVT:", tPriceVt, tPriceVtAfter, apy, apyto)
   }
   // const outAmount = 0n

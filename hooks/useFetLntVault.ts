@@ -185,6 +185,7 @@ export function calcVtApy(
   if (!logs || !vd) return 0
   const tPriceVt = calcTPriceVT(vc, vd, logs, tChange, vtChange)
   const yearsExpriy = calcLntVaultYearsExpiry(vd)
+  tChange !== 0n && vtChange !== 0n && console.info('tvtChange:', tChange, vtChange, tPriceVt)
   const apy = Math.pow(tPriceVt, 1 / yearsExpriy) - 1
   return apy
 }
