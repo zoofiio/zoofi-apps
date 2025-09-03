@@ -1,10 +1,11 @@
-import { animate, createSpring, stagger } from 'animejs'
+import { animate, createSpring, JSAnimation, stagger } from 'animejs'
 import { useEffect, useRef } from 'react'
 const staggerdelay = 70
 const animduration = 400
 export function useInitAnimRoot(classname: string = 'animitem') {
   const root = useRef<HTMLDivElement>(null)
   const id = useRef<number>(0)
+  const lastAnim = useRef<JSAnimation>()
   useEffect(() => {
     console.info('useInitAnimRoot::', Boolean(root.current))
     if (!root.current) return () => {}
@@ -20,7 +21,7 @@ export function useInitAnimRoot(classname: string = 'animitem') {
         }
         lastTargets = [...nTargets]
         if (targets.length) {
-          const anim = animate(targets, {
+          lastAnim.current = animate(targets, {
             id: 'anim' + id.current,
             opacity: { from: 0, to: 1 },
             translateY: { from: 100, to: 0 },
@@ -31,12 +32,8 @@ export function useInitAnimRoot(classname: string = 'animitem') {
             ease: createSpring({ stiffness: 70 }),
             duration: stagger(staggerdelay, { start: animduration }),
           })
-
-          anim.onPause = (ja) => {
-            ja.targets as Element[]
-            lastTargets = lastTargets.filter((item) => !ja.targets.find((el) => el == item))
-            // console.info('AnimPause:', ja.id, ja.targets, lastTargets)
-            onChange(data) // recheck
+          lastAnim.current.onPause = (ja) => {
+            ja.complete()
           }
           id.current++
         }
