@@ -374,7 +374,7 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const upForUserAction = useUpBVaultForUserAction(bvc)
   const { roi, roiChange } = useBvaultROI(bvc, outputYTokenForInput, afterYtAssetPrice)
   return (
-    <div className='animitem card !p-4 flex flex-col h-[24.25rem] gap-1'>
+    <div className='animitem card !p-4 flex flex-col h-[32rem] gap-1'>
       <AssetInput asset={bvc.assetSymbol} amount={inputAsset} balance={assetBalance} setAmount={setInputAsset} />
       <GetLP address={bvc.asset} />
       <div className='text-base font-bold my-2'>Receive</div>
@@ -474,7 +474,7 @@ function BVaultPoolsOld({ bvc }: { bvc: BVaultConfig }) {
     )
   }
   return (
-    <div className='md:h-[24.25rem] animitem card !p-4'>
+    <div className='md:h-[32rem] animitem card !p-4'>
       <div className='font-bold text-base'>Harvest</div>
       <div className={cn('flex flex-col md:flex-row gap-4 mt-2')}>
         <div className='flex flex-col gap-4 shrink-0 w-full md:w-[14.375rem]' ref={mesRef}>
@@ -485,7 +485,7 @@ function BVaultPoolsOld({ bvc }: { bvc: BVaultConfig }) {
           <List
             className={epoches.length > viewMax ? 'pr-5' : ''}
             width={mes.width}
-            height={280}
+            height={400}
             rowHeight={({ index }) => (index < epoches.length - 1 ? itemHeight + itemSpaceY : itemHeight)}
             overscanRowCount={viewMax}
             rowCount={epoches.length}
@@ -575,7 +575,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
     const fTime = `${fmtDate(itemEpoch.startTime * 1000n)}-${fmtDate((itemEpoch.startTime + itemEpoch.duration) * 1000n)}`
     return (
       <div key={key} style={style} className='cursor-pointer' onClick={() => onRowClick(index)}>
-        <div className={cn('h-[56px] animitem card !rounded-lg !px-4 !py-2 font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
+        <div className={cn('h-[56px] animitem card !rounded-lg !px-4 !py-2 font-semibold whitespace-nowrap', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
           <div className='text-sm'>Epoch {epoches[index].epochId.toString()}</div>
           <div className='text-xs opacity-60 mt-1'>{fTime}</div>
         </div>
@@ -583,7 +583,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
     )
   }
   return (
-    <div className='md:h-[24.25rem] animitem card !p-4'>
+    <div className='md:h-[32rem] animitem card !p-4'>
       <div className='font-bold text-base'>Harvest</div>
       <div className={cn('flex flex-col md:flex-row gap-4 mt-2')}>
         <div className='flex flex-col gap-4 shrink-0 w-full md:w-[11.5625rem]' ref={mesRef}>
@@ -594,7 +594,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
           <List
             className={epoches.length > viewMax ? 'pr-5' : ''}
             width={mes.width}
-            height={280}
+            height={400}
             rowHeight={({ index }) => (index < epoches.length - 1 ? itemHeight + itemSpaceY : itemHeight)}
             overscanRowCount={viewMax}
             rowCount={epoches.length}
@@ -654,12 +654,12 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
                 upForUserAction()
               }}
             />
-            {aBribes.length > 0 && <div className='flex flex-col gap-5 justify-start relative pt-8 items-center w-max'>
+            {aBribes.length > 0 && <div className='flex flex-col gap-5 justify-start relative pt-8 items-center w-full'>
               {aBribes.map(item => <div key={item.bribeToken} className='flex items-center w-full relative gap-20 pl-[20%]'>
                 <BribeTit name={item.bribeSymbol} />
                 <div className='absolute left-1/2'>{displayBalance(item.bribeAmount)}</div>
               </div>)}
-              <span className='absolute left-0 top-0'>Additional Incentives</span>
+              <span className='absolute left-0 top-0 whitespace-nowrap'>Additional Incentives</span>
               <span className='absolute left-1/2 top-0 opacity-60'>Claimable</span>
               <ApproveAndTx
                 className='w-28'
