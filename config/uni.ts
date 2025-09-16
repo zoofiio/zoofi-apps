@@ -1,5 +1,6 @@
-import { TxConfig } from '@/components/approve-and-tx'
+import { TxConfig, withTokenApprove } from '@/components/approve-and-tx'
 import { promiseAll } from '@/lib/utils'
+import { getPC } from '@/providers/publicClient'
 import { Token } from '@uniswap/sdk-core'
 import { Pool, Position } from '@uniswap/v4-sdk'
 import { now } from 'es-toolkit/compat'
@@ -72,6 +73,7 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
   },
 }
 export type UniSwapConfig = {
+  user: Address
   chainId: number
   poolkey: {
     currency0: Address
@@ -88,32 +90,8 @@ export type UniSwapConfig = {
   executeName?: string
 }
 
-export function withPermit2({
-  input,
-  permit2,
-  spender,
-  amountIn,
-  expiration = Math.round(now() / 1000 + 60 * 10),
-  tx,
-}: {
-  input: Address
-  permit2: Address
-  spender: Address
-  amountIn: bigint
-  expiration?: number
-  tx: SimulateContractParameters
-}) {
-  if (isAddressEqual(input, zeroAddress)) return []
-
-  return [
-    // approve to permit2
-    { abi: erc20Abi, address: input, functionName: 'approve', args: [permit2, amountIn] },
-    // permit2 approve
-    { abi: abiPermit2, address: permit2, functionName: 'approve', args: [input, spender, amountIn, expiration] },
-  ]
-}
-
 export async function encodeSingleSwap({
+  user,
   chainId,
   poolkey,
   is0To1 = true,
@@ -161,11 +139,15 @@ export async function encodeSingleSwap({
   if (isAddressEqual(input, zeroAddress)) {
     return [{ abi: abiUniRouter, functionName: 'execute', address: cf.unirouter, args: [commands, inputs, BigInt(expiration)], value: amountIn, name: executeName }]
   }
-  return [
+  const txs = await withTokenApprove({
+    approves: [{ token: input, spender: cf.permit2, amount: amountIn, name: approveName }],
+    pc: getPC(chainId),
+    user,
     // approve to permit2
-    { abi: erc20Abi, address: input, functionName: 'approve', args: [cf.permit2, amountIn], name: approveName },
-    // permit2 approve
-    { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [input, cf.unirouter, amountIn, expiration], name: approveName },
+    tx: { abi: abiPermit2, address: cf.permit2, functionName: 'approve', args: [input, cf.unirouter, amountIn, expiration], name: approveName },
+  })
+  return [
+    ...txs,
     // router execute
     { abi: abiUniRouter, functionName: 'execute', address: cf.unirouter, args: [commands, inputs, BigInt(expiration)], name: executeName },
   ]

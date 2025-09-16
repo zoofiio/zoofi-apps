@@ -404,7 +404,8 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       className='mx-auto mt-4'
       tx={vc.isIdle ? 'Coming Soon' : 'Swap'}
       disabled={disableTx || vc.isIdle}
-      txs={() => encodeSingleSwap({
+      txs={({ wc }) => encodeSingleSwap({
+        user: wc.account.address,
         approveName: `Approve ${input.symbol}`,
         executeName: `Swap ${input.symbol} for ${output.symbol}`,
         chainId: vc.chain,

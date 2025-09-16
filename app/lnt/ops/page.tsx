@@ -75,6 +75,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
             const inBunnerNftMap: { [k: string]: (typeof data.opsStats.burners)[number] } = {}
             const bunnerAddress: Address[] = []
             for (const bunnerItem of data.opsStats.burners) {
+                if (!bunnerItem.delegated_nfts) bunnerItem.delegated_nfts = []
                 bunnerItem.burner_wallet = bunnerItem.burner_wallet.startsWith('0x') ? bunnerItem.burner_wallet : `0x${bunnerItem.burner_wallet}`
                 for (const nftId of bunnerItem.delegated_nfts) {
                     inBunnerNftMap[nftId] = bunnerItem

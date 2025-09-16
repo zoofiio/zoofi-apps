@@ -2,14 +2,14 @@ import { useApproves, useNftApproves } from '@/hooks/useApprove'
 import { useWrapContractWrite } from '@/hooks/useWrapContractWrite'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, erc20Abi, PublicClient, SimulateContractParameters, TransactionReceipt, WalletClient, zeroAddress } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, erc20Abi, PublicClient, RpcSchema, SimulateContractParameters, TransactionReceipt, WalletClient, zeroAddress } from 'viem'
 
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
 import { cn, getErrorMsg, handleError, promiseT } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useMutation } from '@tanstack/react-query'
 import { toast as tos } from 'sonner'
-import { useSwitchChain, useWalletClient } from 'wagmi'
+import { Transport, useSwitchChain, useWalletClient } from 'wagmi'
 import { BBtn } from './ui/bbtn'
 import { create } from 'zustand'
 import { SimpleDialog } from './simple-dialog'
@@ -179,7 +179,7 @@ export function Txs({
     disableSendCalls?: boolean,
     disableProgress?: boolean,
     beforeSimulate?: boolean,
-    className?: string, tx: string, disabled?: boolean, txs: TX[] | (() => Promise<TX[]> | TX[]), busyShowTxet?: boolean, toast?: boolean
+    className?: string, tx: string, disabled?: boolean, txs: TX[] | ((args: { pc: PublicClient, wc: WalletClient<Transport, Chain, Account, RpcSchema> }) => Promise<TX[]> | TX[]), busyShowTxet?: boolean, toast?: boolean
     onTxSuccess?: () => void
   }) {
   const { data: wc } = useWalletClient()
@@ -191,7 +191,7 @@ export function Txs({
     mutationFn: async () => {
       if (!wc) return
       const pc = getPC(chainId);
-      const calls = await promiseT(txs).then(items => Promise.all(items.map(promiseT)))
+      const calls = await promiseT(txs, { pc, wc }).then(items => Promise.all(items.map(promiseT)))
       console.info('calls:', wc.account.address, calls)
       try {
         if (disableSendCalls) {
