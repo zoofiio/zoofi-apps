@@ -225,7 +225,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
             <input className={cn(inputClassname)} placeholder="ExpireTime" value={delegateExpire.toString()} onChange={(e) => setState({ delegateExpire: tryToBn(e.target.value) })} />
             <BBtn onClick={doDelegate as any} busy={isBusyDelegate} disabled={isBusyDelegate}>Delegate</BBtn>
         </Expandable>
-        <div className={cn(itemClassName, "flex-row items-center gap-6")}>
+        <div className={cn(itemClassName, "xl:flex-row items-center gap-6")}>
             <GeneralAction abi={abiLntVault} functionName='updateCheckerNode' address={vc.vault}
                 infos={() => getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'checkerNode' })}
             />

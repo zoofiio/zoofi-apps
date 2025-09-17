@@ -9,7 +9,7 @@ export function PageWrap({ children, className }: { children: React.ReactNode; c
   // const isHome = path == '/'
   return (
     <div
-      className={cn('h-auto pt-[30px] pb-6', className)}
+      className={cn('h-auto lg:pt-[30px] pb-6', className)}
       // style={{
       //   backgroundSize: 'contain',
       //   background:

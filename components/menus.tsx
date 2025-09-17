@@ -158,7 +158,7 @@ export function Menus() {
     return <>
         <div className="flex fixed z-50 left-0 lg:hidden items-center px-4 h-[72px]">
             <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
-                <CoinIcon symbol='logo-alt' size={90} />
+                <CoinIcon symbol='logo-alt' size={60} />
             </Link>
             <div ref={refToggle}>
                 <LuMenu className="text-3xl cursor-pointer" onClick={() => toggleOpen(!open)} />

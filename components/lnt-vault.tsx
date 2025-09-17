@@ -264,7 +264,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
       <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
       <span className='opacity-50 ml-1'>Licenses</span>
     </div>
-    <div className='flex flex-col gap-5 justify-between px-8 my-auto'>
+    <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto'>
       <SimpleDialog
         triggerRef={depositRef}
         triggerProps={{ className: 'flex-1' }}
@@ -299,10 +299,12 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
     <div className='flex flex-col'>
       <div className="flex gap-5 relative justify-center flex-wrap md:flex-nowrap">
         {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
-        <CoinIcon symbol={vc.icon} size={161} className='object-contain' />
+        <div className='text-[40px] lg:text-[160px] shrink-0 absolute left-0 top-0 lg:relative'>
+          <CoinIcon symbol={vc.icon} size={'1em'} className='object-contain' />
+        </div>
         <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
           <div className='flex justify-between gap-5 flex-wrap'>
-            <div className="text-base font-semibold">{vc.tit}</div>
+            <div className="pl-12 leading-10 lg:pl-0 lg:leading-normal text-base font-semibold">{vc.tit}</div>
             <div></div>
             {/* {vc.isIdle && <div className='underline underline-offset-2 text-red-500 flex items-center gap-2 whitespace-pre-wrap'><CoinIcon size={16} symbol='Fire' /> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>} */}
           </div>
@@ -392,16 +394,16 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     <AssetInput asset={input.symbol} disable={vc.isIdle} balance={inputBalance.result} amount={inputAsset} setAmount={setInputAsset} />
     <Swap onClick={() => toggle()} />
     <AssetInput checkBalance={false} asset={output.symbol} balance={outputBalance.result} loading={isFetchingCalc} disable amount={fmtBn(outAmount, output.decimals)} />
-    <div className="flex justify-between items-center text-xs font-medium">
+    <div className="flex justify-between items-center text-xs font-medium gap-2 flex-wrap">
       <div>Price: {swapPrice}</div>
       <div>Price Impact: {priceimpcat}</div>
     </div>
-    <div className="flex justify-between items-center text-xs font-medium opacity-60">
-      <div>Implied APY Change: {formatPercent(apy)} → {formatPercent(apyto)}</div>
+    <div className="flex justify-between items-center text-xs font-medium opacity-60 gap-2 flex-wrap">
+      <div className='whitespace-nowrap'>Implied APY Change: {formatPercent(apy)} → {formatPercent(apyto)}</div>
       <Fees fees={fees} />
     </div>
     <Txs
-      className='mx-auto mt-4'
+      className='w-full mx-auto mt-4'
       tx={vc.isIdle ? 'Coming Soon' : 'Swap'}
       disabled={disableTx || vc.isIdle}
       txs={({ wc }) => encodeSingleSwap({
@@ -660,11 +662,15 @@ function VT({ vc }: { vc: LntVaultConfig }) {
           <div className='text-xs leading-none text-black/60 font-medium'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
         </div>
       </div>
-      <div className='flex whitespace-nowrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>
-        <div className="text-lg font-medium">{formatPercent(apy)}</div>
-        <div className="text-xs font-semibold opacity-60">Fixed APY</div>
-        <div className="text-xs font-semibold opacity-60 ml-auto">Circulation amount</div>
-        <div className="text-lg font-medium">{displayBalance(vtTotal.result, undefined, vt.decimals)}</div>
+      <div className='flex whitespace-nowrap flex-wrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>
+        <div className='flex justify-between gap-2.5 items-baseline'>
+          <div className="text-lg font-medium">{formatPercent(apy)}</div>
+          <div className="text-xs font-semibold opacity-60">Fixed APY</div>
+        </div>
+        <div className='flex justify-between gap-2.5 items-baseline'>
+          <div className="text-xs font-semibold opacity-60">Circulation amount</div>
+          <div className="text-lg font-medium">{displayBalance(vtTotal.result, undefined, vt.decimals)}</div>
+        </div>
       </div>
       <div className='flex px-2 pb-4'>
         <button className='btn-link ml-auto text-primary text-xs underline-offset-2' onClick={onAddPToken}>
@@ -751,7 +757,7 @@ export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
   const txs = async () => {
     return [{ abi: abiMockERC721, address: vc.asset, functionName: 'safeMint', args: [address] }]
   }
-  return <div className='flex justify-end items-center gap-10'>
+  return <div className='flex justify-end items-center gap-5 lg:gap-10 text-sm lg:text-base'>
     <Link href={"https://faucet.0g.ai/"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
       <CoinIcon symbol='ZeroG' size={32} className='object-contain' />
       Faucet
@@ -762,13 +768,13 @@ export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
 
 export function LNTAethirHeader({ vc }: { vc: LntVaultConfig }) {
   if (!vc.isAethir) return null
-  return <div className='flex justify-end items-center gap-10'>
+  return <div className='flex justify-end items-center gap-5 lg:gap-10 text-sm lg:text-base'>
     <Link href={"https://youtu.be/mK2ZBujbuR4"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
-      <FaYoutube className='text-2xl text-red-500' />
+      <FaYoutube className='text-[1.5em] text-red-500' />
       Tutorial
     </Link>
     <Link href={"https://opensea.io/collection/aethir-checker-license"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
-      <CoinIcon symbol='Opensea' size={24} className='object-contain' />
+      <CoinIcon symbol='Opensea' size="1.5em" className='object-contain' />
       Buy Node on Opensea
     </Link>
   </div>

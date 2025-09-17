@@ -21,7 +21,7 @@ export function Header() {
   )
   return (
     <header className='h-[72px] sticky top-0 left-0 w-full max-w-[1300px] inset-0 mx-auto flex items-center justify-end px-4 z-30 bg-white  dark:text-slate-50 dark:bg-dark'>
-      <div className='flex items-center gap-1 md:gap-4'>
+      <div className='flex items-center md:gap-4'>
         {/* Social networks */}
         <ThemeMode />
         <div className='hidden lg:flex items-center gap-3'>
