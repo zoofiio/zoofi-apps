@@ -69,7 +69,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     vault: '0x7d3cec2f46279229277802d30702e4e7fb19bac0',
     asset: '0x0e1d50c3c0894399c343b5d93ad5baf1a00b9328',
     protocol: '0x6e603014ace3ae06f34ffe259106af77c056d913',
-    onEnv: ['test'],
+    onEnv: ['test', 'prod'],
     lpTYT: zeroAddress,
     ZeroGVToracle: '0x0d1795b6a21f36a6c3ef8333be63ac734f72c34b',
     RedeemStrategy: '0xd08cf0c214e577a90c718bc5f1bb42a2987a098e',

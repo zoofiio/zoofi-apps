@@ -229,7 +229,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const chain = useCurrentChain()
   return (
     <div className={cn('animitem card overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
-      <div className='w-full min-w-max gap-4 grid grid-cols-[1.8fr_1fr_1fr_0.8fr_1.2fr_1.8fr]'>
+      <div className='w-full min-w-max gap-4 grid grid-cols-[1.6fr_1fr_1fr_0.8fr_1.2fr_1.8fr]'>
         <div className='flex items-center gap-5 shrink-0'>
           <CoinIcon symbol={vc.projectIcon} size={120} className='object-contain' style={{ height: 60 }} />
           <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet })} />
