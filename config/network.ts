@@ -1,6 +1,6 @@
 import { providers } from 'ethers'
 import { Address, Chain, defineChain } from 'viem'
-import { base as baseMainnet, zeroG, arbitrum as arbitrumMain, zksync } from 'viem/chains'
+import { base as baseMainnet, zeroG, arbitrum as arbitrumMain } from 'viem/chains'
 import { LP_TOKENS } from './lpTokens'
 import { BASE_PATH } from './env'
 
@@ -110,6 +110,25 @@ export const zeroGTestnet = defineChain({
   iconUrl: `${BASE_PATH}/ZeroG.png`,
 })
 
+export const zeroGmainnet = defineChain({
+  id: 16661,
+  name: '0G Mainnet',
+  nativeCurrency: { name: '0G', symbol: '0G', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://evmrpc.0g.ai'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: '0G BlockChain Explorer',
+      url: 'https://chainscan.0g.ai',
+    },
+  },
+  testnet: false,
+  iconUrl: `${BASE_PATH}/ZeroG.png`,
+})
+
 export const arbitrum = defineChain({
   ...arbitrumMain,
   rpcUrls: {
@@ -127,7 +146,7 @@ export const multicallBatchConfig = { batchSize: 1024, wait: 500 }
 export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia, base]
 // allapps chanis
-export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGTestnet, sepolia, base, berachain, berachainTestnet, arbitrum]
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGTestnet, zeroGmainnet, sepolia, base, berachain, berachainTestnet, arbitrum]
 
 const refChainId = { chainId: SUPPORT_CHAINS[0].id }
 export function getCurrentChainId() {

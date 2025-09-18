@@ -14,23 +14,21 @@ export const FET_KEYS = {
 }
 export function useBalance(token?: Token) {
   const { address } = useAccount()
-  const chainId = useCurrentChainId()
   return useFet({
     key: FET_KEYS.TokenBalance(token, address),
     initResult: 0n,
     fetfn: async () =>
       token!.isNative
-        ? getPC(chainId).getBalance({ address: address! })
-        : getPC(chainId).readContract({ abi: erc20Abi, functionName: 'balanceOf', address: token!.address, args: [address!] }),
+        ? getPC(token!.chain).getBalance({ address: address! })
+        : getPC(token!.chain).readContract({ abi: erc20Abi, functionName: 'balanceOf', address: token!.address, args: [address!] }),
   })
 }
 
 export function useTotalSupply(token?: Token) {
-  const chainId = useCurrentChainId()
   return useFet({
     key: FET_KEYS.TokenSupply(token),
     initResult: 0n,
-    fetfn: async () => (token!.isNative ? 0n : getPC(chainId).readContract({ abi: erc20Abi, functionName: 'totalSupply', address: token!.address })),
+    fetfn: async () => (token!.isNative ? 0n : getPC(token!.chain).readContract({ abi: erc20Abi, functionName: 'totalSupply', address: token!.address })),
   })
 }
 

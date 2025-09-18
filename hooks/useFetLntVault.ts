@@ -1,4 +1,4 @@
-import { abiAethirRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { abiRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { getLntVaultSwapFee7Days } from '@/config/api'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
@@ -19,7 +19,7 @@ export const FET_KEYS = {
   LntVaultOperators: (vc: LntVaultConfig, nodeOP?: Address) => (nodeOP ? `fetLntVaultOperators:${nodeOP}` : ''),
   LntHookPoolkey: (vc: LntVaultConfig, hook?: Address) => (hook && hook !== zeroAddress ? `LntHookPoolkey:${vc.vault}:${hook}` : ''),
   LntWithdrawPrice: (vc: LntVaultConfig) => `LntWithdrawPrice:${vc.vault}`,
-  LntWithdrawWindows: (vc: LntVaultConfig) => (vc.isAethir ? `LntWithdrawWindows:${vc.vault}` : ''),
+  LntWithdrawWindows: (vc: LntVaultConfig) => (vc.RedeemStrategy ? `LntWithdrawWindows:${vc.vault}` : ''),
 }
 export function useLntVault(vc: LntVaultConfig) {
   return useFet({
@@ -28,8 +28,8 @@ export function useLntVault(vc: LntVaultConfig) {
       const pc = getPC(vc.chain)
       const { lntdata, ...other } = await promiseAll({
         lntdata: pc.readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
-        expiryTime: vc.isAethir ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }) : Promise.resolve(1784968222n),
-        startTime: vc.isAethir ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }) : Promise.resolve(1750840222n),
+        expiryTime: vc.isAethir || vc.isZeroG ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }) : Promise.resolve(1784968222n),
+        startTime: vc.isAethir || vc.isZeroG ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }) : Promise.resolve(1750840222n),
       })
       return { ...lntdata, ...other }
     },
@@ -129,10 +129,10 @@ export function useLntVaultWithdrawWindows(vc: LntVaultConfig) {
     fetfn: async () => {
       const pc = getPC(vc.chain)
       const redeemStrategy = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'redeemStrategy' })
-      const canRedeem = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'canRedeem' })
+      const canRedeem = await pc.readContract({ abi: abiRedeemStrategy, address: redeemStrategy, functionName: 'canRedeem' })
       if (canRedeem) return [{ startTime: nowUnix(), duration: 10000000000n }]
-      const windowCount = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindowsCount' })
-      const [sTimes, durations] = await pc.readContract({ abi: abiAethirRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindows', args: [0n, windowCount] })
+      const windowCount = await pc.readContract({ abi: abiRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindowsCount' })
+      const [sTimes, durations] = await pc.readContract({ abi: abiRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindows', args: [0n, windowCount] })
       return sTimes.map((st, i) => ({ startTime: st, duration: durations[i] })).sort((a, b) => (a.startTime > b.startTime ? 1 : a.startTime < b.startTime ? -1 : 0))
     },
   })
@@ -142,10 +142,10 @@ export function useLntVaultWithdrawState(vc: LntVaultConfig) {
   const withdarwWindows = useLntVaultWithdrawWindows(vc)
   const nowtime = nowUnix()
   const inWindowI = withdarwWindows.result.findIndex((item) => item.startTime <= nowtime && nowtime <= item.startTime + item.duration)
-  const inWindow = !vc.isAethir || inWindowI >= 0
+  const inWindow = !vc.RedeemStrategy || inWindowI >= 0
   return {
     inWindow: inWindow,
-    wWindow: inWindow ? (vc.isAethir ? withdarwWindows.result[inWindowI] : undefined) : undefined,
+    wWindow: inWindow ? (vc.RedeemStrategy ? withdarwWindows.result[inWindowI] : undefined) : undefined,
     nWindow: inWindowI < 0 ? withdarwWindows.result.find((item) => item.startTime > nowtime) : undefined,
   }
 }
@@ -166,7 +166,7 @@ export function calcTPriceVT(
   const vtPecent = tNum + vtNum > 0 ? Math.min(vtNum / (tNum + vtNum), 1) : 0
   const rateScalar = aarToNumber(logs.rateScalar, 18)
   const rateAnchor = aarToNumber(logs.rateAnchor, 18)
-  const tPriceVt = rateScalar != 0 && 1 - vtPecent != 0 ? Math.log(vtPecent / (1 - vtPecent) / RNum) / rateScalar + rateAnchor : 0
+  const tPriceVt = rateScalar != 0 && 1 - vtPecent != 0 && 1 - vtPecent != 1 ? Math.log(vtPecent / (1 - vtPecent) / RNum) / rateScalar + rateAnchor : 0
   return tPriceVt
 }
 
@@ -201,12 +201,12 @@ export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>
     const vt = aarToNumber(logs.vt, getTokenBy(vd.VT, vc.chain)!.decimals)
     const t = aarToNumber(logs.t, getTokenBy(vd.T, vc.chain)!.decimals)
     // console.info('calcLPApy:', vt, t, tPriceVt, vtApy)
-    apyFromVT = (vt / (t * tPriceVt + vt)) * vtApy
+    apyFromVT = tPriceVt > 0 ? (vt / (t * tPriceVt + vt)) * vtApy : 0
 
     // from swap
     const C = aarToNumber(swapfee7days, 18) // last 7 days swap fee to T amount
     const D = (C / 7) * 365
-    apyFromSwap = D / (vt / tPriceVt + t)
+    apyFromSwap = tPriceVt > 0 ? D / (vt / tPriceVt + t) : 0
 
     // fro airdrop
   }

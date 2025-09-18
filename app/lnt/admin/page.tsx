@@ -8,7 +8,7 @@ import { Spinner } from '@/components/spinner'
 import { ConfigChainsProvider } from '@/components/support-chains'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721, abiProtocolSettings } from '@/config/abi'
-import { abiAethirNFT, abiAethirRedeemStrategy, abiAethirVToracle, abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { abiAethirNFT, abiRedeemStrategy, abiAethirVToracle, abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor, abiQueryLNT, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { isTestnet } from '@/config/network'
@@ -146,7 +146,8 @@ export default function AdminPage() {
 
               {current.vc.AethirNFT && <ContractAll tit='MockAethirNFT' abi={abiAethirNFT} address={current.vc.AethirNFT} />}
               {current.vc.AethirVToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={current.vc.AethirVToracle} />}
-              {current.vc.AethirRedeemStrategy && <ContractAll tit='AethirRedeemStrategy' abi={abiAethirRedeemStrategy} address={current.vc.AethirRedeemStrategy}
+              {current.vc.ZeroGVToracle && <ContractAll tit='ZeroGVToracle' abi={abiZeroGVToracale} address={current.vc.ZeroGVToracle} />}
+              {current.vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={current.vc.RedeemStrategy}
                 itemInfos={{
                   updateRedeemStrategy: {
                     ONLY_WITHIN_REDEEM_TIME_WINDOW: 0,
@@ -155,8 +156,8 @@ export default function AdminPage() {
                   },
                   redeemTimeWindows: async () => {
                     const pc = getPC(current.vc.chain)
-                    const count = await pc.readContract({ abi: abiAethirRedeemStrategy, address: current.vc.AethirRedeemStrategy!, functionName: 'redeemTimeWindowsCount' })
-                    const tws = await pc.readContract({ abi: abiAethirRedeemStrategy, address: current.vc.AethirRedeemStrategy!, functionName: 'redeemTimeWindows', args: [0n, count] })
+                    const count = await pc.readContract({ abi: abiRedeemStrategy, address: current.vc.RedeemStrategy!, functionName: 'redeemTimeWindowsCount' })
+                    const tws = await pc.readContract({ abi: abiRedeemStrategy, address: current.vc.RedeemStrategy!, functionName: 'redeemTimeWindows', args: [0n, count] })
                     return tws[0].map((t, i) => `${fmtDate(t * 1000n, FMT.ALL)}       --   ${tws[1][i]}`)
                   }
                 }}

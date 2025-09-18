@@ -1,7 +1,7 @@
-import { Address } from 'viem'
+import { Address, zeroAddress } from 'viem'
 import { arbitrum, sepolia } from 'viem/chains'
 import { TypeENV } from './env'
-import { zeroGTestnet } from './network'
+import { zeroGmainnet, zeroGTestnet } from './network'
 
 export const WriteConfirmations = 3
 
@@ -17,11 +17,16 @@ export type LntVaultConfig = {
   MockaVTOracle?: Address
   MockNodeDelegator?: Address
   MockRewardDistribuitor?: Address
+  RedeemStrategy?: Address
   // aethir
   AethirNFT?: Address
   AethirVToracle?: Address
-  AethirRedeemStrategy?: Address
   isAethir?: boolean
+
+  // 0G
+  ZeroGNFT?: Address
+  ZeroGVToracle?: Address
+  isZeroG?: boolean
 
   onEnv?: TypeENV[]
   vtActive: boolean
@@ -44,9 +49,9 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
     onEnv: ['test', 'prod'],
     AethirVToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
-    AethirRedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
+    RedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
     isAethir: true,
-    lpTYT: '0x123',
+    lpTYT: zeroAddress,
     test: false,
     isIdle: false,
     vtActive: true,
@@ -58,6 +63,26 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     tit: 'Aethir Checker Node',
     info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.
 Checker nodes ensure the integrity and service quality of Aethir network by checking the GPU specifications and its service process.`,
+  },
+  {
+    chain: zeroGmainnet.id,
+    vault: '0x7d3cec2f46279229277802d30702e4e7fb19bac0',
+    asset: '0x0e1d50c3c0894399c343b5d93ad5baf1a00b9328',
+    protocol: '0x6e603014ace3ae06f34ffe259106af77c056d913',
+    onEnv: ['test'],
+    lpTYT: zeroAddress,
+    ZeroGVToracle: '0x0d1795b6a21f36a6c3ef8333be63ac734f72c34b',
+    RedeemStrategy: '0xd08cf0c214e577a90c718bc5f1bb42a2987a098e',
+    AethirNFT: '0x0e1d50c3c0894399c343b5d93ad5baf1a00b9328',
+    isZeroG: true,
+    vtActive: true,
+    ytEnable: false,
+    lpYields: false,
+    projectIcon: 'ZeroG',
+    startTime: 1758171155n,
+    icon: 'ZeroG',
+    tit: '0G AI Alignment Node',
+    info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
   },
   {
     chain: arbitrum.id,
@@ -72,9 +97,9 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     // MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
     AethirNFT: '0x48563bb31d2927d9f66422cb4573124434d748be',
     AethirVToracle: '0x47dc4714c5f4d18df398da082534fdea76f29174',
-    AethirRedeemStrategy: '0x8363b9f3173c667ee59c38f1c4885aae10a5e0e2',
+    RedeemStrategy: '0x8363b9f3173c667ee59c38f1c4885aae10a5e0e2',
     isAethir: true,
-    lpTYT: '0x123',
+    lpTYT: zeroAddress,
     test: true,
     vtActive: true,
     ytEnable: false,
@@ -95,7 +120,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     MockaVTOracle: '0x1e349be7cacbd558bf39ba38763359f541ed07ca',
     MockNodeDelegator: '0x48fdfe0ebc720262d4157ff9ea81d0d92d544c6d',
     MockRewardDistribuitor: '0x82d6a9b59c8aa157dca8ef1a15f36406198da3d5',
-    lpTYT: '0x123',
+    lpTYT: zeroAddress,
     vtActive: true,
     ytEnable: true,
     lpYields: true,
@@ -114,7 +139,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     MockaVTOracle: '0x8fb28f6d7834dc0127e39be7c9db11383e126d2b',
     MockNodeDelegator: '0xc7329fbb367f709b57f3945eb6ac18cebd711c7c',
     MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
-    lpTYT: '0x123',
+    lpTYT: zeroAddress,
     vtActive: true,
     ytEnable: true,
     lpYields: true,

@@ -3,7 +3,7 @@ import { abiMockERC721 } from '@/config/abi'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
-import { zeroGTestnet } from '@/config/network'
+import { zeroGmainnet, zeroGTestnet } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
@@ -26,7 +26,7 @@ import { useSetState, useToggle } from 'react-use'
 import { toast } from 'sonner'
 import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
-import { TxConfig, Txs, withTokenApprove } from './approve-and-tx'
+import { TX, TxConfig, Txs, withTokenApprove } from './approve-and-tx'
 import { AssetInput } from './asset-input'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
@@ -42,7 +42,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
   const maxSelected = 30;
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
   const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
-  const nfts = useErc721Balance(vd.result!.NFT, vc.chain == zeroGTestnet.id ? 'zoofi' : 'alchemy')
+  const nfts = useErc721Balance(vd.result!.NFT, ([zeroGTestnet.id, zeroGmainnet.id] as number[]).includes(vc.chain) ? 'zoofi' : 'alchemy')
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
   const { data: outAmountVT } = useQuery({
@@ -76,6 +76,29 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       console.info('onClickAll:', snft, selectedNft, tokenIds)
       setSelectNft(snft)
     }
+  }
+
+  const getTxs: Parameters<typeof Txs>['0']['txs'] = async ({ pc, wc }) => {
+    const approves: TX[] = []
+    if (!(await pc.readContract({ abi: erc721Abi, address: vc.asset, functionName: 'isApprovedForAll', args: [wc.account.address!, vc.vault] }))) {
+      const alreadyApproves = await Promise.all(tokenIds.map(id => pc.readContract({ abi: erc721Abi, address: vc.asset, functionName: 'getApproved', args: [id] })))
+      alreadyApproves.forEach((ap, i) => {
+        if (!isAddressEqual(ap, vc.vault)) {
+          approves.push({ abi: erc721Abi, address: vc.asset, functionName: 'approve', args: [vc.vault, tokenIds[i]], name: `Approve #${tokenIds[i].toString()}` })
+        }
+      })
+    }
+    return [
+      ...approves,
+      {
+        name: 'Deposit',
+        abi: abiLntVault,
+        address: vc.vault,
+        functionName: 'batchDeposit',
+        enabled: tokenIds.length > 0,
+        args: vc.isAethir || vc.isZeroG ? [tokenIds] : [tokenIds, tokenIds.map(() => 1n)]
+      }
+    ]
   }
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='w-full text-start'>Licenses ID <span className={cn('text-xs ml-5 opacity-70', { "hidden": vc.isAethir },)}>Wait about 5 minutes after MINT to retrieve the list.</span></div>
@@ -120,17 +143,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         onSuccess()
       }}
       disabled={tokenIds.length == 0}
-      txs={() => [
-        ...tokenIds.map(id => ({ abi: erc721Abi, address: vc.asset, functionName: 'approve', args: [vc.vault, id], name: 'Approve NFT' })),
-        {
-          name: 'Deposit',
-          abi: abiLntVault,
-          address: vc.vault,
-          functionName: 'batchDeposit',
-          enabled: tokenIds.length > 0,
-          args: vc.isAethir ? [tokenIds] : [tokenIds, tokenIds.map(() => 1n)]
-        }
-      ]} />
+      txs={getTxs} />
   </div>
 }
 function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
@@ -352,7 +365,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       const pc = getPC(vc.chain)
       if (!vd.result || inputAssetBn <= 0n || !poolkey.result) return 0n
       console.info('vd:', vd.result)
-      if (vc.isAethir) {
+      if (vc.isAethir || vc.isZeroG) {
         return pc.readContract({
           abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: isToggled ? 'getAmountOutVTforT' : 'getAmountOutTforVT',
           args: [inputAssetBn],
@@ -379,14 +392,16 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   let apyto = 0
   if (type == 'vt') {
     const tPriceVt = calcTPriceVT(vc, vd.result, logs.result)
-    const tPriceVtAfter = calcTPriceVT(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
-    swapPrice = isToggled ? `1 ${vt.symbol} = ${round(1 / tPriceVt, 2)} ${t.symbol}` : `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}`
     if (tPriceVt > 0) {
-      priceimpcat = formatPercent(Math.abs(tPriceVtAfter - tPriceVt) / tPriceVt)
+      const tPriceVtAfter = calcTPriceVT(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
+      swapPrice = isToggled ? `1 ${vt.symbol} = ${round(1 / tPriceVt, 2)} ${t.symbol}` : `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}`
+      if (tPriceVt > 0) {
+        priceimpcat = formatPercent(Math.abs(tPriceVtAfter - tPriceVt) / tPriceVt)
+      }
+      apy = calcVtApy(vc, vd.result, logs.result)
+      apyto = calcVtApy(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
+      console.info("SwapVT:", tPriceVt, tPriceVtAfter, apy, apyto)
     }
-    apy = calcVtApy(vc, vd.result, logs.result)
-    apyto = calcVtApy(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
-    console.info("SwapVT:", tPriceVt, tPriceVtAfter, apy, apyto)
   }
   // const outAmount = 0n
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
@@ -755,13 +770,13 @@ export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
   const { address } = useAccount()
   if (vc.tit !== "0G AI Alignment Node") return null
   const txs = async () => {
-    return [{ abi: abiMockERC721, address: vc.asset, functionName: 'safeMint', args: [address] }]
+    return [{ abi: abiMockERC721, address: vc.asset, functionName: vc.test ? 'safeMint' : 'mint', args: [address] }]
   }
   return <div className='flex justify-end items-center gap-5 lg:gap-10 text-sm lg:text-base'>
-    <Link href={"https://faucet.0g.ai/"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
+    {vc.test && <Link href={"https://faucet.0g.ai/"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
       <CoinIcon symbol='ZeroG' size={32} className='object-contain' />
       Faucet
-    </Link>
+    </Link>}
     <Txs tx='Mint Test Node' className='w-[180px]' txs={txs} disabled={!address} />
   </div>
 }

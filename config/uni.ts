@@ -18,6 +18,7 @@ import {
   toHex,
   zeroAddress,
 } from 'viem'
+import { zeroGmainnet } from './network'
 export const abiUniRouter = parseAbi([
   'function execute(bytes calldata commands, bytes[] calldata inputs) public payable',
   'function execute(bytes calldata commands, bytes[] calldata inputs, uint256 deadline) public payable',
@@ -70,6 +71,13 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
     positionmanager: '0xd88f38f930b7952f2db2432cb002e7abbf3dd869',
     poolmanager: '0x360e68faccca8ca495c1b759fd9eee466db9fb32',
     stateview: '0x76fd297e2d437cd7f76d50f01afe6160f86e9990',
+  },
+  [zeroGmainnet.id]: {
+    unirouter: '0x550b031acbc56b309a8ef28914959115f6a97202',
+    permit2: '0xA3eD53b6548cED609E6E7100c13D5bF129Acec57',
+    positionmanager: '0x429ba70129df741B2Ca2a85BC3A2e3328e5c09b4',
+    poolmanager: '0x8d50571796c86fd7018b5711a10a498eeaf5761f',
+    stateview: '0xe1dd9c3fa50edb962e442f60dfbc432e24537e4c',  
   },
 }
 export type UniSwapConfig = {
