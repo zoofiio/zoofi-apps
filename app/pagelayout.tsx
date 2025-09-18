@@ -21,7 +21,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
         <div className='w-screen h-screen overflow-auto flex justify-center relative'>
           <div className='flex justify-center w-full max-w-[1400px] h-max relative'>
             <Menus />
-            <div className='flex-1 relative h-max w-full'>
+            <div className='flex-1 basis-0 relative h-max w-0'>
               {children}
             </div>
           </div>

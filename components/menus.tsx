@@ -165,7 +165,7 @@ export function Menus() {
             </div>
         </div>
         {/* for pc */}
-        <div ref={refMenus} className={cn("hidden h-screen lg:flex flex-col gap-8 items-center sticky top-0 w-[15rem] overflow-y-auto transition-all")}>
+        <div ref={refMenus} className={cn("hidden shrink-0 h-screen lg:flex flex-col gap-8 items-center sticky top-0 w-[15rem] overflow-y-auto transition-all")}>
             <div className="flex items-center justify-center gap-5 px-4 h-[72px]">
                 <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
                     <CoinIcon symbol='logo-alt' size={90} />

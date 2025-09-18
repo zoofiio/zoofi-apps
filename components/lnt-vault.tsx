@@ -219,7 +219,7 @@ export function LntOperators({ vc }: { vc: LntVaultConfig }) {
 export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
-  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0"
+  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center"
   const itemTitClassname = "opacity-60 text-xs font-semibold"
   const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, vc.chain, { symbol: 'VT' }))
   const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
@@ -229,37 +229,39 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const chain = useCurrentChain()
   return (
     <div className={cn('animitem card overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
-      <div className='flex items-center gap-5 shrink-0'>
-        <CoinIcon symbol={vc.projectIcon} size={120} className='object-contain' style={{ height: 60 }} />
-        <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet })} />
-      </div>
-      <div className={itemClassname}>
-        <div className={itemTitClassname}>Total Delegated</div>
-        <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
-      </div>
-      <div className={itemClassname}>
-        <div className={itemTitClassname}>VT Supply</div>
-        <div>{displayBalance(vtTotalSupply.result)}</div>
-      </div>
-      <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
-        <div className={itemTitClassname}>YT Supply</div>
-        <div>{displayBalance(ytTotalSupply.result)}</div>
-      </div>
-      <div className={itemClassname}>
-        <div className={itemTitClassname}>VT Buyback</div>
-        <div className="flex w-36 items-center ">
-          <div className="flex w-full h-4 bg-gray-200 rounded-full ">
-            <div
-              className="h-full rounded-full"
-              style={{ width: `${0}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
-            />
-          </div>
-          <div className="text-sm  text-right opacity-60 ml-[10px]">{0}%</div>
+      <div className='w-full min-w-max gap-4 grid grid-cols-[1.8fr_1fr_1fr_0.8fr_1.2fr_1.8fr]'>
+        <div className='flex items-center gap-5 shrink-0'>
+          <CoinIcon symbol={vc.projectIcon} size={120} className='object-contain' style={{ height: 60 }} />
+          <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet })} />
         </div>
-      </div>
-      <div className={itemClassname}>
-        <div className={itemTitClassname}>State</div>
-        <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : <>Active <span className='opacity-60 text-xs ml-3'>{remainStr}</span></>}</div>
+        <div className={itemClassname}>
+          <div className={itemTitClassname}>Total Delegated</div>
+          <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
+        </div>
+        <div className={itemClassname}>
+          <div className={itemTitClassname}>VT Supply</div>
+          <div>{displayBalance(vtTotalSupply.result)}</div>
+        </div>
+        <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
+          <div className={itemTitClassname}>YT Supply</div>
+          <div>{displayBalance(ytTotalSupply.result)}</div>
+        </div>
+        <div className={itemClassname}>
+          <div className={itemTitClassname}>VT Buyback</div>
+          <div className="flex w-36 items-center ">
+            <div className="flex w-full h-4 bg-gray-200 rounded-full ">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${0}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
+              />
+            </div>
+            <div className="text-sm  text-right opacity-60 ml-[10px]">{0}%</div>
+          </div>
+        </div>
+        <div className={itemClassname}>
+          <div className={itemTitClassname}>State</div>
+          <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : <>Active <span className='opacity-60 text-xs ml-3'>{remainStr}</span></>}</div>
+        </div>
       </div>
     </div>
   )
