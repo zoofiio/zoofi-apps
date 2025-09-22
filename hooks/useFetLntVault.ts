@@ -28,7 +28,7 @@ export function useLntVault(vc: LntVaultConfig) {
       const pc = getPC(vc.chain)
       const { lntdata, ...other } = await promiseAll({
         lntdata: pc.readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
-        expiryTime: vc.isAethir || vc.isZeroG ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }) : Promise.resolve(1784968222n),
+        expiryTime: vc.isAethir ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }) : Promise.resolve(1784968222n),
         startTime: vc.isAethir || vc.isZeroG ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }) : Promise.resolve(1750840222n),
       })
       return { ...lntdata, ...other }
