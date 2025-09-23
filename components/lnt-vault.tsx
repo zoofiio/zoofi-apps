@@ -587,7 +587,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const [token0, token1] = useMemo(() => uniSortTokens([vd.result!.T, type == 'vt' ? vd.result!.VT : vd.result!.YT]), [type, vd.result])
   const output1IsToken0 = isAddressEqual(token0, output1.address)
   const inputBalance = useBalance(input);
-
+  const inputTotalSupply = useTotalSupply(input)
   const { data: [out1Amount, out2Amount], isFetching: isFetchingOut } = useQuery({
     queryKey: useCalcKey(['calcLpRemove', vc.vault, inputAssetBn, output1IsToken0]),
     initialData: [0n, 0n],
@@ -640,9 +640,10 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       }
     ]
   }
+  const poolShare = inputTotalSupply.result > 0n ? inputBalance.result * DECIMAL / inputTotalSupply.result : 0n
+  const poolShareStr = `Pool share: ${fmtPercent(poolShare, input.decimals, 2)}`
   return <div className='flex flex-col gap-1'>
-    <AssetInput asset={input.symbol} amount={inputAsset} balance={inputBalance.result} setAmount={setInputAsset} error={errorInput} />
-    {/* <Swap onClick={() => toggle()} /> */}
+    <AssetInput asset={input.symbol} amount={inputAsset} balance={inputBalance.result} setAmount={setInputAsset} error={errorInput} otherInfo={poolShareStr} />
     <div>Receive</div>
     <AssetInput asset={output1.symbol} loading={isFetchingOut && inputAssetBn > 0n} disable amount={fmtBn(out1Amount, output1.decimals)} />
     <AssetInput asset={output2.symbol} loading={isFetchingOut && inputAssetBn > 0n} disable amount={fmtBn(out2Amount, output2.decimals)} />

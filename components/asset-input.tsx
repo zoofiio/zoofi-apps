@@ -10,7 +10,7 @@ import { CoinIcon } from './icons/coinicon'
 import { useThemeState } from './theme-mode'
 import { Spinner } from './spinner'
 import { useMeasure } from 'react-use'
-import { round } from 'es-toolkit'
+import { isNil, round } from 'es-toolkit'
 import { toNumber } from 'es-toolkit/compat'
 
 
@@ -21,6 +21,7 @@ export function AssetInput({
   checkBalance = true,
   balance,
   balanceTit = 'Balance',
+  otherInfo,
   decimals = 18,
   exchange,
   readonly,
@@ -64,6 +65,7 @@ export function AssetInput({
   error?: string
   step?: number
   integer?: boolean
+  otherInfo?: React.ReactNode
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -156,11 +158,12 @@ export function AssetInput({
           readOnly={readonly}
         />
         {loading && <Spinner className='absolute right-24 top-[1.125rem]' />}
+        {isError && <div className='text-sm text-white bg-red-400 rounded right-0 bottom-0 absolute px-1 translate-y-1/4'>{error || 'Insufficient account balance'}</div>}
       </div>
 
-      {balance != undefined && (
+      { (!isNil(balance) || !isNil(otherInfo)) && (
         <div className='flex items-center justify-between mt-1 px-1 text-slate-400 dark:text-slate-50/70 text-sm'>
-          <div className={balanceClassName}>
+          {!isNil(balance) && <div className={balanceClassName}>
             <span>
               {balanceTit}: {displayBalance(balance, 3, decimals)}
             </span>
@@ -175,8 +178,8 @@ export function AssetInput({
             >
               Max
             </button>}
-          </div>
-          {isError && <div className='text-sm text-red-400'>{error || 'Insufficient account balance'}</div>}
+          </div>}
+          {!isNil(otherInfo) && <div className='ml-auto'>{otherInfo}</div>}
         </div>
       )}
     </div>
