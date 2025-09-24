@@ -39,10 +39,12 @@ export type LntVaultConfig = {
   info: string
   isIdle?: boolean
   startTime?: bigint
+  nftBalanceBy: 'zoofi' | 'rpc' | 'rpc-amount' | 'alchemy'
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
     chain: arbitrum.id,
+    nftBalanceBy: 'rpc-amount',
     vault: '0xf8dfaa0967c812a43d02059f2b14786dceb84e8b',
     asset: '0xc227e25544edd261a9066932c71a25f4504972f1',
     protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
@@ -66,6 +68,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
   },
   {
     chain: zeroGmainnet.id,
+    nftBalanceBy: 'zoofi',
     vault: '0x7d3cec2f46279229277802d30702e4e7fb19bac0',
     asset: '0x0e1d50c3c0894399c343b5d93ad5baf1a00b9328',
     protocol: '0x6e603014ace3ae06f34ffe259106af77c056d913',
@@ -85,33 +88,8 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
   },
   {
-    chain: arbitrum.id,
-    vault: '0x166c533bfcb482df813e4b0e804ec9c9a573247f',
-    asset: '0x48563bb31d2927d9f66422cb4573124434d748be',
-    protocol: '0x65ac39278b0f3951237985c5aa85bb51e8541eaf',
-    protocalSettings: '0x38b40a5c2dd2d62a7b578257a18a8f675353d481',
-    onEnv: ['test'],
-    MockT: '0xd839962d55d9e8309f0f64c391887a33ab8cb4d0',
-    // MockaVTOracle: '0xf1487677d2e09250d89efdb647e3e288503683d0',
-    // MockNodeDelegator: '0xc7329fbb367f709b57f3945eb6ac18cebd711c7c',
-    // MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
-    AethirNFT: '0x48563bb31d2927d9f66422cb4573124434d748be',
-    AethirVToracle: '0x47dc4714c5f4d18df398da082534fdea76f29174',
-    RedeemStrategy: '0x8363b9f3173c667ee59c38f1c4885aae10a5e0e2',
-    isAethir: true,
-    lpTYT: zeroAddress,
-    test: true,
-    vtActive: true,
-    ytEnable: false,
-    lpYields: false,
-    projectIcon: 'Aethir2',
-    icon: 'aethir',
-    tit: 'Aethir Checker Node',
-    info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.
-Checker nodes ensure the integrity and service quality of Aethir network by checking the GPU specifications and its service process.`,
-  },
-  {
     chain: sepolia.id,
+    nftBalanceBy: 'alchemy',
     vault: '0xb8aa29c0688c53f4dd875b1d0702de69bf52df7d',
     asset: '0x0993a80ee5bb32b73f61c71662f53c599ee4f829',
     protocol: '0xcdf86f49303fd5350ece1f1a27b9d6083851ae04',
@@ -131,6 +109,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
   },
   {
     chain: zeroGTestnet.id,
+    nftBalanceBy: 'zoofi',
     vault: '0xda732f0f05e8e4448d8358a142b289f528f81824',
     asset: '0xfce521166366566a49344a0dd529028d5fda5cd3',
     protocol: '0x47c79e20ffd41ca55ced7e31aa5767a7440ff0cf',

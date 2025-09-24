@@ -42,7 +42,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
   const maxSelected = 30;
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
   const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
-  const nfts = useErc721Balance(vd.result!.NFT, ([zeroGTestnet.id, zeroGmainnet.id] as number[]).includes(vc.chain) ? 'zoofi' : 'alchemy')
+  const nfts = useErc721Balance(vd.result!.NFT, vc.nftBalanceBy)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
   const { data: outAmountVT } = useQuery({
