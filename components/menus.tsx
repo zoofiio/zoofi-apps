@@ -2,8 +2,8 @@
 
 import { abiZooProtocol } from "@/config/abi"
 import { abiLntProtocol } from "@/config/abi/abiLNTVault"
-import { BVAULTS_CONFIG } from "@/config/bvaults"
-import { LNTVAULTS_CONFIG } from "@/config/lntvaults"
+import { BVaultConfig, BVAULTS_CONFIG } from "@/config/bvaults"
+import { LntVaultConfig, LNTVAULTS_CONFIG } from "@/config/lntvaults"
 import { isLOCL } from "@/constants"
 import { useCurrentChainId } from "@/hooks/useCurrentChainId"
 import { cn } from "@/lib/utils"
@@ -64,48 +64,16 @@ function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { me
 }
 
 
+const globalAdmins: Address[] = ["0xFE18Aa1EFa652660F36Ab84F122CD36108f903B6", "0xc56f7063fd6d199ccc443dbbf4283be602d46343", "0x7077323c13af514629C57F89cb4542019402dfBd"]
+const bvaultsAdmins: Address[] = [...globalAdmins, '0x5C9B9C19ccaC7925157Cc60aCc289e78839c5D70']
 function useShowBvaultAdmin() {
-    const chainId = useCurrentChainId()
     const { address } = useAccount()
-    // console.info('useShowBvaultAdmin:', chainId, address)
-    const { data: showAdmin } = useQuery({
-        queryKey: ['showAdminBVault:', chainId, address],
-        enabled: Boolean(address),
-        initialData: false,
-
-        queryFn: async () => {
-            const admins = await Promise.all(uniq(BVAULTS_CONFIG[chainId].map(item => item.protocolAddress)).map(item => getPC(chainId).readContract({ abi: abiZooProtocol, address: item, functionName: 'protocolOwner' })))
-                .catch((error) => {
-                    console.error('Error fetching BVault admins:', error)
-                    return []
-                })
-            const exts = ["0xFE18Aa1EFa652660F36Ab84F122CD36108f903B6", "0xc56f7063fd6d199ccc443dbbf4283be602d46343"] as Address[]
-            console.info('useShowBvaultAdmin:', admins, exts, address)
-            return [...admins, ...exts].findIndex(item => isAddressEqual(item, address!)) >= 0
-        }
-    })
-    return showAdmin || isLOCL
+    return isLOCL || (Boolean(address) && bvaultsAdmins.some(item => isAddressEqual(item as Address, address!)))
 }
+const lntAdmins = [...globalAdmins, '0xc97B447186c59A5Bb905cb193f15fC802eF3D543']
 function useShowLntVaultAdmin() {
-    const chainId = useCurrentChainId()
     const { address } = useAccount()
-    // console.info('useShowLntVaultAdmin:', chainId, address)
-    const { data: showAdmin } = useQuery({
-        queryKey: ['showAdminLNT:', chainId, address],
-        enabled: Boolean(address),
-        initialData: false,
-        queryFn: async () => {
-            const admins = await Promise.all(uniqBy(LNTVAULTS_CONFIG, item => item.protocol).map(item => getPC(item.chain).readContract({ abi: abiLntProtocol, address: item.protocol, functionName: 'owner' })))
-                .catch((error) => {
-                    console.error('Error fetching LNT Vault admins:', error)
-                    return []
-                })
-            const exts = ["0xFE18Aa1EFa652660F36Ab84F122CD36108f903B6", "0xc56f7063fd6d199ccc443dbbf4283be602d46343"] as Address[]
-            console.info('useShowLntVaultAdmin:', admins, exts, address)
-            return [...admins, ...exts].findIndex(item => isAddressEqual(item, address!)) >= 0
-        }
-    })
-    return showAdmin || isLOCL
+    return isLOCL || (Boolean(address) && lntAdmins.some(item => isAddressEqual(item as Address, address!)))
 }
 function MenusContent({ animitem }: { animitem?: boolean }) {
     const showBvaultAdmin = useShowBvaultAdmin()
