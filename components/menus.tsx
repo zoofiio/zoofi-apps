@@ -52,7 +52,7 @@ function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { me
     // const r = useRouter()
     return <>
         <Link target={menu.target} onClickCapture={() => {
-            (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
+           !menu.disabled && (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
         }} href={menu.disabled ? 'javascript:void(0)' : menu.href} style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
             className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed text-black/60 dark:text-white/60': menu.disabled, "text-primary": isActive, 'animitem': animitem }, className)}>
             {menu.icon && <menu.icon />}

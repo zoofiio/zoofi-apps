@@ -1,7 +1,7 @@
 import { isLOCL } from '@/constants'
 import { sleep } from '@/lib/utils'
 import EventEmitter from 'events'
-import { useEffect, useReducer, useRef } from 'react'
+import { useEffect, useReducer } from 'react'
 /******************************************************** types *********************************************************************** */
 export type Conifg = {
   cacheTime?: number // default 1000
@@ -96,11 +96,9 @@ async function runFetImpl<T>(fet: Fet<T>) {
         fets[fet.key].fs.status = 'error'
         fets[fet.key].fs.error = err
         emiter.emit(fet.key, fets[fet.key].fs)
-      }
-      console.error(`RunFetError: fetKey:${fet.key} retryCount:${retryCount}`, err)
-      await sleep(fet.retryInterval ?? 500)
-      if (retryCount == 0) {
-        throw err
+      } else {
+        await sleep(fet.retryInterval ?? 500)
+        console.error(`RunFetError: fetKey:${fet.key} retryCount:${retryCount}`, err)
       }
     }
   }
@@ -198,32 +196,6 @@ export function reFet(...keyOrFets: (string | Fet<any>)[]) {
   }
 }
 
-// export type MergeFS<T extends FetStat<Fet<{}>>[]> =
-
-export function useMerge<RES extends {}>(...status: AllFetStat<{}>[]) {
-  const mStatus = status.filter((item) => Boolean(item))
-  const ref = useRef<MergeFetStat<RES>>({ key: [], status: 'idle', result: undefined, lastUpDate: 0 })
-  ref.current.key = mStatus.flatMap((item) => item.key)
-  let SuccessCount = 0
-  for (const item of mStatus) {
-    if (item.status === 'fetching') {
-      ref.current.status = 'fetching'
-    } else if (item.status == 'error' && ref.current.status !== 'fetching') {
-      ref.current.status = 'error'
-    } else if (item.status == 'success') {
-      SuccessCount++
-    }
-    if (item.result !== undefined) {
-      ref.current.result = Object.assign(ref.current.result || {}, item.result) as any
-    }
-  }
-  if (SuccessCount > 0 && SuccessCount == mStatus.length) {
-    ref.current.status = 'success'
-  }
-  ref.current.error = mStatus.find((item) => item.error)?.error
-  ref.current.lastUpDate = Math.min(...mStatus.map((item) => item.lastUpDate))
-  return ref.current
-}
 export function setMocks(_mocks: { [key: string]: (() => any) | any }) {
   Object.keys(_mocks).forEach((key) => {
     mocks[key] = _mocks[key]
@@ -236,5 +208,4 @@ function useGETDATA() {
   const s1 = useFet({ key: '123', fetfn: async () => ({ a: 10 }) })
   const s2 = useFet({ key: '123', fetfn: async () => ({ b: '123' }), initResult: { b: '123' } })
 
-  const m1 = useMerge<{ a: number; b: string }>(s1, s2)
 }
