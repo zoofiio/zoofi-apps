@@ -120,9 +120,6 @@ export function Menus() {
         const { current: toggleEL } = refToggle
         toggleEL && !toggleEL.contains(e.target as any) && toggleOpen(false)
     })
-    const [isClient, setClient] = useToggle(false)
-    useEffect(() => { setClient(true) }, [])
-    if (!isClient) return null
     return <>
         <div className="flex fixed z-50 left-0 lg:hidden items-center px-4 h-[72px]">
             <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>

@@ -15,20 +15,23 @@ import dynamic from 'next/dynamic'
 const inter = Inter({ subsets: ['latin'] })
 const PageLayout = dynamic(() => import("./pagelayout"), { ssr: false })
 
-const baseMeta = {
+const MMetas = {
   title: 'Zoo Finance',
   description: 'A Structured Protocol for Better Liquidity Utilization',
-}
+
+} as const
 
 export const metadata: Metadata = {
-  ...baseMeta,
+  ...MMetas,
+  metadataBase: null,
+  keywords: ['Zoofi', 'LNT', 'Node', 'Vault', 'Arbitrum', 'Berachain'],
   openGraph: {
-    ...baseMeta,
+    ...MMetas,
     type: 'website',
     images: 'https://zoofi.io/Welcome.jpg'
   },
   twitter: {
-    ...baseMeta,
+    ...MMetas,
     images: 'https://zoofi.io/Welcome.jpg'
   },
 
