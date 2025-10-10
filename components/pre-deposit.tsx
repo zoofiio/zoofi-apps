@@ -170,8 +170,8 @@ function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () =
     const { data: { nfts }, refetch } = usePreDepositByUser(node)
     return <div className='flex flex-col gap-5 items-center p-5 h-max'>
         <div className='w-full text-start'>Licenses ID</div>
-        <div className='w-[32rem] h-72 overflow-y-auto'>
-            <div className='w-full gap-2 grid grid-cols-4 '>
+        <div className='w-full max-w-[32rem] h-72 overflow-y-auto'>
+            <div className='w-full gap-2 grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] '>
                 {nfts.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
                     <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
                     #{id.toString()}
@@ -207,14 +207,13 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
         const ids = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
         return ids.map(id => encodeFunctionData({ abi: abiPreDeposit, functionName: 'withdraw', args: [id] }))
     }, [selectedNft])
-    const { data: { deposited } , refetch} = usePreDepositByUser(node)
+    const { data: { deposited }, refetch } = usePreDepositByUser(node)
     const pre = node.preDeposit!
     const { address } = useAccount()
     return <div className='flex flex-col gap-5 items-center p-5'>
         <div className='w-full text-start'>Licenses ID</div>
-
-        <div className='w-[32rem] h-72 overflow-y-auto'>
-            <div className='w-full gap-2 grid grid-cols-4 '>
+        <div className='w-full max-w-[32rem] h-72 overflow-y-auto'>
+            <div className='w-full gap-2 grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] '>
                 {deposited.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
                     <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
                     #{id.toString()}

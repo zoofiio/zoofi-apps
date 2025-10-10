@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import * as Dialog from '@radix-ui/react-dialog'
-import { Ref } from 'react'
+import { Dispatch, Ref, SetStateAction, useImperativeHandle, useState } from 'react'
 import { IoIosCloseCircleOutline } from 'react-icons/io'
 
 export function SimpleDialog({
@@ -13,8 +13,12 @@ export function SimpleDialog({
   disableClose,
   triggerProps,
   triggerRef,
+  open,
+  defaultOpen,
+  ref,
   ...props
 }: {
+  ref?: Ref<{ setOpen: Dispatch<SetStateAction<boolean>> }>
   trigger?: React.ReactNode
   children?: React.ReactNode
   className?: string
@@ -25,12 +29,15 @@ export function SimpleDialog({
   triggerProps?: Dialog.DialogTriggerProps
   triggerRef?: Ref<HTMLButtonElement>
 } & Dialog.DialogProps) {
+  // const [mopen, setOpen] = useState(defaultOpen ?? false)
+  // useImperativeHandle(ref, () => ({
+  //   setOpen
+  // }), [])
   return (
-    <Dialog.Root {...props}>
+    <Dialog.Root open={open} defaultOpen={defaultOpen} {...props}>
       {Boolean(trigger) && <Dialog.Trigger ref={triggerRef} {...(triggerProps || {})}>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
         <Dialog.Overlay className='fixed top-0 left-0 inset-0 z-50 bg-black/60' />
-
         <Dialog.Content
           onEscapeKeyDown={(e) => {
             disableClose && e.stopPropagation()

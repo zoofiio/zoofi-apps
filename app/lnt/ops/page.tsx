@@ -43,12 +43,13 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
             const pc = getPC(vc.chain)
             // vault nfts
             const vaultNftCount = await pc.readContract({ abi: erc721Abi, functionName: 'balanceOf', address: vd.result!.NFT, args: [vc.vault] })
-            const nftIs = range(parseInt(vaultNftCount.toString())).map(index => BigInt(index))
-            const erc721AbiMore = parseAbi(['function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)'])
+            const erc721AbiMore = parseAbi([
+                'function tokenIdsOfOwnerByAmount(address owner, uint256 index) view returns(uint256[])'
+            ])
             const setUserCount = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'setUserRecordCount' })
             console.info('setUserCount:', setUserCount)
             const getSetUsers = async () => {
-                const chunkSize = 100n
+                const chunkSize = 200n
                 const chunkList: { index: bigint, count: bigint }[] = []
                 const chunkCount = setUserCount / chunkSize
                 for (let index = 0n; index < chunkCount; index++) {
@@ -64,7 +65,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
                     }
                 ))).then(flatten)
             }
-            const getVaultNft = async () => Promise.all(nftIs.map(i => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenOfOwnerByIndex', address: vd.result!.NFT, args: [vc.vault, i] }).then(item => item.toString())))
+            const getVaultNft = async () => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenIdsOfOwnerByAmount', address: vd.result!.NFT, args: [vc.vault, vaultNftCount] }).then(data => data.map(id => id.toString()))
             const data = await promiseAll({
                 vaultNft: getVaultNft(),
                 setUsers: getSetUsers(),
@@ -245,24 +246,27 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
         <div className={cn(itemClassName, 'overflow-x-auto')}>
             <div className="font-semibold text-xl">{"Vault NFT"}</div>
             <input className={cn(inputClassname)} placeholder="FilterNftIds(,分割多个)" value={filterVaultNftIds} onChange={(e) => setState({ filterVaultNftIds: e.target.value })} />
-            <STable
-                header={['Lisense ID', 'Status', 'isBanned']}
-                data={showVaultNfts.map((id) => {
-                    const status = inBunnerNftMap[id] ? 'Sucsess' : inSetUsers(id) ? 'Pending' : 'Error';
-                    return [
-                        `${id}`,
-                        <div key={'status'} className={cn("", { "text-green-500": status == 'Sucsess', "text-yellow-500": status == 'Pending', "text-red-500": status == 'Error' })}>{status}</div>,
-                        `${inSetUsersMap[id]?.isBanned ?? false}`
-                    ]
-                })}
-            />
+            <div className="w-full overflow-y-auto max-h-[80vh]">
+                <STable
+                    headerClassName="sticky top-0 bg-black/60"
+                    header={['Lisense ID', 'Status', 'isBanned']}
+                    data={showVaultNfts.map((id) => {
+                        const status = inBunnerNftMap[id] ? 'Sucsess' : inSetUsers(id) ? 'Pending' : 'Error';
+                        return [
+                            `${id}`,
+                            <div key={'status'} className={cn("", { "text-green-500": status == 'Sucsess', "text-yellow-500": status == 'Pending', "text-red-500": status == 'Error' })}>{status}</div>,
+                            `${inSetUsersMap[id]?.isBanned ?? false}`
+                        ]
+                    })}
+                />
+            </div>
         </div>
         <SimpleDialog
             open={Boolean(detailBuner)}
             className="p-5"
             onOpenChange={(open) => !open && setState({ detailBuner: undefined })}>
             <div>Lisense ID</div>
-            {detailBuner && <div className="w-[600px] grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-1 p-5">
+            {detailBuner && <div className="w-full max-w-[600px] grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-1 p-5 max-h-[60vh] overflow-y-auto">
                 {detailBuner.delegated_nfts.map(id => <div key={id} className="px-2 py-1 rounded bg-primary/10">{id}</div>)}
             </div>}
         </SimpleDialog>

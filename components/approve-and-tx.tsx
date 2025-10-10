@@ -16,6 +16,7 @@ import { SimpleDialog } from './simple-dialog'
 import { FaCheck, FaSpinner } from 'react-icons/fa6'
 import { getTokenBy } from '@/config/tokens'
 import { Tip } from './ui/tip'
+// import { arbitrum, base, baseSepolia, berachain, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains'
 
 export function SwitchNet({ className }: { className?: string }) {
   const sc = useSwitchChain()
@@ -173,10 +174,11 @@ export async function doTx(wc: WalletClient, config: SimulateContractParameters 
 export type TxConfig = SimulateContractParameters & { name?: string }
 export type TX = TxConfig | (() => Promise<TxConfig>)
 export const useTxsStore = create(() => ({ txs: [] as TxConfig[], progress: 0 }))
+// const supportedSendCalls: number[] = [mainnet.id, optimism.id, bsc.id, polygon.id, base.id, arbitrum.id, berachain.id, sepolia.id]
+const supportedSendCalls: number[] = []
 export function Txs({
-  className, tx, txs, disabled, disableSendCalls = true, disableProgress, beforeSimulate, busyShowTxet = true, toast = true, onTxSuccess }:
+  className, tx, txs, disabled, disableProgress, beforeSimulate, busyShowTxet = true, toast = true, onTxSuccess }:
   {
-    disableSendCalls?: boolean,
     disableProgress?: boolean,
     beforeSimulate?: boolean,
     className?: string, tx: string, disabled?: boolean, txs: TX[] | ((args: { pc: PublicClient, wc: WalletClient<Transport, Chain, Account, RpcSchema> }) => Promise<TX[]> | TX[]), busyShowTxet?: boolean, toast?: boolean
@@ -192,13 +194,10 @@ export function Txs({
       if (!wc) return
       const pc = getPC(chainId);
       const calls = await promiseT(txs, { pc, wc }).then(items => Promise.all(items.map(promiseT)))
-      console.info('calls:', wc.account.address, calls)
+      console.info('calls:', wc.name, wc.account.address, calls)
       try {
-        if (disableSendCalls) {
-          throw new Error('disable wallet_sendCalls')
-        }
-        if (calls.length == 1) {
-          throw new Error('calls length one wallet_sendCalls')
+        if (calls.length == 1||!supportedSendCalls.includes(chainId)) {
+          throw new Error('unuse wallet_sendCalls')
         }
         const callsTxs = calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address }));
         // const sendCalls = beforeSimulate ? (await pc.simulateCalls({ account: wc.account.address, calls: callsTxs }))

@@ -212,7 +212,7 @@ export const getOpsStatsAethir = (chainId: number, token: string) =>
       is_slot_full: boolean
       expire_at: string
     }[]
-  }>(chainId, '/api/ops/nodeops-stats-aethir', {}, { headers: { Authorization: token } })
+  }>(chainId, '/api/ops/nodeops-stats-aethir', {}, { headers: { Authorization: token }, timeout: 20000 })
 export const opsOrderAethir = (chainId: number, token: string, quantity: number) =>
   api.post(chainId, `/api/ops/nodeops-order/${quantity}`, {}, { headers: { Authorization: token } })
 

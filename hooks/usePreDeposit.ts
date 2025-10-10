@@ -61,6 +61,7 @@ export function usePreDepositByUser(node: NodeLicense) {
         const nft = node.preDeposit!.nft
         const user = address!
         // const user = '0xb3880D65a28951b7E5f3c2Dd59e8E59FF8821640'
+        // const user = '0xA97E474d5A6C524a37D4D64038C26c58bB439802'
         const count = await pc.readContract({ abi: abiPreDeposit, address: lnt, functionName: 'depositedCount', args: [user] })
         console.info('chunks:', chunckCount(count))
         const deposited: Promise<readonly bigint[]> =
