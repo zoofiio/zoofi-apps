@@ -27,13 +27,14 @@ function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: st
   const [isLOG, togLOG] = useToggle(true)
   const { options } = useMemo(() => {
     const options = {
+      title: { show: false },
       animation: true,
       animationDuration: 200,
       tooltip: {
         trigger: 'axis',
         valueFormatter: yFormater,
       },
-      grid: { top: 30, bottom: 30, right: 20, show: false },
+      grid: { left: 0, top: 0, right: 0, bottom: 0, show: false },
       toolbox: { show: false },
       xAxis: {
         type: 'category',
@@ -103,7 +104,7 @@ export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
     initResult: [],
     fetfn: async () => getLntVaultVTPriceApy(vc.chain, vc.vault, startTime, endTime)
   })
-  const vtApy = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.apy)] as [string, number]);
+  const vtApy = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), (bnToNum(item.apy) + 1) ** 2 - 1] as [string, number]);
   const vtPrice = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.price)] as [string, number]);
   return (
     <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5 shrink-0'>

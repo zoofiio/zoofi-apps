@@ -36,6 +36,8 @@ import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
+import { LntVaultBuyback } from './lnt-vault-buyback'
+import { BridgeToken } from './bridge-token'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
@@ -753,15 +755,18 @@ function YT({ vc }: { vc: LntVaultConfig }) {
 }
 
 export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
+  const vd = useLntVault(vc)
+  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
+  const vt2 = getTokenBy(vd.result!.VT, vc.bridge?.chain, { symbol: 'VT' })
   return <div className='animitem card bg-white'>
     <SimpleTabs
-      listClassName="p-0 gap-8 mb-4 w-full"
-      triggerClassName={(i) => `text-2xl font-semibold leading-none data-[state="active"]:underline underline-offset-2`}
-      data={vc.ytEnable ? [
+      listClassName="p-0 gap-4 mb-4 w-full"
+      triggerClassName={(i) => `text-lg font-semibold leading-none data-[state="active"]:underline underline-offset-2`}
+      data={[
         { tab: 'Vesting Token', content: <VT vc={vc} /> },
-        { tab: 'Yield Token', content: <YT vc={vc} /> },
-      ] : [
-        { tab: 'Vesting Token', content: <VT vc={vc} /> },
+        ...(vc.ytEnable ? [{ tab: 'Yield Token', content: <YT vc={vc} /> }] : []),
+        ...(vc.buyback ? [{ tab: 'Buyback', content: <LntVaultBuyback vc={vc} /> }] : []),
+        ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt,vt2]} /> }] : []),
       ]}
     />
   </div>

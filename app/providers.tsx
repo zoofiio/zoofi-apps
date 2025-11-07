@@ -24,7 +24,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3 } } })
+const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3, refetchOnMount: 'always', staleTime: 1000 } } })
 const storage = createStorage({
   storage: {
     getItem: (key) => typeof window !== 'undefined' ? window.localStorage.getItem(key) : undefined,

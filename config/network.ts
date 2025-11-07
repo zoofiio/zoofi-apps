@@ -1,6 +1,6 @@
 import { providers } from 'ethers'
 import { Address, Chain, defineChain } from 'viem'
-import { base as baseMainnet, zeroG, arbitrum as arbitrumMain } from 'viem/chains'
+import { base as baseMainnet, zeroG, arbitrum as arbitrumMain, bsc as bscMain, sepolia as sepoliaBase } from 'viem/chains'
 import { LP_TOKENS } from './lpTokens'
 import { BASE_PATH } from './env'
 
@@ -61,33 +61,7 @@ export const berachain = defineChain({
 })
 
 export const sepolia = defineChain({
-  id: 11_155_111,
-  name: 'Sepolia',
-  nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ['https://eth-sepolia.public.blastapi.io'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://sepolia.etherscan.io',
-      apiUrl: 'https://api-sepolia.etherscan.io/api',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 751532,
-    },
-    ensRegistry: { address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e' },
-    ensUniversalResolver: {
-      address: '0xc8Af999e38273D658BE1b921b88A9Ddf005769cC',
-      blockCreated: 5_317_080,
-    },
-  },
-  testnet: true,
+  ...sepoliaBase,
   iconUrl:
     'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iIzI1MjkyRSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNhKSIgZmlsbC1vcGFjaXR5PSIuMyIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTguMTkgMTQuNzcgMTQgMTguMjFsNS44LTMuNDQtNS44IDguMTktNS44MS04LjE5WiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Im0xNCAxNi45My01LjgxLTMuNDRMMTQgNC4zNGw1LjgxIDkuMTVMMTQgMTYuOTNaIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMCIgeDI9IjE0IiB5MT0iMCIgeTI9IjI4IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgxPSIxNCIgeDI9IjE0IiB5MT0iMTQuNzciIHkyPSIyMi45NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iLjkiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48L3N2Zz4K',
 })
@@ -140,13 +114,18 @@ export const arbitrum = defineChain({
   iconUrl: `${BASE_PATH}/arbitrum.svg`,
 })
 
+export const bsc = defineChain({
+  ...bscMain,
+  iconUrl: `${BASE_PATH}/bsc.png`,
+})
+
 export const apiBatchConfig = { batchSize: 30, wait: 300 }
 export const multicallBatchConfig = { batchSize: 1024, wait: 500 }
 
 export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia, base]
 // allapps chanis
-export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGTestnet, zeroGmainnet, sepolia, base, berachain, berachainTestnet, arbitrum]
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGTestnet, zeroGmainnet, sepolia, base, berachain, berachainTestnet, arbitrum, bsc]
 
 const refChainId = { chainId: SUPPORT_CHAINS[0].id }
 export function getCurrentChainId() {

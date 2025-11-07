@@ -4,20 +4,20 @@ import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, erc20Abi, PublicClient, RpcSchema, SimulateContractParameters, TransactionReceipt, WalletClient, zeroAddress } from 'viem'
 
+import { getTokenBy } from '@/config/tokens'
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
 import { cn, getErrorMsg, handleError, promiseT } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useMutation } from '@tanstack/react-query'
+import { FaCheck, FaSpinner } from 'react-icons/fa6'
 import { toast as tos } from 'sonner'
+import { arbitrum, base, berachain, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains'
 import { Transport, useSwitchChain, useWalletClient } from 'wagmi'
-import { BBtn } from './ui/bbtn'
 import { create } from 'zustand'
 import { SimpleDialog } from './simple-dialog'
-import { FaCheck, FaSpinner } from 'react-icons/fa6'
-import { getTokenBy } from '@/config/tokens'
+import { BBtn } from './ui/bbtn'
 import { Tip } from './ui/tip'
-// import { arbitrum, base, baseSepolia, berachain, bsc, mainnet, optimism, polygon, sepolia } from 'viem/chains'
-
+import { isLOCL, isPROD } from '@/constants'
 export function SwitchNet({ className }: { className?: string }) {
   const sc = useSwitchChain()
   const chainId = useCurrentChainId()
@@ -174,8 +174,8 @@ export async function doTx(wc: WalletClient, config: SimulateContractParameters 
 export type TxConfig = SimulateContractParameters & { name?: string }
 export type TX = TxConfig | (() => Promise<TxConfig>)
 export const useTxsStore = create(() => ({ txs: [] as TxConfig[], progress: 0 }))
-// const supportedSendCalls: number[] = [mainnet.id, optimism.id, bsc.id, polygon.id, base.id, arbitrum.id, berachain.id, sepolia.id]
-const supportedSendCalls: number[] = []
+const supportedSendCalls: number[] = isPROD ? [] : [mainnet.id, optimism.id, bsc.id, polygon.id, base.id, arbitrum.id, berachain.id, sepolia.id]
+// const supportedSendCalls: number[] = []
 export function Txs({
   className, tx, txs, disabled, disableProgress, beforeSimulate, busyShowTxet = true, toast = true, onTxSuccess }:
   {
@@ -196,25 +196,20 @@ export function Txs({
       const calls = await promiseT(txs, { pc, wc }).then(items => Promise.all(items.map(promiseT)))
       console.info('calls:', wc.name, wc.account.address, calls)
       try {
-        if (calls.length == 1||!supportedSendCalls.includes(chainId)) {
+        if (calls.length == 1 || !supportedSendCalls.includes(chainId)) {
           throw new Error('unuse wallet_sendCalls')
         }
         const callsTxs = calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address }));
-        // const sendCalls = beforeSimulate ? (await pc.simulateCalls({ account: wc.account.address, calls: callsTxs }))
+        
         const { id } = await wc.sendCalls({
           account: wc.account.address,
           calls: callsTxs,
+          forceAtomic: true,
         })
-        while (true) {
-          const res = await wc.waitForCallsStatus({ id })
-          if (res.status == 'pending') continue
-          if (res.status == 'success') {
-            toast && tos.success("Transactions Success")
-            onTxSuccess?.()
-          } else {
-            throw new Error(`Transactions ${res.status} ${JSON.stringify(res)}`)
-          }
-          break
+        const res = await wc.waitForCallsStatus({ id, throwOnFailure: true, retryCount: Infinity })
+        if (res.status == 'success') {
+          toast && tos.success("Transactions Success")
+          onTxSuccess?.()
         }
       } catch (error) {
         const msg = getErrorMsg(error)
@@ -233,6 +228,8 @@ export function Txs({
           toast && tos.success("Transactions Success")
           useTxsStore.setState({ progress: 0, txs: [] })
           onTxSuccess?.()
+        } else {
+          throw error
         }
       }
     },

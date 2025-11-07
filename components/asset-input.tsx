@@ -1,6 +1,6 @@
 'use client'
 
-import { parseEthers } from '@/lib/utils'
+import { cn, parseEthers } from '@/lib/utils'
 import { displayBalance } from '@/utils/display'
 import clsx from 'clsx'
 import { useRef } from 'react'
@@ -40,6 +40,7 @@ export function AssetInput({
   error,
   step = 0.01,
   integer,
+  className,
 }: {
   asset: string
   assetIcon?: string
@@ -66,6 +67,7 @@ export function AssetInput({
   step?: number
   integer?: boolean
   otherInfo?: React.ReactNode
+  className?: string
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -76,7 +78,7 @@ export function AssetInput({
   const [coinSymbolRef, { width: coinSymbolWidth }] = useMeasure<HTMLDivElement>()
   return (
     <div
-      className='relative w-full'
+      className={cn('relative w-full', className)}
       onClick={() => {
         onClick && !disable && onClick()
       }}

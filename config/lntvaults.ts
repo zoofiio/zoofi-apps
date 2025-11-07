@@ -1,7 +1,8 @@
+import { isLOCL } from '@/constants'
 import { Address, zeroAddress } from 'viem'
-import { arbitrum, sepolia } from 'viem/chains'
+import { arbitrum, bsc, sepolia } from 'viem/chains'
 import { TypeENV } from './env'
-import { zeroGmainnet, zeroGTestnet } from './network'
+import { zeroGmainnet } from './network'
 
 export const WriteConfirmations = 3
 
@@ -40,6 +41,11 @@ export type LntVaultConfig = {
   isIdle?: boolean
   startTime?: bigint
   nftBalanceBy: 'zoofi' | 'rpc' | 'rpc-amount' | 'alchemy'
+
+  buyback?: Address
+  bridge?: {
+    chain: number
+  }
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
@@ -65,6 +71,9 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     tit: 'Aethir Checker Node',
     info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.
 Checker nodes ensure the integrity and service quality of Aethir network by checking the GPU specifications and its service process.`,
+
+    buyback: isLOCL ? zeroAddress : undefined,
+    bridge: isLOCL ? { chain: bsc.id } : undefined,
   },
   {
     chain: zeroGmainnet.id,
@@ -107,24 +116,4 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     tit: 'Reppo Network LNT Vault',
     info: 'Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.',
   },
-  // {
-  //   chain: zeroGTestnet.id,
-  //   nftBalanceBy: 'zoofi',
-  //   vault: '0xda732f0f05e8e4448d8358a142b289f528f81824',
-  //   asset: '0xfce521166366566a49344a0dd529028d5fda5cd3',
-  //   protocol: '0x47c79e20ffd41ca55ced7e31aa5767a7440ff0cf',
-  //   onEnv: ['test', 'prod'],
-  //   // MockT: '0xe01c85599300f9ed5de2d7d4fe3dc2dc4c5c3877',
-  //   MockaVTOracle: '0x8fb28f6d7834dc0127e39be7c9db11383e126d2b',
-  //   MockNodeDelegator: '0xc7329fbb367f709b57f3945eb6ac18cebd711c7c',
-  //   MockRewardDistribuitor: '0x1063bbc8c6a81f0f84af6b6c84f6a7635b008893',
-  //   lpTYT: zeroAddress,
-  //   vtActive: true,
-  //   ytEnable: true,
-  //   lpYields: true,
-  //   projectIcon: 'ZeroG',
-  //   icon: 'ZeroG',
-  //   tit: '0G AI Alignment Node',
-  //   info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
-  // },
 ]
