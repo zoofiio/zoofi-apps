@@ -1,5 +1,9 @@
 import { abiBVault } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
+import { berachain } from '@/config/network'
+import { isNativeToken } from '@/config/tokens'
+import { useCalcKey } from '@/hooks/useCalcKey'
+import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, handleError, parseEthers } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { TokenItem } from '@/providers/sliceTokenStore'
@@ -8,21 +12,17 @@ import { useBVault } from '@/providers/useBVaultsData'
 import { useBalances } from '@/providers/useTokenStore'
 import { displayBalance } from '@/utils/display'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { isEmpty } from 'es-toolkit/compat'
 import { useMemo, useRef, useState } from 'react'
 import { FiArrowDown } from 'react-icons/fi'
-import { useDebounce } from 'react-use'
 import { toast } from 'sonner'
-import { Address, erc20Abi, isAddress, zeroAddress } from 'viem'
+import { Address, erc20Abi, isAddress } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { AssetInput } from './asset-input'
 import { CoinIcon } from './icons/coinicon'
 import { PulseTokenItem } from './pulse-ui'
 import { SimpleDialog } from './simple-dialog'
 import { BBtn } from './ui/bbtn'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { berachain } from '@/config/network'
-import { isNativeToken } from '@/config/tokens'
-import { isEmpty } from 'es-toolkit/compat'
 
 const defTokens: TokenItem[] = [
   { symbol: 'HONEY', name: 'HONEY Token', address: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03', decimals: 18, },
@@ -53,9 +53,8 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
   const [input, setInput] = useState('')
   const balances = useBalances()
   const { address: user } = useAccount()
-  const [queryKey, updateQueryKey] = useState(['searchTokens', input, originTokens])
-  useDebounce(() => updateQueryKey(['searchTokens', input, originTokens]), 300, [input, originTokens])
   const { data: searchdTokens, isFetching } = useQuery({
+    ...useCalcKey(['searchTokens', input, originTokens]),
     initialData: originTokens,
     queryFn: async () => {
       if (isAddress(input)) {
@@ -79,7 +78,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
         })
       }
     },
-    queryKey: queryKey,
+
   })
   const showTokens = searchdTokens || originTokens
 

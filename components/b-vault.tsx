@@ -7,6 +7,7 @@ import { WriteConfirmations } from '@/config/lntvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL } from '@/constants'
 import { useBvaultROI } from '@/hooks/useBVaultROI'
+import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useGetAdditionalConfig } from '@/hooks/useGetConfigs'
 import { cn, FMT, fmtBn, fmtDate, fmtDuration, fmtPercent, getBigint, handleError, parseEthers, shortStr } from '@/lib/utils'
@@ -20,7 +21,7 @@ import { now } from 'es-toolkit/compat'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { RiLoopLeftFill } from 'react-icons/ri'
-import { useDebounce, useMeasure, useToggle } from 'react-use'
+import { useMeasure, useToggle } from 'react-use'
 import { List, ListRowProps } from 'react-virtualized'
 import { toast } from 'sonner'
 import { zeroAddress } from 'viem'
@@ -350,10 +351,8 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const bvd = useBVault(bvc.vault)
   const assetBalance = useStore((s) => s.sliceTokenStore.balances[bvc.asset] || 0n, [`sliceTokenStore.balances.${bvc.asset}`])
   const chainId = useCurrentChainId()
-  const [calcSwapKey, setCalcSwapKey] = useState(['calcSwap', bvc.vault, inputAssetBn, chainId])
-  useDebounce(() => setCalcSwapKey(['calcSwap', bvc.vault, inputAssetBn, chainId]), 300, ['calcSwap', bvc.vault, inputAssetBn, chainId])
   const { data: result, isFetching: isFetchingSwap } = useQuery({
-    queryKey: calcSwapKey,
+    ...useCalcKey(['calcSwap', bvc.vault, inputAssetBn, chainId]),
     enabled: inputAssetBn > 0n,
     queryFn: () => getPC(chainId).readContract({ abi: abiBVault, address: bvc.vault, functionName: 'calcSwap', args: [inputAssetBn] }),
   })

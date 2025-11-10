@@ -48,7 +48,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
   const { data: outAmountVT } = useQuery({
-    queryKey: useCalcKey(['calcLntDeposit', vc.chain, tokenIds]),
+    ...useCalcKey(['calcLntDeposit', vc.chain, tokenIds]),
     initialData: 0n,
     queryFn: async () => {
       if (tokenIds.length == 0) return 0n
@@ -362,7 +362,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const poolkey = useLntHookPoolkey(vc)
   const zeroForOne = isAddressEqual(input.address, token0)
   const { data: outAmount, isFetching: isFetchingCalc } = useQuery({
-    queryKey: useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, zeroForOne, vc.chain, poolkey.result, isToggled]),
+    ...useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, zeroForOne, vc.chain, poolkey.result, isToggled]),
     initialData: 0n,
     queryFn: async () => {
       if (type == 'yt') return 0n
@@ -591,7 +591,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const inputBalance = useBalance(input);
   const inputTotalSupply = useTotalSupply(input)
   const { data: [out1Amount, out2Amount], isFetching: isFetchingOut } = useQuery({
-    queryKey: useCalcKey(['calcLpRemove', vc.vault, inputAssetBn, output1IsToken0]),
+    ...useCalcKey(['calcLpRemove', vc.vault, inputAssetBn, output1IsToken0]),
     initialData: [0n, 0n],
     queryFn: async () => {
       if (inputAssetBn <= 0n) return [0n, 0n]
