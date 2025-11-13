@@ -2,7 +2,7 @@ import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, handleError, parseEthers, promiseT } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
 import Select from 'react-select'
@@ -26,12 +26,18 @@ export const inputClassname = 'bg-white dark:bg-transparent border-primary/70 w-
 
 export const defConvertArg = (arg: string, _i: number, param: AbiParameter) => {
   if (param.type == 'uint8') return parseInt((arg || '').replaceAll(' ', ''))
-  if (param.type.startsWith('uint')) return BigInt((arg || '').replaceAll(' ', ''))
+  if (param.type.startsWith('uint')) {
+    if (param.type.endsWith(']')) {
+      return (JSON.parse(arg) as any[]).map(item => BigInt((`${item}` || '').replaceAll(' ', '')))
+    }
+    return BigInt((arg || '').replaceAll(' ', ''))
+  }
   if (param.type == 'bytes32') return stringToHex(arg, { size: 32 })
   if (param.type == 'bool') {
     if (arg == 'true') return true
     return false
   }
+  if (param.type.endsWith(']')) return JSON.parse(arg)
   return arg
 }
 const convertArgs = (args: string[], inputs: readonly AbiParameter[], ca?: (arg: string, i: number, param: AbiParameter) => any) => {
@@ -46,11 +52,11 @@ const convertArgs = (args: string[], inputs: readonly AbiParameter[], ca?: (arg:
   }
 }
 
-export function Expandable({ children, tit, disable, className }: { tit: string; children?: ReactNode; disable?: boolean, className?: string }) {
+export function Expandable({ children, tit, disable, className, disableAnim }: { tit: string; children?: ReactNode; disable?: boolean, className?: string, disableAnim?: boolean }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className={cn('animitem flex flex-col w-full bg-white dark:bg-transparent rounded-lg overflow-hidden border border-solid border-primary/40', className)}>
+    <div className={cn(disableAnim ? '' : "animitem", 'flex flex-col w-full bg-white dark:bg-transparent rounded-lg overflow-hidden border border-solid border-primary/40', className)}>
       <div className='px-5 py-2 min-h-[58px] flex justify-between items-center text-sm'>
         <div className='font-medium text-base'>{tit}</div>
         {disable ? (
@@ -78,7 +84,8 @@ export function GeneralAction({
   convertArg,
   txProps,
   onArgs,
-  argsDef
+  argsDef,
+  disableAnim
 }: {
   abi: Abi
   address: Address
@@ -89,6 +96,7 @@ export function GeneralAction({
   convertArg?: (arg: string, i: number, param: AbiParameter) => any
   onArgs?: (args: string[]) => void
   txProps?: Omit<Parameters<typeof Txs>[0], 'txs' | 'className'>
+  disableAnim?: boolean
 }) {
   const abiItem = abi.find((item) => item.type == 'function' && item.name == functionName) as AbiFunction
   const inputsLength = abiItem?.inputs?.length || 0
@@ -115,7 +123,7 @@ export function GeneralAction({
   const disableExpand = (!abiItem.inputs || abiItem.inputs.length == 0) && isWrite
   const writeArgs = isWrite ? convertArgs(margs, abiItem.inputs, convertArg) : undefined
   return (
-    <Expandable tit={tit || functionName} disable={disableExpand}>
+    <Expandable tit={tit || functionName} disable={disableExpand} disableAnim={disableAnim}>
       {abiItem.inputs?.map((item, index) => (
         <div
           className='relative'
@@ -181,7 +189,7 @@ export function GeneralAction({
 }
 
 
-export function ContractAll({ abi, address, tit, itemInfos }: { abi: Abi, address: Address, tit: string, itemInfos?: Record<string, Parameters<typeof GeneralAction>[0]['infos']> }) {
+export function ContractAll({ abi, address, tit, itemInfos, unwrap }: { abi: Abi, address: Address, tit: string, itemInfos?: Record<string, Parameters<typeof GeneralAction>[0]['infos']>, unwrap?: boolean }) {
   const [reads, writes] = useMemo(() => {
     const reads = []
     const writes = []
@@ -197,15 +205,19 @@ export function ContractAll({ abi, address, tit, itemInfos }: { abi: Abi, addres
     }
     return [reads, writes]
   }, [abi])
+  if (unwrap) return <Fragment>
+    {reads.map((item, i) => <GeneralAction disableAnim key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
+    {writes.map((item, i) => <GeneralAction disableAnim key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
+  </Fragment>
   return <Expandable tit={tit}>
     <div className='grid grid-cols-5 gap-4'>
       <div className='flex flex-col gap-2 col-span-2'>
         <div className='font-bold text-2xl'>Read</div>
-        {reads.map((item, i) => <GeneralAction key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
+        {reads.map((item, i) => <GeneralAction disableAnim key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
       </div>
       <div className='flex flex-col gap-2 col-span-3'>
         <div className='font-bold text-2xl'>Write</div>
-        {writes.map((item, i) => <GeneralAction key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
+        {writes.map((item, i) => <GeneralAction disableAnim key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
       </div>
     </div>
   </Expandable>

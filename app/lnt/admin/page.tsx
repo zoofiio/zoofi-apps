@@ -8,11 +8,11 @@ import { Spinner } from '@/components/spinner'
 import { ConfigChainsProvider } from '@/components/support-chains'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiMockERC20, abiMockERC721, abiProtocolSettings } from '@/config/abi'
-import { abiAethirNFT, abiRedeemStrategy, abiAethirVToracle, abiLntProtocol, abiLntVault, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor, abiQueryLNT, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
-import { codeQueryLNT } from '@/config/codes'
+import { abiAethirNFT, abiAethirVToracle, abiLntProtocol, abiLntVault, abiLntVaultDepositExt, abiMockaVToracle, abiMockNodeDelegator, abiMockRewardDistributor, abiRedeemStrategy, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
 import { LNTVAULTS_CONFIG } from '@/config/lntvaults'
-import { isTestnet } from '@/config/network'
-import { cn, FMT, fmtDate, promiseAll } from '@/lib/utils'
+import { getChain, isTestnet } from '@/config/network'
+import { fetLntVault } from '@/hooks/useFetLntVault'
+import { cn, FMT, fmtDate, promiseAll, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -86,11 +86,21 @@ const LntVaultParams: ParamItem[] = [
   { show: '', value: 'vtSwapFee', units: 18 },
   { show: '', value: 'R', units: 18 },
 ]
+const LntVaultParams2_1: ParamItem[] = [
+  { show: '', value: 'VTC', units: 18 }
+]
+const LntVaultParams2_2: ParamItem[] = [
+  { show: '', value: 'VestingRate', units: 18 },
+  { show: '', value: 'initialAnchor', units: 18 },
+  { show: '', value: 'scalarRoot', units: 18 },
+  { show: '', value: 'vtSwapFee', units: 18 },
+  { show: '', value: 'R', units: 18 },
+]
 
 
 export default function AdminPage() {
   const vcs = LNTVAULTS_CONFIG
-  const options = vcs.map(item => ({ key: item.vault, show: `LNT-Vault(${item.vault})`, vc: item }))
+  const options = vcs.map(item => ({ key: item.vault, show: `LNT-Vault(${shortStr(item.vault)})(${item.tit})`, vc: item }))
   const [current_, setCurrent] = useState<typeof options[0] | undefined>(options[0])
   const current = options.length > 0 ? current_ : undefined;
   return (
@@ -106,76 +116,113 @@ export default function AdminPage() {
           <SimpleSelect className='w-full animitem z-50' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
             current && <ConfigChainsProvider chains={[current.vc.chain]}>
-              <AsyncInfo keys={[current.vc.vault]} infos={() => getPC(current.vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [current.vc.vault] })} />
-              {current.vc.protocalSettings && <UpdateVaultParams chain={current.vc.chain} vault={current.vc.vault} protocoSettingAddress={current.vc.protocalSettings} paramList={LntVaultParams} />}
-              <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='close' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='updateAutoBuyback' address={current.vc.vault}
-                infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'autoBuyback' })} />
-              <GeneralAction abi={abiLntVault} functionName='updateCheckerNode' address={current.vc.vault} 
-                infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'checkerNode' })}
-              />
-              <GeneralAction abi={abiLntVault} functionName='setUser' address={current.vc.vault} argsDef={['', '', (2n ** 63n).toString()]} />
-              <GeneralAction abi={abiLntVault} functionName='batchSetUser' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='setUserRecordsInfo' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='removeLastSetUserRecords' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='buybackVT' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={current.vc.vault}
-                infos={() => promiseAll({
-                  vtPriceStartTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceStartTime' }),
-                  vtPriceEndTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceEndTime' })
-                })} />
-              <GeneralAction abi={abiLntVault} functionName='updateVTAOracle' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='updateRedeemStrategy' address={current.vc.vault}
-                infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'redeemStrategy' })}
-              />
-              <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={current.vc.vault} />
-              <GeneralAction abi={abiLntVault} functionName='updateAethirClaimAndWithdraw' address={current.vc.vault} />
-              <GeneralAction abi={abiLntProtocol} functionName='owner' address={current.vc.protocol} />
-              <GeneralAction abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
-              <GeneralAction abi={abiLntProtocol} functionName='acceptOwnership' address={current.vc.protocol} />
-              <GeneralAction abi={abiLntProtocol} functionName='addOperator' address={current.vc.protocol} />
-              <GeneralAction abi={abiLntProtocol} functionName='removeOperator' address={current.vc.protocol} />
-              <GeneralAction abi={abiLntProtocol} functionName='isUpgrader' address={current.vc.protocol} />
-              <GeneralAction abi={abiLntProtocol} functionName='addUpgrader' address={current.vc.protocol} />
-              <GeneralAction abi={abiLntProtocol} functionName='removeUpgrader' address={current.vc.protocol} />
-              {(isTestnet(current.vc.chain)) && <>
-                <GeneralAction abi={abiMockERC721} tit={'mockErc721 setTester'} functionName='setTester' address={current.vc.asset} />
-                <GeneralAction abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName={'safeMint'} address={current.vc.asset} />
-              </>}
+              {
+                // 多链
+                current.vc.deposit ? <>
+                  <Expandable tit={`Deposit/Withdraw NFT (${getChain(current.vc.deposit.chain)!.name})`}>
+                    <ConfigChainsProvider chains={[current.vc.deposit.chain]}>
+                      {current.vc.deposit.protocalSettings &&
+                        <UpdateVaultParams
+                          chain={current.vc.deposit.chain}
+                          vault={current.vc.deposit.vault}
+                          protocoSettingAddress={current.vc.deposit.protocalSettings}
+                          paramList={LntVaultParams2_1}
+                        />}
+                      {current.vc.deposit.protocol && <ContractAll unwrap tit='Protocol' abi={abiLntProtocol} address={current.vc.deposit.protocol} />}
+                      <GeneralAction disableAnim abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName={'airdropByOwner'} address={current.vc.asset} />
+                      <ContractAll unwrap tit='aVToracle' abi={abiZeroGVToracale} address={current.vc.deposit.vtOracle} />
+                      <ContractAll unwrap tit='Vault' abi={abiLntVaultDepositExt} address={current.vc.deposit.vault} />
+                    </ConfigChainsProvider>
+                  </Expandable>
+                  <Expandable tit={`Swap (${getChain(current.vc.chain)!.name})`}>
+                    {current.vc.protocalSettings && <UpdateVaultParams chain={current.vc.chain} vault={current.vc.vault} protocoSettingAddress={current.vc.protocalSettings} paramList={LntVaultParams2_2} />}
+                    <ContractAll unwrap tit='Protocol' abi={abiLntProtocol} address={current.vc.protocol} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='addRewards' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='settle' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='rescue' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='rescueFromStakingTokenPot' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='updateBuybackDustAmountVT' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='updateBurnRecipientAddress' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='updateStakingTokenPotRotateThreshold' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='pause' address={current.vc.vault} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='unpause' address={current.vc.vault} />
+                    <Erc20Approve />
+                  </Expandable>
 
-              {current.vc.AethirNFT && <ContractAll tit='MockAethirNFT' abi={abiAethirNFT} address={current.vc.AethirNFT} />}
-              {current.vc.AethirVToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={current.vc.AethirVToracle} />}
-              {current.vc.ZeroGVToracle && <ContractAll tit='ZeroGVToracle' abi={abiZeroGVToracale} address={current.vc.ZeroGVToracle} />}
-              {current.vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={current.vc.RedeemStrategy}
-                itemInfos={{
-                  updateRedeemStrategy: {
-                    ONLY_WITHIN_REDEEM_TIME_WINDOW: 0,
-                    ALLOWED: 1,
-                    FORBIDDEN: 2
-                  },
-                  redeemTimeWindows: async () => {
-                    const pc = getPC(current.vc.chain)
-                    const count = await pc.readContract({ abi: abiRedeemStrategy, address: current.vc.RedeemStrategy!, functionName: 'redeemTimeWindowsCount' })
-                    const tws = await pc.readContract({ abi: abiRedeemStrategy, address: current.vc.RedeemStrategy!, functionName: 'redeemTimeWindows', args: [0n, count] })
-                    return tws[0].map((t, i) => `${fmtDate(t * 1000n, FMT.ALL)}       --   ${tws[1][i]}`)
-                  }
-                }}
-              />}
-              {current.vc.MockaVTOracle && <GeneralAction abi={abiMockaVToracle} tit={'set aVT mockaVToracle'} functionName='setaVT' address={current.vc.MockaVTOracle} />}
-              {current.vc.MockNodeDelegator && <>
-                <GeneralAction abi={abiMockNodeDelegator} functionName='addOperator' address={current.vc.MockNodeDelegator} />
-                <GeneralAction abi={abiMockNodeDelegator} functionName='removeOperator' address={current.vc.MockNodeDelegator} />
-              </>}
-              {current.vc.MockT && <>
-                <GeneralAction abi={abiMockERC20} tit={'mockT setTester'} functionName='setTester' address={current.vc.MockT} />
-                <GeneralAction abi={abiMockERC20} tit={`mintT (${current.vc.MockT})`} functionName='mint' address={current.vc.MockT} />
-              </>}
-              {current.vc.MockRewardDistribuitor && <>
-                <GeneralAction abi={abiMockRewardDistributor} tit={`addReward (${current.vc.MockRewardDistribuitor})`} functionName='addReward' address={current.vc.MockRewardDistribuitor} />
-                <GeneralAction abi={abiMockRewardDistributor} tit={`addT (${current.vc.MockRewardDistribuitor})`} functionName='addT' address={current.vc.MockRewardDistribuitor} />
-              </>}
-              <Erc20Approve />
+                </> : <>
+                  <AsyncInfo keys={[current.vc.vault]} infos={() => fetLntVault(current.vc)} />
+                  {current.vc.protocalSettings && <UpdateVaultParams chain={current.vc.chain} vault={current.vc.vault} protocoSettingAddress={current.vc.protocalSettings} paramList={LntVaultParams} />}
+                  <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='close' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='updateAutoBuyback' address={current.vc.vault}
+                    infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'autoBuyback' })} />
+                  <GeneralAction abi={abiLntVault} functionName='updateCheckerNode' address={current.vc.vault}
+                    infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'checkerNode' })}
+                  />
+                  <GeneralAction abi={abiLntVault} functionName='setUser' address={current.vc.vault} argsDef={['', '', (2n ** 63n).toString()]} />
+                  <GeneralAction abi={abiLntVault} functionName='batchSetUser' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='setUserRecordsInfo' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='removeLastSetUserRecords' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='buybackVT' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={current.vc.vault}
+                    infos={() => promiseAll({
+                      vtPriceStartTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceStartTime' }),
+                      vtPriceEndTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceEndTime' })
+                    })} />
+                  <GeneralAction abi={abiLntVault} functionName='updateVTAOracle' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='updateRedeemStrategy' address={current.vc.vault}
+                    infos={() => getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'redeemStrategy' })}
+                  />
+                  <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntVault} functionName='updateAethirClaimAndWithdraw' address={current.vc.vault} />
+                  <GeneralAction abi={abiLntProtocol} functionName='owner' address={current.vc.protocol} />
+                  <GeneralAction abi={abiLntProtocol} functionName='transferOwnership' address={current.vc.protocol} />
+                  <GeneralAction abi={abiLntProtocol} functionName='acceptOwnership' address={current.vc.protocol} />
+                  <GeneralAction abi={abiLntProtocol} functionName='addOperator' address={current.vc.protocol} />
+                  <GeneralAction abi={abiLntProtocol} functionName='removeOperator' address={current.vc.protocol} />
+                  <GeneralAction abi={abiLntProtocol} functionName='isUpgrader' address={current.vc.protocol} />
+                  <GeneralAction abi={abiLntProtocol} functionName='addUpgrader' address={current.vc.protocol} />
+                  <GeneralAction abi={abiLntProtocol} functionName='removeUpgrader' address={current.vc.protocol} />
+                  {(isTestnet(current.vc.chain)) && <>
+                    <GeneralAction abi={abiMockERC721} tit={'mockErc721 setTester'} functionName='setTester' address={current.vc.asset} />
+                    <GeneralAction abi={abiMockERC721} tit={`mintMockErc721 (${current.vc.asset})`} functionName={'safeMint'} address={current.vc.asset} />
+                  </>}
+
+                  {current.vc.AethirNFT && <ContractAll tit='MockAethirNFT' abi={abiAethirNFT} address={current.vc.AethirNFT} />}
+                  {current.vc.AethirVToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={current.vc.AethirVToracle} />}
+                  {current.vc.ZeroGVToracle && <ContractAll tit='ZeroGVToracle' abi={abiZeroGVToracale} address={current.vc.ZeroGVToracle} />}
+                  {current.vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={current.vc.RedeemStrategy}
+                    itemInfos={{
+                      updateRedeemStrategy: {
+                        ONLY_WITHIN_REDEEM_TIME_WINDOW: 0,
+                        ALLOWED: 1,
+                        FORBIDDEN: 2
+                      },
+                      redeemTimeWindows: async () => {
+                        const pc = getPC(current.vc.chain)
+                        const count = await pc.readContract({ abi: abiRedeemStrategy, address: current.vc.RedeemStrategy!, functionName: 'redeemTimeWindowsCount' })
+                        const tws = await pc.readContract({ abi: abiRedeemStrategy, address: current.vc.RedeemStrategy!, functionName: 'redeemTimeWindows', args: [0n, count] })
+                        return tws[0].map((t, i) => `${fmtDate(t * 1000n, FMT.ALL)}       --   ${tws[1][i]}`)
+                      }
+                    }}
+                  />}
+                  {current.vc.MockaVTOracle && <GeneralAction abi={abiMockaVToracle} tit={'set aVT mockaVToracle'} functionName='setaVT' address={current.vc.MockaVTOracle} />}
+                  {current.vc.MockNodeDelegator && <>
+                    <GeneralAction abi={abiMockNodeDelegator} functionName='addOperator' address={current.vc.MockNodeDelegator} />
+                    <GeneralAction abi={abiMockNodeDelegator} functionName='removeOperator' address={current.vc.MockNodeDelegator} />
+                  </>}
+                  {current.vc.MockT && <>
+                    <GeneralAction abi={abiMockERC20} tit={'mockT setTester'} functionName='setTester' address={current.vc.MockT} />
+                    <GeneralAction abi={abiMockERC20} tit={`mintT (${current.vc.MockT})`} functionName='mint' address={current.vc.MockT} />
+                  </>}
+                  {current.vc.MockRewardDistribuitor && <>
+                    <GeneralAction abi={abiMockRewardDistributor} tit={`addReward (${current.vc.MockRewardDistribuitor})`} functionName='addReward' address={current.vc.MockRewardDistribuitor} />
+                    <GeneralAction abi={abiMockRewardDistributor} tit={`addT (${current.vc.MockRewardDistribuitor})`} functionName='addT' address={current.vc.MockRewardDistribuitor} />
+                  </>}
+                  <Erc20Approve />
+                </>
+              }
             </ConfigChainsProvider>
           }
         </div>

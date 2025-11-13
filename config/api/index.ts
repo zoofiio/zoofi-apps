@@ -3,6 +3,7 @@ import { keys } from 'es-toolkit/compat'
 import { Address, Hex, parseUnits } from 'viem'
 import api from '../../utils/api'
 import { arbitrum, base, berachain, sepolia } from '../network'
+import { arbitrumSepolia } from 'viem/chains'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -72,6 +73,7 @@ const aclchemyMap: { [k: number]: string } = {
   [base.id]: 'base-mainnet',
   [berachain.id]: 'berachain-mainnet',
   [arbitrum.id]: 'arb-mainnet',
+  [arbitrumSepolia.id]: 'arb-sepolia',
 }
 export const getNftsByAlchemy = async (chainId: number, nft: Address, owner: Address) => {
   if (!aclchemyMap[chainId]) {

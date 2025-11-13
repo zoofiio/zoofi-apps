@@ -8,4 +8,6 @@ export default parseAbi([
   'function batchSetTesters(address[] calldata accounts, bool tester) external',
   'function getTester(uint256 index) public view returns (address)',
   'function getTestersCount() public view returns (uint256)',
+  // for mock 0g Node
+  `function airdropByOwner(address[] memory accounts,uint[] memory amounts) external`
 ])

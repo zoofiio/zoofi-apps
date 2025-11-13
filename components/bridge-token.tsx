@@ -1,15 +1,31 @@
-import { SUPPORT_CHAINS } from "@/config/network";
+import { arbitrum, arbitrumSepolia, bsc, bscTestnet, SUPPORT_CHAINS } from "@/config/network";
 import { Token } from "@/config/tokens";
 import { useBalance } from "@/hooks/useToken";
 import { parseEthers } from "@/lib/utils";
 import { useState } from "react";
-import { FaArrowDown, FaArrowRight } from "react-icons/fa6";
-import { Chain } from "viem";
-import { Txs } from "./approve-and-tx";
+import { FaArrowDown } from "react-icons/fa6";
+import { Address, Chain, Hex, padHex } from "viem";
+import { Txs, withTokenApprove } from "./approve-and-tx";
 import { AssetInput } from "./asset-input";
+import { useQuery } from "@tanstack/react-query";
+import { useCalcKey } from "@/hooks/useCalcKey";
+import { getPC } from "@/providers/publicClient";
+import { abiLayerzeroOFT } from "@/config/abi/abiLayerzero";
+import { useAccount } from "wagmi";
+import { Options } from '@layerzerolabs/lz-v2-utilities'
+import { displayBalance } from "@/utils/display";
+const eidMaps: { [k: number]: number } = {
+    [arbitrum.id]: 30110,
+    [arbitrumSepolia.id]: 40231,
+    [bsc.id]: 30102,
+    [bscTestnet.id]: 40102,
+}
 
-
-export function BridgeToken({ config }: { config: [Token, Token] }) {
+export function BridgeToken({ config, adapters }: {
+    config: [Token, Token], adapters?: {
+        [k: `${number}:${Address}`]: Address
+    }
+}) {
     const [t0, t1] = config
     const [[from, to], setFromTo] = useState<[Token, Token]>([t0, t1])
     const fromChain = SUPPORT_CHAINS.find(c => c.id === from.chain)!
@@ -25,6 +41,55 @@ export function BridgeToken({ config }: { config: [Token, Token] }) {
             <div className="absolute left-3 -top-2 bg-slate-200 dark:bg-slate-600 px-2 rounded-lg text-xs">{label}</div>
         </div>
     }
+    const { address: user } = useAccount()
+    const address = adapters?.[`${from.chain}:${from.address.toLowerCase() as Address}`] ?? from.address
+    const getFee = async () => {
+        if (!user) return undefined
+        const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString() as Hex
+        return getPC(from.chain).readContract({
+            abi: abiLayerzeroOFT, address, functionName: 'quoteSend', args: [
+                {
+                    dstEid: eidMaps[to.chain],
+                    to: padHex(user, { size: 32 }),
+                    amountLD: inputBn,
+                    minAmountLD: inputBn,
+                    extraOptions: options,
+                    composeMsg: '0x',
+                    oftCmd: '0x'
+                }, false
+            ]
+        })
+    }
+    const { data } = useQuery({
+        ...useCalcKey(['fetbrigeTokenFee', from, to, inputBn]),
+        queryFn: getFee
+    })
+    const getTxs: Parameters<typeof Txs>['0']['txs'] = async ({ pc, wc }) => {
+        const fee = await getFee()
+        if (!fee) return []
+        const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString() as Hex
+        return withTokenApprove({
+            pc, user: wc.account.address,
+            approves: [
+                { spender: address, token: from.address, amount: inputBn }
+            ],
+            tx: {
+                abi: abiLayerzeroOFT,
+                address,
+                functionName: 'send',
+                args: [{
+                    dstEid: eidMaps[to.chain],
+                    to: padHex(wc.account.address, { size: 32 }),
+                    amountLD: inputBn,
+                    minAmountLD: inputBn,
+                    extraOptions: options,
+                    composeMsg: '0x',
+                    oftCmd: '0x'
+                }, fee, wc.account.address],
+                value: fee.nativeFee
+            }
+        })
+    }
     return <div className="flex flex-col gap-4 text-sm w-full">
         <div className="animitem grid items-center gap-x-2 gap-y-4 relative">
             {renderChain(fromChain, 'From')}
@@ -35,7 +100,9 @@ export function BridgeToken({ config }: { config: [Token, Token] }) {
         </div>
         <div className="animitem">Token</div>
         <AssetInput className="animitem" asset={from.symbol} amount={input} setAmount={setInput} balance={balance.result} />
-        <div className="animitem">Fee: $5</div>
-        <Txs className="animitem" tx="Bridge" txs={[]} />
+        <div className="animitem">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
+        <div className="animitem w-full">
+            <Txs tx="Bridge" className="w-full" txs={getTxs} />
+        </div>
     </div>
 }

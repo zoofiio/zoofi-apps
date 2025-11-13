@@ -1,4 +1,4 @@
-import { abiRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT } from '@/config/abi/abiLNTVault'
+import { abiRedeemStrategy, abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
 import { getLntVaultSwapFee7Days } from '@/config/api'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
@@ -11,6 +11,7 @@ import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
 import { Address, PublicClient, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
+import { useTotalSupply } from './useToken'
 
 export const FET_KEYS = {
   LntVault: (vc: LntVaultConfig) => `fetLntVault:${vc.vault}`,
@@ -21,28 +22,48 @@ export const FET_KEYS = {
   LntWithdrawPrice: (vc: LntVaultConfig) => `LntWithdrawPrice:${vc.vault}`,
   LntWithdrawWindows: (vc: LntVaultConfig) => (vc.RedeemStrategy ? `LntWithdrawWindows:${vc.vault}` : ''),
 }
+export async function fetLntVault(vc: LntVaultConfig) {
+  const pc = getPC(vc.chain)
+  if (vc.deposit) {
+    const dpc = getPC(vc.deposit.chain)
+    return promiseAll({
+      activeDepositCount: dpc.readContract({ abi: abiLntVault, address: vc.deposit.vault, functionName: 'depositTokensCount' }),
+      aVT: dpc.readContract({ abi: abiZeroGVToracale, address: vc.deposit.vtOracle, functionName: 'aVT' }),
+      VTbyDeposit: dpc.readContract({ abi: abiLntVault, address: vc.deposit.vault, functionName: 'VT' }),
+      closed: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'paused' }),
+      NFT: Promise.resolve(vc.asset),
+      VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
+      YT: Promise.resolve(zeroAddress as Address),
+      T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
+      vATOracle: Promise.resolve(zeroAddress as Address),
+      tokenPot: Promise.resolve(zeroAddress as Address),
+      vtSwapPoolHook: vc.vtSwapHook ? Promise.resolve(vc.vtSwapHook) : pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtSwapPoolHook' }),
+      expiryTime: dpc.readContract({ abi: abiZeroGVToracale, address: vc.deposit.vtOracle, functionName: 'rewardsEndTime' }),
+      startTime: vc.isAethir || vc.isZeroG ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }) : Promise.resolve(1750840222n),
+    })
+  }
+  const { lntdata, ...other } = await promiseAll({
+    VTbyDeposit: Promise.resolve(undefined as Address | undefined),
+    lntdata: pc.readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
+    expiryTime: vc.isAethir ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }) : Promise.resolve(1784968222n),
+    startTime: vc.isAethir || vc.isZeroG ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }) : Promise.resolve(1750840222n),
+  })
+  return { ...lntdata, ...other }
+}
 export function useLntVault(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntVault(vc),
-    fetfn: async () => {
-      const pc = getPC(vc.chain)
-      const { lntdata, ...other } = await promiseAll({
-        lntdata: pc.readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
-        expiryTime: vc.isAethir ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }) : Promise.resolve(1784968222n),
-        startTime: vc.isAethir || vc.isZeroG ? pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }) : Promise.resolve(1750840222n),
-      })
-      return { ...lntdata, ...other }
-    },
+    fetfn: async () => fetLntVault(vc),
   })
 }
 
-export function useLntWithdrawPrice(vc: LntVaultConfig) {
-  return useFet({
-    key: FET_KEYS.LntWithdrawPrice(vc),
-    initResult: 0n,
-    fetfn: async () => getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcRedeem', args: [vc.vault, 1n] }),
-  })
-}
+// export function useLntWithdrawPrice(vc: LntVaultConfig) {
+//   return useFet({
+//     key: FET_KEYS.LntWithdrawPrice(vc),
+//     initResult: 0n,
+//     fetfn: async () => getPC(vc.deposit?.chian ?? vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcRedeem', args: [vc.deposit?.vault ?? vc.vault, 1n] }),
+//   })
+// }
 
 export function useLntHookPoolkey(vc: LntVaultConfig) {
   const vd = useLntVault(vc)
@@ -218,4 +239,12 @@ export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>
       { name: 'Airdrop', value: apyFromAirdrop },
     ],
   }
+}
+
+export function useVTTotalSupply(vc: LntVaultConfig) {
+  const vd = useLntVault(vc)
+  const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, vc.chain, { symbol: 'VT' }))
+  // byDeposit (other chain)
+  const vtByDepositTotal = useTotalSupply(getTokenBy(vd.result?.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' }))
+  return vtTotalSupply.result + vtByDepositTotal.result
 }

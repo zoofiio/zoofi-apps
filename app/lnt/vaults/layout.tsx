@@ -5,10 +5,10 @@
 import { ConfigChainsProvider } from "@/components/support-chains";
 import { arbitrum, sepolia, zeroGTestnet } from "@/config/network";
 import { ReactNode } from "react";
-import { bsc } from "viem/chains";
+import { arbitrumSepolia, bsc, bscTestnet } from "viem/chains";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[zeroGTestnet.id, sepolia.id, arbitrum.id, bsc.id]}>
+    return <ConfigChainsProvider chains={[zeroGTestnet.id, sepolia.id, arbitrum.id, bsc.id, arbitrumSepolia.id, bscTestnet.id]}>
         {children}
     </ConfigChainsProvider>
 

@@ -1,17 +1,16 @@
 import { Token } from '@/config/tokens'
 
+import { getNftsByAlchemy, getNftsByZoofi } from '@/config/api'
+import { useFet } from '@/lib/useFet'
 import { getPC } from '@/providers/publicClient'
+import { range } from 'es-toolkit'
 import { Address, erc20Abi, erc721Abi, parseAbi } from 'viem'
 import { useAccount } from 'wagmi'
-import { useCurrentChainId } from './useCurrentChainId'
-import { useFet } from '@/lib/useFet'
-import { getNftsByAlchemy, getNftsByZoofi } from '@/config/api'
-import { range } from 'es-toolkit'
 
 export const FET_KEYS = {
   TokenBalance: (token?: Token, user?: Address) => (user && token ? `tokenBalance:${token.chain}-${token.address}-by-${user}` : ''),
   TokenSupply: (token?: Token) => (token ? `tokenTotalSupply:${token.chain}-${token.address}` : ''),
-  Erc721Balance: (token?: Address, user?: Address) => (token ? `erc721Balance:${token}-${user}` : ''),
+  Erc721Balance: (token?: Address, chainId?: number, user?: Address) => (token && chainId && user ? `erc721Balance:${chainId}-${token}-${user}` : ''),
 }
 export function useBalance(token?: Token) {
   const { address } = useAccount()
@@ -37,12 +36,11 @@ const abiErc721Enumerable = parseAbi([
   'function tokenIdsOfOwnerByAmount(address owner, uint256 index) view returns(uint256[])',
   'function tokenOfOwnerByIndex(address owner, uint256 index) view returns(uint256)',
 ])
-export function useErc721Balance(token?: Address, by?: 'alchemy' | 'zoofi' | 'rpc' | 'rpc-amount') {
+export function useErc721Balance(chainId: number,token?: Address,  by?: 'alchemy' | 'zoofi' | 'rpc' | 'rpc-amount') {
   const { address } = useAccount()
   // const address: Address = "0x89D07bF06674f1eAc72bAcE3E16B9567bA1197f9"
-  const chainId = useCurrentChainId()
   return useFet({
-    key: FET_KEYS.Erc721Balance(token, address),
+    key: FET_KEYS.Erc721Balance(token, chainId, address),
     initResult: [] as string[],
     fetfn: async () => {
       if (!token || !address) return [] as string[]

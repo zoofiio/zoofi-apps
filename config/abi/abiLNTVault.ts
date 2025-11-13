@@ -14,17 +14,26 @@ export const abiQueryLNT = parseAbi([
 export const abiLntVault = parseAbi([
   'function deposit(uint256 tokenId, uint256 value) external',
   'function deposit(uint256 tokenId) external',
+  'function deposit(uint256[] calldata tokenIds) external',
   'function batchDeposit(uint256[] calldata tokenIds, uint256[] calldata values) external',
   'function batchDeposit(uint256[] calldata tokenIds) external',
   'function redeem() external',
   'function batchRedeem(uint256 count) external',
+  'function redeem(uint256 count) external',
   'function redeemT(uint256 amount) external',
   'function close() external',
   'function withdrawProfitT(address recipient) external',
 
+  'function VT() external view returns (address)',
+  'function T() external view returns (address)',
+  'function vtSwapPoolHook() external view returns (address)',
+  'function pausedDeposit() external view returns (bool)',
+  'function paused() external view returns (bool)',
   'function autoBuyback() external view returns (bool)',
+  'function depositTokensCount() external view returns (uint256)',
   'function setUserRecordCount() external view returns (uint256)',
   'function setUserRecordsInfo(uint256 index, uint256 count) external view returns (uint256[] memory tokenIds, address[] memory owners, address[] memory users, bool[] memory isBanned)',
+  'function paramValue(bytes32 param) public view returns (uint256)',
   // owner
   'function updateAutoBuyback(bool newAutoBuyback) external',
   'function updateCheckerNode(address newCheckerNode) external',
@@ -43,6 +52,16 @@ export const abiLntVault = parseAbi([
   'function redeemStrategy() external view returns(address)',
   'function updateVTPriceTime(uint256 newStartTime, uint256 newEndTime) external',
   'function buybackVT(uint256 amountT) external',
+
+  'function addRewards(uint256 amountT) external',
+  'function settle() external',
+  'function rescue(address token, address recipient, uint256 amount) external',
+  'function rescueFromStakingTokenPot(address stakingTokenPot, address token, address recipient, uint256 amount) external',
+  'function updateBuybackDustAmountVT(uint256 newAmountVT) external',
+  'function updateBurnRecipientAddress(address newAddress) external',
+  'function updateStakingTokenPotRotateThreshold(uint256 newThreshold) external',
+  'function pause() external',
+  'function unpause() external',
 ])
 
 export const abiLntProtocol = parseAbi([
@@ -130,9 +149,42 @@ export const abiRedeemStrategy = parseAbi([
   'function redeemTimeWindowsCount() external view returns (uint256)',
 ])
 
-
 export const abiZeroGVToracale = parseAbi([
   'function aVT() external view returns (uint256)',
   'function updateRewardsPerNodePerDay(uint256 newRewardsPerNodePerDay) external',
   'function updateRewardsEndTime(uint256 newRewardsEndTime) external',
+  'function rewardsEndTime() external view returns (uint256)',
+])
+
+export const abiLntVaultDepositExt = parseAbi([
+  'function operatorNode() external view returns (address)',
+  'function pausedDeposit() external view returns (bool)',
+  'function pausedRedeem() external view returns (bool)',
+  'function tokenRewardsInfoCount() external view returns (uint256)',
+
+  'function mintVestingTokens(address to, uint256 amount) external',
+  'function burnVestingTokens(uint256 amount) external',
+  'function updateOperatorNode(address newOperatorNode) external',
+  'function updateTokenRewardsInfo(uint256[] calldata tokenId, uint256[] calldata remainingRewards) external',
+  'function delegate(address toOperatorNode, uint256[] calldata tokenIds) external',
+  'function undelegate(uint256[] calldata tokenIds) external',
+  'function pauseDeposit() external',
+  'function unpauseDeposit() external',
+  'function pauseRedeem() external',
+  'function unpauseRedeem() external',
+])
+
+export const abiZeroGLntBuyback = parseAbi([
+  'function stakingTokenPotCount() external view returns (uint256)',
+  'function stakingTokenPots(uint256 index) public view returns (address)',
+  'function totalStakingAmountVT(address stakingTokenPot) public view returns (uint256)',
+  'function userStakingAmountVT(address stakingTokenPot, address account) public view returns (uint256)',
+  'function boughtAmountT(address stakingTokenPot, address account) public view returns (uint256)',
+  'function buybackDustAmountVT() public view returns (uint256)',
+  'function minStakeAmountVT() public view returns (uint256)',
+
+  'function stake(uint256 amount) external',
+  'function withdraw(address stakingTokenPot, uint256 amount) external',
+  'function claimBoughtT(address stakingTokenPot) external',
+  'function redeemT(uint256 amount) external',
 ])

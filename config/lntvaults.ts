@@ -1,6 +1,6 @@
 import { isLOCL } from '@/constants'
 import { Address, zeroAddress } from 'viem'
-import { arbitrum, bsc, sepolia } from 'viem/chains'
+import { arbitrum, arbitrumSepolia, bsc, bscTestnet, sepolia } from 'viem/chains'
 import { TypeENV } from './env'
 import { zeroGmainnet } from './network'
 
@@ -43,11 +43,54 @@ export type LntVaultConfig = {
   nftBalanceBy: 'zoofi' | 'rpc' | 'rpc-amount' | 'alchemy'
 
   buyback?: Address
-  bridge?: {
+
+  //
+  deposit?: {
     chain: number
+    vault: Address
+    vtOracle: Address
+    fnDepoist?: string
+    fnRedeem?: string
+    protocol?: Address
+    protocalSettings?: Address
+    vtAdapter?: Address
   }
+  vtSwapHook?: Address
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
+  {
+    chain: bscTestnet.id,
+    nftBalanceBy: 'alchemy',
+    vault: '0x2faadaae8cee112b9e11b35f1c777fede3b0ffde',
+    asset: '0x8b6d3c437326c46331f4b608c2f5c6c23ae2f836',
+    protocol: '0x734623e7a70b6273fa4228dcf525643256d100c0',
+    protocalSettings: '0xa6284206809734d3704b67948f634ff4bc898568',
+    onEnv: ['test'],
+    lpTYT: zeroAddress,
+    ZeroGVToracle: '0x63008ce382e387502d4ee8e28bf73be7f5829f38',
+    MockT: '0x785aeeb675a25034763710ac46dcd0799cf25293',
+    isZeroG: true,
+    vtActive: true,
+    ytEnable: false,
+    lpYields: false,
+    projectIcon: 'ZeroG',
+    startTime: 1762838215n,
+    icon: 'ZeroG',
+    tit: '0G AI Alignment Node',
+    info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
+    buyback: isLOCL ? zeroAddress : undefined,
+    deposit: {
+      chain: arbitrumSepolia.id,
+      vault: '0x4fb04da43850ebe6675ac8274ff6a2c993bc2f8b',
+      protocol: '0x0383bb45ef1dff46e649563218c509628d5eca16',
+      protocalSettings: '0x8eeca063d0ec83b98f6af9008c535b1ca2c03e93',
+      vtOracle: '0x63008ce382e387502d4ee8e28bf73be7f5829f38',
+      fnRedeem: 'redeem',
+      fnDepoist: 'deposit',
+      vtAdapter: '0xB13038Dafc796A703A8204dD8559da1a0c27ae17',
+    },
+    vtSwapHook: '0x48e497862069034a6229e6cf59b7ebdf3f593a88',
+  },
   {
     chain: arbitrum.id,
     nftBalanceBy: 'rpc-amount',
@@ -71,9 +114,6 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     tit: 'Aethir Checker Node',
     info: `Aethir is best described as distributed cloud compute infrastructure. It aggregates enterprise-grade GPU chips into a single global network to increase the supply of on-demand cloud compute resources for the AI, gaming, and virtualized compute sectors.
 Checker nodes ensure the integrity and service quality of Aethir network by checking the GPU specifications and its service process.`,
-
-    buyback: isLOCL ? zeroAddress : undefined,
-    bridge: isLOCL ? { chain: bsc.id } : undefined,
   },
   {
     chain: zeroGmainnet.id,

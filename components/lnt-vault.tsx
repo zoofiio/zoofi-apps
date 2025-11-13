@@ -3,13 +3,12 @@ import { abiMockERC721 } from '@/config/abi'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
-import { zeroGmainnet, zeroGTestnet } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useLntWithdrawPrice } from '@/hooks/useFetLntVault'
+import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
 import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
@@ -24,38 +23,40 @@ import { useMemo, useRef, useState } from 'react'
 import { FaYoutube } from "react-icons/fa6"
 import { useSetState, useToggle } from 'react-use'
 import { toast } from 'sonner'
-import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
+import { Address, erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { TX, TxConfig, Txs, withTokenApprove } from './approve-and-tx'
 import { AssetInput } from './asset-input'
+import { BridgeToken } from './bridge-token'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
+import { LntVaultBuyback } from './lnt-vault-buyback'
 import { Badge } from './noti'
 import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
-import { LntVaultBuyback } from './lnt-vault-buyback'
-import { BridgeToken } from './bridge-token'
+import { ConfigChainsProvider } from './support-chains'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
   const maxSelected = 30;
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
   const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
-  const nfts = useErc721Balance(vd.result!.NFT, vc.nftBalanceBy)
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
+  const chainId = vc.deposit?.chain ?? vc.chain
+  const mVault = vc.deposit?.vault ?? vc.vault
+  const nfts = useErc721Balance(chainId, vd.result!.NFT, vc.nftBalanceBy)
+  const vt = getTokenBy(vd.result!.VTbyDeposit ?? vd.result!.VT, chainId, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.result!.YT, chainId, { symbol: 'YT' })!
   const { data: outAmountVT } = useQuery({
-    ...useCalcKey(['calcLntDeposit', vc.chain, tokenIds]),
+    ...useCalcKey(['calcLntDeposit', chainId, tokenIds]),
     initialData: 0n,
     queryFn: async () => {
       if (tokenIds.length == 0) return 0n
-      return getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcDeposit', args: [vc.vault, tokenIds] })
+      return getPC(chainId).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'calcDeposit', args: [mVault, tokenIds] })
     }
   })
-  const withdrawPrice = useLntWithdrawPrice(vc)
   const onClickOne = (id: string) => {
     if (selectedNft[id.toString()]) {
       setSelectNft({ [id.toString()]: false })
@@ -82,11 +83,11 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
 
   const getTxs: Parameters<typeof Txs>['0']['txs'] = async ({ pc, wc }) => {
     const approves: TX[] = []
-    if (!(await pc.readContract({ abi: erc721Abi, address: vc.asset, functionName: 'isApprovedForAll', args: [wc.account.address!, vc.vault] }))) {
+    if (!(await pc.readContract({ abi: erc721Abi, address: vc.asset, functionName: 'isApprovedForAll', args: [wc.account.address!, mVault] }))) {
       const alreadyApproves = await Promise.all(tokenIds.map(id => pc.readContract({ abi: erc721Abi, address: vc.asset, functionName: 'getApproved', args: [id] })))
       alreadyApproves.forEach((ap, i) => {
         if (!isAddressEqual(ap, vc.vault)) {
-          approves.push({ abi: erc721Abi, address: vc.asset, functionName: 'approve', args: [vc.vault, tokenIds[i]], name: `Approve #${tokenIds[i].toString()}` })
+          approves.push({ abi: erc721Abi, address: vc.asset, functionName: 'approve', args: [mVault, tokenIds[i]], name: `Approve #${tokenIds[i].toString()}` })
         }
       })
     }
@@ -95,8 +96,8 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       {
         name: 'Deposit',
         abi: abiLntVault,
-        address: vc.vault,
-        functionName: 'batchDeposit',
+        address: mVault,
+        functionName: vc.deposit?.fnDepoist ?? 'batchDeposit',
         enabled: tokenIds.length > 0,
         args: vc.isAethir || vc.isZeroG ? [tokenIds] : [tokenIds, tokenIds.map(() => 1n)]
       }
@@ -127,31 +128,35 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
       <div>
-        {`1 License = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+        {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
         {'Operation Fees : 5%'}
       </div>
     </div>
-    <Txs
-      tx='Deposit'
-      onTxSuccess={() => {
-        const nStat: { [id: string]: boolean } = {}
-        tokenIds.forEach((id) => {
-          nStat[id.toString()] = false
-        })
-        setSelectNft(nStat)
-        reFet(nfts.key, vd.key)
-        onSuccess()
-      }}
-      disabled={tokenIds.length == 0}
-      txs={getTxs} />
+    <ConfigChainsProvider chains={[chainId]}>
+      <Txs
+        tx='Deposit'
+        onTxSuccess={() => {
+          const nStat: { [id: string]: boolean } = {}
+          tokenIds.forEach((id) => {
+            nStat[id.toString()] = false
+          })
+          setSelectNft(nStat)
+          reFet(nfts.key, vd.key)
+          onSuccess()
+        }}
+        disabled={tokenIds.length == 0}
+        txs={getTxs} />
+    </ConfigChainsProvider>
   </div>
 }
 function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
+  const chainId = vc.deposit?.chain ?? vc.chain
+  const mVault = vc.deposit?.vault ?? vc.vault
+  const vt = getTokenBy(vd.result!.VTbyDeposit ?? vd.result!.VT, chainId, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.result!.YT, chainId, { symbol: 'YT' })!
   const ytBalance = useBalance(vc.ytEnable ? yt : undefined)
   const vtBalance = useBalance(vt)
   const maxByYT = floor(toNumber(fmtBn(ytBalance.result, yt.decimals)))
@@ -160,8 +165,8 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   const maxByActive = toNumber((vd.result?.activeDepositCount ?? 0n).toString())
   const [count, setCount] = useState(0)
   const max = vc.ytEnable ? min([maxByYT, maxByVT, maxByActive])! : min([maxByVT, maxByActive])!
-  const withdrawPrice = useLntWithdrawPrice(vc)
-  const outAmountVT = withdrawPrice.result * BigInt(count);
+  const withdrawPrice = vd.result?.aVT ?? 0n
+  const outAmountVT = withdrawPrice * BigInt(count);
   const withdrawStat = useLntVaultWithdrawState(vc)
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='flex flex-col gap-1 w-full'>
@@ -172,7 +177,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       </>}
       <AssetInput asset={vt.symbol} disable amount={fmtBn(outAmountVT, vt.decimals)} balance={vtBalance.result} />
       <div className='mt-4 text-sm opacity-60 text-center'>
-        {`1 License = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+        {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       {!withdrawStat.inWindow && withdrawStat.nWindow &&
         <div className='text-sm opacity-60 text-center'>
@@ -183,20 +188,21 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       <div className='w-full'>Receive:</div>
       <NumInput title='Licenses' min={0} max={max} value={count} onChange={setCount} />
     </div>
-
-    <Txs
-      tx='Withdraw'
-      className='mt-6'
-      onTxSuccess={() => {
-        onSuccess()
-      }}
-      disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result || !withdrawStat.inWindow}
-      txs={[{
-        abi: abiLntVault,
-        address: vc.vault,
-        functionName: 'batchRedeem',
-        args: [BigInt(count)]
-      }]} />
+    <ConfigChainsProvider chains={[chainId]}>
+      <Txs
+        tx='Withdraw'
+        className='mt-6'
+        onTxSuccess={() => {
+          onSuccess()
+        }}
+        disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result || !withdrawStat.inWindow}
+        txs={[{
+          abi: abiLntVault,
+          address: mVault,
+          functionName: vc.deposit?.fnRedeem ?? 'batchRedeem',
+          args: [BigInt(count)]
+        }]} />
+    </ConfigChainsProvider>
   </div>
 }
 
@@ -223,7 +229,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center"
   const itemTitClassname = "opacity-60 text-xs font-semibold"
-  const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, vc.chain, { symbol: 'VT' }))
+  const vtTotalSupply = useVTTotalSupply(vc)
   const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
   const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
 
@@ -242,7 +248,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
         </div>
         <div className={itemClassname}>
           <div className={itemTitClassname}>VT Supply</div>
-          <div>{displayBalance(vtTotalSupply.result)}</div>
+          <div>{displayBalance(vtTotalSupply)}</div>
         </div>
         <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
           <div className={itemTitClassname}>YT Supply</div>
@@ -274,7 +280,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const withdrawRef = useRef<HTMLButtonElement>(null)
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const withdrawPrice = useLntWithdrawPrice(vc)
+  const withdrawPrice = vd.result?.aVT ?? 0n
   return <div className=' flex flex-col h-full justify-between shrink-0 gap-10 w-full md:w-fit'>
     <div className='flex items-center text-sm justify-center whitespace-nowrap'>
       <span className=''>Total Deposited</span>
@@ -301,7 +307,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
       </SimpleDialog>
       <div className='mt-4 text-sm opacity-60 text-center'>
-        {`1 License = ${displayBalance(withdrawPrice.result, undefined, vt.decimals)} ${vt.symbol}`}
+        {`1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
     </div>
 
@@ -672,7 +678,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
   const onAddPToken = () => {
     walletClient?.watchAsset({ type: 'ERC20', options: vt }).catch(handleError)
   }
-  const vtTotal = useTotalSupply(vt)
+  const vtTotal = useVTTotalSupply(vc)
   return <div className="flex flex-col gap-4 w-full">
     <div className='animitem card !p-0 overflow-hidden w-full'>
       <div className='flex p-5 bg-[#A3D395] gap-5'>
@@ -689,7 +695,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         </div>
         <div className='flex justify-between gap-2.5 items-baseline'>
           <div className="text-xs font-semibold opacity-60">Circulation amount</div>
-          <div className="text-lg font-medium">{displayBalance(vtTotal.result, undefined, vt.decimals)}</div>
+          <div className="text-lg font-medium">{displayBalance(vtTotal, undefined, vt.decimals)}</div>
         </div>
       </div>
       <div className='flex px-2 pb-4'>
@@ -757,7 +763,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
 export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const vt2 = getTokenBy(vd.result!.VT, vc.bridge?.chain, { symbol: 'VT' })
+  const vt2 = getTokenBy(vd.result!.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })
   return <div className='animitem card bg-white'>
     <SimpleTabs
       listClassName="p-0 gap-4 mb-4 w-full"
@@ -765,8 +771,13 @@ export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
       data={[
         { tab: 'Vesting Token', content: <VT vc={vc} /> },
         ...(vc.ytEnable ? [{ tab: 'Yield Token', content: <YT vc={vc} /> }] : []),
-        ...(vc.buyback ? [{ tab: 'Buyback', content: <LntVaultBuyback vc={vc} /> }] : []),
-        ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt,vt2]} /> }] : []),
+        ...(vc.buyback ? [{ tab: 'Put Option', content: <LntVaultBuyback vc={vc} /> }] : []),
+        ...(vt2 ? [{
+          tab: 'Bridge', content: <BridgeToken
+            config={[vt2, vt]}
+            adapters={vc.deposit?.vtAdapter ? { [`${vt2.chain}:${vt2.address.toLowerCase() as Address}`]: vc.deposit.vtAdapter } : undefined}
+          />
+        }] : []),
       ]}
     />
   </div>
@@ -776,7 +787,7 @@ export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
 
 export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
   const { address } = useAccount()
-  if (vc.tit !== "0G AI Alignment Node") return null
+  if (vc.tit !== "0G AI Alignment Node" || !vc.isZeroG || !vc.test) return null
   const txs = async () => {
     return [{ abi: abiMockERC721, address: vc.asset, functionName: vc.test ? 'safeMint' : 'mint', args: [address] }]
   }

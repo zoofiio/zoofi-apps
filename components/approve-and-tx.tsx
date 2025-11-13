@@ -175,13 +175,14 @@ export type TxConfig = SimulateContractParameters & { name?: string }
 export type TX = TxConfig | (() => Promise<TxConfig>)
 export const useTxsStore = create(() => ({ txs: [] as TxConfig[], progress: 0 }))
 const supportedSendCalls: number[] = isPROD ? [] : [mainnet.id, optimism.id, bsc.id, polygon.id, base.id, arbitrum.id, berachain.id, sepolia.id]
-// const supportedSendCalls: number[] = []
+
+export type TXSType = TX[] | ((args: { pc: PublicClient, wc: WalletClient<Transport, Chain, Account, RpcSchema> }) => Promise<TX[]> | TX[])
 export function Txs({
   className, tx, txs, disabled, disableProgress, beforeSimulate, busyShowTxet = true, toast = true, onTxSuccess }:
   {
     disableProgress?: boolean,
     beforeSimulate?: boolean,
-    className?: string, tx: string, disabled?: boolean, txs: TX[] | ((args: { pc: PublicClient, wc: WalletClient<Transport, Chain, Account, RpcSchema> }) => Promise<TX[]> | TX[]), busyShowTxet?: boolean, toast?: boolean
+    className?: string, tx: string, disabled?: boolean, txs: TXSType, busyShowTxet?: boolean, toast?: boolean
     onTxSuccess?: () => void
   }) {
   const { data: wc } = useWalletClient()
@@ -200,7 +201,7 @@ export function Txs({
           throw new Error('unuse wallet_sendCalls')
         }
         const callsTxs = calls.map(item => ({ data: encodeFunctionData({ abi: item.abi, functionName: item.functionName, args: item.args }), to: item.address }));
-        
+
         const { id } = await wc.sendCalls({
           account: wc.account.address,
           calls: callsTxs,

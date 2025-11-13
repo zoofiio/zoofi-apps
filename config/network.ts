@@ -1,6 +1,6 @@
 import { providers } from 'ethers'
 import { Address, Chain, defineChain } from 'viem'
-import { base as baseMainnet, zeroG, arbitrum as arbitrumMain, bsc as bscMain, sepolia as sepoliaBase } from 'viem/chains'
+import { base as baseMainnet, zeroG, arbitrum as arbitrumMain, bsc as bscMain, sepolia as sepoliaBase, arbitrumSepolia as arbSep, bscTestnet as bscTest } from 'viem/chains'
 import { LP_TOKENS } from './lpTokens'
 import { BASE_PATH } from './env'
 
@@ -113,9 +113,17 @@ export const arbitrum = defineChain({
   },
   iconUrl: `${BASE_PATH}/arbitrum.svg`,
 })
+export const arbitrumSepolia = defineChain({
+  ...arbSep,
+  iconUrl: `${BASE_PATH}/arbitrum.svg`,
+})
 
 export const bsc = defineChain({
   ...bscMain,
+  iconUrl: `${BASE_PATH}/bsc.png`,
+})
+export const bscTestnet = defineChain({
+  ...bscTest,
   iconUrl: `${BASE_PATH}/bsc.png`,
 })
 
@@ -125,7 +133,7 @@ export const multicallBatchConfig = { batchSize: 1024, wait: 500 }
 export const beraChains = [berachainTestnet, berachain]
 export const lntChains = [sepolia, base]
 // allapps chanis
-export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGTestnet, zeroGmainnet, sepolia, base, berachain, berachainTestnet, arbitrum, bsc]
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGTestnet, zeroGmainnet, sepolia, base, berachain, berachainTestnet, arbitrum, bsc, arbitrumSepolia, bscTestnet]
 
 const refChainId = { chainId: SUPPORT_CHAINS[0].id }
 export function getCurrentChainId() {
