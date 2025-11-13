@@ -147,6 +147,10 @@ export default function AdminPage() {
                     <GeneralAction disableAnim abi={abiLntVault} functionName='updateStakingTokenPotRotateThreshold' address={current.vc.vault} />
                     <GeneralAction disableAnim abi={abiLntVault} functionName='pause' address={current.vc.vault} />
                     <GeneralAction disableAnim abi={abiLntVault} functionName='unpause' address={current.vc.vault} />
+                    {current.vc.MockT && <>
+                      <GeneralAction disableAnim abi={abiMockERC20} tit={'mockT setTester'} functionName='setTester' address={current.vc.MockT} />
+                      <GeneralAction disableAnim abi={abiMockERC20} tit={`mintT (${current.vc.MockT})`} functionName='mint' address={current.vc.MockT} />
+                    </>}
                     <Erc20Approve />
                   </Expandable>
 
