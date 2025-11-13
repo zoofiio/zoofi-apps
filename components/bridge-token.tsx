@@ -14,6 +14,7 @@ import { abiLayerzeroOFT } from "@/config/abi/abiLayerzero";
 import { useAccount } from "wagmi";
 import { Options } from '@layerzerolabs/lz-v2-utilities'
 import { displayBalance } from "@/utils/display";
+import { ConfigChainsProvider } from "./support-chains";
 const eidMaps: { [k: number]: number } = {
     [arbitrum.id]: 30110,
     [arbitrumSepolia.id]: 40231,
@@ -90,19 +91,21 @@ export function BridgeToken({ config, adapters }: {
             }
         })
     }
-    return <div className="flex flex-col gap-4 text-sm w-full">
-        <div className="animitem grid items-center gap-x-2 gap-y-4 relative">
-            {renderChain(fromChain, 'From')}
-            {renderChain(toChain, 'To')}
-            <div className="cursor-pointer bg-slate-200 dark:bg-slate-600 absolute left-1/2 top-1/2 hover:scale-110 transition p-2 -translate-x-1/2 -translate-y-1/2 rounded-xl" onClick={toggleFromTo}>
-                <FaArrowDown className="text-lg" />
+    return <ConfigChainsProvider chains={[from.chain]}>
+        <div className="flex flex-col gap-4 text-sm w-full">
+            <div className="animitem grid items-center gap-x-2 gap-y-4 relative">
+                {renderChain(fromChain, 'From')}
+                {renderChain(toChain, 'To')}
+                <div className="cursor-pointer bg-slate-200 dark:bg-slate-600 absolute left-1/2 top-1/2 hover:scale-110 transition p-2 -translate-x-1/2 -translate-y-1/2 rounded-xl" onClick={toggleFromTo}>
+                    <FaArrowDown className="text-lg" />
+                </div>
+            </div>
+            <div className="animitem">Token</div>
+            <AssetInput className="animitem" asset={from.symbol} amount={input} setAmount={setInput} balance={balance.result} />
+            <div className="animitem">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
+            <div className="animitem w-full">
+                <Txs tx="Bridge" className="w-full" txs={getTxs} />
             </div>
         </div>
-        <div className="animitem">Token</div>
-        <AssetInput className="animitem" asset={from.symbol} amount={input} setAmount={setInput} balance={balance.result} />
-        <div className="animitem">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
-        <div className="animitem w-full">
-            <Txs tx="Bridge" className="w-full" txs={getTxs} />
-        </div>
-    </div>
+    </ConfigChainsProvider>
 }
