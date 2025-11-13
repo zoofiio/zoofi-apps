@@ -42,7 +42,7 @@ export type LntVaultConfig = {
   startTime?: bigint
   nftBalanceBy: 'zoofi' | 'rpc' | 'rpc-amount' | 'alchemy'
 
-  buyback?: Address
+  buyback?: boolean
 
   //
   deposit?: {
@@ -78,7 +78,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     icon: 'ZeroG',
     tit: '0G AI Alignment Node',
     info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
-    buyback: isLOCL ? zeroAddress : undefined,
+    buyback: true,
     deposit: {
       chain: arbitrumSepolia.id,
       vault: '0x4fb04da43850ebe6675ac8274ff6a2c993bc2f8b',
