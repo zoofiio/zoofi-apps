@@ -11,7 +11,7 @@ import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
 import { Address, PublicClient, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
-import { useTotalSupply } from './useToken'
+import { useBalance, useTotalSupply } from './useToken'
 
 export const FET_KEYS = {
   LntVault: (vc: LntVaultConfig) => `fetLntVault:${vc.vault}`,
@@ -245,6 +245,10 @@ export function useVTTotalSupply(vc: LntVaultConfig) {
   const vd = useLntVault(vc)
   const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, vc.chain, { symbol: 'VT' }))
   // byDeposit (other chain)
-  const vtByDepositTotal = useTotalSupply(getTokenBy(vd.result?.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' }))
-  return vtTotalSupply.result + vtByDepositTotal.result
+  const vtByDeposit = getTokenBy(vd.result?.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })
+  const vtByDepositTotal = useTotalSupply(vtByDeposit)
+
+  // adapter locked
+  const vtAdapterLocked = useBalance(vtByDeposit, vc.deposit?.vtAdapter)
+  return vtTotalSupply.result + vtByDepositTotal.result - vtAdapterLocked.result
 }

@@ -131,7 +131,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
-        {'Operation Fees : 5%'}
+        {`Operation Fees : ${vc.isZeroG ? 0 : 5}%`}
       </div>
     </div>
     <ConfigChainsProvider chains={[chainId]}>
@@ -297,7 +297,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
       >
         <LntVaultDeposit vc={vc} onSuccess={() => depositRef.current?.click()} />
       </SimpleDialog>
-      <SimpleDialog
+      {!vc.disWithdrawNFT && <SimpleDialog
         triggerRef={withdrawRef}
         triggerProps={{ className: 'flex-1' }}
         trigger={
@@ -305,7 +305,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
         }
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
-      </SimpleDialog>
+      </SimpleDialog>}
       <div className='mt-4 text-sm opacity-60 text-center'>
         {`1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
@@ -772,12 +772,7 @@ export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
         { tab: 'Vesting Token', content: <VT vc={vc} /> },
         ...(vc.ytEnable ? [{ tab: 'Yield Token', content: <YT vc={vc} /> }] : []),
         ...(vc.buyback ? [{ tab: 'Put Option', content: <LntVaultBuyback vc={vc} /> }] : []),
-        ...(vt2 ? [{
-          tab: 'Bridge', content: <BridgeToken
-            config={[vt2, vt]}
-            adapters={vc.deposit?.vtAdapter ? { [`${vt2.chain}:${vt2.address.toLowerCase() as Address}`]: vc.deposit.vtAdapter } : undefined}
-          />
-        }] : []),
+        ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt2, vt]} /> }] : []),
       ]}
     />
   </div>

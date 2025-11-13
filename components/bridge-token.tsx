@@ -22,10 +22,13 @@ const eidMaps: { [k: number]: number } = {
     [bscTestnet.id]: 40102,
 }
 
+const defAdapters: {
+    [k: `${number}:${Address}`]: Address
+} = {
+    [`${arbitrumSepolia.id}:0xad763df2355142dc944f24aeffdb7b1a6bf917f7`]: '0xB13038Dafc796A703A8204dD8559da1a0c27ae17'
+} as const
 export function BridgeToken({ config, adapters }: {
-    config: [Token, Token], adapters?: {
-        [k: `${number}:${Address}`]: Address
-    }
+    config: [Token, Token], adapters?: typeof defAdapters
 }) {
     const [t0, t1] = config
     const [[from, to], setFromTo] = useState<[Token, Token]>([t0, t1])
@@ -36,14 +39,15 @@ export function BridgeToken({ config, adapters }: {
     const inputBn = parseEthers(input, from.decimals)
     const balance = useBalance(from)
     const renderChain = (chain: Chain, label: string) => {
-        return <div className="flex gap-3 relative px-4 py-3 items-center rounded-lg border border-slate-200 dark:border-slate-600 text-sm">
+        return <div className="flex gap-3 relative p-4 items-center rounded-lg border border-slate-200 dark:border-slate-600 text-sm">
             <img src={(chain as any).iconUrl} className="w-5 h-5 rounded-full" />
             <div className="font-medium whitespace-nowrap">{chain.name}</div>
             <div className="absolute left-3 -top-2 bg-slate-200 dark:bg-slate-600 px-2 rounded-lg text-xs">{label}</div>
         </div>
     }
     const { address: user } = useAccount()
-    const address = adapters?.[`${from.chain}:${from.address.toLowerCase() as Address}`] ?? from.address
+    const mAdapters = adapters ?? defAdapters
+    const address = mAdapters[`${from.chain}:${from.address.toLowerCase() as Address}`] ?? from.address
     const getFee = async () => {
         if (!user) return undefined
         const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString() as Hex

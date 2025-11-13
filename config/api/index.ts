@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { keys } from 'es-toolkit/compat'
-import { Address, Hex, parseUnits } from 'viem'
+import { Address, Hex, numberToHex, parseUnits } from 'viem'
 import api from '../../utils/api'
 import { arbitrum, base, berachain, sepolia } from '../network'
 import { arbitrumSepolia } from 'viem/chains'
@@ -106,6 +106,23 @@ export const getNftsByAlchemy = async (chainId: number, nft: Address, owner: Add
     pageKey = nPK
   }
   return res
+}
+
+export const getNftsByMoralis = async (chainId: number, nft: Address, owner: Address) => {
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      'X-API-Key':
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjkzNmE0N2RkLWU1ZTYtNDZkZS04YjEwLTQ2MzhjMWEyYWQwOSIsIm9yZ0lkIjoiNDgxMTEyIiwidXNlcklkIjoiNDk0OTY3IiwidHlwZUlkIjoiNGJhOTQ3MDgtYTczMy00NjM3LWI0MTUtNTFmNDI2Mzg1ZjUzIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NjMwMTk5ODEsImV4cCI6NDkxODc3OTk4MX0.Pho4OP4PBlpwXbJjSwY9NBIhdYbhJyD9li3FxKXWgWA',
+    },
+  }
+  const datas = await fetch(
+    `https://deep-index.moralis.io/api/v2.2/${owner}/nft?chain=${numberToHex(chainId)}&format=decimal&limit=1000&exclude_spam=false&token_addresses%5B0%5D=${nft}`,
+    options,
+  ).then((response) => response.json())
+  
+  return []
 }
 
 export type NftTx = { blockNum: Hex; hash: Hex; from: Address; to: Address; erc721TokenId: Hex }

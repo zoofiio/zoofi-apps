@@ -1,6 +1,5 @@
-import { isLOCL } from '@/constants'
 import { Address, zeroAddress } from 'viem'
-import { arbitrum, arbitrumSepolia, bsc, bscTestnet, sepolia } from 'viem/chains'
+import { arbitrum, arbitrumSepolia, bscTestnet, sepolia } from 'viem/chains'
 import { TypeENV } from './env'
 import { zeroGmainnet } from './network'
 
@@ -40,10 +39,10 @@ export type LntVaultConfig = {
   info: string
   isIdle?: boolean
   startTime?: bigint
-  nftBalanceBy: 'zoofi' | 'rpc' | 'rpc-amount' | 'alchemy'
+  nftBalanceBy: 'zoofi' | 'rpc' | 'rpc-amount' | 'alchemy' | 'Moralis'
 
   buyback?: boolean
-
+  disWithdrawNFT?: boolean
   //
   deposit?: {
     chain: number
@@ -60,7 +59,7 @@ export type LntVaultConfig = {
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
     chain: bscTestnet.id,
-    nftBalanceBy: 'alchemy',
+    nftBalanceBy: 'zoofi',
     vault: '0x2faadaae8cee112b9e11b35f1c777fede3b0ffde',
     asset: '0x8b6d3c437326c46331f4b608c2f5c6c23ae2f836',
     protocol: '0x734623e7a70b6273fa4228dcf525643256d100c0',
@@ -79,6 +78,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     tit: '0G AI Alignment Node',
     info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
     buyback: true,
+    disWithdrawNFT: true,
     deposit: {
       chain: arbitrumSepolia.id,
       vault: '0x4fb04da43850ebe6675ac8274ff6a2c993bc2f8b',

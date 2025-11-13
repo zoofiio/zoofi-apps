@@ -120,11 +120,11 @@ export const arbitrumSepolia = defineChain({
 
 export const bsc = defineChain({
   ...bscMain,
-  iconUrl: `${BASE_PATH}/bsc.png`,
+  iconUrl: `${BASE_PATH}/bsc.svg`,
 })
 export const bscTestnet = defineChain({
   ...bscTest,
-  iconUrl: `${BASE_PATH}/bsc.png`,
+  iconUrl: `${BASE_PATH}/bsc.svg`,
 })
 
 export const apiBatchConfig = { batchSize: 30, wait: 300 }
