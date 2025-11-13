@@ -120,10 +120,12 @@ export const arbitrumSepolia = defineChain({
 
 export const bsc = defineChain({
   ...bscMain,
+  name: 'BSC',
   iconUrl: `${BASE_PATH}/bsc.svg`,
 })
 export const bscTestnet = defineChain({
   ...bscTest,
+  name: 'BSC Test',
   iconUrl: `${BASE_PATH}/bsc.svg`,
 })
 
