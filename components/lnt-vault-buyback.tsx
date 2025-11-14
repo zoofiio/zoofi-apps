@@ -14,7 +14,7 @@ import { useState } from "react";
 import { formatUnits, toHex } from "viem";
 import { useAccount } from "wagmi";
 import { Txs, TXSType, withTokenApprove } from "./approve-and-tx";
-import { AssetInput } from "./asset-input";
+import { AssetInput } from "./input-asset";
 import { CoinIcon } from "./icons/coinicon";
 import { Tip } from "./ui/tip";
 

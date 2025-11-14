@@ -26,7 +26,7 @@ import { toast } from 'sonner'
 import { Address, erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { TX, TxConfig, Txs, withTokenApprove } from './approve-and-tx'
-import { AssetInput } from './asset-input'
+import { AssetInput } from './input-asset'
 import { BridgeToken } from './bridge-token'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
@@ -453,7 +453,6 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const { address } = useAccount()
   const vd = useLntVault(vc)
   const poolkey = useLntHookPoolkey(vc)
-  const [isToggled, toggle] = useToggle(false)
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
@@ -483,6 +482,7 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     }, 300), [token0IsInput1])
   const { data: [liquidity, amount0Max, amount1Max], isFetching: isFetchingOut } = useQuery({
     queryKey: calcKey,
+    staleTime: 0,
     initialData: [0n, 0n, 0n],
     throwOnError(error, query) {
       console.error(error);

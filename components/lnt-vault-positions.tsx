@@ -14,6 +14,8 @@ import { useAccount } from "wagmi";
 import { abiRewardManager } from "@/config/abi/abiRewardManager";
 import { abiLntVault } from "@/config/abi/abiLNTVault";
 import { Tip } from "./ui/tip";
+import { Fragment } from "react";
+import { getChainName } from "@/config/network";
 const claimColSize = 1.3;
 const statuColSize = 1.6
 
@@ -36,11 +38,24 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     const logs = useLntVaultLogs(vc)
     const apy = calcVtApy(vc, vd.result, logs.result)
     const vt = getTokenBy(vd.result?.VT, chainId, { symbol: 'VT' })!
+    const vt2 = getTokenBy(vd.result?.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })!
     const t = getTokenBy(vd.result?.T, chainId, { symbol: 'T' })!
     const vtBalance = useBalance(vt)
+    const vt2Balance = useBalance(vt2)
     const data = vd.result ? [[
         <TokenSymbol key={'vt'} t={vt} />,
-        displayBalance(vtBalance.result, undefined, vt.decimals),
+        <Fragment key={'vtValue'}>
+
+            {vt2 ? <Tip node={<div className="underline underline-offset-2">{displayBalance(vtBalance.result + vt2Balance.result, undefined, vt.decimals)}</div>}>
+                <div>
+                    {getChainName(vc.chain)}: {displayBalance(vtBalance.result, undefined, vt.decimals)}
+                </div>
+                <div>
+                    {getChainName(vc.deposit!.chain)}: {displayBalance(vt2Balance.result, undefined, vt.decimals)}
+                </div>
+            </Tip>
+                : displayBalance(vtBalance.result, undefined, vt.decimals)}
+        </Fragment>,
         formatPercent(apy),
         vd.result.closed ? 'Mature' : 'Active',
         vd.result.closed ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : `1 ${vt.symbol} is equal to 1 ${t.symbol} at maturity`,

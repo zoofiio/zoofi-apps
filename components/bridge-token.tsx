@@ -4,9 +4,9 @@ import { useBalance } from "@/hooks/useToken";
 import { parseEthers } from "@/lib/utils";
 import { useState } from "react";
 import { FaArrowDown } from "react-icons/fa6";
-import { Address, Chain, Hex, padHex } from "viem";
+import { Address, Chain, Hex, isAddress, padHex } from "viem";
 import { Txs, withTokenApprove } from "./approve-and-tx";
-import { AssetInput } from "./asset-input";
+import { AssetInput } from "./input-asset";
 import { useQuery } from "@tanstack/react-query";
 import { useCalcKey } from "@/hooks/useCalcKey";
 import { getPC } from "@/providers/publicClient";
@@ -15,6 +15,7 @@ import { useAccount } from "wagmi";
 import { Options } from '@layerzerolabs/lz-v2-utilities'
 import { displayBalance } from "@/utils/display";
 import { ConfigChainsProvider } from "./support-chains";
+import { AddressInput } from "./input-address";
 const eidMaps: { [k: number]: number } = {
     [arbitrum.id]: 30110,
     [arbitrumSepolia.id]: 40231,
@@ -30,12 +31,15 @@ const defAdapters: {
 export function BridgeToken({ config, adapters }: {
     config: [Token, Token], adapters?: typeof defAdapters
 }) {
+    const { address: user } = useAccount()
     const [t0, t1] = config
     const [[from, to], setFromTo] = useState<[Token, Token]>([t0, t1])
     const fromChain = SUPPORT_CHAINS.find(c => c.id === from.chain)!
     const toChain = SUPPORT_CHAINS.find(c => c.id === to.chain)!
     const toggleFromTo = () => setFromTo([to, from])
     const [input, setInput] = useState<string>("")
+    const [toAddress, setToAddress] = useState<string>("")
+    const toUser = toAddress || user
     const inputBn = parseEthers(input, from.decimals)
     const balance = useBalance(from)
     const renderChain = (chain: Chain, label: string) => {
@@ -45,7 +49,6 @@ export function BridgeToken({ config, adapters }: {
             <div className="absolute left-3 -top-2 bg-slate-200 dark:bg-slate-600 px-2 rounded-lg text-xs">{label}</div>
         </div>
     }
-    const { address: user } = useAccount()
     const mAdapters = adapters ?? defAdapters
     const address = mAdapters[`${from.chain}:${from.address.toLowerCase() as Address}`] ?? from.address
     const getFee = async () => {
@@ -106,9 +109,11 @@ export function BridgeToken({ config, adapters }: {
             </div>
             <div className="animitem">Token</div>
             <AssetInput className="animitem" asset={from.symbol} amount={input} setAmount={setInput} balance={balance.result} />
+            <div className="animitem">To</div>
+            <AddressInput className="animitem" value={toUser} setValue={setToAddress} />
             <div className="animitem">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
             <div className="animitem w-full">
-                <Txs tx="Bridge" className="w-full" txs={getTxs} />
+                <Txs tx="Bridge" disabled={!toUser || !isAddress(toUser)} className="w-full" txs={getTxs} />
             </div>
         </div>
     </ConfigChainsProvider>
