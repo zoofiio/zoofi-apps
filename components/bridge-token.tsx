@@ -87,7 +87,7 @@ export function BridgeToken({ config, adapters }: {
                 functionName: 'send',
                 args: [{
                     dstEid: eidMaps[to.chain],
-                    to: padHex(wc.account.address, { size: 32 }),
+                    to: padHex(toUser as Address, { size: 32 }),
                     amountLD: inputBn,
                     minAmountLD: inputBn,
                     extraOptions: options,
