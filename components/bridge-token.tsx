@@ -16,6 +16,7 @@ import { Options } from '@layerzerolabs/lz-v2-utilities'
 import { displayBalance } from "@/utils/display";
 import { ConfigChainsProvider } from "./support-chains";
 import { AddressInput } from "./input-address";
+import { waitLayerZeroSend } from "@/config/layerzero";
 const eidMaps: { [k: number]: number } = {
     [arbitrum.id]: 30110,
     [arbitrumSepolia.id]: 40231,
@@ -113,7 +114,13 @@ export function BridgeToken({ config, adapters }: {
             <AddressInput className="animitem" value={toUser} setValue={setToAddress} />
             <div className="animitem">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
             <div className="animitem w-full">
-                <Txs tx="Bridge" disabled={!toUser || !isAddress(toUser)} className="w-full" txs={getTxs} />
+                <Txs tx="Bridge"
+                    beforeTxSuccess={(hashs) => waitLayerZeroSend(from.chain, hashs[hashs.length - 1])}
+                    onTxSuccess={() => setInput('')}
+                    disabled={!toUser || !isAddress(toUser)}
+                    className="w-full"
+                    txs={getTxs}
+                />
             </div>
         </div>
     </ConfigChainsProvider>

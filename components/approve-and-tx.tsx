@@ -2,7 +2,7 @@ import { useApproves, useNftApproves } from '@/hooks/useApprove'
 import { useWrapContractWrite } from '@/hooks/useWrapContractWrite'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, erc20Abi, PublicClient, RpcSchema, SimulateContractParameters, TransactionReceipt, WalletClient, zeroAddress } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionArgs, ContractFunctionName, encodeFunctionData, erc20Abi, Hex, PublicClient, RpcSchema, SimulateContractParameters, TransactionReceipt, WalletClient, zeroAddress } from 'viem'
 
 import { getTokenBy } from '@/config/tokens'
 import { useCurrentChainId, useNetworkWrong } from '@/hooks/useCurrentChainId'
@@ -178,12 +178,13 @@ const supportedSendCalls: number[] = isPROD ? [] : [mainnet.id, optimism.id, bsc
 
 export type TXSType = TX[] | ((args: { pc: PublicClient, wc: WalletClient<Transport, Chain, Account, RpcSchema> }) => Promise<TX[]> | TX[])
 export function Txs({
-  className, tx, txs, disabled, disableProgress, beforeSimulate, busyShowTxet = true, toast = true, onTxSuccess }:
+  className, tx, txs, disabled, disableProgress, beforeSimulate, busyShowTxet = true, toast = true, onTxSuccess, beforeTxSuccess }:
   {
     disableProgress?: boolean,
     beforeSimulate?: boolean,
     className?: string, tx: string, disabled?: boolean, txs: TXSType, busyShowTxet?: boolean, toast?: boolean
     onTxSuccess?: () => void
+    beforeTxSuccess?: (hashs: Hex[]) => Promise<void>
   }) {
   const { data: wc } = useWalletClient()
   // const { sendCallsAsync } = useSendCalls()
@@ -209,6 +210,7 @@ export function Txs({
         })
         const res = await wc.waitForCallsStatus({ id, throwOnFailure: true, retryCount: Infinity })
         if (res.status == 'success') {
+          await beforeTxSuccess?.((res.receipts ?? []).map(r => r.transactionHash))
           toast && tos.success("Transactions Success")
           onTxSuccess?.()
         }
@@ -218,14 +220,17 @@ export function Txs({
         if (msg && (msg.includes('wallet_sendCalls') || msg.includes("EIP-7702 not supported"))) {
           let progress = 0;
           showTxsStat && useTxsStore.setState({ txs: calls, progress })
+          const callHashes: Hex[] = []
           for (const item of calls) {
             const txconfig = beforeSimulate ? (await pc.simulateContract(item)).request : item;
             const tx = await wc.writeContract(txconfig)
+            callHashes.push(tx)
             const res = await pc.waitForTransactionReceipt({ hash: tx, confirmations: 1 })
             if (res.status !== 'success') throw new Error('Transactions Reverted')
             progress++
             showTxsStat && useTxsStore.setState({ progress })
           }
+          await beforeTxSuccess?.(callHashes)
           toast && tos.success("Transactions Success")
           useTxsStore.setState({ progress: 0, txs: [] })
           onTxSuccess?.()
