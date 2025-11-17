@@ -15,14 +15,9 @@ import { QueryParamProvider } from 'use-query-params';
 
 import { ConfigChainsProvider } from '@/components/support-chains';
 import { useThemeState } from '@/components/theme-mode';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Chain, createClient, http } from 'viem';
 
-const client = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/45897/wand/version/latest',
-  cache: new InMemoryCache(),
-})
 
 const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3, refetchOnMount: 'always', staleTime: 1000 } } })
 const storage = createStorage({
@@ -63,18 +58,16 @@ const config = createConfig({
 export function Providers({ children, supportChains = SUPPORT_CHAINS }: { children: React.ReactNode, supportChains?: readonly [Chain, ...Chain[]] }) {
   const theme = useThemeState((s) => s.theme)
   return (
-    <ApolloProvider client={client}>
-      <WagmiProvider config={config}>
-        <ConfigChainsProvider chains={supportChains.map(item => item.id)}>
-          <QueryClientProvider client={qClient}>
-            <QueryParamProvider adapter={NextAdapterApp}>
-              <RainbowKitProvider locale='en-US' modalSize='compact' theme={theme === 'dark' ? darkTheme({ accentColor: 'green' }) : lightTheme()}>
-                {children}
-              </RainbowKitProvider>
-            </QueryParamProvider>
-          </QueryClientProvider>
-        </ConfigChainsProvider>
-      </WagmiProvider>
-    </ApolloProvider>
+    <WagmiProvider config={config}>
+      <ConfigChainsProvider chains={supportChains.map(item => item.id)}>
+        <QueryClientProvider client={qClient}>
+          <QueryParamProvider adapter={NextAdapterApp}>
+            <RainbowKitProvider locale='en-US' modalSize='compact' theme={theme === 'dark' ? darkTheme({ accentColor: 'green' }) : lightTheme()}>
+              {children}
+            </RainbowKitProvider>
+          </QueryParamProvider>
+        </QueryClientProvider>
+      </ConfigChainsProvider>
+    </WagmiProvider>
   )
 }

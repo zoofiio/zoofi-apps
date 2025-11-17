@@ -44,6 +44,11 @@ export const TOKENS: Token[] = [
   // v0G OFT
   { address: '0x25Bcf9957d6f186C3f1dDD0Ce35853B16Cb81639', symbol: 'v0G', decimals: 18, chain: bscTestnet.id },
   { address: '0x48e497862069034a6229e6cf59b7ebdf3f593a88', symbol: 'lp0G', decimals: 18, chain: bscTestnet.id },
+
+  // for Filecoin
+  { address: '0xc87B37a581ec3257B734886d9d3a581F5A9d056d', symbol: 'Fil', decimals: 18, chain: arbitrum.id },
+  { address: '0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef47', symbol: 'vFil', decimals: 18, chain: arbitrum.id },
+  { address: '0xbf4b4A83708474528A93C123F817e7f2A0637a89', symbol: 'lpFil', decimals: 18, chain: arbitrum.id },
 ]
 
 export const TOKENS_MAP: { [k: `${number}_${Address}`]: Token } = TOKENS.reduce((map, item) => {

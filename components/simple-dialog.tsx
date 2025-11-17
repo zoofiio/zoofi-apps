@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import * as Dialog from '@radix-ui/react-dialog'
-import { Dispatch, Ref, SetStateAction, useImperativeHandle, useState } from 'react'
+import { Dispatch, Ref, SetStateAction } from 'react'
 import { IoIosCloseCircleOutline } from 'react-icons/io'
 
 export function SimpleDialog({
@@ -35,9 +35,9 @@ export function SimpleDialog({
   // }), [])
   return (
     <Dialog.Root open={open} defaultOpen={defaultOpen} {...props}>
-      {Boolean(trigger) && <Dialog.Trigger ref={triggerRef} {...(triggerProps || {})}>{trigger}</Dialog.Trigger>}
+      {Boolean(trigger) && <Dialog.Trigger asChild ref={triggerRef} {...(triggerProps || {})}>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
-        <Dialog.Overlay className='fixed top-0 left-0 inset-0 z-50 bg-black/60' />
+        <div className='w-screen h-screen fixed top-0 left-0 inset-0 z-50 bg-black/60' />
         <Dialog.Content
           onEscapeKeyDown={(e) => {
             disableClose && e.stopPropagation()

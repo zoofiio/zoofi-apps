@@ -16,7 +16,6 @@ import { useStore } from '@/providers/useBoundStore'
 import { useBVault, useBVaultApy, useBVaultBoost, useCalcClaimable, useEpochesData, useUpBVaultForUserAction } from '@/providers/useBVaultsData'
 import { displayBalance } from '@/utils/display'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ProgressBar } from '@tremor/react'
 import { now } from 'es-toolkit/compat'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
@@ -37,6 +36,7 @@ import { BBtn } from './ui/bbtn'
 import { Switch } from './ui/switch'
 import { Tip } from './ui/tip'
 import { itemClassname, renderChoseSide, renderStat, renderToken } from './vault-card-ui'
+import { ProgressBar } from './ui/progress'
 
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
@@ -329,7 +329,7 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
               <span>{`Epoch ${epoch.epochId.toString()}`}</span>
               <span className='scale-90'>~{fmtDuration((epoch.startTime + epoch.duration) * 1000n - BigInt(new Date().getTime()))} remaining</span>
             </div>
-            <ProgressBar value={calcProgress(epoch)} className='mt-2 rounded-full overflow-hidden' />
+            <ProgressBar progress={calcProgress(epoch)} className='mt-2' />
             <div className='flex justify-between items-center'>
               <span className='scale-90'>{fmtDate(epoch.startTime * 1000n, FMT.ALL2)}</span>
               <span className='scale-90'>{fmtDate((epoch.startTime + epoch.duration) * 1000n, FMT.ALL2)}</span>

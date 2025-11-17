@@ -1,19 +1,19 @@
 ; (BigInt.prototype as any).toJSON = function () {
   return this.toString()
 }
+import '@rainbow-me/rainbowkit/styles.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import '@rainbow-me/rainbowkit/styles.css'
 import 'swiper/css'
-import 'swiper/css/pagination'
 import 'swiper/css/navigation'
+import 'swiper/css/pagination'
 import './globals.css'
 
 // import PageLayout from './pagelayout'
 import Script from 'next/script'
-import dynamic from 'next/dynamic'
+import PageLayout from './pagelayout'
 const inter = Inter({ subsets: ['latin'] })
-const PageLayout = dynamic(() => import("./pagelayout"), { ssr: false })
+// const PageLayout = dynamic(() => import("./pagelayout"), { ssr: false })
 
 const MMetas = {
   title: 'Zoo Finance',

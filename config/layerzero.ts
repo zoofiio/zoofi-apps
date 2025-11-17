@@ -1,7 +1,7 @@
 import { Hex } from 'viem'
 import { getChain } from './network'
 
-export async function waitLayerZeroSend(chainId: number, txHash: Hex, maxAttempts = 20, intervalMs = [40000, 5000]) {
+export async function waitLayerZeroSend(chainId: number, txHash: Hex, maxAttempts = 20, intervalMs = [30000, 5000]) {
   const chain = getChain(chainId)
   if (!chain) {
     throw new Error(`Unsupported chainId: ${chainId}`)

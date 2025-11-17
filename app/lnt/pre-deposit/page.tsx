@@ -15,7 +15,7 @@ export default function Page() {
                     <Link target="_blank" href={'https://zoofi.io/lnt'} className="underline underline-offset-2">Learn more about LNT</Link>
                 </div>
             </div>
-            {nodelicense.map(nl => <PreDeposit key={nl.name} data={nl} />)}
+            {nodelicense.map((nl, i) => <PreDeposit key={`preDeposit_${i}`} data={nl} />)}
         </div>
     </PageWrap>
 

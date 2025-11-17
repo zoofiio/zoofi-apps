@@ -240,7 +240,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
       <div className='w-full min-w-max gap-4 grid grid-cols-[1.6fr_1fr_1fr_0.8fr_1.2fr_1.8fr]'>
         <div className='flex items-center gap-5 shrink-0'>
           <CoinIcon symbol={vc.projectIcon} size={120} className='object-contain' style={{ height: 60 }} />
-          <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet })} />
+          <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet||vc.test })} />
         </div>
         <div className={itemClassname}>
           <div className={itemTitClassname}>Total Delegated</div>
@@ -290,18 +290,16 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
     <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto'>
       <SimpleDialog
         triggerRef={depositRef}
-        triggerProps={{ className: 'flex-1' }}
         trigger={
-          <BBtn className='flex-1'>Deposit</BBtn>
+          <BBtn className='shrink-0'>Deposit</BBtn>
         }
       >
         <LntVaultDeposit vc={vc} onSuccess={() => depositRef.current?.click()} />
       </SimpleDialog>
       {!vc.disWithdrawNFT && <SimpleDialog
         triggerRef={withdrawRef}
-        triggerProps={{ className: 'flex-1' }}
         trigger={
-          <BBtn className='flex-1'>Withdraw</BBtn>
+          <BBtn className='shrink-0'>Withdraw</BBtn>
         }
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />

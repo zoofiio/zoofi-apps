@@ -75,6 +75,10 @@ const SupportICONS: { [k: string]: string } = {
   ATH: 'ATH.png',
   vATH: 'vATH.png',
   lpATH: 'lpATH.png',
+  Filecoin: 'Filecoin.svg',
+  Fil: 'Filecoin.svg',
+  vFil: 'vFil.svg',
+  lpFil: 'lpFil.svg',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {

@@ -24,6 +24,23 @@ export const FET_KEYS = {
 }
 export async function fetLntVault(vc: LntVaultConfig) {
   const pc = getPC(vc.chain)
+  if (vc.vault === '0xF8DFAA0967c812a43D02059F2B14786dCeB84e8B') {
+    return Promise.resolve({
+      NFT: '0xC227e25544EdD261A9066932C71a25F4504972f1' as Address,
+      T: '0xc87B37a581ec3257B734886d9d3a581F5A9d056d' as Address,
+      VT: '0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef47' as Address,
+      VTbyDeposit: undefined as Address | undefined,
+      YT: '0x0000000000000000000000000000000000000000' as Address,
+      aVT: 43992000000000000000000n,
+      activeDepositCount: 526n,
+      closed: false,
+      expiryTime: 1844467200n,
+      startTime: 1812844800n,
+      tokenPot: '0x97052676147909B029beC5A1943ce1E8e38128BD' as Address,
+      vATOracle: '0xD7Fc9ab355567aF429FB5bB3B535eAB4C7E48567' as Address,
+      vtSwapPoolHook: '0xbf4b4A83708474528A93C123F817e7f2A0637a89' as Address,
+    })
+  }
   if (vc.deposit) {
     const dpc = getPC(vc.deposit.chain)
     return promiseAll({

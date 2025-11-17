@@ -1,7 +1,7 @@
 import { RefObject, useEffect, useRef } from 'react'
 
 const memo: {
-  [k: string]: RefObject<HTMLElement>[]
+  [k: string]: RefObject<HTMLElement | null>[]
 } = {}
 
 export function useSyncHeight<T extends HTMLElement>(key: string) {

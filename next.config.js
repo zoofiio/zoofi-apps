@@ -4,10 +4,6 @@ console.info('BASE_PATH', basePath)
 const nextConfig = {
   output: 'export',
   basePath,
-  webpack: (config) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false }
-    return config
-  },
   typescript: {
     ignoreBuildErrors: true,
   },

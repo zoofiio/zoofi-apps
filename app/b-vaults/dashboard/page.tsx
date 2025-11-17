@@ -12,8 +12,6 @@ import { fmtPercent, getBigint } from '@/lib/utils'
 import { useStore } from '@/providers/useBoundStore'
 import { calcBVaultPTApy } from '@/providers/useBVaultsData'
 import { displayBalance } from '@/utils/display'
-import { TableCell as _TableCell } from '@tremor/react'
-
 import { useBvaultROI } from '@/hooks/useBVaultROI'
 import { ReactNode, useMemo } from 'react'
 
@@ -97,11 +95,11 @@ function BVaultsItem() {
         </div>
         {lp && (
           <div style={{ width: totalLeftWidth }}>
-            <div key='icon' className='flex gap-2 items-center'>
+            <div className='flex gap-2 items-center'>
               {<CoinIcon symbol={baseSymbol} size={14} />}
               <span>{displayBalance(getBigint(bvaults, [bvc.vault, 'lpBase']))}</span>
             </div>
-            <div key='icon' className='flex gap-2 items-center'>
+            <div className='flex gap-2 items-center'>
               {<CoinIcon symbol={quoteSymbol} size={14} />}
               <span>{displayBalance(getBigint(bvaults, [bvc.vault, 'lpQuote']))}</span>
             </div>
