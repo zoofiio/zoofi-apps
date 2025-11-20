@@ -19,6 +19,7 @@ import { CoinIcon } from "./icons/coinicon";
 import { Tip } from "./ui/tip";
 
 export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
+    const buybackPool = vc.buybackPool ?? vc.vault;
     const { address: user } = useAccount()
     const vd = useLntVault(vc)
     const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
@@ -30,12 +31,12 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         key: `BuybackDatas:${vc.vault}`,
         fetfn: async () => {
             const pc = getPC(vc.chain)
-            const potCount = await pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'stakingTokenPotCount' })
+            const potCount = await pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'stakingTokenPotCount' })
             const chunks = range(parseInt(potCount.toString())).map(item => BigInt(item))
             return promiseAll({
-                pots: Promise.all(chunks.map(index => pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'stakingTokenPots', args: [index] }))),
-                buybackDustAmountVT: pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'buybackDustAmountVT' }),
-                minStakeAmountVT: pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'minStakeAmountVT' }),
+                pots: Promise.all(chunks.map(index => pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'stakingTokenPots', args: [index] }))),
+                buybackDustAmountVT: pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'buybackDustAmountVT' }),
+                minStakeAmountVT: pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'minStakeAmountVT' }),
                 VestingRate: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'paramValue', args: [toHex('VestingRate', { size: 32 })] })
             })
         }
@@ -54,7 +55,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         initResult: 0n,
         fetfn: async () => {
             const pc = getPC(vc.chain)
-            return pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'totalStakingAmountVT', args: [pots[pots.length - 1]] })
+            return pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'totalStakingAmountVT', args: [pots[pots.length - 1]] })
         }
     })
     const userPendingSale = useFet({
@@ -62,7 +63,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         initResult: 0n,
         fetfn: async () => {
             const pc = getPC(vc.chain)
-            return pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'userStakingAmountVT', args: [pots[pots.length - 1], user!] })
+            return pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'userStakingAmountVT', args: [pots[pots.length - 1], user!] })
         }
     })
     const userSeltted = useFet({
@@ -70,7 +71,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         initResult: 0n,
         fetfn: async () => {
             const pc = getPC(vc.chain)
-            const boughts = await Promise.all(pots.map(pot => pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'boughtAmountT', args: [pot, user!] })))
+            const boughts = await Promise.all(pots.map(pot => pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'boughtAmountT', args: [pot, user!] })))
             return boughts.reduce((sum, item) => sum + item, 0n)
         }
     })
@@ -79,10 +80,10 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         if (inputBn > vtBalance.result) throw new Error("Balance too low")
         return withTokenApprove({
             pc, user: wc.account.address,
-            approves: [{ spender: vc.vault, token: vt.address, amount: inputBn }],
+            approves: [{ spender: buybackPool, token: vt.address, amount: inputBn }],
             tx: {
                 abi: abiZeroGLntBuyback,
-                address: vc.vault,
+                address: buybackPool,
                 functionName: 'stake',
                 args: [inputBn]
             }
@@ -92,22 +93,22 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         if (inputBn > userPendingSale.result) throw new Error("Input amount too large")
         return [{
             abi: abiZeroGLntBuyback,
-            address: vc.vault,
+            address: buybackPool,
             functionName: 'withdraw',
             args: [pots[pots.length - 1], inputBn]
         }]
     }
     const getCalimTxs: TXSType = async ({ pc, wc }) => {
-        const boughts = await Promise.all(pots.map(pot => pc.readContract({ abi: abiZeroGLntBuyback, address: vc.vault, functionName: 'boughtAmountT', args: [pot, user!] })))
+        const boughts = await Promise.all(pots.map(pot => pc.readContract({ abi: abiZeroGLntBuyback, address: buybackPool, functionName: 'boughtAmountT', args: [pot, user!] })))
         return boughts.map((bought, i) => ({ bought, pot: pots[i] })).filter(item => item.bought > 100n).map(item => ({
             abi: abiZeroGLntBuyback,
-            address: vc.vault,
+            address: buybackPool,
             functionName: 'claimBoughtT',
             args: [item.pot]
         }))
     }
     return <div className="flex flex-col gap-4 w-full text-sm">
-        <div className="animitem text-sm font-semibold">You can gradually convert VT to T here. <Link href={'https://docs.zoofi.io/lnt-vault/product-design/how-does-lnt-work/vt-value-anchoring'} target="_blank" className="underline underline-offset-2">Read more</Link></div>
+        <div className="animitem text-sm font-semibold">You can gradually convert VT to T here. <Link href={vc.isLVT ? 'https://docs.zoofi.io/lvt-vault/background' : 'https://docs.zoofi.io/lnt-vault/background'} target="_blank" className="underline underline-offset-2">Read more</Link></div>
         <div className="animitem flex flex-wrap justify-between items-center gap-x-5">
             <div className="flex gap-4 items-center">
                 <div>Next batch</div>

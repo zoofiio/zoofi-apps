@@ -227,33 +227,42 @@ export function LntOperators({ vc }: { vc: LntVaultConfig }) {
 export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
-  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center"
+  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center text-black"
   const itemTitClassname = "opacity-60 text-xs font-semibold"
   const vtTotalSupply = useVTTotalSupply(vc)
   const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
-  const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
-
+  // const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
+  const t = getTokenBy(vd.result?.T, vc.chain, { symbol: 'T' })
   const { remainStr } = useLntVaultTimes(vc)
   const chain = useCurrentChain()
   return (
-    <div className={cn('animitem card overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
-      <div className='w-full min-w-max gap-4 grid grid-cols-[1.6fr_1fr_1fr_0.8fr_1.2fr_1.8fr]'>
-        <div className='flex items-center gap-5 shrink-0'>
-          <CoinIcon symbol={vc.projectIcon} size={120} className='object-contain' style={{ height: 60 }} />
-          <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet||vc.test })} />
+    <div className={cn('animitem rounded-2xl bg-white border border-[#E4E4E7] text-[#64748B] overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
+      <div className='w-full min-w-max gap-4 grid grid-cols-[2.3fr_1fr_1fr_1.2fr_1.8fr]'>
+        <div className='flex items-center gap-2.5 shrink-0'>
+          <CoinIcon symbol={vc.projectIcon} size={40} />
+          <span className='text-sm font-semibold'>{vc.tit}</span>
+          <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet || vc.test })} />
         </div>
         <div className={itemClassname}>
-          <div className={itemTitClassname}>Total Delegated</div>
-          <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
+          {
+            vc.isLVT ? <>
+              <div className={itemTitClassname}>Total Locked</div>
+              <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, undefined, t?.decimals)}</div>
+            </> : <>
+              <div className={itemTitClassname}>Total Delegated</div>
+              <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
+            </>
+          }
+
         </div>
         <div className={itemClassname}>
           <div className={itemTitClassname}>VT Supply</div>
           <div>{displayBalance(vtTotalSupply)}</div>
         </div>
-        <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
+        {/* <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
           <div className={itemTitClassname}>YT Supply</div>
           <div>{displayBalance(ytTotalSupply.result)}</div>
-        </div>
+        </div> */}
         <div className={itemClassname}>
           <div className={itemTitClassname}>VT Buyback</div>
           <div className="flex w-36 items-center ">
@@ -314,6 +323,8 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
 
 export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   const { progressPercent, remainStr } = useLntVaultTimes(vc)
+  const vd = useLntVault(vc)
+  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   return <div style={{
     backdropFilter: 'blur(20px)'
   }} className="animitem card bg-white flex gap-5 h-full col-span-2 flex-wrap justify-center md:flex-nowrap" >
@@ -341,7 +352,15 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
         />
       </div>
     </div>
-    <LNTDepositWithdraw vc={vc} />
+    {vc.isLVT ? <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
+      <span className=''>Total Locked</span>
+      <div className='font-bold'> {displayBalance(vd.result?.activeDepositCount, undefined, t.decimals)}</div>
+      <div className='flex items-center gap-2.5'>
+        <CoinIcon symbol={t.symbol} size={20} />
+        {t.symbol}
+      </div>
+    </div> : <LNTDepositWithdraw vc={vc} />}
+
   </div>
 }
 

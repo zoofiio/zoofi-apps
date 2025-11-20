@@ -64,6 +64,14 @@ export const abiLntVault = parseAbi([
   'function unpause() external',
 ])
 
+
+export const abiLVTVault = parseAbi([
+  'function buyback(uint256 amountT) external',
+  'function updateaVT(uint256 newAVT) external',
+  'function mintVestingTokens(address to, uint256 amount) external',
+  'function burnVestingTokens(uint256 amount) external',
+])
+
 export const abiLntProtocol = parseAbi([
   'function owner() public view returns (address)',
   'function transferOwnership(address newowner) public',

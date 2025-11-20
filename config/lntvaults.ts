@@ -1,5 +1,5 @@
 import { Address, zeroAddress } from 'viem'
-import { arbitrum, arbitrumSepolia, bscTestnet, sepolia } from 'viem/chains'
+import { arbitrum, arbitrumSepolia, bsc, bscTestnet, sepolia } from 'viem/chains'
 import { TypeENV } from './env'
 import { zeroGmainnet } from './network'
 
@@ -38,10 +38,11 @@ export type LntVaultConfig = {
   tit: string
   info: string
   isIdle?: boolean
-  startTime?: bigint
+  startTime: bigint
   nftBalanceBy: 'zoofi' | 'rpc' | 'rpc-amount' | 'alchemy' | 'Moralis'
 
   buyback?: boolean
+  buybackPool?: Address
   disWithdrawNFT?: boolean
   //
   deposit?: {
@@ -58,6 +59,7 @@ export type LntVaultConfig = {
 
   // lvt
   isLVT?: boolean
+
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
@@ -75,7 +77,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     vtActive: true,
     ytEnable: false,
     lpYields: false,
-    projectIcon: 'ZeroG',
+    projectIcon: '0G',
     startTime: 1762838215n,
     icon: 'ZeroG',
     tit: '0G AI Alignment Node',
@@ -112,7 +114,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     vtActive: true,
     ytEnable: false,
     lpYields: false,
-    projectIcon: 'Aethir2',
+    projectIcon: 'ATH',
     startTime: 1753955184n,
     icon: 'aethir',
     tit: 'Aethir Checker Node',
@@ -134,55 +136,53 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     vtActive: true,
     ytEnable: false,
     lpYields: false,
-    projectIcon: 'ZeroG',
+    projectIcon: '0G',
     startTime: 1758171155n,
     icon: 'ZeroG',
     tit: '0G AI Alignment Node',
     info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
   },
-  {
-    chain: sepolia.id,
-    nftBalanceBy: 'alchemy',
-    vault: '0xb8aa29c0688c53f4dd875b1d0702de69bf52df7d',
-    asset: '0x0993a80ee5bb32b73f61c71662f53c599ee4f829',
-    protocol: '0xcdf86f49303fd5350ece1f1a27b9d6083851ae04',
-    onEnv: ['test', 'prod'],
-    MockT: '0x6f00ca3db3ee2b72d8ddd434ae0e31571fd70f03',
-    MockaVTOracle: '0x1e349be7cacbd558bf39ba38763359f541ed07ca',
-    MockNodeDelegator: '0x48fdfe0ebc720262d4157ff9ea81d0d92d544c6d',
-    MockRewardDistribuitor: '0x82d6a9b59c8aa157dca8ef1a15f36406198da3d5',
-    lpTYT: zeroAddress,
-    vtActive: true,
-    ytEnable: true,
-    lpYields: true,
-    projectIcon: 'ReppoNft',
-    icon: 'ReppoNft',
-    tit: 'Reppo Network LNT Vault',
-    info: 'Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.',
-  },
+  // {
+  //   chain: sepolia.id,
+  //   nftBalanceBy: 'alchemy',
+  //   vault: '0xb8aa29c0688c53f4dd875b1d0702de69bf52df7d',
+  //   asset: '0x0993a80ee5bb32b73f61c71662f53c599ee4f829',
+  //   protocol: '0xcdf86f49303fd5350ece1f1a27b9d6083851ae04',
+  //   onEnv: ['test', 'prod'],
+  //   MockT: '0x6f00ca3db3ee2b72d8ddd434ae0e31571fd70f03',
+  //   MockaVTOracle: '0x1e349be7cacbd558bf39ba38763359f541ed07ca',
+  //   MockNodeDelegator: '0x48fdfe0ebc720262d4157ff9ea81d0d92d544c6d',
+  //   MockRewardDistribuitor: '0x82d6a9b59c8aa157dca8ef1a15f36406198da3d5',
+  //   lpTYT: zeroAddress,
+  //   vtActive: true,
+  //   ytEnable: true,
+  //   lpYields: true,
+  //   projectIcon: 'ReppoNft',
+  //   icon: 'ReppoNft',
+  //   tit: 'Reppo Network LNT Vault',
+  //   info: 'Reppo are building plug & play style infrastructure for AI Agents, Developers & Physical AI to permissionlessly discover, negotiate, commit, and settle on community-governed capital, specialized datasets, and infrastructure through an intent-centric architecture.',
+  // },
   // LVT
   {
     isLVT: true,
-    chain: arbitrum.id,
+    chain: bsc.id,
     nftBalanceBy: 'rpc-amount',
-    vault: '0xF8DFAA0967c812a43D02059F2B14786dCeB84e8B',
-    asset: '0xc227e25544edd261a9066932c71a25f4504972f1',
+    vault: '0xebf1039d30d7a03e6f09d0815431db339017d031',
+    asset: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
     protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
     protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
+    vtSwapHook: '0xed202a7050ee856ba9f0d3cd5eabcab6b8a23a88',
     onEnv: ['test'],
-    AethirVToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
-    RedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
-    isAethir: false,
+    buyback: true,
+    buybackPool: '0x38402aa01220a1d19edfe061760877a353728214',
     lpTYT: zeroAddress,
-    test: true,
-    isIdle: false,
     vtActive: true,
     ytEnable: false,
     lpYields: false,
     projectIcon: 'Filecoin',
-    startTime: 1753955184n,
+    startTime: 1763626652n,
     icon: 'Filecoin',
-    tit: 'Filecoin SP Node',
-    info: `Filecoin is a decentralized storage network powered by blockchain technology, designed to create a global marketplace for data storage and retrieval. Filecoin SP Node revolutionize decentralized storage by tokenizing mining nodes' storage power—measured in Storage Power (SP)—into unique, tradable NFTs. This allows users to own, fractionalize, or lease portions of a node's capacity without managing hardware, fostering liquidity in the Filecoin marketplace`,
+    tit: 'Filecoin 540-Locked Vault',
+    info: `Filecoin is a decentralized storage network powered by blockchain technology, designed to create a global marketplace for data storage and retrieval. Filecoin 540 Locked Vault instantly unlocks the liquidity of 540-day locked FIL tokens that Storage Providers (SPs) pledge as sector collateral. Each Vault position is backed 1:1 by real FIL tokens staked with active, verified Storage Providers on the Filecoin network.`,
   },
 ]

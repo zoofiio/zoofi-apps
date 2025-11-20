@@ -9,7 +9,7 @@ import { aarToNumber, bnMin, fmtDuration, nowUnix, promiseAll } from '@/lib/util
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
-import { Address, PublicClient, zeroAddress } from 'viem'
+import { Address, parseEther, PublicClient, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useBalance, useTotalSupply } from './useToken'
 
@@ -24,21 +24,21 @@ export const FET_KEYS = {
 }
 export async function fetLntVault(vc: LntVaultConfig) {
   const pc = getPC(vc.chain)
-  if (vc.vault === '0xF8DFAA0967c812a43D02059F2B14786dCeB84e8B') {
-    return Promise.resolve({
-      NFT: '0xC227e25544EdD261A9066932C71a25F4504972f1' as Address,
-      T: '0xc87B37a581ec3257B734886d9d3a581F5A9d056d' as Address,
-      VT: '0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef47' as Address,
-      VTbyDeposit: undefined as Address | undefined,
-      YT: '0x0000000000000000000000000000000000000000' as Address,
-      aVT: 43992000000000000000000n,
-      activeDepositCount: 526n,
-      closed: false,
-      expiryTime: 1844467200n,
-      startTime: 1812844800n,
-      tokenPot: '0x97052676147909B029beC5A1943ce1E8e38128BD' as Address,
-      vATOracle: '0xD7Fc9ab355567aF429FB5bB3B535eAB4C7E48567' as Address,
-      vtSwapPoolHook: '0xbf4b4A83708474528A93C123F817e7f2A0637a89' as Address,
+  if (vc.isLVT) {
+    return promiseAll({
+      activeDepositCount: Promise.resolve(parseEther('13933256.25')),
+      aVT: pc.readContract({ abi: abiZeroGVToracale, address: vc.vault, functionName: 'aVT' }),
+      VTbyDeposit: Promise.resolve(undefined as Address | undefined),
+      closed: Promise.resolve(false),
+      NFT: Promise.resolve(vc.asset),
+      VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
+      YT: Promise.resolve(zeroAddress as Address),
+      T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
+      vATOracle: Promise.resolve(zeroAddress as Address),
+      tokenPot: Promise.resolve(zeroAddress as Address),
+      vtSwapPoolHook: Promise.resolve(vc.vtSwapHook ?? zeroAddress),
+      expiryTime: Promise.resolve(vc.startTime + 3600n * 24n * 365n * 3n),
+      startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
     })
   }
   if (vc.deposit) {

@@ -11,6 +11,7 @@ import { Pagination, usePaginationByTotal } from "./ui/pagination";
 
 export function LntVaultActivity({ vc }: { vc: LntVaultConfig }) {
     const totalRef = useRef(0)
+    // eslint-disable-next-line react-hooks/refs
     const pagis = usePaginationByTotal(totalRef.current, 20)
     const data = useFet({
         key: `LntVaultActivity:${vc.vault}:${pagis.currentPage}`,
