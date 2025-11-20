@@ -17,7 +17,7 @@ import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useSetState } from 'react-use'
-import { Address, formatUnits, parseUnits, stringToHex } from 'viem'
+import { Address, erc1155Abi, formatUnits, parseUnits, stringToHex } from 'viem'
 
 
 type ParamItem = { show: string; value: string; units?: number /** def 10 */ }
@@ -100,7 +100,7 @@ const LntVaultParams2_2: ParamItem[] = [
 
 export default function AdminPage() {
   const vcs = LNTVAULTS_CONFIG
-  const options = vcs.map(item => ({ key: item.vault, show: `${item.isLVT? 'LVT': 'LNT'}-Vault(${shortStr(item.vault)})(${item.tit})`, vc: item }))
+  const options = vcs.map(item => ({ key: item.vault, show: `${item.isLVT ? 'LVT' : 'LNT'}-Vault(${shortStr(item.vault)})(${item.tit})`, vc: item }))
   const [current_, setCurrent] = useState<typeof options[0] | undefined>(options[0])
   const current = options.length > 0 ? current_ : undefined;
   return (
@@ -163,8 +163,8 @@ export default function AdminPage() {
                         vtPriceStartTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceStartTime' }),
                         vtPriceEndTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceEndTime' })
                       })} />
+                    <ContractAll tit='ERC1155' abi={erc1155Abi} address={current.vc.asset} />
                     <ContractAll unwrap tit='LvtVault' abi={abiLVTVault} address={current.vc.vault} />
-
                     <GeneralAction abi={abiLntVault} functionName='addRewards' address={current.vc.buybackPool ?? current.vc.vault} />
                     <GeneralAction abi={abiLntVault} functionName='settle' address={current.vc.buybackPool ?? current.vc.vault} />
                     <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.buybackPool ?? current.vc.vault} />
@@ -175,6 +175,7 @@ export default function AdminPage() {
                     <GeneralAction abi={abiLntVault} functionName='updateStakingTokenPotRotateThreshold' address={current.vc.buybackPool ?? current.vc.vault} />
                     <GeneralAction abi={abiLntVault} functionName='pause' address={current.vc.buybackPool ?? current.vc.vault} />
                     <GeneralAction abi={abiLntVault} functionName='unpause' address={current.vc.buybackPool ?? current.vc.vault} />
+
                   </> :
                     <>
                       <AsyncInfo keys={[current.vc.vault]} infos={() => fetLntVault(current.vc)} />

@@ -66,6 +66,7 @@ export const abiLntVault = parseAbi([
 
 
 export const abiLVTVault = parseAbi([
+  'function deposit(uint256 value) external',
   'function buyback(uint256 amountT) external',
   'function updateaVT(uint256 newAVT) external',
   'function mintVestingTokens(address to, uint256 amount) external',
