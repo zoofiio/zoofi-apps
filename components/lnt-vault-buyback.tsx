@@ -108,7 +108,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         }))
     }
     return <div className="flex flex-col gap-4 w-full text-sm">
-        <div className="animitem text-sm font-semibold">You can gradually convert VT to T here. <Link href={vc.isLVT ? 'https://docs.zoofi.io/lvt-vault/background' : 'https://docs.zoofi.io/lnt-vault/background'} target="_blank" className="underline underline-offset-2">Read more</Link></div>
+        <div className="animitem text-sm font-semibold">You can gradually convert VT to T here. <Link href={'https://docs.zoofi.io/lnt-vault/product-design/how-does-lnt-work/vt-value-anchoring'} target="_blank" className="underline underline-offset-2">Read more</Link></div>
         <div className="animitem flex flex-wrap justify-between items-center gap-x-5">
             <div className="flex gap-4 items-center">
                 <div>Next batch</div>

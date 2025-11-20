@@ -76,7 +76,7 @@ function MenusContent({ animitem }: { animitem?: boolean }) {
             return [{
                 href: '/b-vaults',
                 name: "B-Vault",
-                // icon: LuBox,
+                icon: LuBox,
                 subs: [
                     { href: '/b-vaults', name: 'B-Vault', icon: LuBox },
                     { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuCircleUser },
@@ -89,7 +89,7 @@ function MenusContent({ animitem }: { animitem?: boolean }) {
             {
                 href: '/lnt',
                 name: "LNT-Vault",
-                // icon: LuBox,
+                icon: LuBox,
                 subs: [
                     { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuSquareSquare },
                     { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },

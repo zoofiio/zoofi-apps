@@ -11,8 +11,10 @@ import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { ENV } from '@/constants'
 import { useLntVault } from '@/hooks/useFetLntVault'
 import { isError, isLoading, isSuccess } from '@/lib/useFet'
+import Link from 'next/link'
 
 import { useSearchParams } from 'next/navigation'
+import { IoDocumentText } from 'react-icons/io5'
 
 
 function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
@@ -57,6 +59,26 @@ export default function Vaults({ type = 'lnt' }: { type?: 'lnt' | 'lvt' }) {
         {!currentVc ? (
           <>
             <div className='page-title'>{type.toUpperCase()}-Vaults</div>
+            {
+              type == 'lnt' &&
+              <div className='flex flex-col  md:flex-row justify-between text-sm font-semibold gap-2 md:gap-10 pt-6 pb-4'>
+                <div>LNT (Liquid Node Token) Vault is a decentralized protocol designed to facilitate the issuance and management of node-based assets through Non-Fungible Tokens (NFTs) and derivative financial instruments.</div>
+                <div className='flex  items-center gap-2.5 whitespace-nowrap'>
+                  <IoDocumentText className='text-xl' />
+                  <Link href={'https://docs.zoofi.io/lnt-vault/background'} target='_blank' className='underline underline-offset-2'>Learn More</Link>
+                </div>
+              </div>
+            }
+            {
+              type == 'lvt' &&
+              <div className='flex flex-col  md:flex-row justify-between text-sm font-semibold gap-2 md:gap-10 pt-6 pb-4'>
+                <div>{`LVT (Liquid Vesting Token) Vault is a smart new way to make locked-up tokens in crypto projects tradeable right away, without breaking the rules or the project's long-term plans.`}</div>
+                <div className='flex  items-center gap-2.5 whitespace-nowrap'>
+                  <IoDocumentText className='text-xl' />
+                  <Link href={'https://docs.zoofi.io/lvt-vault/background'} target='_blank' className='underline underline-offset-2'>Learn More</Link>
+                </div>
+              </div>
+            }
             {/* <Noti data='Deposit assets into the Vaults to pair-mint stablecoin and margin token' /> */}
             <div className='flex flex-col gap-5 mt-4'>
               {vcs.map((item, index) => (
