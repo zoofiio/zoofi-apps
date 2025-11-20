@@ -43,7 +43,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
     })
     const pots = buybackDatas.result?.pots ?? []
     const vestingRate = aarToNumber(buybackDatas.result?.VestingRate ?? 0n, 18)
-    const price = `Conversion ratio : 1 v0G = ${round((1 - vestingRate), 2)} 0G`
+    const price = `Conversion ratio : 1 ${vt.symbol} = ${round((1 - vestingRate), 2)} ${vt.symbol}`
 
     // nextBuyback
     const nextBuyback = buybackDatas.result?.buybackDustAmountVT ?? 0n
@@ -143,7 +143,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         />
         <div className="animitem text-center">{price} <Tip>The conversion ratio here is not 1:1 (including protocol service fee). Users can choose to accept it or wait until maturity for a 1:1 redemption(no service fee)</Tip></div>
         <div className="animitem gap-4 grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))]">
-            <Txs tx="Join pending Redemption" disabled={inputBn <= 0n} txs={getJoinTxs} />
+            <Txs tx="Join pending" disabled={inputBn <= 0n} txs={getJoinTxs} />
             <Txs tx="Withdraw" disabled={inputBn <= 0n} txs={getWithdrawTxs} />
             <div className="flex justify-center items-center">Settled: {displayBalance(userSeltted.result, undefined, t.decimals)}</div>
             <Txs tx="Claim" disabled={userSeltted.result == 0n} txs={getCalimTxs} />

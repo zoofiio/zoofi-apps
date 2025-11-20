@@ -37,7 +37,7 @@ export async function fetLntVault(vc: LntVaultConfig) {
       vATOracle: Promise.resolve(zeroAddress as Address),
       tokenPot: Promise.resolve(zeroAddress as Address),
       vtSwapPoolHook: Promise.resolve(vc.vtSwapHook ?? zeroAddress),
-      expiryTime: Promise.resolve(vc.startTime + 3600n * 24n * 365n * 3n),
+      expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
       startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
     })
   }
