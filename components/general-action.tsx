@@ -18,11 +18,11 @@ import { isNil } from 'es-toolkit'
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   menu: () => cn('bg-white dark:bg-black dark:border'),
-  option: (props) => cn({ '!bg-primary/30': props.isFocused, '!bg-primary/60': props.isSelected }),
-  control: () => 'bg-white dark:bg-black !min-h-[58px] !border-primary/30 !shadow-none',
+  option: (props: any) => cn({ 'bg-primary/30!': props.isFocused, 'bg-primary/60!': props.isSelected }),
+  control: () => 'bg-white dark:bg-black min-h-[58px]! border-primary/30! shadow-none!',
   singleValue: () => 'dark:text-white',
 }
-export const inputClassname = 'bg-white dark:bg-transparent border-primary/70 w-full h-14 text-right pr-4 font-bold text-sm border focus:border-2  rounded-md outline-none '
+export const inputClassname = 'bg-white dark:bg-transparent border-primary/70 w-full h-14 text-right pr-4 font-bold text-sm border focus:border-2  rounded-md outline-hidden '
 
 export const defConvertArg = (arg: string, _i: number, param: AbiParameter) => {
   if (param.type == 'uint8') return parseInt((arg || '').replaceAll(' ', ''))
@@ -165,7 +165,7 @@ export function GeneralAction({
                 ...(args.length ? { args: writeArgs } : {}),
               }]}
               disabled={txProps?.disabled || (Boolean(args.length) && !Boolean(writeArgs))}
-              className={cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
+              className={cn('mt-0! flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
             />
             <AddMultiTx txs={[{
               abi,
@@ -176,7 +176,7 @@ export function GeneralAction({
           </div>
           :
           <BBtn
-            className={twMerge('flex items-center justify-center gap-4', cn('!mt-0 flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full'))}
+            className={twMerge('flex items-center justify-center gap-4', cn('mt-0! flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full'))}
             onClick={() => doRead()}
             busy={isReadLoading}
             busyShowContent={true}
@@ -248,7 +248,7 @@ export function Erc20Approve() {
         functionName: 'approve',
         args: [stat.spender as Address, stat.amount],
       }}
-      className='!mt-0 w-full flex items-center justify-center gap-4'
+      className='mt-0! w-full flex items-center justify-center gap-4'
     />
   </Expandable>
 }

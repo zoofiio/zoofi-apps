@@ -60,7 +60,7 @@ export function NumInput({
         <div className="relative">
             <input
                 className={cn(
-                    "h-14 w-14 text-center font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-none dark:text-slate-50",
+                    "h-14 w-14 text-center font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-hidden dark:text-slate-50",
                     "shrink-0 bg-white dark:bg-transparent border-slate-400  focus:border-primary",
                     numClassName)}
                 type="number"

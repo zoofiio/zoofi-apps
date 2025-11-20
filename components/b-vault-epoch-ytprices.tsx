@@ -102,7 +102,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
         <span className='text-xs font-medium dark:text-[#FBECEC]'></span>
       </div>
       <div className='flex gap-2 justify-end items-center mt-2'>
-        <span className={cn('cursor-pointer text-xs px-1 py-0 rounded border-primary border', isLOG ? 'bg-primary' : 'bg-transparent')} onClick={() => togLOG()}>
+        <span className={cn('cursor-pointer text-xs px-1 py-0 rounded-sm border-primary border', isLOG ? 'bg-primary' : 'bg-transparent')} onClick={() => togLOG()}>
           LOG
         </span>
       </div>

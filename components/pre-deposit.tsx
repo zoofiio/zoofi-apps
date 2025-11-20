@@ -75,11 +75,11 @@ function BtnB(p: ButtonHTMLAttributes<HTMLButtonElement>) {
     </button >
 }
 export function NodeLicenseImage(p: { icon: ReactNode }) {
-    return <div className="rounded-2xl border border-black flex flex-col w-[14.375rem] gap-[1.125rem] pt-[1.125rem] bg-white">
-        <div className="bg-[#2BBD34] h-[1.875rem] border-y border-black w-full"></div>
+    return <div className="rounded-2xl border border-black flex flex-col w-57.5 gap-4.5 pt-4.5 bg-white">
+        <div className="bg-[#2BBD34] h-7.5 border-y border-black w-full"></div>
         <div className="flex gap-2.5 h-2.5 pl-5">
-            <div className="w-[4.75rem] h-full bg-black "></div>
-            <div className="w-[1.5625rem] h-full bg-black"></div>
+            <div className="w-19 h-full bg-black "></div>
+            <div className="w-6.25 h-full bg-black"></div>
         </div>
         <div className="pl-5 pr-2.5 pb-2 flex flex-col">
             <div className="text-black font-medium text-2xl">Node Licence</div>
@@ -98,7 +98,7 @@ const nlImages: { [k: string]: { src: string, width: string, height: string } } 
 export function NodeLicenseInfo({ data }: { data: NodeLicense }) {
     return <div style={{
         backdropFilter: 'blur(20px)'
-    }} className="animitem bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-[25rem]" >
+    }} className="animitem bg-white/5 border border-[#4A5546] rounded-2xl flex flex-col p-7 gap-5 min-h-100" >
         <div className="flex gap-7 flex-wrap">
             {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
             <CoinIcon symbol="ReppoNft" size={161} />
@@ -113,7 +113,7 @@ export function NodeLicenseInfo({ data }: { data: NodeLicense }) {
                 <div>Token TGE: {data.tokenTGE ? data.tokenTGE : 'TBD'}</div> */}
             </div>
         </div>
-        <div className="bg-[#4A5546] h-[1px] w-full shrink-0"></div>
+        <div className="bg-[#4A5546] h-px w-full shrink-0"></div>
         <div className="flex flex-col gap-2">
             <div className="text-base font-medium">About {data.name}</div>
             <div className="opacity-60 text-sm font-medium leading-normal">{data.about}</div>
@@ -170,7 +170,7 @@ function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () =
     const { data: { nfts }, refetch } = usePreDepositByUser(node)
     return <div className='flex flex-col gap-5 items-center p-5 h-max'>
         <div className='w-full text-start'>Licenses ID</div>
-        <div className='w-full max-w-[32rem] h-72 overflow-y-auto'>
+        <div className='w-full max-w-lg h-72 overflow-y-auto'>
             <div className='w-full gap-2 grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] '>
                 {nfts.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
                     <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
@@ -212,7 +212,7 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
     const { address } = useAccount()
     return <div className='flex flex-col gap-5 items-center p-5'>
         <div className='w-full text-start'>Licenses ID</div>
-        <div className='w-full max-w-[32rem] h-72 overflow-y-auto'>
+        <div className='w-full max-w-lg h-72 overflow-y-auto'>
             <div className='w-full gap-2 grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] '>
                 {deposited.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
                     <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
@@ -262,7 +262,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
                 </div>
             </div>
         </div>
-        <div className="bg-[#4A5546] h-[1px] w-full shrink-0" />
+        <div className="bg-[#4A5546] h-px w-full shrink-0" />
         {/* deposit withdraw */}
         <div className="flex gap-5 flex-1 flex-col sm:flex-row">
             {/* deposit */}
@@ -280,7 +280,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
                 </SimpleDialog>
 
             </div>
-            <div className="bg-[#4A5546] h-[1px] w-full sm:w-[1px] sm:h-full shrink-0" />
+            <div className="bg-[#4A5546] h-px w-full sm:w-px sm:h-full shrink-0" />
             {/* withdraw */}
             <div className="flex-1 flex flex-col justify-between items-center h-full gap-5 pb-5">
                 <div className="self-end">Deposited: {deposited.length}</div>

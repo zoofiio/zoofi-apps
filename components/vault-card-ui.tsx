@@ -14,7 +14,7 @@ export const renderToken = (symbol: string, amount: bigint, usd: bigint, borderL
           <CoinIcon symbol={symbol} size={14} />
           {symbol}
         </div>
-        <div className='flex mt-2 flex-col gap-1 pl-[1.375rem] text-xs font-medium'>
+        <div className='flex mt-2 flex-col gap-1 pl-5.5 text-xs font-medium'>
           <span className=''>{displayBalance(amount)}</span>
           <span className=' text-[#64748B] dark:text-slate-50/60'>{`$${displayBalance(usd, 2)}`}</span>
         </div>
@@ -63,8 +63,8 @@ export const renderChoseSide = (
     <div className={cn(itemClassname, 'col-span-2 gap-4')}>
       <div className='text-[#64748B] dark:text-slate-50/60 text-xs font-semibold leading-[12px] whitespace-nowrap'>Choose your side</div>
       <div className='grid grid-cols-2 gap-4 w-full px-4'>
-        <BtnWrap className={cn('h-[4.25rem] w-full relative')} onClick={onClickLeft as any}>
-          <div className='flex gap-2 items-center p-4 w-full h-[4.25rem] absolute left-0 top-0'>
+        <BtnWrap className={cn('h-17 w-full relative')} onClick={onClickLeft as any}>
+          <div className='flex gap-2 items-center p-4 w-full h-17 absolute left-0 top-0'>
             <LeftIcon className='text-4xl' showbg={true} />
             <div className='flex flex-col items-start gap-2'>
               <div className='text-[#64748B] dark:text-slate-50/60 text-xs font-semibold leading-[12px] whitespace-nowrap'>{leftTitle}</div>
@@ -72,8 +72,8 @@ export const renderChoseSide = (
             </div>
           </div>
         </BtnWrap>
-        <BtnWrap className={cn('h-[4.25rem] w-full relative')} onClick={onClickRight as any}>
-          <div className='flex flex-row-reverse gap-2 items-center p-4 w-full h-[4.25rem] absolute left-0 top-0'>
+        <BtnWrap className={cn('h-17 w-full relative')} onClick={onClickRight as any}>
+          <div className='flex flex-row-reverse gap-2 items-center p-4 w-full h-17 absolute left-0 top-0'>
             <RightIcon className='text-4xl' showbg={true} />
             <div className='flex flex-col items-end gap-2'>
               <div className='text-[#64748B] dark:text-slate-50/60 text-xs font-semibold leading-[12px] whitespace-nowrap'>{rightTitle}</div>

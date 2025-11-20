@@ -53,7 +53,7 @@ export function MultiTxTemp({ className }: { className?: string }) {
         }>
         <div className="w-full flex flex-col gap-4 p-5">
             <div className="font-medium text-lg">Multi Tx</div>
-            <div className="w-full flex flex-col gap-2 overflow-y-auto max-h-[31.25rem]">
+            <div className="w-full flex flex-col gap-2 overflow-y-auto max-h-125">
                 {txs.map((tx, index) => <div key={`tx_item_${index}`} className="flex bg-primary/20 rounded-md items-center gap-4 px-3 py-1">
                     <span>({shortStr(tx.address)})</span>
                     <span>{shortStr(tx.functionName)}</span>

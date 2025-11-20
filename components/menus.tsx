@@ -1,29 +1,21 @@
 'use client'
 
-import { abiZooProtocol } from "@/config/abi"
-import { abiLntProtocol } from "@/config/abi/abiLNTVault"
-import { BVaultConfig, BVAULTS_CONFIG } from "@/config/bvaults"
-import { LntVaultConfig, LNTVAULTS_CONFIG } from "@/config/lntvaults"
 import { isLOCL } from "@/constants"
-import { useCurrentChainId } from "@/hooks/useCurrentChainId"
 import { cn } from "@/lib/utils"
-import { getPC } from "@/providers/publicClient"
-import { useQuery } from "@tanstack/react-query"
-import { uniq, uniqBy } from "es-toolkit"
+import { size } from "es-toolkit/compat"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MouseEvent, useEffect, useMemo, useRef } from "react"
+import { MouseEvent, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
 import { AiFillApi } from "react-icons/ai"
 import { FiChevronRight } from "react-icons/fi"
-import { LuBox, LuChartLine, LuMenu, LuCircleUser, LuSquareSquare, LuSettings } from "react-icons/lu"
+import { LuBox, LuBoxes, LuChartLine, LuCircleUser, LuMenu, LuSettings, LuSquareSquare } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
 import { Address, isAddressEqual } from "viem"
 import { useAccount } from "wagmi"
 import { CoinIcon } from "./icons/coinicon"
 import { usePageLoad } from "./page-loading"
 import { Tip } from "./ui/tip"
-import { size } from "es-toolkit/compat"
 
 export type MenuItem = {
     name: string,
@@ -52,7 +44,7 @@ function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { me
     // const r = useRouter()
     return <>
         <Link target={menu.target} onClickCapture={() => {
-           !menu.disabled && (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
+            !menu.disabled && (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
         }} href={menu.disabled ? 'javascript:void(0)' : menu.href} style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
             className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed text-black/60 dark:text-white/60': menu.disabled, "text-primary": isActive, 'animitem': animitem }, className)}>
             {menu.icon && <menu.icon />}
@@ -76,36 +68,41 @@ function useShowLntVaultAdmin() {
     return isLOCL || (Boolean(address) && lntAdmins.some(item => isAddressEqual(item as Address, address!)))
 }
 function MenusContent({ animitem }: { animitem?: boolean }) {
+    const pathname = usePathname()
     const showBvaultAdmin = useShowBvaultAdmin()
     const showLntVaultAdmin = useShowLntVaultAdmin()
-    const menus = useMemo(() => {
-        return [
-            {
-                href: '/lnt',
-                name: "LNT-Vault",
-                subs: [
-                    { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuSquareSquare },
-                    { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },
-                    { href: '/lnt/portfolio', name: 'Portfolio', icon: LuCircleUser, disabled: true },
-                    { href: '/lnt/dashboard', name: 'Dashboard', icon: LuChartLine, disabled: true },
-                    ...(showLntVaultAdmin ? [
-                        { href: '/lnt/ops', name: 'Ops', icon: AiFillApi },
-                        { href: '/lnt/admin', name: 'Admin', icon: LuSettings },
-                    ] : [])
-                ]
-            },
-            {
+    const menus = useMemo<MenuItem[]>(() => {
+        if (pathname.startsWith("/b-vaults")) {
+            return [{
                 href: '/b-vaults',
                 name: "B-Vault",
+                // icon: LuBox,
                 subs: [
                     { href: '/b-vaults', name: 'B-Vault', icon: LuBox },
                     { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuCircleUser },
                     { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuChartLine },
                     ...(showBvaultAdmin ? [{ href: '/b-vaults/admin', name: 'Admin', icon: LuSettings }] : [])
                 ],
-            }
+            }]
+        }
+        return [
+            {
+                href: '/lnt',
+                name: "LNT-Vault",
+                // icon: LuBox,
+                subs: [
+                    { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuSquareSquare },
+                    { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },
+                    ...(showLntVaultAdmin ? [
+                        { href: '/lnt/ops', name: 'Ops', icon: AiFillApi },
+                        { href: '/lnt/admin', name: 'Admin', icon: LuSettings },
+                    ] : [])
+                ]
+            },
+            { href: '/lvt', name: 'LVT-Vault', icon: LuBoxes, },
+            { href: '/portfolio', name: 'Portfolio', icon: LuCircleUser, disabled: true },
         ] as MenuItem[]
-    }, [showBvaultAdmin, showLntVaultAdmin])
+    }, [showBvaultAdmin, showLntVaultAdmin, pathname])
     return <div className={cn("flex-col gap-2 items-end flex w-full")}>
         {menus.map((menu, i) => <MenusItem key={`menusitem_${i}`} menu={menu} animitem={animitem} />)}
     </div>
@@ -130,7 +127,7 @@ export function Menus() {
             </div>
         </div>
         {/* for pc */}
-        <div ref={refMenus} className={cn("hidden shrink-0 h-screen lg:flex flex-col gap-8 items-center sticky top-0 w-[15rem] overflow-y-auto transition-all")}>
+        <div ref={refMenus} className={cn("hidden shrink-0 h-screen lg:flex flex-col gap-8 items-center sticky top-0 w-60 overflow-y-auto transition-all")}>
             <div className="flex items-center justify-center gap-5 px-4 h-[72px]">
                 <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
                     <CoinIcon symbol='logo-alt' size={90} />
@@ -139,7 +136,7 @@ export function Menus() {
             <MenusContent animitem />
         </div>
         {/* for mobile */}
-        <div ref={refMenus} className={cn("fixed z-50 flex lg:hidden flex-col gap-8 items-center top-[72px] w-[15rem] overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>
+        <div ref={refMenus} className={cn("fixed z-50 flex lg:hidden flex-col gap-8 items-center top-[72px] w-60 overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>
             <MenusContent />
         </div>
     </>

@@ -38,7 +38,7 @@ function PortfolioItem({
     <div className='animitem card whitespace-nowrap'>
       {typeof title == 'string' ? <div className='text-2xl leading-none font-semibold'>{title}</div> : title}
       {typeof sub == 'string' ? <div className='text-[2rem] text-primary leading-none font-semibold mt-2'>{sub}</div> : sub}
-      <div className='my-4 h-[1px] bg-border/60 dark:bg-border'></div>
+      <div className='my-4 h-px bg-border/60 dark:bg-border'></div>
       <div className='w-full overflow-x-auto'>
         <STable headerClassName='border-b-0' tbodyClassName='text-sm font-medium' header={tHeader} data={tData} {...(tableProps || {})} />
       </div>
@@ -170,7 +170,7 @@ function BoostItem() {
       <div key={'epochs'}>
         {epochsData.map((epoch) => (
           <div key={epoch.epochId.toString()} className='flex items-baseline'>
-            <div className='w-[4rem]'>Epoch {epoch.epochId.toString()}</div>
+            <div className='w-16'>Epoch {epoch.epochId.toString()}</div>
             <div className='opacity-60 text-xs'>
               {fmtDate(epoch.epochInfo!.startTime * 1000n)} - {fmtDate((epoch.epochInfo!.startTime + epoch.epochInfo!.duration) * 1000n)}
             </div>

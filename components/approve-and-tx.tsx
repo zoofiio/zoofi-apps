@@ -210,6 +210,7 @@ export function ApproveAndTx<
   const txDisabled = disabled || isDisabled || isTxLoading || config.enabled === false
   const { approve, shouldApprove, loading: isApproveLoading, isSuccess: isApproveSuccess } = useApproves(approves || {}, spender, requestAmount)
   const onApproveSuccessRef = useRef<() => void>(undefined)
+  // eslint-disable-next-line react-hooks/refs
   onApproveSuccessRef.current = onApproveSuccess
   useEffect(() => {
     onApproveSuccessRef.current && isApproveSuccess && onApproveSuccessRef.current()
@@ -276,6 +277,7 @@ export function NftApproveAndTx<
 
   const { approve, shouldApprove, loading: isApproveLoading, isSuccess: isApproveSuccess } = useNftApproves(approves ?? {}, spender)
   const onApproveSuccessRef = useRef<() => void>(undefined)
+  // eslint-disable-next-line react-hooks/refs
   onApproveSuccessRef.current = onApproveSuccess
   useEffect(() => {
     onApproveSuccessRef.current && isApproveSuccess && onApproveSuccessRef.current()

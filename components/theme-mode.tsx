@@ -52,13 +52,15 @@ export function ThemeMode() {
     onChangeTheme()
   }, [])
   const onClick = (item: string) => {
-    localStorage.themeMode = item.toLocaleLowerCase()
-    onChangeTheme()
+    if (localStorage) {
+      localStorage.setItem('themeMode', item.toLocaleLowerCase())
+      onChangeTheme()
+    }
   }
   return (
     <SimpleDialog
       className='max-w-[200px] py-10 flex flex-col text-base text-stone-500 dark:text-white'
-      trigger={<div className='text-xl'>{Icons[ts.theme as 'light' | 'dark' | 'system']}</div>}
+      trigger={<div className='text-xl hidden md:block'>{Icons[ts.theme as 'light' | 'dark' | 'system']}</div>}
     >
       {['Light', 'Dark', 'System'].map((item, index) => (
         <div

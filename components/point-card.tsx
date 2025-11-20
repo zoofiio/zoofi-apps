@@ -42,7 +42,7 @@ export function PointCard({ symbol, symbolPrice, iconSymbol, tit, sub, total, li
           // boxShadow: '0px 0px 12px 0px rgba(187, 215, 144, 0.4)',
         }
       }
-      className='animitem card overflow-hidden !p-0 text-base flex flex-col'
+      className='animitem card overflow-hidden p-0! text-base flex flex-col'
     >
       <div className='flex md:flex-wrap items-center p-4 gap-2 dark:text-black' style={{ background: bgMap[`${symbol}_${theme}`] || bgMap[symbol] }}>
         <MIcon showbg={true} className='text-[2.625rem] shrink-0 dark:text-white text-black' />
@@ -88,7 +88,7 @@ export function PointCards() {
               return '<div class="' + className + '"></div>'
             },
           }}
-          className='-translate-x-[1rem] !px-4 !pb-10 !w-screen'
+          className='-translate-x-4 px-4! pb-10! w-screen!'
           modules={[Pagination]}
         >
           {items.map((item) => (

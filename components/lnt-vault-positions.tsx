@@ -70,7 +70,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         />,
     ]] : []
     const header = ['VT', 'Value', 'APY', 'Status', 'Redeemable', '']
-    return <div className="animitem card !p-4 bg-white overflow-x-auto">
+    return <div className="animitem card p-4! bg-white overflow-x-auto">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}
@@ -110,7 +110,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
             />,
         ]
     ] : []
-    return <div className="animitem card !p-4 bg-white overflow-x-auto">
+    return <div className="animitem card p-4! bg-white overflow-x-auto">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}
@@ -155,7 +155,7 @@ function LP({ vc }: { vc: LntVaultConfig }) {
         /> : ''
     ]] : []
     const header = ['LP', 'Value', 'APY', '', vc.lpYields ? 'Yield' : '', vc.lpYields ? 'Airdrops' : '', '']
-    return <div className="animitem card !p-4 bg-white overflow-x-auto">
+    return <div className="animitem card p-4! bg-white overflow-x-auto">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}

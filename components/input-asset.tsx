@@ -107,20 +107,20 @@ export function AssetInput({
                     padding: '0px',
                     background: 'transparent',
                   }),
-                  singleValue: (base, state) => ({ ...base, color: isDark ? '#fff' : '#000' }),
+                  singleValue: (base: any, state: any) => ({ ...base, color: isDark ? '#fff' : '#000' }),
                   valueContainer: (provided: any, state: any) => ({
                     ...provided,
                     padding: '0px',
                   }),
-                  menu: (base, props) => ({
+                  menu: (base: any, props: any) => ({
                     ...base,
                     margin: 0,
                     background: isDark ? '#444' : '#fff',
                   }),
-                  option(base, props) {
+                  option(base: any, props: any) {
                     return { ...base, color: isDark ? '#fff' : '#000', background: isDark ? 'transparent' : '#fff' }
                   },
-                  menuPortal: (base, props) => ({
+                  menuPortal: (base: any, props: any) => ({
                     ...base,
                     margin: 0,
                   }),
@@ -147,10 +147,10 @@ export function AssetInput({
             readonly ? 'bg-slate-50 cursor-not-allowed dark:bg-slate-800' : 'bg-white dark:bg-transparent',
             {
               'border-green-700 border-2': selected,
-              'border-red-400 !border-2 focus:border-red-400': isError,
+              'border-red-400 border-2! focus:border-red-400': isError,
               'border-slate-400  focus:border-primary': !isError && !selected,
             },
-            'w-full h-14 text-right pr-4 font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-none dark:text-slate-50',
+            'w-full h-14 text-right pr-4 font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-hidden dark:text-slate-50',
           )}
           placeholder='0.000'
           maxLength={36}
@@ -159,11 +159,11 @@ export function AssetInput({
           title=''
           readOnly={readonly}
         />
-        {loading && <Spinner className='absolute right-24 top-[1.125rem]' />}
-        {isError && <div className='text-sm text-white bg-red-400 rounded right-0 bottom-0 absolute px-1 translate-y-1/4'>{error || 'Insufficient account balance'}</div>}
+        {loading && <Spinner className='absolute right-24 top-4.5' />}
+        {isError && <div className='text-sm text-white bg-red-400 rounded-sm right-0 bottom-0 absolute px-1 translate-y-1/4'>{error || 'Insufficient account balance'}</div>}
       </div>
 
-      { (!isNil(balance) || !isNil(otherInfo)) && (
+      {(!isNil(balance) || !isNil(otherInfo)) && (
         <div className='flex items-center justify-between mt-1 px-1 text-slate-400 dark:text-slate-50/70 text-sm'>
           {!isNil(balance) && <div className={balanceClassName}>
             <span>

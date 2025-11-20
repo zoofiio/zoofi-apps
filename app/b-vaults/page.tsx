@@ -5,23 +5,23 @@ import { BVaultAddReward } from '@/components/b-vault-add-reward'
 import { Noti } from '@/components/noti'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleTabs } from '@/components/simple-tabs'
+import { SimpleSelect } from '@/components/ui/select'
 import { abiBVault } from '@/config/abi'
 import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
 import { ENV } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLoadBVaults } from '@/hooks/useLoads'
-import { cn, tabToSearchParams } from '@/lib/utils'
+import { tabToSearchParams } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useBoundStore, useStore } from '@/providers/useBoundStore'
 import { useBVault, useBVaultEpoches } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useMemo, useState } from 'react'
+import { FaSpinner } from 'react-icons/fa6'
 import { isAddressEqual } from 'viem'
 import { useAccount } from 'wagmi'
 import { toBVault } from '../routes'
-import { FaSpinner } from 'react-icons/fa6'
-import Select from 'react-select'
 function StrongSpan({ children }: { children: ReactNode }) {
   return <span className='font-extrabold'>{children}</span>
 }
@@ -107,8 +107,10 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
   )
 }
 
-type VaultsFilterType = 'Active' | 'All' | 'Closed'
-const vaultsFilters: { label: VaultsFilterType, value: VaultsFilterType }[] = [{ label: 'Active', value: 'Active' }, { label: 'All', value: 'All' }, { label: 'Closed', value: 'Closed' }]
+
+const vaultsFilters = ['Active', 'All', 'Closed'] as const
+type VaultsFilterType = typeof vaultsFilters[number]
+
 export default function Vaults() {
   const chainId = useCurrentChainId()
   const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((vc) => vc.onEnv && vc.onEnv.includes(ENV)), [chainId, ENV])
@@ -119,16 +121,16 @@ export default function Vaults() {
   const currentVc = bvcs.find((item) => item.vault == paramsVault)
   // useUpdateBVaultsData(bvcs)
   const { loading } = useLoadBVaults()
-  const [currentFilter, setFilter] = useState(vaultsFilters.find(item => item.value === sessionStorage.getItem('bvualts-filter')) ?? vaultsFilters[0])
-  const wrapSetFilter = (nf: (typeof vaultsFilters)[number]) => {
+  const [currentFilter, setFilter] = useState(vaultsFilters.find(item => item === sessionStorage.getItem('bvualts-filter')) ?? vaultsFilters[0])
+  const wrapSetFilter = (nf: VaultsFilterType) => {
     setFilter(nf)
-    sessionStorage.setItem("bvualts-filter", nf.value)
+    sessionStorage.setItem("bvualts-filter", nf)
   }
   const bvaults = useStore(s => s.sliceBVaultsStore.bvaults, ['sliceBVaultsStore.bvaults'])
   const fVcs = useMemo(() => {
     if (loading) return bvcs
-    if (currentFilter.label == 'All') return bvcs
-    if (currentFilter.label == 'Active') return bvcs.filter(vc => !Boolean(bvaults[vc.vault]?.closed))
+    if (currentFilter == 'All') return bvcs
+    if (currentFilter == 'Active') return bvcs.filter(vc => !Boolean(bvaults[vc.vault]?.closed))
     return bvcs.filter(vc => Boolean(bvaults[vc.vault]?.closed))
   }, [loading, bvaults, currentFilter, bvcs])
   return (
@@ -139,16 +141,12 @@ export default function Vaults() {
             <div className='page-title'>B-Vaults</div>
             <div className='flex flex-wrap gap-5 w-full items-center justify-between'>
               <Noti className='w-auto' data='A Pendle-like Yield Tokenization Protocol Tailored for Proof-of-Liquidity (POL).' />
-              <Select
-                onChange={(value) => value && wrapSetFilter(value)}
+              <SimpleSelect
+                options={vaultsFilters}
                 value={currentFilter}
-                classNames={{
-                  menu: () => cn('bg-white dark:bg-black dark:border'),
-                  option: (props) => cn('cursor-pointer', { '!bg-primary/50': props.isFocused, '!bg-primary': props.isSelected }),
-                  control: () => 'bg-white dark:bg-black !border-primary/70 !shadow-none cursor-pointer',
-                  singleValue: () => 'dark:text-white',
-                }}
-                options={vaultsFilters} />
+                onChange={wrapSetFilter}
+                className='w-27'
+              />
             </div>
 
             {loading ? <div className='w-full flex items-center justify-center pt-40'>

@@ -99,13 +99,13 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
         className={cn(
           'bg-white dark:bg-transparent',
           'border-slate-400  focus:border-primary',
-          'w-full h-14 text-right px-4 font-bold text-base border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-none dark:text-slate-50',
+          'w-full h-14 text-right px-4 font-bold text-base border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-hidden dark:text-slate-50',
         )}
         placeholder='Search by name, symbol or address'
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
-      <div className='flex flex-col overflow-y-auto h-[18.75rem]'>
+      <div className='flex flex-col overflow-y-auto h-75'>
         {isFetching ? (
           <>
             <PulseTokenItem />

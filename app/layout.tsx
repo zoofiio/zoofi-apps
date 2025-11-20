@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.className} bg-white dark:bg-dark dark:text-slate-50`}>
         <PageLayout>{children}</PageLayout>
-        <div id='tooltip-root' className='fixed left-0 top-0 z-[200]' />
+        <div id='tooltip-root' className='fixed left-0 top-0 z-200' />
       </body>
     </html>
   )

@@ -54,7 +54,7 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress }: { paramL
 
   return (
     <Expandable tit='Vault Param Vaule'>
-      <Select classNames={selectClassNames} maxMenuHeight={infoMeasure.height + 110} value={param} options={params} onChange={(e) => setState({ param: e as any })} />
+      <Select classNames={selectClassNames} maxMenuHeight={infoMeasure.height + 110} value={param} options={params} onChange={(e: any) => setState({ param: e as any })} />
       <input
         value={value.toString()}
         onChange={(e) => {
@@ -115,7 +115,7 @@ function Erc20Approve() {
         functionName: 'approve',
         args: [stat.spender as Address, stat.amount],
       }}
-      className='!mt-0 w-full flex items-center justify-center gap-4'
+      className='mt-0! w-full flex items-center justify-center gap-4'
     />
   </Expandable>
 }
@@ -130,11 +130,9 @@ export default function AdminPage() {
           <FaSpinner className='text-3xl animate-spin' />
         </div> : <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
           <div className="text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
-            {JSON.stringify({
-              'Decimal18': '000000000000000000'
-            }, undefined, 2)}
+            {JSON.stringify({ 'Decimal18': '000000000000000000' }, undefined, 2)}
           </div>
-          <Select classNames={selectClassNames} defaultValue={options[0]} options={options} onChange={(e) => e && setState({ current: e as any })} />
+          <Select classNames={selectClassNames} defaultValue={options[0]} options={options} onChange={(e: any) => e && setState({ current: e as any })} />
           {current.type == 'B-Vault' && (
             <>
               <UpdateVaultParams vault={current.data.vault} paramList={BVaultParams} protocoSettingAddress={current.data.protocolSettingsAddress} />

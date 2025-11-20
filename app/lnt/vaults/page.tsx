@@ -41,8 +41,12 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
   )
 }
 
-export default function Vaults() {
-  const vcs = (LNTVAULTS_CONFIG).filter(item => item.onEnv ? item.onEnv.includes(ENV) : true)
+export default function Vaults({ type = 'lnt' }: { type?: 'lnt' | 'lvt' }) {
+  const vcs = (LNTVAULTS_CONFIG).filter(item => {
+    const byEnv = item.onEnv ? item.onEnv.includes(ENV) : true
+    const byType = (item.isLVT ? 'lvt' : 'lnt') == type
+    return byEnv && byType
+  })
   const params = useSearchParams()
   const paramsVault = params.get('vault')
   const paramsTab = params.get('tab')
@@ -52,7 +56,7 @@ export default function Vaults() {
       <div className='w-full max-w-[1160px] px-4 mx-auto md:pb-8 relative'>
         {!currentVc ? (
           <>
-            <div className='page-title'>LNT-Vaults</div>
+            <div className='page-title'>{type.toUpperCase()}-Vaults</div>
             {/* <Noti data='Deposit assets into the Vaults to pair-mint stablecoin and margin token' /> */}
             <div className='flex flex-col gap-5 mt-4'>
               {vcs.map((item, index) => (

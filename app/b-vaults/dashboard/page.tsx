@@ -28,7 +28,7 @@ function DashItem({ title, sub, tHeader, tData, tableProps }: { title: ReactNode
     <div className='animitem card whitespace-nowrap'>
       {typeof title == 'string' ? <div className='text-2xl leading-none font-semibold'>{title}</div> : title}
       {typeof sub == 'string' ? <div className='text-[2rem] text-primary leading-none font-semibold mt-2'>{sub}</div> : sub}
-      <div className='my-4 h-[1px] bg-border/60 dark:bg-border'></div>
+      <div className='my-4 h-px bg-border/60 dark:bg-border'></div>
       <div className='w-full overflow-x-auto'>
         <STable headerClassName='border-b-0' header={tHeader} data={tData} {...(tableProps || {})} />
       </div>
@@ -117,7 +117,7 @@ function BVaultsItem() {
   }, [bvcs, bvaults, prices])
   return <DashItem title='B-Vault' tHeader={['Vaults', 'Total Deposit', 'Status', 'PT APY', 'YT ROI']} tData={data} tableProps={{
     span: { 1: 2 },
-    cellClassName: (ri, ci) => ci == 0 ? 'h-[3.5rem]' : ''
+    cellClassName: (ri, ci) => ci == 0 ? 'h-14' : ''
   }} />
 }
 export default function Dashboard() {

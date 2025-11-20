@@ -105,7 +105,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
   }
   return <div className='flex flex-col gap-5 items-center p-5'>
     <div className='w-full text-start'>Licenses ID <span className={cn('text-xs ml-5 opacity-70', { "hidden": vc.isAethir },)}>Wait about 5 minutes after MINT to retrieve the list.</span></div>
-    <div className='w-[32rem] h-72 overflow-y-auto'>
+    <div className='w-lg h-72 overflow-y-auto'>
       <div className='w-full gap-2 grid grid-cols-4 '>
         {nfts.result.map(id => (
           <div key={id.toString()}
@@ -678,7 +678,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
   }
   const vtTotal = useVTTotalSupply(vc)
   return <div className="flex flex-col gap-4 w-full">
-    <div className='animitem card !p-0 overflow-hidden w-full'>
+    <div className='animitem card p-0! overflow-hidden w-full'>
       <div className='flex p-5 bg-[#A3D395] gap-5'>
         <CoinIcon size={48} symbol={vt.symbol} />
         <div className='flex flex-col gap-3'>
@@ -702,7 +702,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         </button>
       </div>
     </div>
-    <div className="animitem card !p-4 min-h-[390px]">
+    <div className="animitem card p-4! min-h-[390px]">
       {vc.vtActive ? <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
         triggerClassName={`text-base font-bold leading-none data-[state="active"]:text-black`}
@@ -724,7 +724,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
     walletClient?.watchAsset({ type: 'ERC20', options: yt }).catch(handleError)
   }
   return <div className="flex flex-col gap-4 w-full">
-    <div className='animitem card !p-0 overflow-hidden w-full'>
+    <div className='animitem card p-0! overflow-hidden w-full'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
         <CoinIcon size={48} symbol={yt.symbol} />
         <div className='flex flex-col gap-3'>
@@ -744,7 +744,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
         </button>
       </div>
     </div>
-    <div className="animitem card !p-4">
+    <div className="animitem card p-4!">
       <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
         triggerClassName={`text-base font-bold leading-none data-[state="active"]:text-black`}

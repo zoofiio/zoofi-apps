@@ -41,8 +41,9 @@ export function SwitchChain() {
     }
     if (!ct) return null
     return <SimpleDialog
-        className="w-full max-w-[22.5rem] p-4 shadow-lg"
+        className="w-full max-w-90 p-4 shadow-lg"
         triggerRef={triggerRef}
+        triggerProps={{ className: 'hidden md:flex' }}
         trigger={
             chainError ? <div className='flex items-center gap-2 text-sm font-bold rounded-lg cursor-pointer relative px-2 h-10 bg-red-500 text-white' >
                 Wrong network

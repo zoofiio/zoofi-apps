@@ -41,7 +41,7 @@ export function SimpleTabs({
           <Tabs.Trigger
             key={item.tab}
             className={cn(
-              'rounded-[3px] text-sm py-1.5 px-0 text-black/50 font-medium data-[state="active"]:bg-black data-[state="active"]:text-slate-900 !bg-transparent dark:text-white/50 dark:data-[state="active"]:text-white',
+              'rounded-[3px] text-sm py-1.5 px-0 text-black/50 font-medium data-[state="active"]:bg-black data-[state="active"]:text-slate-900 bg-transparent! dark:text-white/50 dark:data-[state="active"]:text-white',
               typeof triggerClassName == 'function' ? triggerClassName(i) : triggerClassName,
             )}
             value={item.tab}
@@ -52,7 +52,7 @@ export function SimpleTabs({
       </Tabs.List>
       {!hiddenConetent &&
         data.map((item) => (
-          <Tabs.Content key={item.tab} value={item.tab} className={cn('flex flex-col gap-6 outline-none', contentClassName)}>
+          <Tabs.Content key={item.tab} value={item.tab} className={cn('flex flex-col gap-6 outline-hidden', contentClassName)}>
             {item.content}
           </Tabs.Content>
         ))}

@@ -267,7 +267,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
             onOpenChange={(open) => !open && setState({ detailBuner: undefined })}>
             <div>Lisense ID</div>
             {detailBuner && <div className="w-full max-w-[600px] grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-1 p-5 max-h-[60vh] overflow-y-auto">
-                {detailBuner.delegated_nfts.map(id => <div key={id} className="px-2 py-1 rounded bg-primary/10">{id}</div>)}
+                {detailBuner.delegated_nfts.map(id => <div key={id} className="px-2 py-1 rounded-sm bg-primary/10">{id}</div>)}
             </div>}
         </SimpleDialog>
     </div>
@@ -306,7 +306,7 @@ export default function Page() {
         {
             opsToken ? <>
                 <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Admins">
-                    <div className="p-5 rounded bg-primary/10">
+                    <div className="p-5 rounded-sm bg-primary/10">
                         {JSON.stringify(admins.result, undefined, 2)}
                     </div>
                     <input className={cn(inputClassname)} value={modifyAdd} onChange={(e) => setModifyAdd(e.target.value)} />
