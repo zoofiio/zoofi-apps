@@ -264,7 +264,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
           <div>{displayBalance(ytTotalSupply.result)}</div>
         </div> */}
         <div className={itemClassname}>
-          <div className={itemTitClassname}>VT Buyback</div>
+          <div className={itemTitClassname}>VT Burned</div>
           <div className="flex w-36 items-center ">
             <div className="flex w-full h-4 bg-gray-200 rounded-full ">
               <div
