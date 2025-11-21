@@ -45,6 +45,14 @@ export const TOKENS: Token[] = [
   { address: '0x25Bcf9957d6f186C3f1dDD0Ce35853B16Cb81639', symbol: 'v0G', decimals: 18, chain: bscTestnet.id },
   { address: '0x48e497862069034a6229e6cf59b7ebdf3f593a88', symbol: 'lp0G', decimals: 18, chain: bscTestnet.id },
 
+  // for 0G prod
+  { address: "0x4B948d64dE1F71fCd12fB586f4c776421a35b3eE", symbol: '0G', decimals: 18, chain: bsc.id },
+  // v0G by OFTAdapter
+  { address: "0x5e95358B73bAFE88c8dC1350697c4CB2354C63cD", symbol: 'v0G', decimals: 18, chain: arbitrum.id },
+  // v0G by OFT
+  { address: "0x0565FE63579760944f19b0932CB0EA36944a625C", symbol: 'v0G', decimals: 18, chain: bsc.id },
+  { address: "0xa0dcce857576c4691507acd690700e7610a1fa88", symbol: 'lp0G', decimals: 18, chain: bsc.id },
+
   // for Filecoin
   { address: '0x0D8Ce2A99Bb6e3B7Db580eD848240e4a0F9aE153', symbol: 'Fil', decimals: 18, chain: bsc.id },
   { address: "0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46", symbol: 'vFil', decimals: 18, chain: bsc.id },

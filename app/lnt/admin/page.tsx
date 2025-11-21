@@ -100,7 +100,7 @@ const LntVaultParams2_2: ParamItem[] = [
 
 export default function AdminPage() {
   const vcs = LNTVAULTS_CONFIG
-  const options = vcs.map(item => ({ key: item.vault, show: `${item.isLVT ? 'LVT' : 'LNT'}-Vault(${shortStr(item.vault)})(${item.tit})`, vc: item }))
+  const options = vcs.map(item => ({ key: item.vault, show: `${item.isLVT ? 'LVT' : 'LNT'}-Vault  (${shortStr(item.vault)}) (${item.tit}) (${getChain(item.chain)!.name})`, vc: item }))
   const [current_, setCurrent] = useState<typeof options[0] | undefined>(options[0])
   const current = options.length > 0 ? current_ : undefined;
   return (
@@ -110,10 +110,11 @@ export default function AdminPage() {
         <div className='flex flex-col gap-4 w-full mx-auto px-5'>
           <div className="animitem text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
             {JSON.stringify({
-              'Decimal18': '000000000000000000'
+              'Decimal18': '000000000000000000',
+              'Vault': current?.vc.vault
             }, undefined, 2)}
           </div>
-          <SimpleSelect className='w-full animitem z-50' itemClassName='p-3' currentClassName='p-3' options={options} onChange={setCurrent} />
+          <SimpleSelect className='w-full animitem z-50' itemClassName='p-3 font-mono' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
             current && <ConfigChainsProvider chains={[current.vc.chain]}>
               {
