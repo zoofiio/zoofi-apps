@@ -8,14 +8,14 @@ import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { calcTPriceVT, calcVtApy, useLntDepsoitFee, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
+import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
 import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
-import { debounce, isNil, round } from 'es-toolkit'
+import { debounce, round } from 'es-toolkit'
 import { floor, keys, min, toNumber } from 'es-toolkit/compat'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -23,21 +23,22 @@ import { useMemo, useRef, useState } from 'react'
 import { FaYoutube } from "react-icons/fa6"
 import { useSetState, useToggle } from 'react-use'
 import { toast } from 'sonner'
-import { Address, erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
+import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { TX, TxConfig, Txs, withTokenApprove } from './approve-and-tx'
-import { AssetInput } from './input-asset'
 import { BridgeToken } from './bridge-token'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
+import { AssetInput } from './input-asset'
 import { LntVaultBuyback } from './lnt-vault-buyback'
 import { Badge } from './noti'
 import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
+import { ConfigChainsProvider } from './support-chains'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
-import { ConfigChainsProvider } from './support-chains'
+import { Tip } from './ui/tip'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
@@ -303,7 +304,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const withdrawPrice = vd.result?.aVT ?? 0n
-  return <div className=' flex flex-col h-full justify-between shrink-0 gap-10 w-full md:w-fit'>
+  return <div className=' flex flex-col h-full justify-between shrink-0 gap-6 w-full md:w-fit'>
     <div className='flex items-center text-sm justify-center whitespace-nowrap'>
       <span className=''>Total Deposited</span>
       <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
@@ -328,13 +329,14 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
       </SimpleDialog>}
       {
         vc.isZeroG ? <>
-          <div className='mt-4 text-sm text-center'>
-            1 License = 854.7 v0G (Max)<br />
-            <br />
-            Get {displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol} immediately<br />
-            Remaining portion will be distributed on BSC
+          <div className='text-sm text-center'>
+            1 License = 854.7 v0G (Max) <Tip>
+              Get {displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol} immediately<br />
+              Remaining portion will be<br />
+              distributed on BSC
+            </Tip>
           </div>
-          <div className='flex flex-col items-center'>
+          <div className='flex flex-col items-center text-sm'>
             {/* Claimable : 234.5 v0G */}
             <span>Claimable : - {vt.symbol}</span>
             <Txs

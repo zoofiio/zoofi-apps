@@ -98,10 +98,12 @@ export function Txs({
             callHashes.push(tx)
             const res = await pc.waitForTransactionReceipt({ hash: tx, confirmations: 1 })
             if (res.status !== 'success') throw new Error('Transactions Reverted')
+            if (callHashes.length == calls.length) {
+              await beforeTxSuccess?.(callHashes)
+            }
             progress++
             showTxsStat && useTxsStore.setState({ progress })
           }
-          await beforeTxSuccess?.(callHashes)
           toast && tos.success("Transactions Success")
           useTxsStore.setState({ progress: 0, txs: [] })
           onTxSuccess?.()

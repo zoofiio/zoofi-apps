@@ -138,6 +138,11 @@ export default function AdminPage() {
                   <Expandable tit={`Swap (${getChain(current.vc.chain)!.name})`}>
                     {current.vc.protocalSettings && <UpdateVaultParams chain={current.vc.chain} vault={current.vc.vault} protocoSettingAddress={current.vc.protocalSettings} paramList={LntVaultParams2_2} />}
                     <ContractAll unwrap tit='Protocol' abi={abiLntProtocol} address={current.vc.protocol} />
+                    <GeneralAction disableAnim abi={abiLntVault} functionName='updateVTPriceTime' address={current.vc.vault}
+                      infos={() => promiseAll({
+                        vtPriceStartTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceStartTime' }),
+                        vtPriceEndTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceEndTime' })
+                      })} />
                     <GeneralAction disableAnim abi={abiLntVault} functionName='addRewards' address={current.vc.vault} />
                     <GeneralAction disableAnim abi={abiLntVault} functionName='settle' address={current.vc.vault} />
                     <GeneralAction disableAnim abi={abiLntVault} functionName='withdrawProfitT' address={current.vc.vault} />
