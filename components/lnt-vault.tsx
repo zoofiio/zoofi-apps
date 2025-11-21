@@ -131,8 +131,8 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       </>}
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
-      <div>
-        {vc.isZeroG ? `Get ${displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol} immediately Remaining portion will be distributed on BSC`:
+      <div className='text-left'>
+        {vc.isZeroG ? `Get ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol} immediately Remaining portion will be distributed on BSC`:
           `1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
