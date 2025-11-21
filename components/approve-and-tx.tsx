@@ -88,7 +88,7 @@ export function Txs({
       } catch (error) {
         const msg = getErrorMsg(error)
         const showTxsStat = !disableProgress && calls.length > 1
-        if (msg && (msg.includes('wallet_sendCalls') || msg.includes("EIP-7702 not supported"))) {
+        if (msg && (msg.includes('wallet_sendCalls') || msg.includes("not supported") || msg.includes("Not supported"))) {
           let progress = 0;
           showTxsStat && useTxsStore.setState({ txs: calls, progress })
           const callHashes: Hex[] = []
