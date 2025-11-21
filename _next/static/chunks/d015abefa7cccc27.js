@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,331713,t=>{"use strict";var e=t.i(29743),o=t.i(589569),r=t.i(96932);function i(){let t=(0,o.useRouter)();return(0,r.useEffect)(()=>{t.replace("/lnt")},[]),(0,e.jsx)(e.Fragment,{})}BigInt.prototype.toJSON=function(){return this.toString()},t.s(["default",()=>i])}]);

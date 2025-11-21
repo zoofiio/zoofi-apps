@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,716489,t=>{"use strict";var i=t.i(29743),n=t.i(989846),o=t.i(751755);function r({children:t}){return(0,i.jsx)(n.ConfigChainsProvider,{chains:[o.base.id],children:t})}BigInt.prototype.toJSON=function(){return this.toString()},t.s(["default",()=>r])}]);
