@@ -116,7 +116,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
                 <div className="font-medium">{displayBalance(nextBuyback, undefined, vt.decimals)}</div>
             </div>
             <div className="flex gap-4 items-center">
-                <div>Total Pending</div>
+                <div>Total Request</div>
                 <div className="font-medium">{displayBalance(pendinSale.result, undefined, vt.decimals)}</div>
                 <Tip>If the amount of VT in the pool exceeds the rewards for the current batch, participating users will receive settlement on a pro-rata basis. The remaining VT will continue to wait for the next batch of redemption until fully converted.</Tip>
             </div>
