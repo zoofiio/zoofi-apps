@@ -43,7 +43,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
     })
     const pots = buybackDatas.result?.pots ?? []
     const vestingRate = aarToNumber(buybackDatas.result?.VestingRate ?? 0n, 18)
-    const price = `Conversion ratio : 1 ${vt.symbol} = ${round((1 - vestingRate), 2)} ${vt.symbol}`
+    const price = `Conversion ratio : 1 ${vt.symbol} = ${round((1 - vestingRate), 2)} ${t.symbol}`
 
     // nextBuyback
     const nextBuyback = buybackDatas.result?.buybackDustAmountVT ?? 0n

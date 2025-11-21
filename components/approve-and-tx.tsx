@@ -155,7 +155,9 @@ export function TxsStat({ className }: { className?: string }) {
     <div className='flex flex-col gap-2 max-h-80 overflow-y-auto px-2.5'>
       {txs.map((tx, i) => <div key={`tx_item_stat_${i}`} className={cn('animitem flex items-center gap-5 bg-primary/20 px-4 py-2', { 'border-t border-black/20 dark:border-white/20': i > 0 })}>
         <span className='font-semibold'>{i + 1}</span>
-        {tx.name ?? tx.functionName}
+        <span className='first-letter:uppercase'>
+          {tx.name ?? tx.functionName}
+        </span>
         <div className={cn('ml-auto text-xl', { 'animate-spin': progress == i })}>
           {progress == i && <FaSpinner />}
           {progress > i && <FaCheck className='text-green-500' />}

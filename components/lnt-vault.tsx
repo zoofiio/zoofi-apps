@@ -42,6 +42,7 @@ import { Tip } from './ui/tip'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
+  const withdrawPrice = vd.result?.aVT ?? 0n
   const maxSelected = 30;
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
   const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
@@ -105,7 +106,9 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     ]
   }
   return <div className='flex flex-col gap-5 items-center p-5'>
-    <div className='w-full text-start'>Licenses ID <span className={cn('text-xs ml-5 opacity-70', { "hidden": vc.isAethir },)}>Wait about 5 minutes after MINT to retrieve the list.</span></div>
+    <div className='w-full text-start'>Licenses ID
+      {/* <span className={cn('text-xs ml-5 opacity-70', { "hidden": vc.isAethir },)}>Wait about 5 minutes after MINT to retrieve the list.</span> */}
+    </div>
     <div className='w-lg h-72 overflow-y-auto'>
       <div className='w-full gap-2 grid grid-cols-4 '>
         {nfts.result.map(id => (
@@ -129,7 +132,8 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
       <div>
-        {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
+        {vc.isZeroG ? `Get ${displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol} immediately Remaining portion will be distributed on BSC`:
+          `1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
         {`Operation Fees : ${vc.depositFees ?? '5%'}`}
@@ -244,7 +248,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
         <div className='flex items-center gap-2.5 shrink-0'>
           <CoinIcon symbol={vc.projectIcon} size={40} />
           <span className='text-sm font-semibold'>{vc.tit}</span>
-          <Badge text='Testnet' className={cn('opacity-0', { 'opacity-100': chain.testnet || vc.test })} />
+          <Badge text='Testnet' className={cn('opacity-0 absolute left-0 top-0', { 'opacity-100': chain.testnet || vc.test })} />
         </div>
         <div className={itemClassname}>
           {
