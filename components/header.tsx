@@ -22,13 +22,13 @@ export function Header() {
   )
   const pathname = usePathname()
   return (
-    <header className='h-[72px] sticky top-0 left-0 w-full max-w-[1300px] inset-0 mx-auto flex items-center justify-end px-4 z-30 bg-white  dark:text-slate-50 dark:bg-dark'>
+    <header className='h-[72px] sticky top-0 left-0 w-full max-w-[1300px] inset-0 mx-auto flex items-center justify-end px-4 z-30 main-colors'>
       <div className='flex items-center md:gap-4'>
         {pathname.startsWith('/b-vaults') ?
-          <Link href={'/lnt'} className='text-slate-300 hover:text-primary'>
+          <Link href={'/lnt'} className='text-primary/80 hover:text-primary underline underline-offset-2'>
             LNT-Vault
           </Link> :
-          <Link href={'/b-vaults'} className='text-slate-300 hover:text-primary'>
+          <Link href={'/b-vaults'} className='text-primary/80 hover:text-primary underline underline-offset-2'>
             B-Vault
           </Link>}
         <ThemeMode />

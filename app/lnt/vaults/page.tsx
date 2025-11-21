@@ -29,7 +29,7 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
         <LNTInfo vc={vc} />
         <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4 xl:gap-5'>
           <LntVaultChart vc={vc} />
-          <LNT_VT_YT vc={vc} />
+          <LNT_VT_YT vc={vc} tab={tab} />
         </div>
         <LntMyPositions vc={vc} />
 

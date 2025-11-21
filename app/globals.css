@@ -37,7 +37,7 @@
 }
 
 @utility card {
-  @apply bg-white rounded-2xl border border-black/10 p-4 dark:border-border dark:bg-white/5 sm:p-5 md:p-6;
+  @apply bg-white/10 rounded-2xl border border-black/10 p-4 dark:border-border dark:bg-white/5 sm:p-5 md:p-6;
 }
 
 @utility page-title {
@@ -46,6 +46,10 @@
 
 @utility page-sub {
   @apply text-base font-bold text-slate-900 dark:text-slate-50;
+}
+
+@utility main-colors {
+  @apply bg-stone-50 dark:bg-stone-950 text-stone-950 dark:text-stone-50
 }
 
 @utility no-scrollbar {

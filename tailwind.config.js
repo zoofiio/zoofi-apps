@@ -18,7 +18,8 @@ module.exports = {
         poppins: ['Poppins', 'sans-serif'],
       },
       backgroundImage: {
-        dark: 'linear-gradient(105.67deg, #02050E 14.41%, #1D2F23 98.84%)',
+        dark: 'linear-gradient(#1D2F23, #1D2F23)',
+        light: 'linear-gradient( #fefff6 , #fefff6)',
         s0: 'linear-gradient(90deg, #C2B7FD 0%, #423C5E 100%)',
         s1: 'radial-gradient(97.67% 126.32% at 50% 0%, #010214 25.78%, #7A61BC 99.83%)',
         s2: 'linear-gradient(90deg, #C2B7FD 0%, #9580F7 100%)',

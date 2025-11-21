@@ -24,6 +24,7 @@ export function SimpleTabs({
   const [tab, setTab] = useState(currentTab || data[0].tab)
   useEffect(() => {
     if (!data.find((item) => item.tab == tab)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTab(data[0].tab)
     }
   }, [tab, data])
@@ -41,7 +42,7 @@ export function SimpleTabs({
           <Tabs.Trigger
             key={item.tab}
             className={cn(
-              'rounded-[3px] text-sm py-1.5 px-0 text-black/50 font-medium data-[state="active"]:bg-black data-[state="active"]:text-slate-900 bg-transparent! dark:text-white/50 dark:data-[state="active"]:text-white',
+              'cursor-pointer rounded-[3px] text-sm py-1.5 px-0 text-black/50 font-medium data-[state="active"]:bg-black data-[state="active"]:text-slate-900 bg-transparent! dark:text-white/50 dark:data-[state="active"]:text-white',
               typeof triggerClassName == 'function' ? triggerClassName(i) : triggerClassName,
             )}
             value={item.tab}

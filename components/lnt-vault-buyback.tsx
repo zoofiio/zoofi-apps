@@ -143,7 +143,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         />
         <div className="animitem text-center">{price} <Tip>The conversion ratio here is not 1:1 (including protocol service fee). Users can choose to accept it or wait until maturity for a 1:1 redemption(no service fee)</Tip></div>
         <div className="animitem gap-4 grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))]">
-            <Txs tx="Join pending" disabled={inputBn <= 0n} txs={getJoinTxs} />
+            <Txs tx="Request" disabled={inputBn <= 0n} txs={getJoinTxs} />
             <Txs tx="Withdraw" disabled={inputBn <= 0n} txs={getWithdrawTxs} />
             <div className="flex justify-center items-center">Settled: {displayBalance(userSeltted.result, undefined, t.decimals)}</div>
             <Txs tx="Claim" disabled={userSeltted.result == 0n} txs={getCalimTxs} />

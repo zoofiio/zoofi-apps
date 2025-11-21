@@ -11,7 +11,7 @@ import { useCurrentChain } from '@/hooks/useCurrentChainId'
 import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
-import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
+import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, tabToSearchParams, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
@@ -39,6 +39,7 @@ import { ConfigChainsProvider } from './support-chains'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
 import { Tip } from './ui/tip'
+import { getChain } from '@/config/network'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
@@ -132,7 +133,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
       <div className='text-left'>
-        {vc.isZeroG ? `Get ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol} immediately Remaining portion will be distributed on BSC`:
+        {vc.isZeroG ? `Get ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol} immediately Remaining portion will be distributed on BSC` :
           `1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
@@ -233,7 +234,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
   const logs = useLntVaultLogs(vc)
-  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center text-black"
+  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center"
   const itemTitClassname = "opacity-60 text-xs font-semibold"
   const vtTotalSupply = useVTTotalSupply(vc)
   // const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
@@ -243,7 +244,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const chain = useCurrentChain()
   const vtApy = calcVtApy(vc, vd.result, logs.result)
   return (
-    <div className={cn('animitem rounded-2xl bg-white border border-[#E4E4E7] text-[#64748B] overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
+    <div className={cn('animitem  card rounded-2xl overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
       <div className='w-full min-w-max gap-4 grid grid-cols-[2.3fr_1.3fr_1fr_1fr_1.4fr_1fr]'>
         <div className='flex items-center gap-2.5 shrink-0'>
           <CoinIcon symbol={vc.projectIcon} size={40} />
@@ -733,14 +734,20 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     walletClient?.watchAsset({ type: 'ERC20', options: vt }).catch(handleError)
   }
   const vtTotal = useVTTotalSupply(vc)
+  const r = useRouter()
   return <div className="flex flex-col gap-4 w-full">
     <div className='animitem card p-0! overflow-hidden w-full'>
-      <div className='flex p-5 bg-[#A3D395] gap-5'>
+      <div className='flex p-5 bg-[#A3D395] gap-5 relative'>
         <CoinIcon size={48} symbol={vt.symbol} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{vt.symbol}</div>
           <div className='text-xs leading-none text-black/60 font-medium'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
         </div>
+        {vc.deposit && <div className='text-sm text-black absolute top-5 right-5'>
+          <span onClick={() => toLntVault(r, vc.vault, 'bridge')}
+            className='cursor-pointer underline underline-offset-2'>Bridge</span>
+          {` `} to {getChain(vc.chain)!.name} first
+        </div>}
       </div>
       <div className='flex whitespace-nowrap flex-wrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>
         <div className='flex justify-between gap-2.5 items-baseline'>
@@ -814,20 +821,25 @@ function YT({ vc }: { vc: LntVaultConfig }) {
   </div>
 }
 
-export function LNT_VT_YT({ vc }: { vc: LntVaultConfig }) {
+export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
+  const r = useRouter()
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
   const vt2 = getTokenBy(vd.result!.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })
+  const data = [
+    { tab: 'Vesting Token', content: <VT vc={vc} /> },
+    ...(vc.ytEnable ? [{ tab: 'Yield Token', content: <YT vc={vc} /> }] : []),
+    ...(vc.buyback ? [{ tab: 'Put Option', content: <LntVaultBuyback vc={vc} /> }] : []),
+    ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt2, vt]} /> }] : []),
+  ]
+  const currentTab = data.find(item => tabToSearchParams(item.tab) === tab)?.tab
   return <div className='animitem card bg-white'>
     <SimpleTabs
+      currentTab={currentTab}
+      onTabChange={(tab) => toLntVault(r, vc.vault, tab)}
       listClassName="p-0 gap-4 mb-4 w-full"
       triggerClassName={(i) => `text-lg font-semibold leading-none data-[state="active"]:underline underline-offset-2`}
-      data={[
-        { tab: 'Vesting Token', content: <VT vc={vc} /> },
-        ...(vc.ytEnable ? [{ tab: 'Yield Token', content: <YT vc={vc} /> }] : []),
-        ...(vc.buyback ? [{ tab: 'Put Option', content: <LntVaultBuyback vc={vc} /> }] : []),
-        ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt2, vt]} /> }] : []),
-      ]}
+      data={data}
     />
   </div>
 }
