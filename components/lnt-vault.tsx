@@ -227,17 +227,19 @@ export function LntOperators({ vc }: { vc: LntVaultConfig }) {
 export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
+  const logs = useLntVaultLogs(vc)
   const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center text-black"
   const itemTitClassname = "opacity-60 text-xs font-semibold"
   const vtTotalSupply = useVTTotalSupply(vc)
-  const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
+  // const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
   // const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
   const t = getTokenBy(vd.result?.T, vc.chain, { symbol: 'T' })
-  const { remainStr } = useLntVaultTimes(vc)
+  const { remainStr, endTimeStr } = useLntVaultTimes(vc)
   const chain = useCurrentChain()
+  const vtApy = calcVtApy(vc, vd.result, logs.result)
   return (
     <div className={cn('animitem rounded-2xl bg-white border border-[#E4E4E7] text-[#64748B] overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
-      <div className='w-full min-w-max gap-4 grid grid-cols-[2.3fr_1fr_1fr_1.2fr_1.8fr]'>
+      <div className='w-full min-w-max gap-4 grid grid-cols-[2.3fr_1.3fr_1fr_1fr_1.4fr_1fr]'>
         <div className='flex items-center gap-2.5 shrink-0'>
           <CoinIcon symbol={vc.projectIcon} size={40} />
           <span className='text-sm font-semibold'>{vc.tit}</span>
@@ -249,7 +251,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
               <div className={itemTitClassname}>Total Locked</div>
               <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, undefined, t?.decimals)}</div>
             </> : <>
-              <div className={itemTitClassname}>Total Delegated</div>
+              <div className={itemTitClassname}>Total Deposited</div>
               <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
             </>
           }
@@ -259,11 +261,15 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
           <div className={itemTitClassname}>VT Supply</div>
           <div>{displayBalance(vtTotalSupply)}</div>
         </div>
+        <div className={cn(itemClassname,'items-center')}>
+          <div className={itemTitClassname}>VT Apy</div>
+          <div>{formatPercent(vtApy, 2, false)}</div>
+        </div>
         {/* <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
           <div className={itemTitClassname}>YT Supply</div>
           <div>{displayBalance(ytTotalSupply.result)}</div>
         </div> */}
-        <div className={itemClassname}>
+        {/* <div className={itemClassname}>
           <div className={itemTitClassname}>VT Burned</div>
           <div className="flex w-36 items-center ">
             <div className="flex w-full h-4 bg-gray-200 rounded-full ">
@@ -274,10 +280,17 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
             </div>
             <div className="text-sm  text-right opacity-60 ml-[10px]">{0}%</div>
           </div>
+        </div> */}
+        <div className={cn(itemClassname,'items-center')}>
+          <div className={itemTitClassname}>Due Date</div>
+          {!vd ? '-' : <div className='relative whitespace-nowrap'>
+            {endTimeStr}
+            <span className='opacity-60 text-xs absolute top-full left-1/2 -translate-x-1/2'>{remainStr}</span>
+          </div>}
         </div>
-        <div className={itemClassname}>
+        <div className={cn(itemClassname,'items-center')}>
           <div className={itemTitClassname}>State</div>
-          <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : <>Active <span className='opacity-60 text-xs ml-3'>{remainStr}</span></>}</div>
+          <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : 'Active'}</div>
         </div>
       </div>
     </div>
@@ -313,9 +326,27 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
       </SimpleDialog>}
-      <div className='mt-4 text-sm opacity-60 text-center'>
-        {`1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
-      </div>
+      {
+        vc.isZeroG ? <>
+          <div className='mt-4 text-sm text-center'>
+            1 License = 854.7 v0G (Max)<br />
+            <br />
+            Get {displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol} immediately<br />
+            Remaining portion will be distributed on BSC
+          </div>
+          <div className='flex flex-col items-center'>
+            {/* Claimable : 234.5 v0G */}
+            <span>Claimable : - {vt.symbol}</span>
+            <Txs
+              tx='Claim'
+              txs={[]}
+            />
+          </div>
+        </>
+          : <div className='mt-4 text-sm opacity-60 text-center'>
+            {`1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
+          </div>
+      }
     </div>
 
   </div>
@@ -344,7 +375,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
         </div>
 
       </div >
-      <div className='my-4 flex justify-between opacity-60'>Duration <span>{remainStr}</span></div>
+      <div className='my-4 flex justify-between opacity-60 mt-auto'>Duration <span>{remainStr}</span></div>
       <div className="flex w-full h-4 bg-gray-200 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full"

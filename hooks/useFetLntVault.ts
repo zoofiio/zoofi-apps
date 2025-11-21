@@ -5,7 +5,7 @@ import { LntVaultConfig } from '@/config/lntvaults'
 import { getTokenBy } from '@/config/tokens'
 import { YEAR_SECONDS } from '@/constants'
 import { useFet } from '@/lib/useFet'
-import { aarToNumber, bnMin, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
+import { aarToNumber, bnMin, FMT, fmtDate, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
@@ -142,7 +142,7 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   const progress = endTime > startTime ? Math.min(Math.max(((nowtime - startTime) * 100) / (endTime - startTime), 0), 100) : 100
   const progressPercent = `${round(progress, 2)}%`
   const remain = fmtDuration((endTime - nowtime) * 1000)
-  return { progressPercent, remain, remainStr: `~ ${remain} remaining` }
+  return { progressPercent, remain, remainStr: `~ ${remain} remaining`, endTimeStr: fmtDate(endTime * 1000, FMT.DATE2) }
 }
 
 export function useLntVaultLogs(vc: LntVaultConfig) {
