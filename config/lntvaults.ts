@@ -59,7 +59,7 @@ export type LntVaultConfig = {
 
   // lvt
   isLVT?: boolean
-
+  depositFees?: string // def 5%
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
@@ -127,6 +127,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
       vtAdapter: '0xB13038Dafc796A703A8204dD8559da1a0c27ae17',
     },
     vtSwapHook: '0x48e497862069034a6229e6cf59b7ebdf3f593a88',
+    depositFees: '0%',
   },
 
   {

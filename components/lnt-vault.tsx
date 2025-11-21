@@ -8,14 +8,14 @@ import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
+import { calcTPriceVT, calcVtApy, useLntDepsoitFee, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
 import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
-import { debounce, round } from 'es-toolkit'
+import { debounce, isNil, round } from 'es-toolkit'
 import { floor, keys, min, toNumber } from 'es-toolkit/compat'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -131,7 +131,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
-        {`Operation Fees : ${vc.isZeroG ? 0 : 5}%`}
+        {`Operation Fees : ${vc.depositFees ?? '5%'}`}
       </div>
     </div>
     <ConfigChainsProvider chains={[chainId]}>
@@ -261,7 +261,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
           <div className={itemTitClassname}>VT Supply</div>
           <div>{displayBalance(vtTotalSupply)}</div>
         </div>
-        <div className={cn(itemClassname,'items-center')}>
+        <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>VT Apy</div>
           <div>{formatPercent(vtApy, 2, false)}</div>
         </div>
@@ -281,14 +281,14 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
             <div className="text-sm  text-right opacity-60 ml-[10px]">{0}%</div>
           </div>
         </div> */}
-        <div className={cn(itemClassname,'items-center')}>
+        <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>Due Date</div>
           {!vd ? '-' : <div className='relative whitespace-nowrap'>
             {endTimeStr}
             <span className='opacity-60 text-xs absolute top-full left-1/2 -translate-x-1/2'>{remainStr}</span>
           </div>}
         </div>
-        <div className={cn(itemClassname,'items-center')}>
+        <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>State</div>
           <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : 'Active'}</div>
         </div>

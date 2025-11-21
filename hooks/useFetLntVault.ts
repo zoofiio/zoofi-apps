@@ -9,7 +9,7 @@ import { aarToNumber, bnMin, FMT, fmtDate, fmtDuration, nowUnix, promiseAll } fr
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
-import { Address, parseEther, PublicClient, zeroAddress } from 'viem'
+import { Address, parseEther, PublicClient, toHex, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useBalance, useTotalSupply } from './useToken'
 
@@ -268,4 +268,17 @@ export function useVTTotalSupply(vc: LntVaultConfig) {
   // adapter locked
   const vtAdapterLocked = useBalance(vtByDeposit, vc.deposit?.vtAdapter)
   return vtTotalSupply.result + vtByDepositTotal.result - vtAdapterLocked.result
+}
+
+export function useLntDepsoitFee(vc: LntVaultConfig) {
+  return useFet({
+    key: `LNTVaultDepositFee:${vc.chain}-${vc.vault}`,
+    fetfn: async () =>
+      getPC(vc.deposit?.chain ?? vc.chain).readContract({
+        abi: abiLntVault,
+        address: vc.deposit?.vault ?? vc.vault,
+        functionName: 'paramValue',
+        args: [toHex('VTC', { size: 32 })],
+      }),
+  })
 }
