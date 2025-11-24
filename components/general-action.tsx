@@ -56,9 +56,9 @@ export function Expandable({ children, tit, disable, className, disableAnim }: {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className={cn(disableAnim ? '' : "animitem", 'flex flex-col w-full bg-white dark:bg-transparent rounded-lg overflow-hidden border border-solid border-primary/40', className)}>
-      <div className='px-5 py-2 min-h-[58px] flex justify-between items-center text-sm'>
-        <div className='font-medium text-base'>{tit}</div>
+    <div className={cn(disableAnim ? '' : "animitem", 'flex flex-col w-full bg-primary/10 rounded-lg overflow-hidden', className)}>
+      <div className='px-4 py-2 flex justify-between items-center text-sm'>
+        <div className='font-medium'>{tit}</div>
         {disable ? (
           children
         ) : (
@@ -165,7 +165,7 @@ export function GeneralAction({
                 ...(args.length ? { args: writeArgs } : {}),
               }]}
               disabled={txProps?.disabled || (Boolean(args.length) && !Boolean(writeArgs))}
-              className={cn('mt-0! flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full')}
+              className={cn('mt-0! flex items-center justify-center gap-4 h-6.5 text-xs', disableExpand ? 'max-w-[100px]' : 'w-full')}
             />
             <AddMultiTx txs={[{
               abi,
@@ -176,7 +176,7 @@ export function GeneralAction({
           </div>
           :
           <BBtn
-            className={twMerge('flex items-center justify-center gap-4', cn('mt-0! flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full'))}
+            className={twMerge('flex items-center justify-center gap-4 h-6.5 text-xs', cn('mt-0! flex items-center justify-center gap-4', disableExpand ? 'max-w-[100px]' : 'w-full'))}
             onClick={() => doRead()}
             busy={isReadLoading}
             busyShowContent={true}

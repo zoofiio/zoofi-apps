@@ -55,7 +55,7 @@ export type LntVaultConfig = {
     protocalSettings?: Address
     vtAdapter?: Address
   }
-  vtSwapHook?: Address
+  vtSwapHook: Address
 
   // lvt
   isLVT?: boolean
@@ -140,6 +140,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     onEnv: ['test', 'prod'],
     AethirVToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
     RedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
+    vtSwapHook: '0xbf4b4A83708474528A93C123F817e7f2A0637a88',
     isAethir: true,
     lpTYT: zeroAddress,
     test: false,

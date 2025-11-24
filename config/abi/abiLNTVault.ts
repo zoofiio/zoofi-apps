@@ -8,7 +8,7 @@ export const abiQueryLNT = parseAbi([
   'function calcDeposit(address vault,uint256[] calldata nftIds) external view returns (uint256 vt)',
   'function calcRedeem(address vault,uint256 count) external view returns (uint256 vt)',
   'struct LogData {uint256 VTc;uint256 YTc;uint256 Tc;uint256 t;uint256 vt;uint256 timeparam;uint256 Feerate;uint256 ShareTotal;uint256 rateScalar;uint256 rateAnchor;uint256 R;}',
-  'function getLog(address vault) external view returns (LogData memory log)',
+  'function getLog(address vault,address hook) external view returns (LogData memory log)',
 ])
 
 export const abiLntVault = parseAbi([

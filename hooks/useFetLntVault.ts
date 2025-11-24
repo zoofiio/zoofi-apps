@@ -142,13 +142,13 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   const progress = endTime > startTime ? Math.min(Math.max(((nowtime - startTime) * 100) / (endTime - startTime), 0), 100) : 100
   const progressPercent = `${round(progress, 2)}%`
   const remain = fmtDuration((endTime - nowtime) * 1000)
-  return { progressPercent, remain, remainStr: `~ ${remain} remaining`, endTimeStr: fmtDate(endTime * 1000, FMT.DATE2) }
+  return { progress, progressPercent, remain, remainStr: `~ ${remain} remaining`, endTimeStr: fmtDate(endTime * 1000, FMT.DATE2) }
 }
 
 export function useLntVaultLogs(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntVaultLogs(vc),
-    fetfn: async () => getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'getLog', args: [vc.vault] }),
+    fetfn: async () => getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'getLog', args: [vc.vault, vc.vtSwapHook] }),
   })
 }
 

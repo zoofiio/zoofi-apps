@@ -71,5 +71,5 @@ export function MultiTxTemp({ className }: { className?: string }) {
 
 export function AddMultiTx({ disabled, txs, className, ...props }: Parameters<typeof BBtn>[0] & { txs: SimulateContractParameters[] }) {
     const { addTx } = useMultiTxStore()
-    return <BBtn disabled={disabled || txs.length === 0} onClick={() => addTx(...txs)} className={cn("w-36 shrink-0", className)} {...props} >{'Add to Temp'}</BBtn>
+    return <BBtn disabled={disabled || txs.length === 0} onClick={() => addTx(...txs)} className={cn("w-36 shrink-0 h-6.5 text-xs", className)} {...props} >{'Add to Temp'}</BBtn>
 }

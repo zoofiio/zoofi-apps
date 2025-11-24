@@ -40,6 +40,7 @@ import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
 import { Tip } from './ui/tip'
 import { getChain } from '@/config/network'
+import { ProgressBar } from './ui/progress'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
@@ -360,7 +361,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
 }
 
 export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
-  const { progressPercent, remainStr } = useLntVaultTimes(vc)
+  const { progress, remainStr } = useLntVaultTimes(vc)
   const vd = useLntVault(vc)
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   return <div style={{
@@ -383,12 +384,13 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
 
       </div >
       <div className='my-4 flex justify-between opacity-60 mt-auto'>Duration <span>{remainStr}</span></div>
-      <div className="flex w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+      {/* <div className="flex w-full h-4 bg-gray-200 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full"
           style={{ width: progressPercent, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
         />
-      </div>
+      </div> */}
+      <ProgressBar progress={progress} />
     </div>
     {vc.isLVT ? <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
       <span className=''>Total Locked</span>
@@ -430,21 +432,21 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       const pc = getPC(vc.chain)
       if (!vd.result || inputAssetBn <= 0n || !poolkey.result) return 0n
       console.info('vd:', vd.result)
-      if (vc.isAethir || vc.isZeroG) {
-        return pc.readContract({
-          abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: isToggled ? 'getAmountOutVTforT' : 'getAmountOutTforVT',
-          args: [inputAssetBn],
-        })
-      }
+      // if (vc.isAethir || vc.isZeroG) {
       return pc.readContract({
-        abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'quoteExactInputSingle',
-        args: [{
-          poolKey: poolkey.result,
-          zeroForOne,
-          exactAmount: inputAssetBn,
-          hookData: '0x'
-        }]
-      }).then(([out]) => out).catch(() => 0n)
+        abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: isToggled ? 'getAmountOutVTforT' : 'getAmountOutTforVT',
+        args: [inputAssetBn],
+      })
+      // }
+      // return pc.readContract({
+      //   abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'quoteExactInputSingle',
+      //   args: [{
+      //     poolKey: poolkey.result,
+      //     zeroForOne,
+      //     exactAmount: inputAssetBn,
+      //     hookData: '0x'
+      //   }]
+      // }).then(([out]) => out).catch(() => 0n)
     }
   })
   let fees = '-'
