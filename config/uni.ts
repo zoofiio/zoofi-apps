@@ -1,21 +1,9 @@
 import { TxConfig, withTokenApprove } from '@/components/approve-and-tx'
 import { getPC } from '@/providers/publicClient'
 import { now } from 'es-toolkit/compat'
-import {
-  Address,
-  encodeAbiParameters,
-  encodePacked,
-  erc20Abi,
-  Hex,
-  isAddressEqual,
-  parseAbi,
-  parseAbiParameters,
-  SimulateContractParameters,
-  toHex,
-  zeroAddress
-} from 'viem'
+import { Address, encodeAbiParameters, encodePacked, erc20Abi, Hex, isAddressEqual, parseAbi, parseAbiParameters, SimulateContractParameters, toHex, zeroAddress } from 'viem'
 import { bscTestnet } from 'viem/chains'
-import { zeroGmainnet } from './network'
+import { bsc, zeroGmainnet } from './network'
 export const abiUniRouter = parseAbi([
   'function execute(bytes calldata commands, bytes[] calldata inputs) public payable',
   'function execute(bytes calldata commands, bytes[] calldata inputs, uint256 deadline) public payable',
@@ -38,7 +26,7 @@ export const abiStateView = parseAbi([
   'function getLiquidity(bytes32 poolId) external view returns (uint128 liquidity)',
 ])
 
-export type UNI_CONFIG = { unirouter: Address; permit2: Address; poolmanager: Address; }
+export type UNI_CONFIG = { unirouter: Address; permit2: Address; poolmanager: Address }
 export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
   [1]: {
     unirouter: '0x66a9893cc07d91d95644aedd05d03f95e1dba8af',
@@ -69,6 +57,11 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
     unirouter: '0xa8a655b94d30ea4dfa8b68f26e426d720d9d7b81',
     permit2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
     poolmanager: '0xa2ad9ce2e8f9b0107df65fa0211d237cbab0497a',
+  },
+  [bsc.id]: {
+    unirouter: '0x1906c1d672b88cd1b9ac7593301ca990f94eae07',
+    permit2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+    poolmanager: '0x28e2ea090877bf75740558f6bfb36a5ffee9e9df',
   },
 }
 export type UniSwapConfig = {
