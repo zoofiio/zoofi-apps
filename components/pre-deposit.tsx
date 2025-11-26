@@ -231,6 +231,7 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
                 abi: abiPreDeposit,
                 address: pre.prelnt,
                 functionName: 'multicall',
+                name: 'Withdraw NFTs',
                 enabled: tokenIds.length > 0,
                 args: [data]
             },
@@ -335,7 +336,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
                     triggerRef={withdrawRef}
                     triggerProps={{ className: 'flex-1', disabled: !data.preDeposit || (data.preDeposit.withdrawTime || 0) > now() }}
                     trigger={
-                        <BtnB disabled={!data.preDeposit || (data.preDeposit.withdrawTime || 0) > now()}>Withdraw</BtnB>
+                        <BtnB disabled={!data.preDeposit || (data.preDeposit.withdrawTime || 0) > now()}>Withdraw to LNT</BtnB>
                     }
                 >
                     <LntPreWithdraw node={data} onSuccess={() => { withdrawRef.current?.click(); reFetData(); reFetUser() }} />
