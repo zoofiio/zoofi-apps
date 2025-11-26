@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ButtonHTMLAttributes, ReactNode, useMemo, useRef } from "react";
 import { useSetState } from "react-use";
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, erc721Abi, isAddressEqual } from "viem";
 import { useAccount } from "wagmi";
-import { NftApproveAndTx } from "./approve-and-tx";
+import { NftApproveAndTx, TX, Txs, TXSType } from "./approve-and-tx";
 import { CoinIcon } from "./icons/coinicon";
 import { SimpleDialog } from "./simple-dialog";
 import { keys, now } from "es-toolkit/compat";
+import { LNTVAULTS_CONFIG } from "@/config/lntvaults";
+import { abiReppoLntVault } from "@/config/abi/abiLNTVault";
 
 
 
@@ -210,6 +212,39 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
     const { data: { deposited }, refetch } = usePreDepositByUser(node)
     const pre = node.preDeposit!
     const { address } = useAccount()
+    const getTxs: TXSType = async ({ pc, wc }) => {
+        const curentNft = node.preDeposit!.nft
+        const vc = LNTVAULTS_CONFIG.find(item => item.reppo)
+        if (tokenIds.length <= 0) return []
+        if (!vc) return []
+        const approves: TX[] = []
+        if (!(await pc.readContract({ abi: erc721Abi, address: curentNft, functionName: 'isApprovedForAll', args: [wc.account.address!, vc.vault] }))) {
+            const alreadyApproves = await Promise.all(tokenIds.map(id => pc.readContract({ abi: erc721Abi, address: curentNft, functionName: 'getApproved', args: [id] })))
+            alreadyApproves.forEach((ap, i) => {
+                if (!isAddressEqual(ap, vc.vault)) {
+                    approves.push({ abi: erc721Abi, address: curentNft, functionName: 'approve', args: [vc.vault, tokenIds[i]], name: `Approve #${tokenIds[i].toString()}` })
+                }
+            })
+        }
+        return [
+            {
+                abi: abiPreDeposit,
+                address: pre.prelnt,
+                functionName: 'multicall',
+                enabled: tokenIds.length > 0,
+                args: [data]
+            },
+            ...approves,
+            {
+                name: 'Deposit',
+                abi: abiReppoLntVault,
+                address: vc.vault,
+                functionName: 'deposit',
+                enabled: tokenIds.length > 0,
+                args: [curentNft, tokenIds]
+            }
+        ]
+    }
     return <div className='flex flex-col gap-5 items-center p-5'>
         <div className='w-full text-start'>Licenses ID</div>
         <div className='w-full max-w-lg h-72 overflow-y-auto'>
@@ -220,9 +255,26 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
                 </div>))}
             </div>
         </div>
-        <NftApproveAndTx tx='Withdraw'
-            confirmations={5}
-            onTxSuccess={() => {
+        <div className="grid gap-4 lg:grid-cols-2">
+            {/* <NftApproveAndTx tx='Withdraw'
+                confirmations={5}
+                onTxSuccess={() => {
+                    const nStat: { [id: string]: boolean } = {}
+                    tokenIds.forEach((id) => {
+                        nStat[id.toString()] = false
+                    })
+                    setSelectNft(nStat)
+                    onSuccess()
+                    refetch()
+                }}
+                config={{
+                    abi: abiPreDeposit,
+                    address: pre.prelnt,
+                    functionName: 'multicall',
+                    enabled: tokenIds.length > 0,
+                    args: [data]
+                }} /> */}
+            <Txs tx="Withdraw to LNT" txs={getTxs} onTxSuccess={() => {
                 const nStat: { [id: string]: boolean } = {}
                 tokenIds.forEach((id) => {
                     nStat[id.toString()] = false
@@ -230,14 +282,8 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
                 setSelectNft(nStat)
                 onSuccess()
                 refetch()
-            }}
-            config={{
-                abi: abiPreDeposit,
-                address: pre.prelnt,
-                functionName: 'multicall',
-                enabled: tokenIds.length > 0,
-                args: [data]
             }} />
+        </div>
     </div>
 }
 export function PrePool({ data }: { data: NodeLicense }) {
