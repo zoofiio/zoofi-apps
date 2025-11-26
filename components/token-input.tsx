@@ -77,7 +77,7 @@ export function TokenInput({
   }, [token, options])
   const mShowBalance = showBalance && !disable
   const mCheckBalance = checkBalance && !disable
-  const tokenBalance = useBalance(mCheckBalance ? token : undefined)
+  const tokenBalance = useBalance(mShowBalance ? token : undefined)
   const balance = tokenBalance.result;
   const inputRef = useRef<HTMLInputElement>(null)
   const balanceInsufficient = mCheckBalance && parseEthers(`${amount ?? '0'}`, token.decimals) > balance

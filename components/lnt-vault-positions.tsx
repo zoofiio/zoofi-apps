@@ -7,7 +7,7 @@ import { useCurrentChainId } from "@/hooks/useCurrentChainId";
 import { calcLPApy, calcVtApy, useLntVault, useLntVaultLogs, useLntVaultSwapFee7Days, useLntVaultYTRewards } from "@/hooks/useFetLntVault";
 import { useBalance } from "@/hooks/useToken";
 import { reFet } from "@/lib/useFet";
-import { cn, formatPercent } from "@/lib/utils";
+import { cn, formatPercent, nowUnix } from "@/lib/utils";
 import { displayBalance } from "@/utils/display";
 import { Fragment } from "react";
 import { useAccount } from "wagmi";
@@ -42,6 +42,8 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     const t = getTokenBy(vd.result?.T, chainId, { symbol: 'T' })!
     const vtBalance = useBalance(vt)
     const vt2Balance = useBalance(vt2)
+    const matureTime = vd.result?.expiryTime ?? 2051193600n
+    const isMature = nowUnix() > matureTime
     const data = vd.result ? [[
         <TokenSymbol key={'vt'} t={vt} />,
         <Fragment key={'vtValue'}>
@@ -57,10 +59,10 @@ function VT({ vc }: { vc: LntVaultConfig }) {
                 : displayBalance(vtBalance.result, undefined, vt.decimals)}
         </Fragment>,
         formatPercent(apy),
-        vd.result.closed ? 'Mature' : 'Active',
-        vd.result.closed ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : `1 ${vt.symbol} is equal to 1 ${t.symbol} at maturity`,
+        isMature ? 'Mature' : 'Active',
+        isMature ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : `1 ${vt.symbol} is equal to 1 ${t.symbol} at maturity`,
         <ApproveAndTx
-            disabled={vd.result.aVT > 0n || vtBalance.result <= 0n || !address}
+            disabled={!isMature || vtBalance.result <= 0n || !address}
             disabledHidden
             onTxSuccess={() => reFet(vd.key, vtBalance.key)}
             key="claim"
