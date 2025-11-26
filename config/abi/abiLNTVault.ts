@@ -52,18 +52,7 @@ export const abiLntVault = parseAbi([
   'function redeemStrategy() external view returns(address)',
   'function updateVTPriceTime(uint256 newStartTime, uint256 newEndTime) external',
   'function buybackVT(uint256 amountT) external',
-
-  'function addRewards(uint256 amountT) external',
-  'function settle() external',
-  'function rescue(address token, address recipient, uint256 amount) external',
-  'function rescueFromStakingTokenPot(address stakingTokenPot, address token, address recipient, uint256 amount) external',
-  'function updateBuybackDustAmountVT(uint256 newAmountVT) external',
-  'function updateBurnRecipientAddress(address newAddress) external',
-  'function updateStakingTokenPotRotateThreshold(uint256 newThreshold) external',
-  'function pause() external',
-  'function unpause() external',
 ])
-
 
 export const abiLVTVault = parseAbi([
   'function deposit(uint256 value) external',
@@ -75,6 +64,7 @@ export const abiLVTVault = parseAbi([
 
 export const abiLntProtocol = parseAbi([
   'function owner() public view returns (address)',
+  'function pendingOwner() public view returns (address)',
   'function transferOwnership(address newowner) public',
   'function acceptOwnership() public',
   'function addOperator(address operator) external',
@@ -183,9 +173,9 @@ export const abiLntVaultDepositExt = parseAbi([
   'function unpauseRedeem() external',
 ])
 
-export const abiZeroGLntBuyback = parseAbi([
+export const abiLntBuyback = parseAbi([
   'function stakingTokenPotCount() external view returns (uint256)',
-  'function stakingTokenPots(uint256 index) public view returns (address)',
+  'function stakingTokenPotsRange(uint256 start, uint256 end) external view returns (address[] memory pots)',
   'function totalStakingAmountVT(address stakingTokenPot) public view returns (uint256)',
   'function userStakingAmountVT(address stakingTokenPot, address account) public view returns (uint256)',
   'function boughtAmountT(address stakingTokenPot, address account) public view returns (uint256)',
@@ -196,4 +186,22 @@ export const abiZeroGLntBuyback = parseAbi([
   'function withdraw(address stakingTokenPot, uint256 amount) external',
   'function claimBoughtT(address stakingTokenPot) external',
   'function redeemT(uint256 amount) external',
+  'function pause() external',
+  'function unpause() external',
+
+  // admin
+  'function addRewards(uint256 amountT) external',
+  'function settle() external',
+  'function rescue(address token, address recipient, uint256 amount) external',
+  'function rescueFromStakingTokenPot(address stakingTokenPot, address token, address recipient, uint256 amount) external',
+  'function updateBuybackDustAmountVT(uint256 newAmountVT) external',
+  'function updateBurnRecipientAddress(address newAddress) external',
+  'function updateStakingTokenPotRotateThreshold(uint256 newThreshold) external',
+])
+
+export const abiReppoLntVault = parseAbi([
+  'function NFTs() external view returns (address[] memory nfts, uint256[] memory aVTs)',
+  'function deposit(address NFT, uint256[] calldata tokenIds) external',
+  'function upsertNFT(address nft, uint256 aVT) external',
+  'function removeNFT(address nft) external',
 ])

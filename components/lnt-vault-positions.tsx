@@ -1,21 +1,21 @@
-import { LntVaultConfig } from "@/config/lntvaults";
-import STable from "./simple-table"
-import { calcLPApy, calcVtApy, useLntVault, useLntVaultLogs, useLntVaultSwapFee7Days, useLntVaultYTRewards } from "@/hooks/useFetLntVault";
-import { getTokenBy, Token } from "@/config/tokens";
-import { cn, formatPercent } from "@/lib/utils";
-import { CoinIcon } from "./icons/coinicon";
-import { useCurrentChainId } from "@/hooks/useCurrentChainId";
-import { displayBalance } from "@/utils/display";
-import { useBalance } from "@/hooks/useToken";
-import { CoinAmount } from "./coin-amount";
-import { ApproveAndTx } from "./approve-and-tx";
-import { reFet } from "@/lib/useFet";
-import { useAccount } from "wagmi";
-import { abiRewardManager } from "@/config/abi/abiRewardManager";
 import { abiLntVault } from "@/config/abi/abiLNTVault";
-import { Tip } from "./ui/tip";
-import { Fragment } from "react";
+import { abiRewardManager } from "@/config/abi/abiRewardManager";
+import { LntVaultConfig } from "@/config/lntvaults";
 import { getChainName } from "@/config/network";
+import { getTokenBy, Token } from "@/config/tokens";
+import { useCurrentChainId } from "@/hooks/useCurrentChainId";
+import { calcLPApy, calcVtApy, useLntVault, useLntVaultLogs, useLntVaultSwapFee7Days, useLntVaultYTRewards } from "@/hooks/useFetLntVault";
+import { useBalance } from "@/hooks/useToken";
+import { reFet } from "@/lib/useFet";
+import { cn, formatPercent } from "@/lib/utils";
+import { displayBalance } from "@/utils/display";
+import { Fragment } from "react";
+import { useAccount } from "wagmi";
+import { ApproveAndTx } from "./approve-and-tx";
+import { CoinAmount } from "./coin-amount";
+import { TokenIcon } from "./icons/tokenicon";
+import STable from "./simple-table";
+import { Tip } from "./ui/tip";
 const claimColSize = 1.3;
 const statuColSize = 1.6
 
@@ -26,7 +26,7 @@ const MCoinAmount = ({ ...p }: Parameters<typeof CoinAmount>[0]) => {
 function TokenSymbol({ t, size = 32, className }: { t?: Token, size?: number, className?: string }) {
     if (!t) return null
     return <div className={cn("flex gap-2 items-center font-semibold", className)}>
-        <CoinIcon symbol={t.symbol} size={size} />
+        <TokenIcon token={t} size={size} />
         {t.symbol}
     </div>
 }

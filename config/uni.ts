@@ -3,7 +3,7 @@ import { getPC } from '@/providers/publicClient'
 import { now } from 'es-toolkit/compat'
 import { Address, encodeAbiParameters, encodePacked, erc20Abi, Hex, isAddressEqual, parseAbi, parseAbiParameters, SimulateContractParameters, toHex, zeroAddress } from 'viem'
 import { bscTestnet } from 'viem/chains'
-import { bsc, zeroGmainnet } from './network'
+import { arbitrum, base, bsc, zeroGmainnet } from './network'
 export const abiUniRouter = parseAbi([
   'function execute(bytes calldata commands, bytes[] calldata inputs) public payable',
   'function execute(bytes calldata commands, bytes[] calldata inputs, uint256 deadline) public payable',
@@ -43,7 +43,7 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
     permit2: '0x45B4798F3d93f3754ea2f28ea3b6449e31E53043',
     poolmanager: '0x5cd9e7907522016160a8ce6ad58dc8a80909e79f',
   },
-  [42161]: {
+  [arbitrum.id]: {
     unirouter: '0xa51afafe0263b40edaef0df8781ea9aa03e381a3',
     permit2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
     poolmanager: '0x360e68faccca8ca495c1b759fd9eee466db9fb32',
@@ -62,6 +62,11 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
     unirouter: '0x1906c1d672b88cd1b9ac7593301ca990f94eae07',
     permit2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
     poolmanager: '0x28e2ea090877bf75740558f6bfb36a5ffee9e9df',
+  },
+  [base.id]: {
+    unirouter: '0x6ff5693b99212da76ad316178a184ab56d299b43',
+    permit2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+    poolmanager: '0x498581ff718922c3f8e6a244956af099b2652b2b',
   },
 }
 export type UniSwapConfig = {

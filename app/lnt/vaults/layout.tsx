@@ -3,12 +3,12 @@
         return this.toString()
     }
 import { ConfigChainsProvider } from "@/components/support-chains";
-import { arbitrum, sepolia, zeroGTestnet } from "@/config/network";
+import { arbitrum } from "@/config/network";
 import { ReactNode } from "react";
-import { arbitrumSepolia, bsc, bscTestnet } from "viem/chains";
+import { base, bsc } from "viem/chains";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[zeroGTestnet.id, sepolia.id, arbitrum.id, bsc.id, arbitrumSepolia.id, bscTestnet.id]}>
+    return <ConfigChainsProvider chains={[base.id, arbitrum.id, bsc.id]}>
         {children}
     </ConfigChainsProvider>
 

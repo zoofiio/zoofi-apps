@@ -3,6 +3,7 @@ import { abiMockERC721 } from '@/config/abi'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
+import { getChain } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
@@ -29,18 +30,19 @@ import { TX, TxConfig, Txs, withTokenApprove } from './approve-and-tx'
 import { BridgeToken } from './bridge-token'
 import { Fees } from './fees'
 import { CoinIcon } from './icons/coinicon'
-import { AssetInput } from './input-asset'
+import { TokenIcon } from './icons/tokenicon'
 import { LntVaultBuyback } from './lnt-vault-buyback'
+import { LntVaultDepositReppo } from './lnt-vault-reppo'
 import { Badge } from './noti'
 import { SimpleDialog } from './simple-dialog'
 import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { ConfigChainsProvider } from './support-chains'
+import { TokenInput } from './token-input'
 import { BBtn, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
-import { Tip } from './ui/tip'
-import { getChain } from '@/config/network'
 import { ProgressBar } from './ui/progress'
+import { Tip } from './ui/tip'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
@@ -126,10 +128,10 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     <BBtn className='' onClick={onClickAll}>Select All</BBtn>
     <div className='flex flex-col gap-1 w-full'>
       <div className='w-full'>Receive</div>
-      <AssetInput asset={vt.symbol} loading={false} disable amount={fmtBn(outAmountVT, vt.decimals)} />
+      <TokenInput tokens={[vt]} loading={false} disable amount={fmtBn(outAmountVT, vt.decimals)} />
       {vc.ytEnable && <>
         <div className='w-full text-center'>And</div>
-        <AssetInput asset={yt.symbol} loading={false} disable amount={fmtBn(DECIMAL * BigInt(tokenIds.length), yt.decimals)} />
+        <TokenInput tokens={[yt]} loading={false} disable amount={fmtBn(DECIMAL * BigInt(tokenIds.length), yt.decimals)} />
       </>}
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
@@ -179,10 +181,10 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
     <div className='flex flex-col gap-1 w-full'>
       <div className=' w-full'>Input:</div>
       {vc.ytEnable && <>
-        <AssetInput asset={yt.symbol} disable amount={count.toString()} balance={ytBalance.result} />
+        <TokenInput tokens={[yt]} disable amount={count.toString()} />
         <div className='w-full'>Pair With</div>
       </>}
-      <AssetInput asset={vt.symbol} disable amount={fmtBn(outAmountVT, vt.decimals)} balance={vtBalance.result} />
+      <TokenInput tokens={[vt]} disable amount={fmtBn(outAmountVT, vt.decimals)} />
       <div className='mt-4 text-sm opacity-60 text-center'>
         {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
@@ -367,7 +369,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   return <div style={{
     backdropFilter: 'blur(20px)'
   }} className="animitem card bg-white flex gap-5 h-full col-span-2 flex-wrap justify-center md:flex-nowrap" >
-    <div className='flex flex-col'>
+    <div className='flex flex-col gap-5'>
       <div className="flex gap-5 relative justify-center flex-wrap md:flex-nowrap">
         {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
         <div className='text-[40px] lg:text-[160px] shrink-0 absolute left-0 top-0 lg:relative'>
@@ -381,25 +383,22 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
           </div>
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
-
       </div >
-      <div className='my-4 flex justify-between opacity-60 mt-auto'>Duration <span>{remainStr}</span></div>
-      {/* <div className="flex w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full"
-          style={{ width: progressPercent, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
-        />
-      </div> */}
-      <ProgressBar progress={progress} />
+      <div className='mt-auto'>
+        <div className='flex justify-between opacity-60 mb-2'>Duration <span>{remainStr}</span></div>
+        <ProgressBar progress={progress} />
+      </div>
     </div>
     {vc.isLVT ? <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
       <span className=''>Total Locked</span>
       <div className='font-bold'> {displayBalance(vd.result?.activeDepositCount, undefined, t.decimals)}</div>
       <div className='flex items-center gap-2.5'>
-        <CoinIcon symbol={t.symbol} size={20} />
+        <TokenIcon token={t} size={20} />
         {t.symbol}
       </div>
-    </div> : <LNTDepositWithdraw vc={vc} />}
+    </div> :
+      vc.reppo ? <LntVaultDepositReppo vc={vc} /> :
+        <LNTDepositWithdraw vc={vc} />}
 
   </div>
 }
@@ -473,9 +472,9 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   // const outAmount = 0n
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
   return <div className='flex flex-col gap-1'>
-    <AssetInput asset={input.symbol} disable={vc.isIdle} balance={inputBalance.result} amount={inputAsset} setAmount={setInputAsset} />
+    <TokenInput tokens={[input]} disable={vc.isIdle} amount={inputAsset} setAmount={setInputAsset} />
     <Swap onClick={() => toggle()} />
-    <AssetInput checkBalance={false} asset={output.symbol} balance={outputBalance.result} loading={isFetchingCalc} disable amount={fmtBn(outAmount, output.decimals)} />
+    <TokenInput tokens={[output]} disable checkBalance={false} loading={isFetchingCalc} amount={fmtBn(outAmount, output.decimals)} />
     <div className="flex justify-between items-center text-xs font-medium gap-2 flex-wrap">
       <div>Price: {swapPrice}</div>
       <div>Price Impact: {priceimpcat}</div>
@@ -613,17 +612,20 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     })
   }
   return <div className='flex flex-col gap-1'>
-    <AssetInput asset={input1.symbol} amount={input1Asset} balance={input1Balance.result} setAmount={(value: any) => {
-      wrapSetCalcKey(token0IsInput1, parseEthers(value, input1.decimals))
-      setInput1Asset(value)
-    }} error={errorInput1} />
-    <AssetInput asset={input2.symbol} amount={input2Asset} balance={input2Balance.result} setAmount={(value: any) => {
-      wrapSetCalcKey(!token0IsInput1, parseEthers(value, input2.decimals))
-      setInput2Asset(value)
-    }} error={errorInput2} />
-    {/* <Swap onClick={() => toggle()} /> */}
+    <TokenInput
+      tokens={[input1]} amount={input1Asset} error={errorInput1}
+      setAmount={(value: any) => {
+        wrapSetCalcKey(token0IsInput1, parseEthers(value, input1.decimals))
+        setInput1Asset(value)
+      }}
+    />
+    <TokenInput tokens={[input2]} amount={input2Asset} error={errorInput2}
+      setAmount={(value: any) => {
+        wrapSetCalcKey(!token0IsInput1, parseEthers(value, input2.decimals))
+        setInput2Asset(value)
+      }} />
     <div>Receive</div>
-    <AssetInput asset={output.symbol} loading={outLoading} disable amount={fmtBn(outAmount, output.decimals)} />
+    <TokenInput tokens={[output]} loading={outLoading} disable amount={fmtBn(outAmount, output.decimals)} />
     <Txs
       className='mx-auto mt-4'
       tx='Add'
@@ -708,10 +710,10 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const poolShare = inputTotalSupply.result > 0n ? inputBalance.result * DECIMAL / inputTotalSupply.result : 0n
   const poolShareStr = `Pool share: ${fmtPercent(poolShare, input.decimals, 2)}`
   return <div className='flex flex-col gap-1'>
-    <AssetInput asset={input.symbol} amount={inputAsset} balance={inputBalance.result} setAmount={setInputAsset} error={errorInput} otherInfo={poolShareStr} />
+    <TokenInput tokens={[input]} amount={inputAsset} setAmount={setInputAsset} error={errorInput} otherInfo={poolShareStr} />
     <div>Receive</div>
-    <AssetInput asset={output1.symbol} loading={isFetchingOut && inputAssetBn > 0n} disable amount={fmtBn(out1Amount, output1.decimals)} />
-    <AssetInput asset={output2.symbol} loading={isFetchingOut && inputAssetBn > 0n} disable amount={fmtBn(out2Amount, output2.decimals)} />
+    <TokenInput tokens={[output1]} loading={isFetchingOut && inputAssetBn > 0n} disable amount={fmtBn(out1Amount, output1.decimals)} />
+    <TokenInput tokens={[output2]} loading={isFetchingOut && inputAssetBn > 0n} disable amount={fmtBn(out2Amount, output2.decimals)} />
     <Txs
       className='mx-auto mt-4'
       tx='Remove'
@@ -740,7 +742,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
   return <div className="flex flex-col gap-4 w-full">
     <div className='animitem card p-0! overflow-hidden w-full'>
       <div className='flex p-5 bg-[#A3D395] gap-5 relative'>
-        <CoinIcon size={48} symbol={vt.symbol} />
+        <TokenIcon size={48} token={vt} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{vt.symbol}</div>
           <div className='text-xs leading-none text-black/60 font-medium'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
@@ -791,7 +793,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
   return <div className="flex flex-col gap-4 w-full">
     <div className='animitem card p-0! overflow-hidden w-full'>
       <div className='flex p-5 bg-[#F0D187] gap-5'>
-        <CoinIcon size={48} symbol={yt.symbol} />
+        <TokenIcon size={48} token={yt} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{yt.symbol}</div>
           <div className='text-xs leading-none text-black/60 font-medium'>1 {yt.symbol} is equal to 1 {t.symbol} at maturity</div>

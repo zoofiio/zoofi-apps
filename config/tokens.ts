@@ -1,6 +1,6 @@
 import { Address, isAddressEqual, zeroAddress } from 'viem'
 import { arbitrumSepolia, bsc, bscTestnet, mainnet, sepolia } from 'viem/chains'
-import { arbitrum, zeroGmainnet, zeroGTestnet } from './network'
+import { arbitrum, base, zeroGmainnet, zeroGTestnet } from './network'
 
 export type Token = {
   chain: number
@@ -57,6 +57,10 @@ export const TOKENS: Token[] = [
   { address: '0x0D8Ce2A99Bb6e3B7Db580eD848240e4a0F9aE153', symbol: 'Fil', decimals: 18, chain: bsc.id },
   { address: "0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46", symbol: 'vFil', decimals: 18, chain: bsc.id },
   { address: '0xed202a7050ee856ba9f0d3cd5eabcab6b8a23a88', symbol: 'lpFil', decimals: 18, chain: bsc.id },
+  // for Reppo
+  { address: "0xFf8104251E7761163faC3211eF5583FB3F8583d6", symbol: 'REPPO', decimals: 18, chain: base.id },
+  { address: "0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46", symbol: 'vREPPO', decimals: 18, chain: base.id },
+  { address: "0x2b72494fd4f092569b87e1a10f92268384f07a88", symbol: 'lpREPPO', decimals: 18, chain: base.id },
 ]
 
 export const TOKENS_MAP: { [k: `${number}_${Address}`]: Token } = TOKENS.reduce((map, item) => {

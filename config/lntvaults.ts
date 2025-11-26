@@ -1,7 +1,7 @@
 import { Address, zeroAddress } from 'viem'
-import { arbitrum, arbitrumSepolia, bsc, bscTestnet, sepolia } from 'viem/chains'
+import { arbitrum, bsc } from 'viem/chains'
 import { TypeENV } from './env'
-import { zeroGmainnet } from './network'
+import { base } from './network'
 
 export const WriteConfirmations = 3
 
@@ -11,7 +11,7 @@ export type LntVaultConfig = {
   asset: Address // ERC721
 
   protocol: Address
-  protocalSettings?: Address
+  protocalSettings: Address
   lpTYT?: Address
   MockT?: Address
   MockaVTOracle?: Address
@@ -24,8 +24,6 @@ export type LntVaultConfig = {
   isAethir?: boolean
 
   // 0G
-  ZeroGNFT?: Address
-  ZeroGVToracle?: Address
   isZeroG?: boolean
 
   onEnv?: TypeENV[]
@@ -60,8 +58,41 @@ export type LntVaultConfig = {
   // lvt
   isLVT?: boolean
   depositFees?: string // def 5%
+
+  // for reppo
+  reppo?: {
+    standard: Address
+    preminum: Address
+  }
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
+  {
+    chain: base.id,
+    nftBalanceBy: 'alchemy',
+    vault: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
+    asset: zeroAddress,
+    protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
+    protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
+    onEnv: ['test'],
+    lpTYT: zeroAddress,
+    isZeroG: false,
+    vtActive: true,
+    ytEnable: false,
+    lpYields: false,
+    projectIcon: 'Reppo',
+    startTime: 1762838215n,
+    icon: 'ReppoNft',
+    tit: 'Reppo Solver Node',
+    info: `Reppo's mission is to build a decentralized version of Scale AI on-chain where everyone involved in the generation and monetization of AI training data shares the upside, without intermediaries involved.The Reppo Solver Node is a decentralized application designed to participate in the Reppo.Exchange, a blockchain-based data marketplace that facilitates the creation, validation, and exchange of high-quality datasets.`,
+    disWithdrawNFT: true,
+    buyback: true,
+    buybackPool: '0xf8dfaa0967c812a43d02059f2b14786dceb84e8b',
+    vtSwapHook: '0x2b72494fd4f092569b87e1a10f92268384f07a88',
+    reppo: {
+      standard: '0x8A1BCBd935c9c7350013786D5d1118832F10e149',
+      preminum: '0x1a245cfA2515089017792D92E9d68B8F8b3691eE',
+    },
+  },
   {
     chain: bsc.id,
     nftBalanceBy: 'alchemy',
@@ -69,7 +100,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     asset: '0xd0f4E1265Edd221b5bb0e8667a59f31B587B2197',
     protocol: '0x893509c486def081b959bed440d97f15b014643a',
     protocalSettings: '0xba3a59d369bdde63929691721e063105bbe12fe9',
-    onEnv: ['test','prod'],
+    onEnv: ['test', 'prod'],
     lpTYT: zeroAddress,
     isZeroG: true,
     vtActive: true,
@@ -82,6 +113,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     info: '0G (Zero Gravity) is the first decentralized AI L1 chain that orchestrates hardware resources (storage, compute) and software assets (data, models) to handle AI workloads at scale. It bridges the gap between Web2 AI capabilities and Web3 decentralization.',
     buyback: true,
     disWithdrawNFT: true,
+    buybackPool: '0x6e603014ace3ae06f34ffe259106af77c056d913',
     deposit: {
       chain: arbitrum.id,
       vault: '0x6e603014ace3ae06f34ffe259106af77c056d913',
@@ -206,7 +238,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
     protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
     vtSwapHook: '0xed202a7050ee856ba9f0d3cd5eabcab6b8a23a88',
-    onEnv: ['test','prod'],
+    onEnv: ['test', 'prod'],
     buyback: true,
     buybackPool: '0x38402aa01220a1d19edfe061760877a353728214',
     lpTYT: zeroAddress,
