@@ -15,7 +15,7 @@ import { isNil, round } from 'es-toolkit'
 
 function TokenSymbol({ token }: { token: Token }) {
   return <div className='flex items-center gap-2'>
-    <TokenIcon token={token} size={24} />
+    <TokenIcon token={token} size={40} showNet />
     {token.symbol}
   </div>
 }

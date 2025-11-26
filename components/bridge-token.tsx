@@ -17,6 +17,7 @@ import { displayBalance } from "@/utils/display";
 import { ConfigChainsProvider } from "./support-chains";
 import { AddressInput } from "./input-address";
 import { waitLayerZeroSend } from "@/config/layerzero";
+import { TokenInput } from "./token-input";
 const eidMaps: { [k: number]: number } = {
     [arbitrum.id]: 30110,
     [arbitrumSepolia.id]: 40231,
@@ -110,7 +111,7 @@ export function BridgeToken({ config, adapters }: {
                 </div>
             </div>
             <div className="animitem">Token</div>
-            <AssetInput className="animitem" asset={from.symbol} amount={input} setAmount={setInput} balance={balance.result} />
+            <TokenInput className="animitem" tokens={[from]} amount={input} setAmount={setInput} />
             <div className="animitem">To</div>
             <AddressInput className="animitem" value={toUser} setValue={setToAddress} />
             <div className="animitem">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
