@@ -255,8 +255,8 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
                 </div>))}
             </div>
         </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-            {/* <NftApproveAndTx tx='Withdraw'
+
+        {/* <NftApproveAndTx tx='Withdraw'
                 confirmations={5}
                 onTxSuccess={() => {
                     const nStat: { [id: string]: boolean } = {}
@@ -274,16 +274,16 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
                     enabled: tokenIds.length > 0,
                     args: [data]
                 }} /> */}
-            <Txs tx="Withdraw to LNT" txs={getTxs} onTxSuccess={() => {
-                const nStat: { [id: string]: boolean } = {}
-                tokenIds.forEach((id) => {
-                    nStat[id.toString()] = false
-                })
-                setSelectNft(nStat)
-                onSuccess()
-                refetch()
-            }} />
-        </div>
+        <Txs tx="Withdraw to LNT" txs={getTxs} onTxSuccess={() => {
+            const nStat: { [id: string]: boolean } = {}
+            tokenIds.forEach((id) => {
+                nStat[id.toString()] = false
+            })
+            setSelectNft(nStat)
+            onSuccess()
+            refetch()
+        }} />
+
     </div>
 }
 export function PrePool({ data }: { data: NodeLicense }) {
