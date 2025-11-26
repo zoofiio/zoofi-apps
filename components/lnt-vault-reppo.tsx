@@ -17,6 +17,7 @@ import { SimpleDialog } from "./simple-dialog";
 import { ConfigChainsProvider } from "./support-chains";
 import { TokenInput } from "./token-input";
 import { BBtn } from "./ui/bbtn";
+import { DECIMAL } from "@/constants";
 
 
 export function useReppoLntVaultNFTs(vc: LntVaultConfig) {
@@ -47,7 +48,7 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
     const nftsStandard = useErc721Balance(chainId, vc.reppo!.standard, vc.nftBalanceBy)
     const nftsPreminum = useErc721Balance(chainId, vc.reppo!.preminum, vc.nftBalanceBy)
     const vtc = useLntVaultVTC(vc)
-    const outAmountVT = (currentPrice - currentPrice * parseEther(vtc.toFixed(6))) * BigInt(tokenIds.length)
+    const outAmountVT = (currentPrice - currentPrice * parseEther(vtc.toFixed(6))/DECIMAL) * BigInt(tokenIds.length)
     const nfts = curentNft == vc.reppo!.standard ? nftsStandard : nftsPreminum
     const vt = getTokenBy(vd.result!.VTbyDeposit ?? vd.result!.VT, chainId, { symbol: 'VT' })!
     const onClickOne = (id: string) => {
