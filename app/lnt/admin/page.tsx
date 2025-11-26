@@ -132,6 +132,7 @@ export default function AdminPage() {
                       vtPriceEndTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceEndTime' })
                     })} />
                   <ContractAll tit='Vault' abi={abiReppoLntVault} address={current.vc.vault} />
+                  <ContractAll tit='Vault Ext' abi={abiLntVaultDepositExt} address={current.vc.vault} />
                   {current.vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={current.vc.buybackPool} />}
                 </> :
                   current.vc.deposit ? <>

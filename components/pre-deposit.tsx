@@ -274,7 +274,7 @@ function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () 
                     enabled: tokenIds.length > 0,
                     args: [data]
                 }} /> */}
-        <Txs tx="Withdraw to LNT" txs={getTxs} onTxSuccess={() => {
+        <Txs tx="Withdraw to LNT" txs={getTxs} disabled={tokenIds.length <= 0} onTxSuccess={() => {
             const nStat: { [id: string]: boolean } = {}
             tokenIds.forEach((id) => {
                 nStat[id.toString()] = false
