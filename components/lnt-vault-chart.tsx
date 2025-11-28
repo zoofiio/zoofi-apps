@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/preserve-manual-memoization */
 
 import { getLntVaultVTPriceApy } from '@/config/api'
 import { LntVaultConfig } from '@/config/lntvaults'
