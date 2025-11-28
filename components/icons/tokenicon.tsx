@@ -73,7 +73,7 @@ export function TokenIcon({ token, size = 48, showNet = false, url, ...p }: { to
   const isOtherLP = symbol.includes('-') && !ignoreDouble.includes(symbol)
   const [symbol1, symbol2] = symbol.split('-')
   const chain = getChain(token.chain)
-  return <div className='relative'>
+  return <div className='relative shrink-0'>
     {
       isOtherLP ? <DoubleCoinIcon {...p} symbol1={symbol1} symbol2={symbol2} size={size} />
         : <CoinIconImpl {...p} symbol={symbol} size={size} url={url} />
@@ -81,7 +81,7 @@ export function TokenIcon({ token, size = 48, showNet = false, url, ...p }: { to
     {
       isVT && <svg className={cn('absolute left-0 top-0 scale-105 origin-center', p.className)} style={{ width: size, height: size, ...(p.style ?? {}) }}
         width={size} height={size} fill='none' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'>
-        <circle cx="20" cy="20" r="19" stroke="#10B981" stroke-width="2.1" />
+        <circle cx="20" cy="20" r="19" stroke="#10B981" stroke-width="2" />
       </svg>
     }
     {

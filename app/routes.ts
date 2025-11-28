@@ -25,5 +25,5 @@ export function toLntVault(r: ReturnType<typeof useRouter>, vault?: Address, tab
   // if lvt to lvt path
   let path = `${vc.isLVT ? '/lvt' : '/lnt/vaults'}?vault=${vault}`
   tab && (path += `&tab=${tabToSearchParams(tab)}`)
-  r.push(path)
+  r.push(path, { scroll: false })
 }
