@@ -231,7 +231,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     asset: zeroAddress,
     protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
     protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
-    onEnv: ['test'],
+    onEnv: ['test','prod'],
     lpTYT: zeroAddress,
     isZeroG: false,
     vtActive: true,

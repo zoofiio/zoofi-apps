@@ -1,5 +1,3 @@
-import { parseAbi } from 'viem'
-
 export const abiLayerzeroOFT = [
   {
     inputs: [
