@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs */
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, handleError, parseEthers, promiseT } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
@@ -92,7 +93,7 @@ export function GeneralAction({
   functionName: string
   tit?: string
   infos?: any | (() => Promise<any>)
-  argsDef?: string[]
+  argsDef?: string[] | (() => Promise<string[]>)
   convertArg?: (arg: string, i: number, param: AbiParameter) => any
   onArgs?: (args: string[]) => void
   txProps?: Omit<Parameters<typeof Txs>[0], 'txs' | 'className'>
@@ -109,7 +110,13 @@ export function GeneralAction({
     enabled: Boolean(infos),
     queryFn: async () => promiseT(infos)
   })
-  const margs = useMemo(() => args.map((arg, i) => arg || argsDef?.[i] || ''), [argsDef, args])
+  const refArgsDef = useRef(argsDef);
+  const { data: qArgsDef, isLoading: isLoadingArgsDef } = useQuery({
+    queryKey: ['queryDargsDef', address, functionName],
+    enabled: Boolean(refArgsDef.current),
+    queryFn: async () => promiseT(argsDef)
+  })
+  const margs = useMemo(() => args.map((arg, i) => arg || qArgsDef?.[i] || ''), [qArgsDef, args])
   const chaindId = useCurrentChainId()
   const { data, mutate: doRead, isPending: isReadLoading } = useMutation({
     mutationFn: async () => {
@@ -141,7 +148,7 @@ export function GeneralAction({
       ))}
 
       <div className={cn('whitespace-pre-wrap')}>
-        {isLoading && <Spinner />}
+        {(isLoading || isLoadingArgsDef) && <Spinner />}
         {!isNil(qInfo) && JSON.stringify(qInfo, undefined, 2)}
       </div>
 
@@ -164,7 +171,7 @@ export function GeneralAction({
                 functionName,
                 ...(args.length ? { args: writeArgs } : {}),
               }]}
-              disabled={txProps?.disabled || (Boolean(args.length) && !Boolean(writeArgs))}
+              disabled={txProps?.disabled || isLoadingArgsDef || (Boolean(args.length) && !Boolean(writeArgs))}
               className={cn('mt-0! flex items-center justify-center gap-4 h-6.5 text-xs', disableExpand ? 'max-w-[100px]' : 'w-full')}
             />
             <AddMultiTx txs={[{
@@ -189,7 +196,12 @@ export function GeneralAction({
 }
 
 
-export function ContractAll({ abi, address, tit, itemInfos, unwrap }: { abi: Abi, address: Address, tit: string, itemInfos?: Record<string, Parameters<typeof GeneralAction>[0]['infos']>, unwrap?: boolean }) {
+export function ContractAll({ abi, address, tit, itemInfos, argsDef, unwrap }: {
+  abi: Abi, address: Address, tit: string,
+  itemInfos?: Record<string, Parameters<typeof GeneralAction>[0]['infos']>,
+  argsDef?: Record<string, Parameters<typeof GeneralAction>[0]['argsDef']>,
+  unwrap?: boolean
+}) {
   const [reads, writes] = useMemo(() => {
     const reads = []
     const writes = []
@@ -206,18 +218,18 @@ export function ContractAll({ abi, address, tit, itemInfos, unwrap }: { abi: Abi
     return [reads, writes]
   }, [abi])
   if (unwrap) return <Fragment>
-    {reads.map((item, i) => <GeneralAction disableAnim key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
-    {writes.map((item, i) => <GeneralAction disableAnim key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
+    {reads.map((item, i) => <GeneralAction disableAnim key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} argsDef={argsDef?.[item.name]} />)}
+    {writes.map((item, i) => <GeneralAction disableAnim key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} argsDef={argsDef?.[item.name]} />)}
   </Fragment>
   return <Expandable tit={tit}>
     <div className='grid grid-cols-5 gap-4'>
       <div className='flex flex-col gap-2 col-span-2'>
         <div className='font-bold text-2xl'>Read</div>
-        {reads.map((item, i) => <GeneralAction disableAnim key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
+        {reads.map((item, i) => <GeneralAction disableAnim key={`read_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} argsDef={argsDef?.[item.name]} />)}
       </div>
       <div className='flex flex-col gap-2 col-span-3'>
         <div className='font-bold text-2xl'>Write</div>
-        {writes.map((item, i) => <GeneralAction disableAnim key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} />)}
+        {writes.map((item, i) => <GeneralAction disableAnim key={`write_${i}`} abi={[item]} address={address} functionName={item.name} infos={itemInfos?.[item.name]} argsDef={argsDef?.[item.name]} />)}
       </div>
     </div>
   </Expandable>

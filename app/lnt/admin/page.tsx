@@ -17,7 +17,7 @@ import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useSetState } from 'react-use'
-import { Address, erc1155Abi, formatUnits, parseUnits, stringToHex } from 'viem'
+import { Address, erc1155Abi, erc20Abi, formatUnits, parseUnits, stringToHex } from 'viem'
 
 
 type ParamItem = { show: string; value: string; units?: number /** def 10 */ }
@@ -131,7 +131,8 @@ export default function AdminPage() {
                       vtPriceStartTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceStartTime' }),
                       vtPriceEndTime: getPC(current.vc.chain).readContract({ abi: abiLntVault, address: current.vc.vault, functionName: 'vtPriceEndTime' })
                     })} />
-                  <ContractAll tit='Vault' abi={abiReppoLntVault} address={current.vc.vault} />
+                  <ContractAll tit='Vault' abi={abiReppoLntVault} address={current.vc.vault}
+                    argsDef={{ buyback: async () => getPC(current.vc.chain).readContract({ abi: erc20Abi, functionName: 'balanceOf', address: '0xFf8104251E7761163faC3211eF5583FB3F8583d6', args: [current.vc.vault] }).then(bn => [bn.toString()]) }} />
                   <ContractAll tit='Vault Ext' abi={abiLntVaultDepositExt} address={current.vc.vault} />
                   {current.vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={current.vc.buybackPool} />}
                 </> :
