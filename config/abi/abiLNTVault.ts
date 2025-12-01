@@ -52,6 +52,7 @@ export const abiLntVault = parseAbi([
   'function redeemStrategy() external view returns(address)',
   'function updateVTPriceTime(uint256 newStartTime, uint256 newEndTime) external',
   'function buybackVT(uint256 amountT) external',
+  'function buyback(uint256 amountT) external',
 ])
 
 export const abiLVTVault = parseAbi([
