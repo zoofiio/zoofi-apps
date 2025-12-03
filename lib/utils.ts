@@ -129,6 +129,7 @@ export const FMT = {
   DATE2: 'D MMM YYYY',
   ALL: 'YYYY/MM/DD HH:mm:ss',
   ALL2: 'YYYY/MM/DD hh:mm A',
+  ALL3: 'YYYY/MM/DD HH:mm',
 } as const
 
 export const fmtDate = (time: number | string | bigint | Date, fmt: string = FMT.DEF) => {

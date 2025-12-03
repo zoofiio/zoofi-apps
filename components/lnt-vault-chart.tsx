@@ -42,6 +42,9 @@ function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: st
         boundaryGap: false,
         axisLine: {
           onZero: false,
+        },
+        axisLabel: {
+          color: '#999'
         }
       },
       yAxis: {
@@ -54,6 +57,7 @@ function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: st
           formatter: yFormater,
           showMinLabel: false,
           showMaxLabel: false,
+          color: '#999'
         },
       },
       dataZoom: [
@@ -105,8 +109,8 @@ export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
     initResult: [],
     fetfn: async () => getLntVaultVTPriceApy(vc.chain, vc.vault, startTime, endTime)
   })
-  const vtApy = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), (bnToNum(item.apy) + 1) ** 2 - 1] as [string, number]);
-  const vtPrice = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL), bnToNum(item.price)] as [string, number]);
+  const vtApy = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL3), (bnToNum(item.apy) + 1) ** 2 - 1] as [string, number]);
+  const vtPrice = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL3), bnToNum(item.price)] as [string, number]);
   return (
     <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5 shrink-0'>
       <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} data={vtApy} yFormater={(v) => formatPercent(v, 2, false)} />

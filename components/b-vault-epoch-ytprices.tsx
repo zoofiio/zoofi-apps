@@ -28,7 +28,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
   })
   const [isLOG, togLOG] = useToggle(true)
   const { options } = useMemo(() => {
-    const data = prices.map((p) => [fmtDate(p.time * 1000, FMT.ALL), isLOG ? logTrans(bnToNum(p.price)) : bnToNum(p.price)])
+    const data = prices.map((p) => [fmtDate(p.time * 1000, FMT.ALL3), isLOG ? logTrans(bnToNum(p.price)) : bnToNum(p.price)])
     const valueFormater = (value: number) => (isLOG ? revertLog(value).toString() : value.toString())
     const calcMax = (v: any) => {
       //    const max = value.max * 1.1
@@ -47,7 +47,8 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
         boundaryGap: false,
         axisLine: {
           onZero: false,
-        }
+        },
+        axisLabel: { color: '#999' },
       },
       yAxis: {
         type: 'value',
@@ -59,6 +60,7 @@ export default function BvaultEpochYtPrices({ bvc, epochId }: { bvc: BVaultConfi
           formatter: valueFormater,
           showMinLabel: false,
           showMaxLabel: false,
+          color: '#999'
         },
       },
       dataZoom: [
