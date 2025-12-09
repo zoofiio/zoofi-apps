@@ -160,7 +160,8 @@ export const abiLntVaultDepositExt = parseAbi([
   'function pausedDeposit() external view returns (bool)',
   'function pausedRedeem() external view returns (bool)',
   'function tokenRewardsInfoCount() external view returns (uint256)',
-
+  'function redeem(uint256 count) external',
+  
   'function mintVestingTokens(address to, uint256 amount) external',
   'function burnVestingTokens(uint256 amount) external',
   'function updateOperatorNode(address newOperatorNode) external',
