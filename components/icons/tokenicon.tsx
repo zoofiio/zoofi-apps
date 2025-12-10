@@ -85,15 +85,15 @@ export function TokenIcon({ token, size = 48, showNet = false, url, ...p }: { to
     {
       isVT && <svg className={cn('absolute left-0 top-0 scale-105 origin-center', p.className)} style={{ width: size, height: size, ...(p.style ?? {}) }}
         width={size} height={size} fill='none' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'>
-        <circle cx="20" cy="20" r="19" stroke="#10B981" stroke-width="2" />
+        <circle cx="20" cy="20" r="19" stroke="#10B981" strokeWidth="2" />
       </svg>
     }
     {
       isLP && <svg className={cn('absolute left-0 top-0 scale-105 origin-center', p.className)} style={{ width: size, height: size, ...(p.style ?? {}) }}
         width={size} height={size} fill='none' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'>
-        <circle cx="60" cy="60" r="57" stroke="#6366F1" stroke-width="6" />
-        <circle cx="100" cy="20" r="17" fill="white" stroke="#6366F1" stroke-width="6" />
-        <text text-anchor="middle" x="100" y="27" fill="#6366F1" font-size="20">LP</text>
+        <circle cx="60" cy="60" r="57" stroke="#6366F1" strokeWidth="6" />
+        <circle cx="100" cy="20" r="17" fill="white" stroke="#6366F1" strokeWidth="6" />
+        <text textAnchor="middle" x="100" y="27" fill="#6366F1" fontSize="20">LP</text>
       </svg>
     }
     {
