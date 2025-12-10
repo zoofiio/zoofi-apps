@@ -4,12 +4,12 @@
     }
 import { Header } from "@/components/header";
 import { ConfigChainsProvider } from "@/components/support-chains";
-import { arbitrum, base } from "@/config/network";
+import { arbitrum, base, story } from "@/config/network";
 import { ReactNode } from "react";
 import { bsc } from "viem/chains";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[base.id, arbitrum.id, bsc.id]}>
+    return <ConfigChainsProvider chains={[base.id, arbitrum.id, bsc.id, story.id]}>
         <Header />
         {children}
     </ConfigChainsProvider>
