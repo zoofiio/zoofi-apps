@@ -105,7 +105,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
 
 export function LVTDepositWithdrawVerio({ vc }: { vc: LntVaultConfig }) {
     const depositRef = useRef<HTMLButtonElement>(null)
-    const withdrawRef = useRef<HTMLButtonElement>(null)
+    // const withdrawRef = useRef<HTMLButtonElement>(null)
     const vd = useLntVault(vc)
     const asset = getTokenBy(vc.asset, vc.chain, { symbol: 'vIP' })!
     return <div className=' flex flex-col items-center h-full justify-between shrink-0 gap-5 w-full md:w-fit min-w-75'>
@@ -124,14 +124,14 @@ export function LVTDepositWithdrawVerio({ vc }: { vc: LntVaultConfig }) {
             >
                 <LntVaultDeposit vc={vc} onSuccess={() => depositRef.current?.click()} />
             </SimpleDialog>
-            <SimpleDialog
+            {/* <SimpleDialog
                 triggerRef={withdrawRef}
                 trigger={
                     <BBtn className='shrink-0'>Withdraw</BBtn>
                 }
             >
                 <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
-            </SimpleDialog>
+            </SimpleDialog> */}
         </div>
 
     </div>

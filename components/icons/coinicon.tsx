@@ -80,7 +80,8 @@ const SupportICONS: { [k: string]: string } = {
   vFil: 'vFil.svg',
   lpFil: 'lpFil.svg',
   REPPO: 'REPPO.svg',
-  Verio: 'Verio.svg'
+  Verio: 'Verio.svg',
+  IP: 'IP.svg',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {

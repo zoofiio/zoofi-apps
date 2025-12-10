@@ -37,7 +37,7 @@ export function SimpleDialog({
     <Dialog.Root open={open} defaultOpen={defaultOpen} {...props}>
       {Boolean(trigger) && <Dialog.Trigger asChild ref={triggerRef} {...(triggerProps || {})}>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
-        <div className='w-screen h-screen fixed top-0 left-0 inset-0 z-50 bg-black/60' />
+        <div className='w-screen h-screen fixed top-0 left-0 inset-0 z-101 bg-black/60' />
         <Dialog.Content
           onEscapeKeyDown={(e) => {
             disableClose && e.stopPropagation()
@@ -50,7 +50,7 @@ export function SimpleDialog({
           }}
           style={style}
           className={cn(
-            'fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[640px] -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#333333] rounded-2xl overflow-hidden shadow-2xl z-50',
+            'fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[640px] -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#333333] rounded-2xl overflow-hidden shadow-2xl z-101',
             className,
           )}
         >
