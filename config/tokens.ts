@@ -1,5 +1,5 @@
 import { Address, isAddressEqual, zeroAddress } from 'viem'
-import { arbitrumSepolia, bsc, bscTestnet, mainnet, sepolia } from 'viem/chains'
+import { arbitrumSepolia, bsc, bscTestnet, mainnet, sepolia, story } from 'viem/chains'
 import { arbitrum, base, zeroGmainnet, zeroGTestnet } from './network'
 
 export type Token = {
@@ -46,21 +46,28 @@ export const TOKENS: Token[] = [
   { address: '0x48e497862069034a6229e6cf59b7ebdf3f593a88', symbol: 'lp0G', decimals: 18, chain: bscTestnet.id },
 
   // for 0G prod
-  { address: "0x4B948d64dE1F71fCd12fB586f4c776421a35b3eE", symbol: '0G', decimals: 18, chain: bsc.id },
+  { address: '0x4B948d64dE1F71fCd12fB586f4c776421a35b3eE', symbol: '0G', decimals: 18, chain: bsc.id },
   // v0G by OFTAdapter
-  { address: "0x5e95358B73bAFE88c8dC1350697c4CB2354C63cD", symbol: 'v0G', decimals: 18, chain: arbitrum.id },
+  { address: '0x5e95358B73bAFE88c8dC1350697c4CB2354C63cD', symbol: 'v0G', decimals: 18, chain: arbitrum.id },
   // v0G by OFT
-  { address: "0x0565FE63579760944f19b0932CB0EA36944a625C", symbol: 'v0G', decimals: 18, chain: bsc.id },
-  { address: "0xa0dcce857576c4691507acd690700e7610a1fa88", symbol: 'lp0G', decimals: 18, chain: bsc.id },
+  { address: '0x0565FE63579760944f19b0932CB0EA36944a625C', symbol: 'v0G', decimals: 18, chain: bsc.id },
+  { address: '0xa0dcce857576c4691507acd690700e7610a1fa88', symbol: 'lp0G', decimals: 18, chain: bsc.id },
 
   // for Filecoin
   { address: '0x0D8Ce2A99Bb6e3B7Db580eD848240e4a0F9aE153', symbol: 'Fil', decimals: 18, chain: bsc.id },
-  { address: "0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46", symbol: 'vFil', decimals: 18, chain: bsc.id },
+  { address: '0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46', symbol: 'vFil', decimals: 18, chain: bsc.id },
   { address: '0xed202a7050ee856ba9f0d3cd5eabcab6b8a23a88', symbol: 'lpFil', decimals: 18, chain: bsc.id },
   // for Reppo
-  { address: "0xFf8104251E7761163faC3211eF5583FB3F8583d6", symbol: 'REPPO', decimals: 18, chain: base.id },
-  { address: "0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46", symbol: 'vREPPO', decimals: 18, chain: base.id },
-  { address: "0x2b72494fd4f092569b87e1a10f92268384f07a88", symbol: 'lpREPPO', decimals: 18, chain: base.id },
+  { address: '0xFf8104251E7761163faC3211eF5583FB3F8583d6', symbol: 'REPPO', decimals: 18, chain: base.id },
+  { address: '0x24ef95c39DfaA8f9a5ADf58edf76C5b22c34Ef46', symbol: 'vREPPO', decimals: 18, chain: base.id },
+  { address: '0x2b72494fd4f092569b87e1a10f92268384f07a88', symbol: 'lpREPPO', decimals: 18, chain: base.id },
+  // for Verio
+  { address: '0x1514000000000000000000000000000000000000', symbol: 'WIP', decimals: 18, chain: story.id },
+  // verio IP
+  { address: '0x5267F7eE069CEB3D8F1c760c215569b79d0685aD', symbol: 'vIP', decimals: 18, chain: story.id },
+  // vesting IP
+  { address: '0x92838ccdb9dceabc8e77415d73ecb06f8050cc5f', symbol: 'vIP\t', decimals: 18, chain: story.id },
+  { address: '0xee5aeecd6c9409424f88163aff415efcb9027a88', symbol: 'lpIP', decimals: 18, chain: story.id },
 ]
 
 export const TOKENS_MAP: { [k: `${number}_${Address}`]: Token } = TOKENS.reduce((map, item) => {

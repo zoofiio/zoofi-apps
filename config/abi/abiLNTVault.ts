@@ -54,14 +54,6 @@ export const abiLntVault = parseAbi([
   'function buybackVT(uint256 amountT) external',
 ])
 
-export const abiLVTVault = parseAbi([
-  'function deposit(uint256 value) external',
-  'function buyback(uint256 amountT) external',
-  'function updateaVT(uint256 newAVT) external',
-  'function mintVestingTokens(address to, uint256 amount) external',
-  'function burnVestingTokens(uint256 amount) external',
-])
-
 export const abiLntProtocol = parseAbi([
   'function owner() public view returns (address)',
   'function pendingOwner() public view returns (address)',
@@ -98,17 +90,6 @@ export const abiLntVTSwapHook = parseAbi([
   'function poolKey() external view returns(PoolKey memory)',
   'function isToken0VT() external view returns(bool)',
 ])
-
-export const abiMockaVToracle = parseAbi(['function setaVT(uint256 _aVT_) external'])
-
-export const abiMockNodeDelegator = parseAbi([
-  'function addOperator(address operator, uint256 capacity) external',
-  'function removeOperator(address operator) external',
-  'function operators() external view returns (address[] memory)',
-  'function getOperatorInfo(address operator) external view returns (uint256 capacity, uint256 delegations)',
-])
-
-export const abiMockRewardDistributor = parseAbi(['function addReward(address token, uint256 amount) external payable', 'function addT(uint256 amount) external payable'])
 
 export const abiAethirNFT = parseAbi([
   'function mint(address to, uint256 amount) public',
@@ -155,24 +136,39 @@ export const abiZeroGVToracale = parseAbi([
   'function rewardsEndTime() external view returns (uint256)',
 ])
 
-export const abiLntVaultDepositExt = parseAbi([
-  'function operatorNode() external view returns (address)',
+export const abiPausedable = parseAbi([
   'function pausedDeposit() external view returns (bool)',
   'function pausedRedeem() external view returns (bool)',
-  'function tokenRewardsInfoCount() external view returns (uint256)',
-  'function redeem(uint256 count) external',
-  
-  'function mintVestingTokens(address to, uint256 amount) external',
-  'function burnVestingTokens(uint256 amount) external',
-  'function updateOperatorNode(address newOperatorNode) external',
-  'function updateTokenRewardsInfo(uint256[] calldata tokenId, uint256[] calldata remainingRewards) external',
-  'function delegate(address toOperatorNode, uint256[] calldata tokenIds) external',
-  'function undelegate(uint256[] calldata tokenIds) external',
   'function pauseDeposit() external',
   'function unpauseDeposit() external',
   'function pauseRedeem() external',
   'function unpauseRedeem() external',
 ])
+
+export const abiLVTVault = [
+  ...parseAbi([
+    'function deposit(uint256 value) external',
+    'function buyback(uint256 amountT) external',
+    'function updateaVT(uint256 newAVT) external',
+    'function mintVestingTokens(address to, uint256 amount) external',
+    'function burnVestingTokens(uint256 amount) external',
+  ]),
+  ...abiPausedable,
+]
+export const abiLntVaultDepositExt = [
+  ...parseAbi([
+    'function operatorNode() external view returns (address)',
+    'function tokenRewardsInfoCount() external view returns (uint256)',
+    'function redeem(uint256 count) external',
+    'function mintVestingTokens(address to, uint256 amount) external',
+    'function burnVestingTokens(uint256 amount) external',
+    'function updateOperatorNode(address newOperatorNode) external',
+    'function updateTokenRewardsInfo(uint256[] calldata tokenId, uint256[] calldata remainingRewards) external',
+    'function delegate(address toOperatorNode, uint256[] calldata tokenIds) external',
+    'function undelegate(uint256[] calldata tokenIds) external',
+  ]),
+  ...abiPausedable,
+]
 
 export const abiLntBuyback = parseAbi([
   'function stakingTokenPotCount() external view returns (uint256)',
@@ -206,4 +202,9 @@ export const abiReppoLntVault = parseAbi([
   'function upsertNFT(address nft, uint256 aVT) external',
   'function removeNFT(address nft) external',
   'function buyback(uint256 amountT) external',
+])
+
+export const abiLvtVerio = parseAbi([
+  'function calculateIPWithdrawal(uint256 verioIPToBurn) public view returns (uint256)',
+  'function calculateVerioIPMint(uint256 ipAmount) public view returns (uint256)',
 ])

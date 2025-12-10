@@ -38,6 +38,10 @@ const SupportICONS: { [k: string]: string } = {
   ATH: 'ATH.png',
   Fil: 'Filecoin.svg',
   REPPO: 'REPPO.svg',
+  vIP: 'vIP.svg',
+  IP: 'IP.svg',
+  'IP\t': 'IP.svg',
+  WIP: 'WIP.png',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
@@ -67,8 +71,8 @@ export function DoubleCoinIcon({ symbol1, symbol2, size = 48, url1, url2, classN
 
 export function TokenIcon({ token, size = 48, showNet = false, url, ...p }: { token?: Token; className?: string; style?: CSSProperties; size?: number | string; url?: string, showNet?: boolean }) {
   if (!token) return null
-  const isLP = token.symbol.startsWith('lp')
-  const isVT = token.symbol.startsWith('v')
+  const isLP = token.symbol.startsWith('lp') && !Boolean(SupportICONS[token.symbol])
+  const isVT = token.symbol.startsWith('v') && !Boolean(SupportICONS[token.symbol])
   const symbol = isLP ? token.symbol.slice(2) : isVT ? token.symbol.slice(1) : token.symbol
   const isOtherLP = symbol.includes('-') && !ignoreDouble.includes(symbol)
   const [symbol1, symbol2] = symbol.split('-')

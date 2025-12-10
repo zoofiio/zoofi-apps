@@ -9,10 +9,10 @@ import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChain } from '@/hooks/useCurrentChainId'
-import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultOperators, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
+import { calcTPriceVT, calcVtApy, useLntHookPoolkey, useLntVault, useLntVaultLogs, useLntVaultTimes, useLntVaultWithdrawState, useVTTotalSupply } from '@/hooks/useFetLntVault'
 import { useBalance, useErc721Balance, useTotalSupply } from '@/hooks/useToken'
 import { reFet } from '@/lib/useFet'
-import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, shortStr, tabToSearchParams, uniSortTokens } from '@/lib/utils'
+import { cn, fmtBn, fmtDate, fmtPercent, formatPercent, genDeadline, handleError, parseEthers, tabToSearchParams, uniSortTokens } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { displayBalance } from '@/utils/display'
 import { useQuery } from '@tanstack/react-query'
@@ -33,9 +33,9 @@ import { CoinIcon } from './icons/coinicon'
 import { TokenIcon } from './icons/tokenicon'
 import { LntVaultBuyback } from './lnt-vault-buyback'
 import { LntVaultDepositReppo } from './lnt-vault-reppo'
+import { LVTDepositWithdrawVerio } from './lnt-vault-verio'
 import { Badge } from './noti'
 import { SimpleDialog } from './simple-dialog'
-import STable from './simple-table'
 import { SimpleTabs } from './simple-tabs'
 import { ConfigChainsProvider } from './support-chains'
 import { TokenInput } from './token-input'
@@ -215,24 +215,6 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   </div>
 }
 
-export function LntOperators({ vc }: { vc: LntVaultConfig }) {
-  const operators = useLntVaultOperators(vc)
-  return <div className='animitem card'>
-    <STable
-      header={["Operator", "Address", "Delegted", "Fill rate(7d)", "Status"]}
-      data={operators.result.map((item, index) => [
-        `Operator${index + 1}`,
-        shortStr(item.address),
-        `${item.delegations.toString()}`,
-        `${item.capacity > 0n ? fmtPercent(item.delegations * DECIMAL / item.capacity, 18, 2) : '100%'}`,
-        <div key="status" className='px-2 py-1 rounded-xl bg-green-400 w-fit text-white dark:text-black'>Active</div>
-      ])}
-    />
-  </div>
-}
-
-
-
 export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
@@ -371,7 +353,6 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   }} className="animitem card bg-white flex gap-5 h-full col-span-2 flex-wrap justify-center md:flex-nowrap" >
     <div className='flex flex-col gap-5'>
       <div className="flex gap-5 relative justify-center flex-wrap md:flex-nowrap">
-        {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
         <div className='text-[40px] lg:text-[160px] shrink-0 absolute left-0 top-0 lg:relative'>
           <CoinIcon symbol={vc.icon} size={'1em'} className='object-contain' />
         </div>
@@ -379,7 +360,6 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
           <div className='flex justify-between gap-5 flex-wrap'>
             <div className="pl-12 leading-10 lg:pl-0 lg:leading-normal text-base font-semibold">{vc.tit}</div>
             <div></div>
-            {/* {vc.isIdle && <div className='underline underline-offset-2 text-red-500 flex items-center gap-2 whitespace-pre-wrap'><CoinIcon size={16} symbol='Fire' /> Vault will officially launch on 2025/7/31 06:00 (UTC)</div>} */}
           </div>
           <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
         </div>
@@ -389,17 +369,17 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
         <ProgressBar progress={progress} />
       </div>
     </div>
-    {vc.isLVT ? <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
+    {vc.isFil && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
       <span className=''>Total Locked</span>
       <div className='font-bold'> {displayBalance(vd.result?.activeDepositCount, undefined, t.decimals)}</div>
       <div className='flex items-center gap-2.5'>
         <TokenIcon token={t} size={20} />
         {t.symbol}
       </div>
-    </div> :
-      vc.reppo ? <LntVaultDepositReppo vc={vc} /> :
-        <LNTDepositWithdraw vc={vc} />}
-
+    </div>}
+    {vc.isVerio && <LVTDepositWithdrawVerio vc={vc} />}
+    {vc.reppo && <LntVaultDepositReppo vc={vc} />}
+    {!vc.isLVT && !vc.reppo && <LNTDepositWithdraw vc={vc} />}
   </div>
 }
 

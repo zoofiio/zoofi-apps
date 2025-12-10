@@ -1,5 +1,5 @@
 import { Address, zeroAddress } from 'viem'
-import { arbitrum, bsc } from 'viem/chains'
+import { arbitrum, bsc, story } from 'viem/chains'
 import { TypeENV } from './env'
 import { base } from './network'
 
@@ -13,10 +13,6 @@ export type LntVaultConfig = {
   protocol: Address
   protocalSettings: Address
   lpTYT?: Address
-  MockT?: Address
-  MockaVTOracle?: Address
-  MockNodeDelegator?: Address
-  MockRewardDistribuitor?: Address
   RedeemStrategy?: Address
   // aethir
   AethirNFT?: Address
@@ -64,6 +60,10 @@ export type LntVaultConfig = {
     standard: Address
     preminum: Address
   }
+
+  // is
+  isFil?: boolean
+  isVerio?: boolean
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
@@ -154,6 +154,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
   // LVT
   {
     isLVT: true,
+    isFil: true,
     chain: bsc.id,
     nftBalanceBy: 'rpc-amount',
     vault: '0xebf1039d30d7a03e6f09d0815431db339017d031',
@@ -173,5 +174,28 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     icon: 'Filecoin',
     tit: 'Filecoin 540-Locked Vault',
     info: `Filecoin is a decentralized storage network powered by blockchain technology, designed to create a global marketplace for data storage and retrieval. Filecoin 540 Locked Vault instantly unlocks the liquidity of 540-day locked FIL tokens that Storage Providers (SPs) pledge as sector collateral. Each Vault position is backed 1:1 by real FIL tokens staked with active, verified Storage Providers on the Filecoin network.`,
+  },
+  {
+    isLVT: true,
+    isVerio: true,
+    chain: story.id,
+    nftBalanceBy: 'rpc-amount',
+    vault: '0x38402aa01220a1d19edfe061760877a353728214',
+    asset: '0x5267F7eE069CEB3D8F1c760c215569b79d0685aD',
+    protocol: '0xa341e92b22b1a2c94b24163eae09aed34e8ea134',
+    protocalSettings: '0x056e530679857dbd884f7a9bd71e6b8a76909181',
+    vtSwapHook: '0xee5aeecd6c9409424f88163aff415efcb9027a88',
+    onEnv: ['test'],
+    buyback: true,
+    buybackPool: '0x4979a12bf440049780df3dcf245769e6bd1741db',
+    lpTYT: zeroAddress,
+    vtActive: true,
+    ytEnable: false,
+    lpYields: false,
+    projectIcon: 'Verio',
+    startTime: 1765323400n,
+    icon: 'Verio',
+    tit: 'Verio Locked Vault',
+    info: `Verio -------------------------------- -------------------------------- -------------------------------- -------------------------------- --------------------------------`,
   },
 ]

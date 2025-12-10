@@ -1,15 +1,15 @@
-import { abiLntVault, abiLntVTSwapHook, abiMockNodeDelegator, abiQueryLNT, abiRedeemStrategy, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
+import { abiLntVault, abiLntVTSwapHook, abiLvtVerio, abiQueryLNT, abiRedeemStrategy, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
 import { getLntVaultSwapFee7Days } from '@/config/api'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { getTokenBy } from '@/config/tokens'
-import { YEAR_SECONDS } from '@/constants'
+import { DECIMAL, DECIMAL_10, YEAR_SECONDS } from '@/constants'
 import { useFet } from '@/lib/useFet'
 import { aarToNumber, FMT, fmtDate, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
-import { Address, erc721Abi, parseEther, PublicClient, toHex, zeroAddress } from 'viem'
+import { Address, erc20Abi, erc721Abi, parseEther, PublicClient, toHex, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useBalance, useTotalSupply } from './useToken'
 
@@ -25,12 +25,40 @@ export const FET_KEYS = {
 export async function fetLntVault(vc: LntVaultConfig) {
   const pc = getPC(vc.chain)
   if (vc.isLVT) {
+    // if(vc.isVerio)
+    // Promise.resolve(parseEther('13933256.25'))
+
+    if (vc.isFil)
+      return promiseAll({
+        activeDepositCount: Promise.resolve(parseEther('13933256.25')),
+        aVT: pc.readContract({ abi: abiZeroGVToracale, address: vc.vault, functionName: 'aVT' }),
+        VTbyDeposit: Promise.resolve(undefined as Address | undefined),
+        closed: Promise.resolve(false),
+        NFT: Promise.resolve(vc.asset),
+        VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
+        YT: Promise.resolve(zeroAddress as Address),
+        T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
+        vATOracle: Promise.resolve(zeroAddress as Address),
+        tokenPot: Promise.resolve(zeroAddress as Address),
+        vtSwapPoolHook: Promise.resolve(vc.vtSwapHook ?? zeroAddress),
+        expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
+        startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
+      })
+
+    async function aVT() {
+      const one = DECIMAL
+      const [vipInRate, vipRate] = await Promise.all([
+        pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'paramValue', args: [toHex('VerioIPInflationRate', { size: 32 })] }),
+        pc.readContract({ abi: abiLvtVerio, address: vc.vault, functionName: 'calculateIPWithdrawal', args: [one] }),
+      ])
+      return (vipInRate * one * vipRate) / DECIMAL / DECIMAL
+    }
     return promiseAll({
-      activeDepositCount: Promise.resolve(parseEther('13933256.25')),
-      aVT: pc.readContract({ abi: abiZeroGVToracale, address: vc.vault, functionName: 'aVT' }),
+      activeDepositCount: pc.readContract({ abi: erc20Abi, address: vc.asset, functionName: 'balanceOf', args: [vc.vault] }),
+      aVT: aVT(),
       VTbyDeposit: Promise.resolve(undefined as Address | undefined),
       closed: Promise.resolve(false),
-      NFT: Promise.resolve(vc.asset),
+      NFT: Promise.resolve(zeroAddress),
       VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
       YT: Promise.resolve(zeroAddress as Address),
       T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
@@ -121,28 +149,6 @@ export function useLntVaultYTRewards(vc: LntVaultConfig) {
   return rewards
 }
 
-export function useLntVaultOperators(vc: LntVaultConfig) {
-  const vd = useLntVault(vc)
-  const operators = useFet({
-    key: FET_KEYS.LntVaultOperators(vc, vc.MockNodeDelegator),
-    initResult: [],
-    fetfn: async () => {
-      const pc = getPC(vc.chain)
-      const opaddress = await pc.readContract({ abi: abiMockNodeDelegator, address: vc.MockNodeDelegator!, functionName: 'operators' })
-      return Promise.all(
-        opaddress.map((item) =>
-          pc
-            .readContract({ abi: abiMockNodeDelegator, address: vc.MockNodeDelegator!, functionName: 'getOperatorInfo', args: [item] })
-            .then(([capacity, delegations]) => ({ address: item, capacity, delegations })),
-        ),
-      )
-    },
-  })
-  if (vd.status === 'fetching') {
-    operators.status = 'fetching'
-  }
-  return operators
-}
 
 export function useLntVaultTimes(vc: LntVaultConfig) {
   const vd = useLntVault(vc)

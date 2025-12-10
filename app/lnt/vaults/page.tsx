@@ -1,6 +1,6 @@
 'use client'
 
-import { LNT_VT_YT, LNTAethirHeader, LNTInfo, LntOperators, LNTTestHeader, LNTVaultCard } from '@/components/lnt-vault'
+import { LNT_VT_YT, LNTAethirHeader, LNTInfo, LNTTestHeader, LNTVaultCard } from '@/components/lnt-vault'
 import { LntVaultActivity } from '@/components/lnt-vault-activity'
 import LntVaultChart from '@/components/lnt-vault-chart'
 import { LntMyPositions } from '@/components/lnt-vault-positions'
@@ -32,11 +32,6 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
           <LNT_VT_YT vc={vc} tab={tab} />
         </div>
         <LntMyPositions vc={vc} />
-
-        {vc.MockNodeDelegator && <>
-          <div className='animitem'>Operators</div>
-          <LntOperators vc={vc} />
-        </>}
         {vc.isAethir && <LntVaultActivity vc={vc} />}
       </>}
     </div>
