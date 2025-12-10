@@ -50,7 +50,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
                 {`1 vIP(Verio IP) = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
             </div>
             <div>
-                {`Operation Fees : ${vc.depositFees ?? '5%'}`}
+                
             </div>
         </div>
         <Txs

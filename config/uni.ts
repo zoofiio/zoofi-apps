@@ -3,7 +3,7 @@ import { getPC } from '@/providers/publicClient'
 import { now } from 'es-toolkit/compat'
 import { Address, encodeAbiParameters, encodePacked, erc20Abi, Hex, isAddressEqual, parseAbi, parseAbiParameters, SimulateContractParameters, toHex, zeroAddress } from 'viem'
 import { bscTestnet } from 'viem/chains'
-import { arbitrum, base, bsc, zeroGmainnet } from './network'
+import { arbitrum, base, bsc, story, zeroGmainnet } from './network'
 export const abiUniRouter = parseAbi([
   'function execute(bytes calldata commands, bytes[] calldata inputs) public payable',
   'function execute(bytes calldata commands, bytes[] calldata inputs, uint256 deadline) public payable',
@@ -67,6 +67,11 @@ export const UNI_CONFIGS: { [k: number]: UNI_CONFIG } = {
     unirouter: '0x6ff5693b99212da76ad316178a184ab56d299b43',
     permit2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
     poolmanager: '0x498581ff718922c3f8e6a244956af099b2652b2b',
+  },
+  [story.id]: {
+    unirouter: '0x8d50571796c86fd7018b5711a10a498eeaf5761f',
+    permit2: '0x000000000022d473030f116ddee9f6b43ac78ba3',
+    poolmanager: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
   },
 }
 export type UniSwapConfig = {
