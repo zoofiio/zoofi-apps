@@ -42,6 +42,7 @@ export function useStore<T>(selector: (s: BoundStoreType) => T, dependsPaths: ('
   const store = useBoundStore()
   return useMemo(
     () => selector(store),
+    // eslint-disable-next-line react-hooks/use-memo
     dependsPaths.map((path) => (!path ? store : get(store, path))),
   )
 }

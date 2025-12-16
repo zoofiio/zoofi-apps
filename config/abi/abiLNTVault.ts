@@ -202,6 +202,9 @@ export const abiReppoLntVault = parseAbi([
   'function upsertNFT(address nft, uint256 aVT) external',
   'function removeNFT(address nft) external',
   'function buyback(uint256 amountT) external',
+  'function rewardsOperators() external view returns (address[] memory operators)',
+  'function addRewardsOperator(address operator) external',
+  'function removeRewardsOperator(address operator) external',
 ])
 
 export const abiLvtVerio = parseAbi([
