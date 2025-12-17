@@ -145,6 +145,14 @@ export const story = defineChain({
 
 export const sei = defineChain({
   ..._sei,
+  rpcUrls: {
+    default: {
+      http: ['https://sei-evm-rpc.stakeme.pro'],
+    },
+    alchemy: {
+      http: ['https://sei-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'],
+    },
+  },
   iconUrl: `${BASE_PATH}/sei.svg`,
 })
 
