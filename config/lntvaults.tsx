@@ -223,7 +223,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     tit: 'SEI 360-Locked Vault',
     info: <>
       SEI Network is the first parallelized EVM blockchain delivering unmatched scalability and speed.<br />
-      The SEI 360-Locked Vault instantly unlocks and distributes the next 360 days of LST staking rewards upfront, while still allowing users to redeem locked vIP 1:1 for WIP upon maturity.<br />
+      The SEI 360-Locked Vault instantly unlocks and distributes the next 360 days of LST staking rewards upfront, while still allowing users to redeem locked vSEI 1:1 for WSEI upon maturity.<br />
       <a href='https://rest.pacific-1.sei.io/cosmos/staking/v1beta1/delegations/sei1lm44xxxvjlepnmms2rt46vj7fmqlr28h5eku2v' target='_blank' className='underline underline-offset-2 text-primary cursor-pointer'>
         Delegation details
       </a>
