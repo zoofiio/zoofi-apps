@@ -82,6 +82,7 @@ const SupportICONS: { [k: string]: string } = {
   REPPO: 'REPPO.svg',
   Verio: 'Verio.svg',
   IP: 'IP.svg',
+  SEI: 'sei.svg',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {

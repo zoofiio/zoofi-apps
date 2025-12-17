@@ -223,6 +223,8 @@ function AdminFilcoin({ vc }: { vc: LntVaultConfig }) {
     {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
   </>
 }
+
+
 function AdminVerio({ vc }: { vc: LntVaultConfig }) {
   return <>
     <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LvtVaultParamsVerio} />
@@ -237,6 +239,20 @@ function AdminVerio({ vc }: { vc: LntVaultConfig }) {
   </>
 }
 
+function AdminSei({ vc }: { vc: LntVaultConfig }) {
+  return <>
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams2_2} />
+    <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
+    <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
+      infos={() => promiseAll({
+        vtPriceStartTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
+        vtPriceEndTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
+      })} />
+    <ContractAll tit='ERC1155' abi={erc1155Abi} address={vc.asset} />
+    <ContractAll tit='LvtVault' abi={abiLVTVault} address={vc.vault} />
+    {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
+  </>
+}
 export default function AdminPage() {
   const vcs = LNTVAULTS_CONFIG
   const options = vcs.map(item => ({ key: item.vault, show: `${item.isLVT ? 'LVT' : 'LNT'}-Vault  (${shortStr(item.vault)}) (${item.tit}) (${getChain(item.chain)!.name})`, vc: item }))
@@ -262,6 +278,7 @@ export default function AdminPage() {
 
               {current.vc.isFil && <AdminFilcoin vc={current.vc} />}
               {current.vc.isVerio && <AdminVerio vc={current.vc} />}
+              {current.vc.isSei && <AdminSei vc={current.vc} />}
             </ConfigChainsProvider>
           }
         </div>

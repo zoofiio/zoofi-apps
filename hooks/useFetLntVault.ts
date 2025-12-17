@@ -44,6 +44,23 @@ export async function fetLntVault(vc: LntVaultConfig) {
         expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
         startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
       })
+    if (vc.isSei) {
+      return promiseAll({
+        activeDepositCount: Promise.resolve(parseEther('13933256.25')),
+        aVT: pc.readContract({ abi: abiZeroGVToracale, address: vc.vault, functionName: 'aVT' }),
+        VTbyDeposit: Promise.resolve(undefined as Address | undefined),
+        closed: Promise.resolve(false),
+        NFT: Promise.resolve(vc.asset),
+        VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
+        YT: Promise.resolve(zeroAddress as Address),
+        T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
+        vATOracle: Promise.resolve(zeroAddress as Address),
+        tokenPot: Promise.resolve(zeroAddress as Address),
+        vtSwapPoolHook: Promise.resolve(vc.vtSwapHook ?? zeroAddress),
+        expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
+        startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
+      })
+    }
 
     async function aVT() {
       const one = DECIMAL
@@ -148,7 +165,6 @@ export function useLntVaultYTRewards(vc: LntVaultConfig) {
   }
   return rewards
 }
-
 
 export function useLntVaultTimes(vc: LntVaultConfig) {
   const vd = useLntVault(vc)

@@ -1,7 +1,7 @@
 import { Address, zeroAddress } from 'viem'
 import { arbitrum, bsc, story } from 'viem/chains'
 import { TypeENV } from './env'
-import { base } from './network'
+import { base, sei } from './network'
 
 export const WriteConfirmations = 3
 
@@ -64,6 +64,7 @@ export type LntVaultConfig = {
   // is
   isFil?: boolean
   isVerio?: boolean
+  isSei?: boolean
 }
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
@@ -197,5 +198,28 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     icon: 'IP',
     tit: 'vIP(Verio) 90-Locked Vault',
     info: `Story is a purpose-built Layer 1 blockchain designed specifically for intellectual property. Verio is the IP trust engine powering Story's IP blockchain. vIP, issued by Verio, is the LST asset of the Story network. The vIP (Verio) 90-Locked Vault instantly unlocks and distributes the next 90 days of LST staking rewards upfront, while still allowing users to redeem locked vIP 1:1 for WIP upon maturity.`,
+  },
+  {
+    isLVT: true,
+    isSei: true,
+    chain: sei.id,
+    nftBalanceBy: 'rpc-amount',
+    vault: '0x5d5958f62ffc35a93c426c0d5fc55cd3dffc9e20',
+    asset: '0xf8dfaa0967c812a43d02059f2b14786dceb84e8b',
+    protocol: '0xa341e92b22b1a2c94b24163eae09aed34e8ea134',
+    protocalSettings: '0x056e530679857dbd884f7a9bd71e6b8a76909181',
+    vtSwapHook: '0x3362cb23043cb5e7c52711c5763c69fd513a3a88',
+    onEnv: ['test'],
+    buyback: true,
+    buybackPool: '0x8bf32a9603859235cdaf32e8201982a6cdcf411a',
+    lpTYT: zeroAddress,
+    vtActive: true,
+    ytEnable: false,
+    lpYields: false,
+    projectIcon: 'SEI',
+    startTime: 1765869735n,
+    icon: 'SEI',
+    tit: 'SEI Locked Vault',
+    info: `SEI ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`,
   },
 ]

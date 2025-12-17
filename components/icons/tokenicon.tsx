@@ -42,6 +42,8 @@ const SupportICONS: { [k: string]: string } = {
   IP: 'IP.svg',
   'IP\t': 'IP.svg',
   WIP: 'WIP.png',
+  WSEI: 'sei.svg',
+  SEI: 'sei.svg',
 }
 
 export function CoinIconImpl({ symbol, size = 48, url, style, ...p }: { symbol: string; className?: string; style?: CSSProperties; size?: number | string; url?: string }) {
