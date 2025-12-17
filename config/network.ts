@@ -1,4 +1,3 @@
-import { providers } from 'ethers'
 import { Address, Chain, defineChain } from 'viem'
 import {
   base as baseMainnet,
@@ -177,10 +176,6 @@ export function getChain(chainId: number) {
 export function getChainName(chainId: number) {
   return getChain(chainId)?.name || `Chain(${chainId})`
 }
-
-export const refEthersProvider: {
-  provider?: providers.FallbackProvider | providers.JsonRpcProvider
-} = {}
 
 export const BEX_URLS: { [k: number]: string } = {
   [berachainTestnet.id]: 'https://bartio.bex.berachain.com',
