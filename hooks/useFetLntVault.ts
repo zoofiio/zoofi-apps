@@ -28,9 +28,9 @@ export async function fetLntVault(vc: LntVaultConfig) {
     // if(vc.isVerio)
     // Promise.resolve(parseEther('13933256.25'))
 
-    if (vc.isFil)
+    if (vc.isFil || vc.isSei)
       return promiseAll({
-        activeDepositCount: Promise.resolve(parseEther('13933256.25')),
+        activeDepositCount: Promise.resolve(0n),
         aVT: pc.readContract({ abi: abiZeroGVToracale, address: vc.vault, functionName: 'aVT' }),
         VTbyDeposit: Promise.resolve(undefined as Address | undefined),
         closed: Promise.resolve(false),
@@ -44,24 +44,6 @@ export async function fetLntVault(vc: LntVaultConfig) {
         expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
         startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
       })
-    if (vc.isSei) {
-      return promiseAll({
-        activeDepositCount: Promise.resolve(parseEther('13933256.25')),
-        aVT: pc.readContract({ abi: abiZeroGVToracale, address: vc.vault, functionName: 'aVT' }),
-        VTbyDeposit: Promise.resolve(undefined as Address | undefined),
-        closed: Promise.resolve(false),
-        NFT: Promise.resolve(vc.asset),
-        VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
-        YT: Promise.resolve(zeroAddress as Address),
-        T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
-        vATOracle: Promise.resolve(zeroAddress as Address),
-        tokenPot: Promise.resolve(zeroAddress as Address),
-        vtSwapPoolHook: Promise.resolve(vc.vtSwapHook ?? zeroAddress),
-        expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
-        startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
-      })
-    }
-
     async function aVT() {
       const one = DECIMAL
       const [vipInRate, vipRate] = await Promise.all([

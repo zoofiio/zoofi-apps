@@ -240,7 +240,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
           {
             vc.isLVT ? <>
               <div className={itemTitClassname}>Total Locked</div>
-              <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, undefined, t?.decimals)}</div>
+              <div>{displayBalance(vtTotalSupply ?? 0n, undefined, t?.decimals)}</div>
             </> : <>
               <div className={itemTitClassname}>Total Deposited</div>
               <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
@@ -348,6 +348,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   const { progress, remainStr } = useLntVaultTimes(vc)
   const vd = useLntVault(vc)
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
+  const vtTotal = useVTTotalSupply(vc)
   return <div style={{
     backdropFilter: 'blur(20px)'
   }} className="animitem card bg-white flex gap-5 h-full col-span-2 flex-wrap justify-center md:flex-nowrap" >
@@ -369,9 +370,9 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
         <ProgressBar progress={progress} />
       </div>
     </div>
-    {vc.isFil && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
+    {(vc.isFil || vc.isSei) && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
       <span className=''>Total Locked</span>
-      <div className='font-bold'> {displayBalance(vd.result?.activeDepositCount, undefined, t.decimals)}</div>
+      <div className='font-bold'> {displayBalance(vtTotal, undefined, t.decimals)}</div>
       <div className='flex items-center gap-2.5'>
         <TokenIcon token={t} size={20} />
         {t.symbol}
