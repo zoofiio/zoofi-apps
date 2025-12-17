@@ -17,7 +17,7 @@ import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useSetState } from 'react-use'
-import { Address, erc1155Abi, erc20Abi, formatUnits, parseUnits, stringToHex } from 'viem'
+import { Address, erc1155Abi, erc20Abi, formatUnits, parseAbi, parseUnits, stringToHex } from 'viem'
 
 
 type ParamItem = { show: string; value: string; units?: number /** def 10 */ }
@@ -209,6 +209,13 @@ function AdminAethir({ vc }: { vc: LntVaultConfig }) {
   </>
 }
 
+
+const abiMErc1155 = [
+  ...erc1155Abi,
+  ...parseAbi([
+    'function mint(address to, uint256 id, uint256 value, bytes memory data) external',
+  ])
+]
 function AdminFilcoin({ vc }: { vc: LntVaultConfig }) {
   return <>
     <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams2_2} />
@@ -218,7 +225,7 @@ function AdminFilcoin({ vc }: { vc: LntVaultConfig }) {
         vtPriceStartTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
         vtPriceEndTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
       })} />
-    <ContractAll tit='ERC1155' abi={erc1155Abi} address={vc.asset} />
+    <ContractAll tit='ERC1155' abi={abiMErc1155} address={vc.asset} />
     <ContractAll tit='LvtVault' abi={abiLVTVault} address={vc.vault} />
     {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
   </>
@@ -248,7 +255,7 @@ function AdminSei({ vc }: { vc: LntVaultConfig }) {
         vtPriceStartTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
         vtPriceEndTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
       })} />
-    <ContractAll tit='ERC1155' abi={erc1155Abi} address={vc.asset} />
+    <ContractAll tit='ERC1155' abi={abiMErc1155} address={vc.asset} />
     <ContractAll tit='LvtVault' abi={abiLVTVault} address={vc.vault} />
     {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
   </>
