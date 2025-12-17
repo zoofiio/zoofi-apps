@@ -118,7 +118,7 @@ export function Menus() {
         toggleEL && !toggleEL.contains(e.target as any) && toggleOpen(false)
     })
     return <>
-        <div className="flex fixed z-50 left-0 lg:hidden items-center px-4 h-[72px]">
+        <div className="flex fixed z-110 left-0 lg:hidden items-center px-4 h-[72px]">
             <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
                 <CoinIcon symbol='logo-alt' size={60} />
             </Link>
@@ -136,7 +136,7 @@ export function Menus() {
             <MenusContent animitem />
         </div>
         {/* for mobile */}
-        <div ref={refMenus} className={cn("fixed z-50 flex lg:hidden flex-col gap-8 items-center top-[72px] w-60 overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>
+        <div ref={refMenus} className={cn("fixed z-110 flex lg:hidden flex-col gap-8 items-center top-[72px] w-60 overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>
             <MenusContent />
         </div>
     </>
