@@ -3,6 +3,7 @@ import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { cn, handleError, parseEthers, promiseT } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { isNil } from 'es-toolkit'
 import { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Collapse } from 'react-collapse'
 import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
@@ -10,11 +11,10 @@ import Select from 'react-select'
 import { useSetState } from 'react-use'
 import { twMerge } from 'tailwind-merge'
 import { Abi, AbiFunction, AbiParameter, Address, erc20Abi, isAddress, stringToHex } from 'viem'
-import { ApproveAndTx, Txs } from './approve-and-tx'
-import { BBtn } from './ui/bbtn'
+import { Txs } from './approve-and-tx'
 import { AddMultiTx } from './multitxs'
 import { Spinner } from './spinner'
-import { isNil } from 'es-toolkit'
+import { BBtn } from './ui/bbtn'
 
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
@@ -251,15 +251,15 @@ export function Erc20Approve() {
       } catch (error) {
       }
     }} className={cn(inputClassname)} />
-    <ApproveAndTx
+    <Txs
       tx='Write'
       disabled={!isAddress(stat.token) || !isAddress(stat.spender) || stat.amount <= 0n}
-      config={{
+      txs={[{
         abi: erc20Abi,
         address: stat.token as Address,
         functionName: 'approve',
         args: [stat.spender as Address, stat.amount],
-      }}
+      }]}
       className='mt-0! w-full flex items-center justify-center gap-4'
     />
   </Expandable>

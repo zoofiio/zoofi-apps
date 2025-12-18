@@ -1,6 +1,6 @@
 'use client'
 
-import { ApproveAndTx } from '@/components/approve-and-tx'
+import { Txs } from '@/components/approve-and-tx'
 import { Expandable, GeneralAction, inputClassname, selectClassNames } from '@/components/general-action'
 import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
@@ -67,14 +67,14 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress }: { paramL
         step={1}
         placeholder='0'
       />
-      <ApproveAndTx
+      <Txs
         tx='Write'
-        config={{
+        txs={[{
           abi: abiProtocolSettings,
           address: protocoSettingAddress,
           functionName: 'updateVaultParamValue',
           args: [vault, stringToHex(param.value, { size: 32 }), parseUnits(value, currentUnits)],
-        }}
+        }]}
         onTxSuccess={() => {
           setState({ value: '' })
           refetch()
@@ -106,15 +106,15 @@ function Erc20Approve() {
       } catch (error) {
       }
     }} className={cn(inputClassname)} />
-    <ApproveAndTx
+    <Txs
       tx='Write'
       disabled={!isAddress(stat.token) || !isAddress(stat.spender) || stat.amount <= 0n}
-      config={{
+      txs={[{
         abi: erc20Abi,
         address: stat.token as Address,
         functionName: 'approve',
         args: [stat.spender as Address, stat.amount],
-      }}
+      }]}
       className='mt-0! w-full flex items-center justify-center gap-4'
     />
   </Expandable>

@@ -16,6 +16,12 @@ dependencies:
   '@account-kit/react':
     specifier: ^4.78.0
     version: 4.78.0(@babel/runtime@7.28.4)(@solana/sysvars@2.3.0)(@tanstack/react-query@5.90.8)(@types/react@19.2.4)(@wagmi/core@2.21.2)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(immer@10.1.1)(react-dom@19.2.0)(react-native-get-random-values@1.11.0)(react-native-inappbrowser-reborn@3.7.0)(react-native-mmkv@3.3.3)(react-native-passkey@3.3.1)(react-native@0.82.1)(react@19.2.0)(tslib@2.8.1)(typescript@5.9.3)(viem@2.39.0)(wagmi@2.18.1)(ws@8.18.3)
+  '@fontsource/parkinsans':
+    specifier: ^5.2.7
+    version: 5.2.7
+  '@fontsource/zalando-sans-expanded':
+    specifier: ^5.2.1
+    version: 5.2.1
   '@gsap/react':
     specifier: ^2.1.2
     version: 2.1.2(gsap@3.13.0)(react@19.2.0)
@@ -1695,6 +1701,14 @@ packages:
       '@floating-ui/dom': 1.4.5
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
+    dev: false
+
+  /@fontsource/parkinsans@5.2.7:
+    resolution: {integrity: sha512-x5XvrWy9r7S6KOB1voVo0kFjYkvxqdAyzaj8XVATuvz66yeAPUeAKHy66j6vndtF30q17kvrnYQey882GVopSw==}
+    dev: false
+
+  /@fontsource/zalando-sans-expanded@5.2.1:
+    resolution: {integrity: sha512-UydYxW7lbGuXGuf5sx78hSck+QamQGQKgZcDVpiMYpFxlAK8Hb0eoyhzYoltRLKBDiUucFGGGokBQ/7vq9yWFA==}
     dev: false
 
   /@fractalwagmi/popup-connection@1.1.1(react-dom@19.2.0)(react@19.2.0):

@@ -1,18 +1,26 @@
 ; (BigInt.prototype as any).toJSON = function () {
   return this.toString()
 }
-import '@rainbow-me/rainbowkit/styles.css'
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
-import './globals.css'
+
+import '@fontsource/parkinsans/400.css';
+import '@fontsource/parkinsans/500.css';
+import '@fontsource/parkinsans/600.css';
+import '@fontsource/zalando-sans-expanded/400.css';
+import '@fontsource/zalando-sans-expanded/500.css';
+import '@fontsource/zalando-sans-expanded/600.css';
+import '@fontsource/zalando-sans-expanded/700.css';
+
+import '@rainbow-me/rainbowkit/styles.css';
+import type { Metadata } from 'next';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import './globals.css';
 
 // import PageLayout from './pagelayout'
-import Script from 'next/script'
-import PageLayout from './pagelayout'
-const inter = Inter({ subsets: ['latin'] })
+import Script from 'next/script';
+import PageLayout from './pagelayout';
+
 // const PageLayout = dynamic(() => import("./pagelayout"), { ssr: false })
 
 const MMetas = {
@@ -39,11 +47,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='en' className='' suppressHydrationWarning>
+    <html lang='en' className='font-def' suppressHydrationWarning>
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js?56" defer></Script>
       </head>
-      <body className={`${inter.className} main-colors`}>
+      <body className={`main-colors`}>
         <PageLayout>{children}</PageLayout>
         <div id='tooltip-root' className='fixed left-0 top-0 z-200' />
       </body>

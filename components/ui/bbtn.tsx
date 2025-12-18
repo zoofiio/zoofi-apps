@@ -12,7 +12,7 @@ export function BBtn(p: ButtonHTMLAttributes<HTMLButtonElement> & { borderWidth?
       {...props}
       ref={btnRef}
       className={cn(
-        'group/bbtn relative px-3 cursor-pointer w-full transition-all leading-[2.375] ring-0 text-base text-black dark:text-white font-medium h-10 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed bg-btn  dark:bg-btndark',
+        'group/bbtn font-sec relative px-3 cursor-pointer w-full transition-all leading-[2.375] ring-0 text-base text-black dark:text-white font-medium h-10 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed bg-btn  dark:bg-btndark',
         "border-primary border hover:border-primary/60",
         { 'hover:bg-btnhover dark:hover:bg-btndarkhover': !p.disabled },
         className,

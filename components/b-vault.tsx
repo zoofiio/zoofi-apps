@@ -25,7 +25,7 @@ import { List, ListRowProps } from 'react-virtualized'
 import { toast } from 'sonner'
 import { zeroAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
-import { ApproveAndTx } from './approve-and-tx'
+import { ApproveAndTx, Txs } from './approve-and-tx'
 import { AssetInput } from './input-asset'
 import BvaultEpochYtPrices from './b-vault-epoch-ytprices'
 import { GetLP } from './get-lp'
@@ -142,17 +142,17 @@ export function BVaultClaim({ bvc }: { bvc: BVaultConfig }) {
           </div>
         </div>
 
-        <ApproveAndTx
+        <Txs
           className='ml-auto w-1/3'
           busyShowTxet={false}
           tx='Claim'
           disabled={claimable <= 0n}
-          config={{
+          txs={[{
             abi: abiBVault,
             address: bvc.vault,
             functionName: 'batchClaimRedeemAssets',
             args: [ids.length > 40 ? ids.slice(ids.length - 40) : ids],
-          }}
+          }]}
           onTxSuccess={() => {
             upForUserAction()
           }}
@@ -524,16 +524,16 @@ function BVaultPoolsOld({ bvc }: { bvc: BVaultConfig }) {
             </div>
           </div>
           <span className='text-xs mx-auto'>You can harvest at the end of Epoch</span>
-          <ApproveAndTx
+          <Txs
             className='mx-auto mt-4'
             tx='Harvest'
             disabled={!current || !current?.settled}
-            config={{
+            txs={[{
               abi: abiBVault,
               address: bvc.vault,
               functionName: 'claimBribes',
               args: [current?.epochId!],
-            }}
+            }]}
             onTxSuccess={() => {
               upForUserAction()
             }}
@@ -619,15 +619,15 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
               <span className='absolute left-0 top-0'>Berachain Emission</span>
               <span className='absolute left-1/2 top-0 opacity-60'>Claimable</span>
             </div>
-            <ApproveAndTx
+            <Txs
               className='w-28 mx-auto'
               tx='Claim'
               disabled={!current}
-              config={{
+              txs={[{
                 abi: abiStakingBribesPool,
                 address: current?.stakingBribesPool!,
                 functionName: 'getBribes',
-              }}
+              }]}
               onTxSuccess={() => {
                 upForUserAction()
               }}
@@ -640,15 +640,15 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
                 <span>{displayBalance(userClaimableYTokenSyntyetic, undefined, 23)}</span>
               </div>
             </div>
-            <ApproveAndTx
+            <Txs
               className='w-28 mt-4 mx-auto'
               tx='Claim'
               disabled={!current}
-              config={{
+              txs={[{
                 abi: abiAdhocBribesPool,
                 address: current?.adhocBribesPool!,
                 functionName: 'collectYT',
-              }}
+              }]}
               onTxSuccess={() => {
                 upForUserAction()
               }}
@@ -660,15 +660,15 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
               </div>)}
               <span className='absolute left-0 top-0 whitespace-nowrap'>Additional Incentives</span>
               <span className='absolute left-1/2 top-0 opacity-60'>Claimable</span>
-              <ApproveAndTx
+              <Txs
                 className='w-28'
                 tx='Claim'
                 disabled={!current}
-                config={{
+                txs={[{
                   abi: abiAdhocBribesPool,
                   address: current?.adhocBribesPool!,
                   functionName: 'getBribes',
-                }}
+                }]}
                 onTxSuccess={() => {
                   upForUserAction()
                 }}

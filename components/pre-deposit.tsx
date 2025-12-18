@@ -1,17 +1,17 @@
+import { abiReppoLntVault } from "@/config/abi/abiLNTVault";
+import { LNTVAULTS_CONFIG } from "@/config/lntvaults";
 import { NodeLicense } from "@/config/prelnt";
 import { abiPreDeposit, usePreDepositByUser, usePreDepositData } from "@/hooks/usePreDeposit";
 import { cn } from "@/lib/utils";
+import { keys, now } from "es-toolkit/compat";
 import Link from "next/link";
 import { ButtonHTMLAttributes, ReactNode, useMemo, useRef } from "react";
 import { useSetState } from "react-use";
 import { encodeFunctionData, erc721Abi, isAddressEqual } from "viem";
 import { useAccount } from "wagmi";
-import { NftApproveAndTx, TX, Txs, TXSType } from "./approve-and-tx";
+import { TX, Txs, TXSType } from "./approve-and-tx";
 import { CoinIcon } from "./icons/coinicon";
 import { SimpleDialog } from "./simple-dialog";
-import { keys, now } from "es-toolkit/compat";
-import { LNTVAULTS_CONFIG } from "@/config/lntvaults";
-import { abiReppoLntVault } from "@/config/abi/abiLNTVault";
 
 
 
@@ -180,6 +180,7 @@ function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () =
                 </div>))}
             </div>
         </div>
+        {/*     
         <NftApproveAndTx tx='Deposit'
             approves={{ [pre.nft]: true }}
             spender={pre.prelnt}
@@ -193,13 +194,14 @@ function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () =
                 onSuccess()
                 refetch()
             }}
+            
             config={{
                 abi: abiPreDeposit,
                 address: pre.prelnt,
                 functionName: 'multicall',
                 enabled: tokenIds.length > 0,
                 args: [data]
-            }} />
+            }} /> */}
     </div>
 }
 function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () => void }) {
@@ -313,7 +315,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
         {/* deposit withdraw */}
         <div className="flex gap-5 flex-1 flex-col sm:flex-row">
             {/* deposit */}
-            <div className="flex-1 flex flex-col justify-between items-center h-full gap-5 pb-5">
+            {/* <div className="flex-1 flex flex-col justify-between items-center h-full gap-5 pb-5">
                 <div className="self-start">In-Wallet: {nfts.length}</div>
                 <InSvg />
                 <SimpleDialog
@@ -326,8 +328,8 @@ export function PrePool({ data }: { data: NodeLicense }) {
                     <LntPreDeposit node={data} onSuccess={() => { depositRef.current?.click(); reFetData(); reFetUser() }} />
                 </SimpleDialog>
 
-            </div>
-            <div className="bg-[#4A5546] h-px w-full sm:w-px sm:h-full shrink-0" />
+            </div> */}
+            {/* <div className="bg-[#4A5546] h-px w-full sm:w-px sm:h-full shrink-0" /> */}
             {/* withdraw */}
             <div className="flex-1 flex flex-col justify-between items-center h-full gap-5 pb-5">
                 <div className="self-end">Deposited: {deposited.length}</div>

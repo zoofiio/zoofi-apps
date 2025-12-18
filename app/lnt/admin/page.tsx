@@ -1,6 +1,6 @@
 'use client'
 
-import { ApproveAndTx } from '@/components/approve-and-tx'
+import { Txs } from '@/components/approve-and-tx'
 import { AsyncInfo, ContractAll, Erc20Approve, Expandable, GeneralAction, inputClassname } from '@/components/general-action'
 import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
@@ -60,14 +60,14 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress, chain }: {
         {isFetching && <Spinner className='text-xl' />}
         {JSON.stringify(data, undefined, 2)}
       </div>
-      <ApproveAndTx
+      <Txs
         tx='Write'
-        config={{
+        txs={[{
           abi: abiProtocolSettings,
           address: protocoSettingAddress,
           functionName: 'updateVaultParamValue',
           args: [vault, stringToHex(param.value, { size: 32 }), parseUnits(value, currentUnits)],
-        }}
+        }]}
         onTxSuccess={() => {
           setState({ value: '' })
           refetch()

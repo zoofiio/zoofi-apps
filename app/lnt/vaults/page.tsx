@@ -56,8 +56,8 @@ export default function Vaults({ type = 'lnt' }: { type?: 'lnt' | 'lvt' }) {
             <div className='page-title'>{type.toUpperCase()}-Vaults</div>
             {
               type == 'lnt' &&
-              <div className='flex flex-col  md:flex-row justify-between text-sm font-semibold gap-2 md:gap-10 pt-6 pb-4'>
-                <div>LNT (Liquid Node Token) Vault is a decentralized protocol designed to facilitate the issuance and management of node-based assets through Non-Fungible Tokens (NFTs) and derivative financial instruments.</div>
+              <div className='flex flex-col  md:flex-row justify-between text-sm font-sec gap-2 md:gap-10 pt-6 pb-4'>
+                <div className=''>LNT (Liquid Node Token) Vault is a decentralized protocol designed to facilitate the issuance and management of node-based assets through Non-Fungible Tokens (NFTs) and derivative financial instruments.</div>
                 <div className='flex  items-center gap-2.5 whitespace-nowrap'>
                   <IoDocumentText className='text-xl' />
                   <Link href={'https://docs.zoofi.io/lnt-vault/background'} target='_blank' className='underline underline-offset-2'>Learn More</Link>
@@ -66,7 +66,7 @@ export default function Vaults({ type = 'lnt' }: { type?: 'lnt' | 'lvt' }) {
             }
             {
               type == 'lvt' &&
-              <div className='flex flex-col  md:flex-row justify-between text-sm font-semibold gap-2 md:gap-10 pt-6 pb-4'>
+              <div className='flex flex-col  md:flex-row justify-between text-sm font-sec gap-2 md:gap-10 pt-6 pb-4'>
                 <div>{`LVT (Liquid Vesting Token) Vault is a smart new way to make locked-up tokens in crypto projects tradeable right away, without breaking the rules or the project's long-term plans.`}</div>
                 <div className='flex  items-center gap-2.5 whitespace-nowrap'>
                   <IoDocumentText className='text-xl' />

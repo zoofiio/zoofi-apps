@@ -11,7 +11,7 @@ import { cn, formatPercent, nowUnix } from "@/lib/utils";
 import { displayBalance } from "@/utils/display";
 import { Fragment } from "react";
 import { useAccount } from "wagmi";
-import { ApproveAndTx } from "./approve-and-tx";
+import { Txs } from "./approve-and-tx";
 import { CoinAmount } from "./coin-amount";
 import { TokenIcon } from "./icons/tokenicon";
 import STable from "./simple-table";
@@ -44,6 +44,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     const vt2Balance = useBalance(vt2)
     const matureTime = vd.result?.expiryTime ?? 2051193600n
     const isMature = nowUnix() > matureTime
+    const isDisableClaim = !isMature || vtBalance.result <= 0n || !address
     const data = vd.result ? [[
         <TokenSymbol key={'vt'} t={vt} />,
         <Fragment key={'vtValue'}>
@@ -61,18 +62,16 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         formatPercent(apy),
         isMature ? 'Mature' : 'Active',
         isMature ? <MCoinAmount key={'redeemable'} token={t} amount={vtBalance.result} /> : `1 ${vt.symbol} is equal to 1 ${t.symbol} at maturity`,
-        <ApproveAndTx
-            disabled={!isMature || vtBalance.result <= 0n || !address}
-            disabledHidden
+        isDisableClaim ? '' : <Txs
             onTxSuccess={() => reFet(vd.key, vtBalance.key)}
             key="claim"
             className="w-28 font-semibold h-7"
             tx="Claim"
-            config={{ abi: abiLntVault, functionName: 'redeemT', address: vc.vault, args: [vtBalance.result] }}
+            txs={[{ abi: abiLntVault, functionName: 'redeemT', address: vc.vault, args: [vtBalance.result] }]}
         />,
     ]] : []
     const header = ['VT', 'Value', 'APY', 'Status', 'Redeemable', '']
-    return <div className="animitem card p-4! bg-white overflow-x-auto">
+    return <div className="animitem card p-4! bg-white overflow-x-auto font-sec">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}
@@ -92,6 +91,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
     const yt = getTokenBy(vd.result?.YT, chainId, { symbol: 'YT' })!
     const ytBalance = useBalance(yt)
     const header = ['YT', 'Value', 'Status', 'Yield', 'Airdrops', '']
+    const disableClaim = !rewrads.result || !rewrads.result.length || !address
     const data = vd.result && rewrads.result ? [
         [
             <TokenSymbol key={'yt'} t={yt} />,
@@ -101,20 +101,19 @@ function YT({ vc }: { vc: LntVaultConfig }) {
                 {rewrads.result.map(([token, amount]) => <MCoinAmount token={getTokenBy(token, chainId, { symbol: 'T' })!} key={`rewards_${token}`} amount={amount} />)}
             </div>,
             '',
-            <ApproveAndTx
-                disabled={!rewrads.result.length || !address}
-                disabledHidden
+
+            disableClaim ? "" : <Txs
                 onTxSuccess={() => reFet(vd.key, rewrads.key)}
                 key="claim"
                 className="w-28 font-semibold h-7"
                 tx="Claim"
-                config={{ abi: abiRewardManager, functionName: 'claimRewards', address: yt.address, args: [address!] }}
+                txs={[{ abi: abiRewardManager, functionName: 'claimRewards', address: yt.address, args: [address!] }]}
             />,
         ]
     ] : []
-    return <div className="animitem card p-4! bg-white overflow-x-auto">
+    return <div className="animitem card p-4! bg-white overflow-x-auto font-sec">
         <STable
-            headerClassName='text-left font-semibold border-b-0'
+            headerClassName='text-left font-medium opacity-60 border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}
             cellClassName={(_i, ci) => ci == 0 ? 'py-2 px-0' : 'py-2 px-4'}
             rowClassName='text-left text-black text-sm leading-none font-medium'
@@ -134,7 +133,7 @@ function LP({ vc }: { vc: LntVaultConfig }) {
 
     const lpTVT = getTokenBy(vd.result?.vtSwapPoolHook, chainId, { symbol: 'lpTVT' })!
     const lpTVTBalance = useBalance(lpTVT)
-
+    const disableClaim = !vc.lpYields
     const data = vd.result ? [[
         <TokenSymbol key={'lpTVT'} t={lpTVT} />,
         displayBalance(lpTVTBalance.result, undefined, lpTVT.decimals),
@@ -146,18 +145,16 @@ function LP({ vc }: { vc: LntVaultConfig }) {
         '',
         '',
         '',
-        vc.lpYields ? <ApproveAndTx
-            disabled={true}
-            disabledHidden
+        disableClaim ? '' : <Txs
             onTxSuccess={() => reFet(vd.key, lpTVTBalance.key)}
             key="claim"
             className="w-28 font-semibold h-7"
             tx="Claim"
-            config={{ abi: abiRewardManager, functionName: 'claimRewards', address: lpTVT.address, args: [address!] }}
-        /> : ''
+            txs={[{ abi: abiRewardManager, functionName: 'claimRewards', address: lpTVT.address, args: [address!] }]}
+        />
     ]] : []
     const header = ['LP', 'Value', 'APY', '', vc.lpYields ? 'Yield' : '', vc.lpYields ? 'Airdrops' : '', '']
-    return <div className="animitem card p-4! bg-white overflow-x-auto">
+    return <div className="animitem card p-4! bg-white overflow-x-auto font-sec">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}

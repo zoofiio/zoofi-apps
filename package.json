@@ -16,6 +16,8 @@
   "dependencies": {
     "@account-kit/infra": "^4.78.0",
     "@account-kit/react": "^4.78.0",
+    "@fontsource/parkinsans": "^5.2.7",
+    "@fontsource/zalando-sans-expanded": "^5.2.1",
     "@gsap/react": "^2.1.2",
     "@layerzerolabs/lz-v2-utilities": "^3.0.145",
     "@radix-ui/react-dialog": "^1.0.4",

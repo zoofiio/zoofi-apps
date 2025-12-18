@@ -42,7 +42,7 @@ export function SimpleTabs({
           <Tabs.Trigger
             key={item.tab}
             className={cn(
-              'cursor-pointer rounded-[3px] text-sm py-1.5 px-0 text-black/50 font-medium data-[state="active"]:bg-black data-[state="active"]:text-slate-900 bg-transparent! dark:text-white/50 dark:data-[state="active"]:text-white',
+              'cursor-pointer rounded-[3px] text-sm py-1.5 px-0 text-black/50 data-[state="active"]:font-medium data-[state="active"]:bg-black data-[state="active"]:text-slate-900 bg-transparent! dark:text-white/50 dark:data-[state="active"]:text-white',
               typeof triggerClassName == 'function' ? triggerClassName(i) : triggerClassName,
             )}
             value={item.tab}

@@ -220,7 +220,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const logs = useLntVaultLogs(vc)
   const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center"
-  const itemTitClassname = "opacity-60 text-xs font-semibold"
+  const itemTitClassname = "opacity-60 text-xs font-semibold font-sec"
   const vtTotalSupply = useVTTotalSupply(vc)
   // const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
   // const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
@@ -233,7 +233,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
       <div className='w-full min-w-max gap-4 grid grid-cols-[2.3fr_1.3fr_1fr_1fr_1.4fr_1fr]'>
         <div className='flex items-center gap-2.5 shrink-0'>
           <CoinIcon symbol={vc.projectIcon} size={40} />
-          <span className='text-sm font-semibold'>{vc.tit}</span>
+          <span className='text-sm font-semibold font-sec'>{vc.tit}</span>
           <Badge text='Testnet' className={cn('opacity-0 absolute left-0 top-0', { 'opacity-100': chain.testnet || vc.test })} />
         </div>
         <div className={itemClassname}>
@@ -276,7 +276,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
           <div className={itemTitClassname}>Due Date</div>
           {!vd ? '-' : <div className='relative whitespace-nowrap'>
             {endTimeStr}
-            <span className='opacity-60 text-xs absolute top-full left-1/2 -translate-x-1/2'>{remainStr}</span>
+            <span className='opacity-60 text-xs absolute top-full left-1/2 -translate-x-1/2 font-sec'>{remainStr}</span>
           </div>}
         </div>
         <div className={cn(itemClassname, 'items-center')}>
@@ -362,11 +362,11 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
             <div className="pl-12 leading-10 lg:pl-0 lg:leading-normal text-base font-semibold">{vc.tit}</div>
             <div></div>
           </div>
-          <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap">{vc.info}</div>
+          <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap font-sec">{vc.info}</div>
         </div>
       </div >
       <div className='mt-auto'>
-        <div className='flex justify-between opacity-60 mb-2'>Duration <span>{remainStr}</span></div>
+        <div className='flex justify-between opacity-60 mb-2'>Duration <span className='font-sec'>{remainStr}</span></div>
         <ProgressBar progress={progress} />
       </div>
     </div>
@@ -726,9 +726,9 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         <TokenIcon size={48} token={vt} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{vt.symbol}</div>
-          <div className='text-xs leading-none text-black/60 font-medium'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
+          <div className='text-xs leading-none text-black/60 font-medium font-sec'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
         </div>
-        {vc.deposit && <div className='text-sm text-black absolute top-5 right-5'>
+        {vc.deposit && <div className='text-sm text-black absolute top-5 right-5 font-sec'>
           <span onClick={() => toLntVault(r, vc.vault, 'bridge')}
             className='cursor-pointer underline underline-offset-2'>Bridge</span>
           {` `} to {getChain(vc.chain)!.name} first
@@ -737,15 +737,15 @@ function VT({ vc }: { vc: LntVaultConfig }) {
       <div className='flex whitespace-nowrap flex-wrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>
         <div className='flex justify-between gap-2.5 items-baseline'>
           <div className="text-lg font-medium">{formatPercent(apy)}</div>
-          <div className="text-xs font-semibold opacity-60">Fixed APY</div>
+          <div className="text-xs font-semibold opacity-60 font-sec">Fixed APY</div>
         </div>
         <div className='flex justify-between gap-2.5 items-baseline'>
-          <div className="text-xs font-semibold opacity-60">Circulation amount</div>
+          <div className="text-xs font-semibold opacity-60 font-sec">Circulation amount</div>
           <div className="text-lg font-medium">{displayBalance(vtTotal, undefined, vt.decimals)}</div>
         </div>
       </div>
       <div className='flex px-2 pb-4'>
-        <button className='btn-link ml-auto text-primary text-xs underline-offset-2' onClick={onAddPToken}>
+        <button className='btn-link ml-auto text-primary text-xs underline-offset-2 font-sec' onClick={onAddPToken}>
           Add to wallet
         </button>
       </div>
@@ -753,7 +753,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     <div className="animitem card p-4! min-h-[390px]">
       {vc.vtActive ? <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
-        triggerClassName={`text-base font-bold leading-none data-[state="active"]:text-black`}
+        triggerClassName={`text-base leading-none data-[state="active"]:text-black`}
         data={[
           { tab: 'Swap', content: <SwapVTYT vc={vc} type='vt' /> },
           { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='vt' /> },
@@ -795,7 +795,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
     <div className="animitem card p-4!">
       <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
-        triggerClassName={`text-base font-bold leading-none data-[state="active"]:text-black`}
+        triggerClassName={`text-base leading-none data-[state="active"]:text-black`}
         data={[
           { tab: 'Swap', content: <SwapVTYT vc={vc} type='yt' /> },
           { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='yt' /> },
@@ -823,7 +823,7 @@ export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
       currentTab={currentTab}
       onTabChange={(tab) => toLntVault(r, vc.vault, tab)}
       listClassName="p-0 gap-4 mb-4 w-full"
-      triggerClassName={(i) => `text-lg font-semibold leading-none data-[state="active"]:underline underline-offset-2`}
+      triggerClassName={(i) => `text-lg leading-none data-[state="active"]:underline underline-offset-8`}
       data={data}
     />
   </div>

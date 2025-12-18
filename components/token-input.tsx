@@ -86,7 +86,7 @@ export function TokenInput({
   if (options.length == 0) return null
   return (
     <div
-      className={cn('relative w-full', className)}
+      className={cn('relative w-full font-sec', className)}
       onClick={() => {
         onClick && !disable && onClick()
       }}
