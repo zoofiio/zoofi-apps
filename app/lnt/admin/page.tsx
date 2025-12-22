@@ -129,7 +129,7 @@ function Admin0G({ vc }: { vc: LntVaultConfig }) {
   if (!vc.deposit) return null
   return <>
     <Expandable tit={`Deposit/Withdraw NFT (${getChain(vc.deposit.chain)!.name})`}>
-      <ConfigChainsProvider chains={[vc.deposit.chain]}>
+      <ConfigChainsProvider chains={vc.deposit.chain}>
         {vc.deposit.protocalSettings &&
           <UpdateVaultParams
             chain={vc.deposit.chain}
@@ -267,7 +267,7 @@ export default function AdminPage() {
   const current = options.length > 0 ? current_ : undefined;
   return (
     <PageWrap>
-      <div className='w-full flex'>
+      <div className='w-full flex font-mono'>
         <MultiTxTemp />
         <div className='flex flex-col gap-2 w-full mx-auto px-5'>
           <div className="animitem text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
@@ -278,7 +278,7 @@ export default function AdminPage() {
           </div>
           <SimpleSelect className='w-full animitem z-50' itemClassName='p-3 font-mono' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
-            current && <ConfigChainsProvider chains={[current.vc.chain]}>
+            current && <ConfigChainsProvider chains={current.vc.chain}>
               {current.vc.reppo && <AdminReppo vc={current.vc} />}
               {current.vc.deposit && <Admin0G vc={current.vc} />}
               {current.vc.isAethir && <AdminAethir vc={current.vc} />}

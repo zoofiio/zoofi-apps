@@ -45,15 +45,15 @@ export function SwitchChain() {
         triggerRef={triggerRef}
         triggerProps={{ className: 'hidden md:flex' }}
         trigger={
-            chainError ? <div className='flex items-center gap-2 text-sm font-bold rounded-lg cursor-pointer relative px-2 h-10 bg-red-500 text-white' >
+            chainError ? <div className='flex items-center gap-2 text-xs font-bold rounded-lg cursor-pointer relative px-2 h-8 bg-red-500 text-white' >
                 Wrong network
-            </div> : <div className='flex items-center gap-2 text-sm font-medium rounded-lg cursor-pointer relative px-2 h-10'>
-                <Image width={24} height={24} src={(ct as any).iconUrl ?? '/ETH.svg'} alt='' />
+            </div> : <div className='flex items-center gap-2 text-xs font-medium rounded-lg cursor-pointer relative px-2 h-8 border border-board hover:border-primary hover:text-primary'>
+                <Image width={16} height={16} src={(ct as any).iconUrl ?? '/ETH.svg'} alt='' />
                 <div className='hidden sm:block'>{ct.name}</div>
             </div>
         }>
         <div className="text-xl font-semibold mb-2">Switch Networks</div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 font-sec">
             {chains.map(item => {
                 const active = isActive(item)
                 return <div key={item.name} className={cn(`flex items-center gap-2 p-2 rounded-lg cursor-pointer`, { 'bg-primary/60': active, 'hover:bg-white/10': !active })} onClick={() => onClickItem(item)}>

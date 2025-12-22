@@ -33,6 +33,9 @@ function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: st
       animationDuration: 200,
       tooltip: {
         trigger: 'axis',
+        backgroundColor: '#4B4F52',
+        borderWidth: 0,
+        textStyle: { color: '#fff' },
         valueFormatter: yFormater,
       },
       grid: { left: 0, top: 0, right: 0, bottom: 0, show: false },
@@ -93,13 +96,14 @@ function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: st
     }
     return { options }
   }, [isLOG, ct, data])
-  return <>
-    <div className='flex justify-between gap-2 items-center'>
-      <span className='text-base font-bold'>{tit} Chart</span>
+  return <div className='card w-full flex-1 p-2.5 flex flex-col justify-between gap-2 items-center'>
+    <div className='flex w-full justify-between gap-2 items-center'>
+      <span className='text-base font-medium'>{tit} Chart</span>
       <SimpleSelect className="text-sm" options={types} onChange={(n) => setCT(n as any)} />
     </div>
-    <EChartsReact option={options} style={{ height: 240 }}></EChartsReact>
-  </>
+    <EChartsReact option={options} className='w-full' style={{ height: 240 }}></EChartsReact>
+  </div>
+
 }
 export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
   const endTime = Math.round(now() / 1000)
@@ -112,7 +116,7 @@ export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
   const vtApy = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL3), (bnToNum(item.apy) + 1) ** 2 - 1] as [string, number]);
   const vtPrice = data.result.map(item => [fmtDate(item.time * 1000, FMT.ALL3), bnToNum(item.price)] as [string, number]);
   return (
-    <div className='animitem card bg-white p-4 mx-auto max-w-4xl w-full min-w-0 flex flex-col gap-5 shrink-0'>
+    <div className='animitem max-w-4xl w-full min-w-0 flex flex-col gap-5 shrink-0'>
       <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} data={vtApy} yFormater={(v) => formatPercent(v, 2, false)} />
       <ChartItem tit='Price' types={vc.ytEnable ? ["YT Price", 'VT Price'] : ['VT Price']} vc={vc} data={vtPrice} />
     </div>

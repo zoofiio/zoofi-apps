@@ -1,44 +1,7 @@
 import { Address, Chain, defineChain } from 'viem'
-import {
-  base as baseMainnet,
-  zeroG,
-  arbitrum as arbitrumMain,
-  bsc as bscMain,
-  sepolia as sepoliaBase,
-  arbitrumSepolia as arbSep,
-  bscTestnet as bscTest,
-  story as _story,
-  sei as _sei,
-} from 'viem/chains'
+import { base as baseMainnet, zeroG, arbitrum as arbitrumMain, bsc as bscMain, arbitrumSepolia as arbSep, bscTestnet as bscTest, story as _story, sei as _sei } from 'viem/chains'
 import { LP_TOKENS } from './lpTokens'
 import { BASE_PATH } from './env'
-
-export const berachainTestnet = defineChain({
-  id: 80084,
-  name: 'Berachain Bartio',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'BERA Token',
-    symbol: 'BERA',
-  },
-  rpcUrls: {
-    default: { http: ['https://berachain-bartio.g.alchemy.com/v2/YU6TIvn1RpD1wyHrDMpt4Yt6_bJYmOtk', 'https://bartio.rpc.berachain.com'] },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Routescan',
-      url: 'https://80084.testnet.routescan.io/',
-    },
-  },
-  contracts: {
-    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11', blockCreated: 109269 },
-  },
-  testnet: true,
-  fees: {
-    baseFeeMultiplier: 1.4,
-  },
-  iconUrl: `${BASE_PATH}/berachain.svg`,
-})
 
 export const berachain = defineChain({
   id: 80094,
@@ -67,12 +30,6 @@ export const berachain = defineChain({
     baseFeeMultiplier: 1.4,
   },
   iconUrl: `${BASE_PATH}/berachain.svg`,
-})
-
-export const sepolia = defineChain({
-  ...sepoliaBase,
-  iconUrl:
-    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iIzI1MjkyRSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNhKSIgZmlsbC1vcGFjaXR5PSIuMyIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTQgMjhhMTQgMTQgMCAxIDAgMC0yOCAxNCAxNCAwIDAgMCAwIDI4WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTguMTkgMTQuNzcgMTQgMTguMjFsNS44LTMuNDQtNS44IDguMTktNS44MS04LjE5WiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Im0xNCAxNi45My01LjgxLTMuNDRMMTQgNC4zNGw1LjgxIDkuMTVMMTQgMTYuOTNaIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJhIiB4MT0iMCIgeDI9IjE0IiB5MT0iMCIgeTI9IjI4IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgxPSIxNCIgeDI9IjE0IiB5MT0iMTQuNzciIHkyPSIyMi45NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iLjkiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48L3N2Zz4K',
 })
 
 export const base = defineChain({
@@ -159,10 +116,10 @@ export const sei = defineChain({
 export const apiBatchConfig = { batchSize: 30, wait: 300 }
 export const multicallBatchConfig = { batchSize: 1024, wait: 500 }
 
-export const beraChains = [berachainTestnet, berachain]
-export const lntChains = [sepolia, base]
+export const beraChains = [berachain]
+export const lntChains = [base]
 // allapps chanis
-export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGTestnet, zeroGmainnet, sepolia, base, berachain, berachainTestnet, arbitrum, bsc, arbitrumSepolia, bscTestnet, story, sei]
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGmainnet, base, berachain, arbitrum, bsc, story, sei]
 
 const refChainId = { chainId: SUPPORT_CHAINS[0].id }
 export function getCurrentChainId() {
@@ -186,13 +143,10 @@ export function getChainName(chainId: number) {
 }
 
 export const BEX_URLS: { [k: number]: string } = {
-  [berachainTestnet.id]: 'https://bartio.bex.berachain.com',
   [berachain.id]: 'https://hub.berachain.com',
 }
 export const getBexPoolURL = (chainId: number, pool: Address) => {
-  if (chainId == berachainTestnet.id) {
-    return `${BEX_URLS[chainId]}/pool/${pool}`
-  } else if (berachain.id) {
+  if (berachain.id) {
     return `${BEX_URLS[chainId]}/pools/${LP_TOKENS[pool].poolId}/deposit/`
   }
   return ''

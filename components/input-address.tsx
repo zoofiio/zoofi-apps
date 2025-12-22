@@ -37,8 +37,9 @@ export function AddressInput({
           type='text'
           disabled={disable}
           className={cn(
-            readonly ? 'bg-slate-50 cursor-not-allowed dark:bg-slate-800' : 'bg-white dark:bg-transparent',
-            'w-full h-14 text-right px-4 font-bold text-sm border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-hidden dark:text-slate-50',
+            'bg-bg border border-board',
+            readonly ? 'cursor-not-allowed' : '',
+            'w-full h-14 text-right px-4 font-bold text-sm border focus:border-primary rounded-xl outline-none',
             {
               'border-red-400 border-2! focus:border-red-400': isError,
             },
@@ -48,7 +49,7 @@ export function AddressInput({
           title=''
           readOnly={readonly}
         />
-        {isError && <div className='text-sm text-white bg-red-400 rounded-sm right-0 bottom-0 absolute px-1 translate-y-1/4'>{mError}</div>}
+        {isError && <div className='text-sm text-fg bg-red-400/80 rounded-sm right-0 bottom-0 absolute px-1 translate-y-1/4'>{mError}</div>}
       </div>
     </div>
   )

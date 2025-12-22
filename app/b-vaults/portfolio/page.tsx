@@ -7,10 +7,8 @@ import PandaLine from '@/components/icons/PandaLine'
 import VenomLine from '@/components/icons/VenomLine'
 import { PageWrap } from '@/components/page-wrap'
 import STable, { TableProps } from '@/components/simple-table'
-import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
+import { BVaultConfig, BvaultsByEnv } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
-import { ENV } from '@/constants'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLoadBVaults, useLoadUserBVaults } from '@/hooks/useLoads'
 import { fmtDate, fmtPercent } from '@/lib/utils'
 import { useBoundStore } from '@/providers/useBoundStore'
@@ -69,9 +67,7 @@ function CoinText(p: { symbol: string; txt?: string; size?: number }) {
 
 function PrincipalItem() {
   const r = useRouter()
-  const chainId = useCurrentChainId()
-  const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((bvc) => (bvc.onEnv || []).includes(ENV)), [chainId])
-
+  const bvcs = BvaultsByEnv
   const data: ReactNode[][] = useMemo(() => {
     const s = useBoundStore.getState()
     const inRedeem = (bvc: BVaultConfig) => {
@@ -139,8 +135,7 @@ function PrincipalItem() {
 
 function BoostItem() {
   const r = useRouter()
-  const chainId = useCurrentChainId()
-  const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((bvc) => (bvc.onEnv || []).includes(ENV)), [chainId])
+  const bvcs = BvaultsByEnv
   const data: ReactNode[][] = useMemo(() => {
     const s = useBoundStore.getState()
     const epochInfo = (vault: Address, id: number) => s.sliceBVaultsStore.epoches[`${vault}_${id}`]

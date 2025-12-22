@@ -50,7 +50,7 @@ export const STable = ({
       <thead className=''>
         <tr
           className={cn(
-            'text-left whitespace-nowrap font-normal text-black border-b border-gray-100 pt-5 pb-6 dark:text-slate-50 dark:border-zinc-600',
+            'text-left whitespace-nowrap font-normal border-b border-board opacity-60 pt-5 pb-6',
             headerClassName,
           )}
         >
@@ -77,8 +77,8 @@ export const STable = ({
             onMouseLeave={() => onRowMouseHover && onRowMouseHover(-1)}
             style={typeof rowStyle == 'function' ? rowStyle(index) : rowStyle}
             className={cn(
-              'text-slate-700 dark:text-slate-50 font-medium whitespace-nowrap',
-              onClickRow ? 'cursor-pointer hover:bg-slate-400/10' : '',
+              'font-medium whitespace-nowrap',
+              onClickRow ? 'cursor-pointer' : '',
               typeof rowClassName == 'function' ? rowClassName(index) : rowClassName,
             )}
           >

@@ -2,7 +2,7 @@
 import { CoinIcon } from '@/components/icons/coinicon'
 import { PageWrap } from '@/components/page-wrap'
 import STable, { TableProps } from '@/components/simple-table'
-import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
+import { BVaultConfig, BVAULTS_CONFIG, BvaultsByEnv } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
 import { DECIMAL, ENV } from '@/constants'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
@@ -57,8 +57,7 @@ function BVaultROI({ vc }: { vc: BVaultConfig }) {
   return <>{fmtPercent(roi, 18, 2)}</>
 }
 function BVaultsItem() {
-  const chainId = useCurrentChainId()
-  const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((item) => (item.onEnv || []).includes(ENV)), [chainId])
+  const bvcs = BvaultsByEnv
   const bvaults = useStore((s) => s.sliceBVaultsStore.bvaults, ['sliceBVaultsStore.bvaults'])
   const prices = useStore((s) => s.sliceTokenStore.prices, ['sliceTokenStore.prices'])
 

@@ -302,7 +302,7 @@ export default function Page() {
     })
     const [modifyAdd, setModifyAdd] = useState('')
     const [modifyType, setModifyType] = useState<(typeof modifytypes)[number]>('add')
-    return <PageWrap className="flex flex-col gap-5 max-w-6xl">
+    return <PageWrap className="flex flex-col gap-5 max-w-6xl font-sec">
         {
             opsToken ? <>
                 <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Admins">
@@ -314,7 +314,7 @@ export default function Page() {
                     <BBtn className="flex gap-5 items-center justify-center" onClick={() => modifyAdmins(modifyType)} busy={isBusyModify} disabled={isBusyModify}>Modify Admins</BBtn>
                 </Expandable>
                 {LNTVAULTS_CONFIG.filter(item => item.isAethir && !item.test).map(vc => <AethirOpsManager vc={vc} token={opsToken} key={vc.vault} />)}
-            </> : <div className="py-36 px-5">
+            </> : <div className="py-36 px-5 flex justify-center">
                 {
                     !address ? <ConnectBtn /> : <BBtn onClick={() => mutate()} className="">Login</BBtn>
                 }

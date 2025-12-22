@@ -1,6 +1,6 @@
 'use client'
 
-import { isLOCL } from "@/constants"
+import { useShowBvaultAdmin, useShowLntVaultAdmin } from "@/hooks/admins"
 import { cn } from "@/lib/utils"
 import { size } from "es-toolkit/compat"
 import Link from "next/link"
@@ -8,11 +8,10 @@ import { usePathname } from "next/navigation"
 import { MouseEvent, useMemo, useRef } from "react"
 import { IconType } from "react-icons"
 import { AiFillApi } from "react-icons/ai"
+import { BiMenuAltLeft } from "react-icons/bi"
 import { FiChevronRight } from "react-icons/fi"
-import { LuBox, LuBoxes, LuChartLine, LuCircleUser, LuMenu, LuSettings, LuSquareSquare } from "react-icons/lu"
+import { LuBox, LuBoxes, LuChartLine, LuCircleUser, LuSettings, LuSquareSquare } from "react-icons/lu"
 import { useClickAway, useToggle } from "react-use"
-import { Address, isAddressEqual } from "viem"
-import { useAccount } from "wagmi"
 import { CoinIcon } from "./icons/coinicon"
 import { usePageLoad } from "./page-loading"
 import { Tip } from "./ui/tip"
@@ -46,7 +45,7 @@ function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { me
         <Link target={menu.target} onClickCapture={() => {
             !menu.disabled && (!menu.target || menu.target == '_self') && menu.href.startsWith('/') && new URL(location.origin + menu.href).pathname !== pathname && usePageLoad.setState({ isLoading: true })
         }} href={menu.disabled ? 'javascript:void(0)' : menu.href} style={{ paddingLeft: Math.round((depth + 1) * 16), paddingRight: 12 }}
-            className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 rounded-md hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed text-black/60 dark:text-white/60': menu.disabled, "text-primary": isActive, 'animitem': animitem }, className)}>
+            className={cn("relative text-base font-semibold whitespace-nowrap flex w-full items-center gap-3 py-2 hover:bg-primary/20", { 'cursor-pointer': !menu.disabled, 'cursor-not-allowed text-fg/60': menu.disabled, "text-primary": isActive, 'animitem': animitem }, className)}>
             {menu.icon && <menu.icon />}
             {menu.disabled ? <Tip node={menu.name}>Coming Soon</Tip> : menu.name}
             {menu.subs && <FiChevronRight className={cn('cursor-pointer ml-auto', { "-rotate-90": isExpand })} onClick={onClickToggle} />}
@@ -56,17 +55,6 @@ function MenusItem({ menu, expand = true, depth = 0, className, animitem }: { me
 }
 
 
-const globalAdmins: Address[] = ["0xFE18Aa1EFa652660F36Ab84F122CD36108f903B6", "0xc56f7063fd6d199ccc443dbbf4283be602d46343", "0x7077323c13af514629C57F89cb4542019402dfBd"]
-const bvaultsAdmins: Address[] = [...globalAdmins, '0x5C9B9C19ccaC7925157Cc60aCc289e78839c5D70']
-function useShowBvaultAdmin() {
-    const { address } = useAccount()
-    return isLOCL || (Boolean(address) && bvaultsAdmins.some(item => isAddressEqual(item as Address, address!)))
-}
-const lntAdmins = [...globalAdmins, '0xc97B447186c59A5Bb905cb193f15fC802eF3D543']
-function useShowLntVaultAdmin() {
-    const { address } = useAccount()
-    return isLOCL || (Boolean(address) && lntAdmins.some(item => isAddressEqual(item as Address, address!)))
-}
 function MenusContent({ animitem }: { animitem?: boolean }) {
     const pathname = usePathname()
     const showBvaultAdmin = useShowBvaultAdmin()
@@ -118,25 +106,29 @@ export function Menus() {
         toggleEL && !toggleEL.contains(e.target as any) && toggleOpen(false)
     })
     return <>
-        <div className="flex fixed z-110 left-0 lg:hidden items-center px-4 h-[72px]">
-            <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
-                <CoinIcon symbol='logo-alt' size={60} />
-            </Link>
-            <div ref={refToggle}>
-                <LuMenu className="text-3xl cursor-pointer" onClick={() => toggleOpen(!open)} />
+        <div className="font-sec flex fixed z-110 left-[clamp(20px,calc(50vw-760px),10000px)] items-center h-[72px]">
+            <div ref={refToggle} className="md:hidden">
+                <BiMenuAltLeft className="text-3xl cursor-pointer" onClick={() => toggleOpen(!open)} />
             </div>
+            <Link href={'/'} className='font-semibold flex pr-1 items-center text-[3.3125rem] md:text-[4.375rem] leading-7'>
+                <CoinIcon symbol='logo-alt' size={'1em'} />
+            </Link>
+
+            <Link href={'/'} className="hidden md:block cursor-pointer ml-5 leading-none text-fg/80 border border-board rounded-xl px-3 py-2 hover:border-primary hover:text-primary">
+                {`Home`}
+            </Link>
         </div>
         {/* for pc */}
-        <div ref={refMenus} className={cn("hidden shrink-0 h-screen lg:flex flex-col gap-8 items-center sticky top-0 w-60 overflow-y-auto transition-all")}>
+        {/* <div ref={refMenus} className={cn("hidden lg:flex shrink-0 h-screen  flex-col gap-8 items-center sticky top-0 w-60 overflow-y-auto transition-all")}>
             <div className="flex items-center justify-center gap-5 px-4 h-[72px]">
                 <Link href={'/'} className='font-semibold flex pr-1 items-center text-base leading-7'>
                     <CoinIcon symbol='logo-alt' size={90} />
                 </Link>
             </div>
             <MenusContent animitem />
-        </div>
+        </div> */}
         {/* for mobile */}
-        <div ref={refMenus} className={cn("fixed z-110 flex lg:hidden flex-col gap-8 items-center top-[72px] w-60 overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full  bg-[#eeeeee] dark:bg-l1 shadow-lg", { "left-0": open })}>
+        <div ref={refMenus} className={cn("font-sec fixed z-110 flex flex-col gap-8 items-center top-[72px] w-60 overflow-y-auto max-h-[calc(100vh-72px)] transition-all -left-full bg-bg/20 backdrop-blur-3xl border-r border-b rounded-br-2xl  border-primary/30 shadow-lg opacity-0", { "left-0 opacity-100": open })}>
             <MenusContent />
         </div>
     </>

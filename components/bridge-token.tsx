@@ -1,23 +1,22 @@
+import { abiLayerzeroOFT } from "@/config/abi/abiLayerzero";
+import { waitLayerZeroSend } from "@/config/layerzero";
 import { arbitrum, arbitrumSepolia, bsc, bscTestnet, SUPPORT_CHAINS } from "@/config/network";
 import { Token } from "@/config/tokens";
+import { useCalcKey } from "@/hooks/useCalcKey";
 import { useBalance } from "@/hooks/useToken";
 import { parseEthers } from "@/lib/utils";
-import { useState } from "react";
-import { FaArrowDown } from "react-icons/fa6";
-import { Address, Chain, Hex, isAddress, padHex } from "viem";
-import { Txs, withTokenApprove } from "./approve-and-tx";
-import { AssetInput } from "./input-asset";
-import { useQuery } from "@tanstack/react-query";
-import { useCalcKey } from "@/hooks/useCalcKey";
 import { getPC } from "@/providers/publicClient";
-import { abiLayerzeroOFT } from "@/config/abi/abiLayerzero";
-import { useAccount } from "wagmi";
-import { Options } from '@layerzerolabs/lz-v2-utilities'
 import { displayBalance } from "@/utils/display";
-import { ConfigChainsProvider } from "./support-chains";
+import { Options } from '@layerzerolabs/lz-v2-utilities';
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { Address, Chain, Hex, isAddress, padHex } from "viem";
+import { useAccount } from "wagmi";
+import { Txs, withTokenApprove } from "./approve-and-tx";
 import { AddressInput } from "./input-address";
-import { waitLayerZeroSend } from "@/config/layerzero";
+import { ConfigChainsProvider } from "./support-chains";
 import { TokenInput } from "./token-input";
+import { Swap } from "./ui/bbtn";
 const eidMaps: { [k: number]: number } = {
     [arbitrum.id]: 30110,
     [arbitrumSepolia.id]: 40231,
@@ -46,10 +45,10 @@ export function BridgeToken({ config, adapters }: {
     const inputBn = parseEthers(input, from.decimals)
     const balance = useBalance(from)
     const renderChain = (chain: Chain, label: string) => {
-        return <div className="flex gap-3 relative p-4 items-center rounded-lg border border-slate-200 dark:border-slate-600 text-sm">
+        return <div className="flex gap-3 relative px-4 pt-8 py-6 items-center rounded-lg bg-bg border border-board text-sm">
             <img src={(chain as any).iconUrl} className="w-5 h-5 rounded-full" />
             <div className="font-medium whitespace-nowrap">{chain.name}</div>
-            <div className="absolute left-3 -top-2 bg-slate-200 dark:bg-slate-600 px-2 rounded-lg text-xs">{label}</div>
+            <div className="absolute left-2 top-2 px-2 text-xs">{label}</div>
         </div>
     }
     const mAdapters = adapters ?? defAdapters
@@ -101,20 +100,20 @@ export function BridgeToken({ config, adapters }: {
             }
         })
     }
-    return <ConfigChainsProvider chains={[from.chain]}>
-        <div className="flex flex-col gap-4 text-sm w-full">
+    return <ConfigChainsProvider chains={from.chain}>
+        <div className="flex flex-col gap-4 text-sm w-full font-sec">
             <div className="animitem grid items-center gap-x-2 gap-y-4 relative">
                 {renderChain(fromChain, 'From')}
                 {renderChain(toChain, 'To')}
-                <div className="cursor-pointer bg-slate-200 dark:bg-slate-600 absolute left-1/2 top-1/2 hover:scale-110 transition p-2 -translate-x-1/2 -translate-y-1/2 rounded-xl" onClick={toggleFromTo}>
-                    <FaArrowDown className="text-lg" />
-                </div>
+                <Swap
+                    onClick={toggleFromTo}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
             </div>
             <div className="animitem">Token</div>
             <TokenInput className="animitem" tokens={[from]} amount={input} setAmount={setInput} />
             <div className="animitem">To</div>
             <AddressInput className="animitem" value={toUser} setValue={setToAddress} />
-            <div className="animitem">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
+            <div className="animitem text-fg/60">Fee: {displayBalance(data?.nativeFee, undefined, fromChain.nativeCurrency.decimals)} {fromChain.nativeCurrency.symbol}</div>
             <div className="animitem w-full">
                 <Txs tx="Bridge"
                     beforeTxSuccess={(hashs) => waitLayerZeroSend(from.chain, hashs[hashs.length - 1])}

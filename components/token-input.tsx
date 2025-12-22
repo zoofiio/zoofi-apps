@@ -3,18 +3,17 @@
 import { Token } from '@/config/tokens'
 import { cn, parseEthers } from '@/lib/utils'
 import { displayBalance } from '@/utils/display'
+import { isNil } from 'es-toolkit'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useMeasure } from 'react-use'
 import { formatUnits } from 'viem'
 import { useBalance } from '../hooks/useToken'
 import { TokenIcon } from './icons/tokenicon'
 import { Spinner } from './spinner'
 import { SimpleSelect } from './ui/select'
-import { isNil, round } from 'es-toolkit'
 
 
 function TokenSymbol({ token }: { token: Token }) {
-  return <div className='flex items-center gap-2'>
+  return <div className='flex items-center gap-2 font-medium'>
     <TokenIcon token={token} size={40} showNet />
     {token.symbol}
   </div>
@@ -26,13 +25,11 @@ export function TokenInput({
   checkBalance = true,
   balance: showBalance = true,
   balanceTit = 'Balance',
-  exchange,
   readonly,
   selected,
   onClick,
   amount,
   setAmount,
-  price,
   disable,
   balanceClassName = '',
   loading,
@@ -44,13 +41,11 @@ export function TokenInput({
   checkBalance?: boolean
   balance?: boolean
   balanceTit?: string
-  exchange?: string | number
   readonly?: boolean
   selected?: boolean
   onClick?: () => void
   amount?: string
   setAmount?: any
-  price?: number | string
   disable?: boolean
   loading?: boolean
   balanceClassName?: string
@@ -82,21 +77,30 @@ export function TokenInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const balanceInsufficient = mCheckBalance && parseEthers(`${amount ?? '0'}`, token.decimals) > balance
   const isError = Boolean(error) || balanceInsufficient
-  const [coinSymbolRef, { width: coinSymbolWidth }] = useMeasure<HTMLDivElement>()
+
   if (options.length == 0) return null
   return (
     <div
-      className={cn('relative w-full font-sec', className)}
-      onClick={() => {
+      className={cn('relative w-full flex flex-col p-4 gap-4 font-sec border border-transparent bg-bg rounded-xl m-shadow-around', {
+        ' border-green-700': selected,
+        ' border-red-400 has-focus:shadow-red-400/40': isError,
+        ' has-focus:border-primary has-focus:shadow-primary/40': !isError && !selected,
+      }, className)}
+      onClick={(e) => {
+        inputRef.current?.focus()
         onClick && !disable && onClick()
       }}
     >
-      <div className='relative'>
-        <div className='absolute flex items-center h-fit gap-2 left-12 bottom-1 w-full  max-w-[calc(100%-56px)]' style={{ pointerEvents: 'none' }}>
-          {price && <div className='text-neutral-500 dark:text-slate-50/70 text-xs max-w-full overflow-hidden'>{price}</div>}
-          {exchange && <div className='text-slate-500 dark:text-slate-50/70 text-xs max-w-full overflow-hidden'>~${exchange}</div>}
+
+      {
+        isError && <div className='flex w-full justify-center absolute left-0 bottom-0'>
+          <div className='text-sm text-white bg-red-400 rounded-t right-0 bottom-0 px-1 '>{error || 'Insufficient account balance'}</div>
         </div>
-        <div className='absolute flex items-center gap-2 w-fit top-1/2 left-4 -translate-y-1/2 z-50' ref={coinSymbolRef}>
+      }
+      <div className='flex items-center w-full h-10 relative gap-3'>
+        {loading && <Spinner className='absolute right-24 top-4.5' />}
+
+        <div className='flex items-center gap-2 w-fit left-4 z-50'>
           {tokens.length > 1 ? <SimpleSelect className='border-none' options={options} onChange={(n) => {
             console.info('tokenChange:', n)
             setToken(n.data); onTokenChange?.(n.data)
@@ -112,14 +116,10 @@ export function TokenInput({
           ref={inputRef}
           type='number'
           disabled={disable}
-          style={{ paddingLeft: `${round((coinSymbolWidth + 32) / 16, 3)}rem` }}
           className={cn(
-            readonly ? 'bg-slate-50 cursor-not-allowed dark:bg-slate-800' : 'bg-white dark:bg-transparent',
-            'w-full h-14 text-right pr-4 font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-none dark:text-slate-50',
+            'bg-transparent flex-1 h-full font-semibold text-right text-2xl outline-none! border-none!',
             {
-              'border-2 border-green-700': selected,
-              'border-2 border-red-400 ': isError,
-              'border-slate-400  focus:border-primary': !isError && !selected,
+              'cursor-not-allowed ': readonly
             },
           )}
           placeholder='0.000'
@@ -129,18 +129,15 @@ export function TokenInput({
           title=''
           readOnly={readonly}
         />
-        {loading && <Spinner className='absolute right-24 top-4.5' />}
-        {isError && <div className='text-sm text-white bg-red-400 rounded right-0 bottom-0 absolute px-1 translate-y-1/4'>{error || 'Insufficient account balance'}</div>}
       </div>
-
       {(mShowBalance || !isNil(otherInfo)) && (
-        <div className='flex items-center justify-between mt-1 px-1 text-slate-400 dark:text-slate-50/70 text-sm'>
+        <div className='flex items-center justify-between mt-1 px-1 text-fg/60 text-sm'>
           {mShowBalance && <div className={balanceClassName}>
             <span>
               {balanceTit}: {displayBalance(balance, undefined, token.decimals)}
             </span>
             {!disable && <button
-              className='text-primary ml-2'
+              className='ml-2 text-primary'
               onClick={() => {
                 const fmtAmount = formatUnits(balance, token.decimals)
                 setAmount(fmtAmount)
@@ -150,7 +147,7 @@ export function TokenInput({
               Max
             </button>}
           </div>}
-          {!isNil(otherInfo) && <div className='ml-auto'>{otherInfo}</div>}
+          {otherInfo}
         </div>
       )}
 

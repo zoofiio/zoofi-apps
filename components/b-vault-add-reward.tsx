@@ -66,7 +66,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
           pc.readContract({ abi: erc20Abi, address, functionName: 'symbol' }),
           pc.readContract({ abi: erc20Abi, address, functionName: 'decimals' }),
         ])
-        user && useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId,[address], user)
+        user && useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, [address], user)
         return [{ symbol, address, decimals }] as TokenItem[]
       } else {
         if (!input) return originTokens
@@ -94,7 +94,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
 
   return (
     <div className='flex flex-col gap-4 p-5'>
-      <div className='page-sub text-center'>Select a token</div>
+      <div className='text-base font-bold text-center'>Select a token</div>
       <input
         className={cn(
           'bg-white dark:bg-transparent',
@@ -151,30 +151,14 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
     mutationFn: async () => {
       if (disableAdd) return
       const pc = getPC(chainId)
-      if (bvc.isOld) {
-        const tokens = await pc.readContract({ abi: abiBVault, address: bvc.vault, functionName: 'bribeTokens', args: [bvd.epochCount] })
-        console.info('tokens:', tokens, stoken.address)
-        if (!tokens.find((item) => item.toLowerCase() == stoken.address.toLowerCase())) {
-          const hash = await wc.data.writeContract({ abi: abiBVault, address: bvc.vault, functionName: 'addBribeToken', args: [stoken.address] })
-          await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
-        }
-        const allownce = await pc.readContract({ abi: erc20Abi, address: stoken.address, functionName: 'allowance', args: [address, bvc.vault] })
-        if (allownce < inputBn) {
-          const hash = await wc.data.writeContract({ abi: erc20Abi, address: stoken.address, functionName: 'approve', args: [bvc.vault, inputBn - allownce] })
-          await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
-        }
-        const hash = await wc.data.writeContract({ abi: abiBVault, address: bvc.vault, functionName: 'addBribes', args: [stoken.address, inputBn] })
-        await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
-      } else {
-        const allownce = await pc.readContract({ abi: erc20Abi, address: stoken.address, functionName: 'allowance', args: [address, bvc.vault] })
-        if (allownce < inputBn) {
-          const hash = await wc.data.writeContract({ abi: erc20Abi, address: stoken.address, functionName: 'approve', args: [bvc.vault, inputBn - allownce] })
-          await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
-        }
-        const hash = await wc.data.writeContract({ abi: abiBVault, address: bvc.vault, functionName: 'addAdhocBribes', args: [stoken.address, inputBn] })
+      const allownce = await pc.readContract({ abi: erc20Abi, address: stoken.address, functionName: 'allowance', args: [address, bvc.vault] })
+      if (allownce < inputBn) {
+        const hash = await wc.data.writeContract({ abi: erc20Abi, address: stoken.address, functionName: 'approve', args: [bvc.vault, inputBn - allownce] })
         await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
       }
-      useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId,[stoken.address], address)
+      const hash = await wc.data.writeContract({ abi: abiBVault, address: bvc.vault, functionName: 'addAdhocBribes', args: [stoken.address, inputBn] })
+      await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
+      useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, [stoken.address], address)
       setInput('')
       toast.success('Transaction success')
     },

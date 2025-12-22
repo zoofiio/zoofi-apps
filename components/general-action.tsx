@@ -23,7 +23,7 @@ export const selectClassNames: Parameters<Select>[0]['classNames'] = {
   control: () => 'bg-white dark:bg-black min-h-[58px]! border-primary/30! shadow-none!',
   singleValue: () => 'dark:text-white',
 }
-export const inputClassname = 'bg-white dark:bg-transparent border-primary/70 w-full h-14 text-right pr-4 font-bold text-sm border focus:border-2  rounded-md outline-hidden '
+export const inputClassname = 'bg-bg text-fg dark:bg-transparent border-primary/70 w-full h-14 text-right pr-4 font-bold text-sm border focus:border-2  rounded-md outline-hidden '
 
 export const defConvertArg = (arg: string, _i: number, param: AbiParameter) => {
   if (param.type == 'uint8') return parseInt((arg || '').replaceAll(' ', ''))
@@ -69,7 +69,7 @@ export function Expandable({ children, tit, disable, className, disableAnim }: {
           </div>
         )}
       </div>
-      <Collapse isOpened={open} theme={{ content: 'bg-gray-200 dark:bg-transparent p-4 flex flex-col gap-2' }}>
+      <Collapse isOpened={open} theme={{ content: 'p-4 flex flex-col gap-2' }}>
         {children}
       </Collapse>
     </div>

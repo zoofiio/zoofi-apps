@@ -16,7 +16,7 @@ type OptionsItem = OptionItem<BVaultConfig, 'B-Vault'> | OptionItem<LntVaultConf
 export function useVaultsConfigs() {
   const chainId = useCurrentChainId()
 
-  const bvcs = useMemo(() => (BVAULTS_CONFIG[chainId] || []).filter((vc) => vc.onEnv && vc.onEnv.includes(ENV)), [chainId])
+  const bvcs = useMemo(() => (BVAULTS_CONFIG || []).filter((vc) => vc.onEnv && vc.onEnv.includes(ENV)), [chainId])
 
   const options: OptionsItem[] = useMemo(() => {
     const bvcsOpt = bvcs.map<OptionItem<BVaultConfig, 'B-Vault'>>((bvc) => ({

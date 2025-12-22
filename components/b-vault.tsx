@@ -433,116 +433,6 @@ function BribeTit(p: { name: string }) {
     </div>
   )
 }
-
-function BVaultPoolsOld({ bvc }: { bvc: BVaultConfig }) {
-  const [onlyMy, setOnlyMy] = useState(false)
-  const epochesData = useEpochesData(bvc.vault)
-  const epoches = useMemo(() => {
-    const myFilter = (item: (typeof epochesData)[number]) => item.bribes.reduce((sum, b) => sum + b.bribeAmount, 0n) > 0n
-    return onlyMy ? epochesData.filter(myFilter) : epochesData
-  }, [epochesData, onlyMy])
-  const viewMax = 6
-  const itemHeight = 56
-  const itemSpaceY = 20
-  const [mesRef, mes] = useMeasure<HTMLDivElement>()
-  const valueClassname = 'text-black/60 dark:text-white/60 text-sm'
-  const [currentEpochId, setCurrentEpochId] = useState<bigint | undefined>(epoches[0]?.epochId)
-  const current = useMemo(() => (!currentEpochId ? epoches[0] : epoches.find((e) => e.epochId == currentEpochId)), [epoches, currentEpochId])
-  const userBalanceYToken = current?.userBalanceYToken || 0n
-  const userBalanceYTokenSyntyetic = current?.userBalanceYTokenSyntyetic || 0n
-  const onRowClick = (index: number) => {
-    setCurrentEpochId(epoches[index]?.epochId)
-  }
-  const bribes = current?.bribes || []
-  const myShare = useMemo(() => {
-    const fb = bribes.find((b) => b.bribeAmount > 0n)
-    if (!fb || fb.bribeTotalAmount == 0n) return fmtPercent(0n, 0n)
-    return fmtPercent((fb.bribeAmount * DECIMAL) / fb.bribeTotalAmount, 18)
-  }, [bribes])
-  const upForUserAction = useUpBVaultForUserAction(bvc)
-  function rowRender({ key, style, index }: ListRowProps) {
-    const itemEpoch = epoches[index]
-    const fTime = `${fmtDate(itemEpoch.startTime * 1000n)}-${fmtDate((itemEpoch.startTime + itemEpoch.duration) * 1000n)}`
-    return (
-      <div key={key} style={style} className='cursor-pointer' onClick={() => onRowClick(index)}>
-        <div className={cn('h-[56px] animitem card rounded-lg! px-5! py-2! font-semibold', index < epoches.length - 1 ? 'mb-[20px]' : '')}>
-          <div className='text-sm'>Epoch {epoches[index].epochId.toString()}</div>
-          <div className='text-xs dark:text-white/60 mt-1'>{fTime}</div>
-        </div>
-      </div>
-    )
-  }
-  return (
-    <div className='md:h-128 animitem card p-4!'>
-      <div className='font-bold text-base'>Harvest</div>
-      <div className={cn('flex flex-col md:flex-row gap-4 mt-2')}>
-        <div className='flex flex-col gap-4 shrink-0 w-full md:w-57.5' ref={mesRef}>
-          <div className='flex items-center gap-8 text-sm font-semibold'>
-            <span>My Pool Only</span>
-            <Switch checked={onlyMy} onChange={setOnlyMy as any} />
-          </div>
-          <List
-            className={epoches.length > viewMax ? 'pr-5' : ''}
-            width={mes.width}
-            height={400}
-            rowHeight={({ index }) => (index < epoches.length - 1 ? itemHeight + itemSpaceY : itemHeight)}
-            overscanRowCount={viewMax}
-            rowCount={epoches.length}
-            rowRenderer={rowRender}
-          />
-        </div>
-        <div className='flex flex-col gap-2 w-full'>
-          <div className='flex gap-6 items-end font-semibold'>
-            <span className='text-sm'>Accumulated Rewards</span>
-            <span className='text-xs dark:text-white/60'>Epoch {(current?.epochId || 1n).toString()}</span>
-          </div>
-          <div className='mt-2 rounded-lg border border-solid border-border px-4 py-1 h-32.5 overflow-auto'>
-            <STable
-              headerClassName='text-center text-black/60 dark:text-white/60 border-b-0'
-              headerItemClassName='py-1'
-              rowClassName='text-center'
-              cellClassName='py-0'
-              header={['', '', 'Total', 'Mine', '']}
-              span={{ 1: 2, 2: 1, 3: 1 }}
-              data={bribes.map((item) => ['', <BribeTit name={item.bribeSymbol} key={'1'} />, displayBalance(item.bribeTotalAmount), displayBalance(item.bribeAmount), ''])}
-            />
-          </div>
-          <div className='rounded-lg border border-solid border-border px-4 py-2 flex justify-between items-center'>
-            <div className='font-semibold text-xs'>
-              <div>
-                My yToken: <span className={cn(valueClassname)}>{displayBalance(userBalanceYToken)}</span>
-              </div>
-              <div>
-                Time Weighted Points:{' '}
-                <span className={cn(valueClassname)}>
-                  {userBalanceYToken > 0n && userBalanceYTokenSyntyetic == 0n ? 'Reward received' : displayBalance(userBalanceYTokenSyntyetic)}
-                </span>
-              </div>
-            </div>
-            <div className='text-sm'>
-              My Share: <span className={cn(valueClassname, 'text-xl')}>{myShare}</span>
-            </div>
-          </div>
-          <span className='text-xs mx-auto'>You can harvest at the end of Epoch</span>
-          <Txs
-            className='mx-auto mt-4'
-            tx='Harvest'
-            disabled={!current || !current?.settled}
-            txs={[{
-              abi: abiBVault,
-              address: bvc.vault,
-              functionName: 'claimBribes',
-              args: [current?.epochId!],
-            }]}
-            onTxSuccess={() => {
-              upForUserAction()
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
 function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
   const [onlyMy, setOnlyMy] = useState(false)
   const epochesData = useEpochesData(bvc.vault)
@@ -691,7 +581,7 @@ export function BVaultB({ bvc }: { bvc: BVaultConfig }) {
       <BVaultYInfo bvc={bvc} />
       <BvaultEpochYtPrices bvc={bvc} epochId={bvd.epochCount} />
       <BVaultYTrans bvc={bvc} />
-      {bvc.isOld ? <BVaultPoolsOld bvc={bvc} /> : <BVaultPools bvc={bvc} />}
+      <BVaultPools bvc={bvc} />
     </div>
   )
 }
@@ -721,7 +611,7 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   const { roi } = useBvaultROI(vc)
   return (
     <div className={cn('animitem card p-0! grid grid-cols-2 overflow-hidden', {})}>
-      <div className={cn(itemClassname, 'border-b', 'bg-black/10 dark:bg-white/10 col-span-2 flex-row px-4 md:px-5 py-4 items-center')}>
+      <div className={cn(itemClassname, 'border-b', 'col-span-2 flex-row px-4 md:px-5 py-4 items-center')}>
         {Boolean(lp) ? <DoubleCoinIcon symbol1={token1} symbol2={token2} size={28} /> : <CoinIcon symbol={vc.assetSymbol} size={44} />}
         <div>
           <div className=' text-lg font-semibold whitespace-nowrap'>{vc.assetSymbol}</div>

@@ -11,6 +11,7 @@ import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import { Providers } from './providers';
 import { useIsClient } from '@/hooks/useIsClient';
+import { Header } from '@/components/header';
 
 export default function PageLayout({ children }: { children: ReactNode }) {
   useConfigDomain()
@@ -20,17 +21,13 @@ export default function PageLayout({ children }: { children: ReactNode }) {
     <div ref={root} suppressHydrationWarning={true} suppressContentEditableWarning={true}>
       {isClient && <>
         <Providers>
+          <Header />
+          <Menus />
           <div className='w-screen h-screen overflow-auto flex justify-center relative'>
-            <div className='flex justify-center w-full max-w-[1400px] h-max relative'>
-              <Menus />
-              <div className='flex-1 basis-0 relative h-max w-0'>
-                {children}
-              </div>
-            </div>
+            {/* {children} */}
+            {children}
           </div>
-          {/* {children} */}
           <Toaster position='top-right' offset={70} />
-          {/* <BetaFlag /> */}
           <PageLoading />
           <TxsStat />
         </Providers>

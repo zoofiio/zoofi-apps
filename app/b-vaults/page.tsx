@@ -5,10 +5,10 @@ import { BVaultAddReward } from '@/components/b-vault-add-reward'
 import { Noti } from '@/components/noti'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleTabs } from '@/components/simple-tabs'
+import { ConfigChainsProvider } from '@/components/support-chains'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiBVault } from '@/config/abi'
-import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
-import { ENV } from '@/constants'
+import { BVaultConfig, BvaultsByEnv } from '@/config/bvaults'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useLoadBVaults } from '@/hooks/useLoads'
 import { tabToSearchParams } from '@/lib/utils'
@@ -18,10 +18,11 @@ import { useBVault, useBVaultEpoches } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useMemo, useState } from 'react'
-import { FaSpinner } from 'react-icons/fa6'
+import { FaAngleLeft, FaSpinner } from 'react-icons/fa6'
 import { isAddressEqual } from 'viem'
 import { useAccount } from 'wagmi'
 import { toBVault } from '../routes'
+import { BBtn2 } from '@/components/ui/bbtn'
 function StrongSpan({ children }: { children: ReactNode }) {
   return <span className='font-extrabold'>{children}</span>
 }
@@ -96,14 +97,17 @@ function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: strin
   const r = useRouter()
 
   return (
-    <SimpleTabs
-      currentTab={ctab}
-      onTabChange={(tab) => toBVault(r, bvc.vault, tab)}
-      listClassName='flex-wrap p-0 mb-5 md:gap-14'
-      triggerClassName='text-lg sm:text-xl md:text-2xl py-0 data-[state="active"]:border-b border-b-black dark:border-b-white leading-[0.8] rounded-none whitespace-nowrap'
-      contentClassName='gap-5'
-      data={data}
-    />
+    <div className='w-full flex flex-col gap-5'>
+      <BBtn2 className='w-fit gap-0.5 text-xs' onClick={() => r.push('/b-vaults')}><FaAngleLeft /> {'B-Vault'}</BBtn2>
+      <SimpleTabs
+        currentTab={ctab}
+        onTabChange={(tab) => toBVault(r, bvc.vault, tab)}
+        listClassName='flex-wrap p-0 mb-5 md:gap-14'
+        triggerClassName='text-lg sm:text-xl md:text-2xl py-0 data-[state="active"]:border-b border-b-black dark:border-b-white leading-[0.8] rounded-none whitespace-nowrap'
+        contentClassName='gap-5'
+        data={data}
+      />
+    </div>
   )
 }
 
@@ -112,8 +116,7 @@ const vaultsFilters = ['Active', 'All', 'Closed'] as const
 type VaultsFilterType = typeof vaultsFilters[number]
 
 export default function Vaults() {
-  const chainId = useCurrentChainId()
-  const bvcs = useMemo(() => BVAULTS_CONFIG[chainId].filter((vc) => vc.onEnv && vc.onEnv.includes(ENV)), [chainId, ENV])
+  const bvcs = BvaultsByEnv
   const params = useSearchParams()
   const paramsVault = params.get('vault')
   const paramsTab = params.get('tab')
@@ -135,7 +138,7 @@ export default function Vaults() {
   }, [loading, bvaults, currentFilter, bvcs])
   return (
     <PageWrap>
-      <div className='w-full max-w-[1232px] px-4 mx-auto md:pb-8'>
+      <div className='w-full max-w-[1232px] px-4 mx-auto md:pb-8 font-sec'>
         {!currentVc ? (
           <>
             <div className='page-title'>B-Vaults</div>
@@ -177,7 +180,9 @@ export default function Vaults() {
 
           </>
         ) : (
-          <BVaultPage bvc={currentVc} currentTab={currentTab} />
+          <ConfigChainsProvider chains={currentVc.chain}>
+            <BVaultPage bvc={currentVc} currentTab={currentTab} />
+          </ConfigChainsProvider>
         )}
       </div>
     </PageWrap>

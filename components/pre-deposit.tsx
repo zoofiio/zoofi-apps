@@ -105,7 +105,7 @@ export function NodeLicenseInfo({ data }: { data: NodeLicense }) {
             {/* <NodeLicenseImage icon={nlImages[data.name] ? <img {...nlImages[data.name]} className="invert" /> : null} /> */}
             <CoinIcon symbol="ReppoNft" size={161} />
             <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
-                <div className="text-base font-semibold">{data.tit}</div>
+                <div className="text-base font-semibold font-def">{data.tit}</div>
                 {data.infos.map((item, i) => <div key={`info_${i}`}>{item}</div>)}
                 {/* <div className="text-base font-semibold">{data.tit}</div>
                 <div>Total No. of Nodes: {displayBalance(data.totalNodes, 0, 0)}</div>
@@ -117,7 +117,7 @@ export function NodeLicenseInfo({ data }: { data: NodeLicense }) {
         </div>
         <div className="bg-[#4A5546] h-px w-full shrink-0"></div>
         <div className="flex flex-col gap-2">
-            <div className="text-base font-medium">About {data.name}</div>
+            <div className="text-base font-medium font-def">About {data.name}</div>
             <div className="opacity-60 text-sm font-medium leading-normal">{data.about}</div>
         </div>
     </div >
@@ -159,51 +159,6 @@ function OutSvg() {
 
 }
 
-
-function LntPreDeposit({ node, onSuccess }: { node: NodeLicense, onSuccess: () => void }) {
-    const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
-    const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
-    const data = useMemo(() => {
-        const ids = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
-        return ids.map(id => encodeFunctionData({ abi: abiPreDeposit, functionName: 'deposit', args: [id] }))
-    }, [selectedNft])
-    const pre = node.preDeposit!
-    // const nfts = useNftBalance(pre.nft)
-    const { data: { nfts }, refetch } = usePreDepositByUser(node)
-    return <div className='flex flex-col gap-5 items-center p-5 h-max'>
-        <div className='w-full text-start'>Licenses ID</div>
-        <div className='w-full max-w-lg h-72 overflow-y-auto'>
-            <div className='w-full gap-2 grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] '>
-                {nfts.map(id => (<div key={id.toString()} className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })} onClick={() => setSelectNft({ [id.toString()]: !selectedNft[id.toString()] })}>
-                    <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
-                    #{id.toString()}
-                </div>))}
-            </div>
-        </div>
-        {/*     
-        <NftApproveAndTx tx='Deposit'
-            approves={{ [pre.nft]: true }}
-            spender={pre.prelnt}
-            confirmations={5}
-            onTxSuccess={() => {
-                const nStat: { [id: string]: boolean } = {}
-                tokenIds.forEach((id) => {
-                    nStat[id.toString()] = false
-                })
-                setSelectNft(nStat)
-                onSuccess()
-                refetch()
-            }}
-            
-            config={{
-                abi: abiPreDeposit,
-                address: pre.prelnt,
-                functionName: 'multicall',
-                enabled: tokenIds.length > 0,
-                args: [data]
-            }} /> */}
-    </div>
-}
 function LntPreWithdraw({ node, onSuccess }: { node: NodeLicense, onSuccess: () => void }) {
     const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
     const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
@@ -300,11 +255,11 @@ export function PrePool({ data }: { data: NodeLicense }) {
         {/* title */}
         <div className="flex justify-between items-center">
             <div className="flex flex-col gap-2">
-                <div className="text-xl font-bold">Pre-Deposit Pool</div>
+                <div className="text-xl font-bold font-def">Pre-Deposit Pool</div>
                 <div className="text-xs font-medium">Network: {data.net}</div>
             </div>
             <div className="flex flex-col gap-2">
-                <div className="opacity-60 text-xs font-medium">Total Deposited</div>
+                <div className="opacity-60 text-xs font-medium font-def">Total Deposited</div>
                 <div className="text-sm font-medium">
                     <span className="text-2xl font-bold mr-2">{totalDeposit.toString()}</span>
                     Licenses
@@ -350,7 +305,7 @@ export function PrePool({ data }: { data: NodeLicense }) {
 
 
 export function PreDeposit({ data }: { data: NodeLicense }) {
-    return <div className="gap-4 xl:gap-8 w-full grid xl:grid-cols-[5fr_6fr]">
+    return <div className="gap-4 md:gap-8 w-full grid md:grid-cols-[5fr_6fr]">
         <NodeLicenseInfo data={data} />
         <PrePool data={data} />
     </div>

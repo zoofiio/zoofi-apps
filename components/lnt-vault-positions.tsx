@@ -71,12 +71,12 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         />,
     ]] : []
     const header = ['VT', 'Value', 'APY', 'Status', 'Redeemable', '']
-    return <div className="animitem card p-4! bg-white overflow-x-auto font-sec">
+    return <div className="animitem card bg-bg overflow-x-auto font-sec">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}
             cellClassName={(_i, ci) => ci == 0 ? 'py-2 px-0' : 'py-2 px-4'}
-            rowClassName='text-left text-black text-sm leading-none font-medium'
+            rowClassName='text-left text-sm leading-none font-medium'
             header={header}
             span={{ 2: statuColSize, 3: 2, [header.length - 1]: claimColSize }}
             data={data}
@@ -111,12 +111,12 @@ function YT({ vc }: { vc: LntVaultConfig }) {
             />,
         ]
     ] : []
-    return <div className="animitem card p-4! bg-white overflow-x-auto font-sec">
+    return <div className="animitem card bg-bg overflow-x-auto font-sec">
         <STable
             headerClassName='text-left font-medium opacity-60 border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}
             cellClassName={(_i, ci) => ci == 0 ? 'py-2 px-0' : 'py-2 px-4'}
-            rowClassName='text-left text-black text-sm leading-none font-medium'
+            rowClassName='text-left text-sm leading-none font-medium'
             header={header}
             span={{ 2: statuColSize, [header.length - 1]: claimColSize }}
             data={data}
@@ -154,12 +154,12 @@ function LP({ vc }: { vc: LntVaultConfig }) {
         />
     ]] : []
     const header = ['LP', 'Value', 'APY', '', vc.lpYields ? 'Yield' : '', vc.lpYields ? 'Airdrops' : '', '']
-    return <div className="animitem card p-4! bg-white overflow-x-auto font-sec">
+    return <div className="animitem card bg-bg overflow-x-auto font-sec">
         <STable
             headerClassName='text-left font-semibold border-b-0'
             headerItemClassName={(i) => i == 0 ? 'py-1 px-0 text-base' : 'py-1 px-4 text-base'}
             cellClassName={(_i, ci) => ci == 0 ? 'py-2 px-0' : 'py-2 px-4'}
-            rowClassName='text-left text-black text-sm leading-none font-medium'
+            rowClassName='text-left text-sm leading-none font-medium'
             header={header}
             span={{ 2: statuColSize, [header.length - 1]: claimColSize }}
             data={data}
@@ -168,10 +168,12 @@ function LP({ vc }: { vc: LntVaultConfig }) {
 }
 
 export function LntMyPositions({ vc }: { vc: LntVaultConfig }) {
-    return <div className="flex flex-col gap-5">
-        <div className="font-semibold text-2xl leading-none">My Positions</div>
-        <VT vc={vc} />
-        {vc.ytEnable && <YT vc={vc} />}
-        <LP vc={vc} />
+    return <div className="flex flex-col gap-4 card">
+        <div className="font-medium text-2xl leading-none">My Positions</div>
+        <div className="flex flex-col gap-2.5">
+            <VT vc={vc} />
+            {vc.ytEnable && <YT vc={vc} />}
+            <LP vc={vc} />
+        </div>
     </div>
 }

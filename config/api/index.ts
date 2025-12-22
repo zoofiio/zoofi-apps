@@ -2,8 +2,7 @@ import axios from 'axios'
 import { keys } from 'es-toolkit/compat'
 import { Address, Hex, numberToHex, parseUnits } from 'viem'
 import api from '../../utils/api'
-import { arbitrum, base, berachain, sepolia } from '../network'
-import { arbitrumSepolia } from 'viem/chains'
+import { arbitrumSepolia, sepolia, arbitrum, base, berachain } from 'viem/chains'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -121,7 +120,7 @@ export const getNftsByMoralis = async (chainId: number, nft: Address, owner: Add
     `https://deep-index.moralis.io/api/v2.2/${owner}/nft?chain=${numberToHex(chainId)}&format=decimal&limit=1000&exclude_spam=false&token_addresses%5B0%5D=${nft}`,
     options,
   ).then((response) => response.json())
-  
+
   return []
 }
 

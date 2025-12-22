@@ -20,7 +20,7 @@ export function SwitchNet({ className }: { className?: string }) {
   const sc = useSwitchChain()
   const chainId = useCurrentChainId()
   return <BBtn
-    className={twMerge('flex items-center justify-center gap-4 whitespace-nowrap w-fit min-w-40', className)}
+    className={twMerge('flex items-center justify-center gap-4 whitespace-nowrap min-w-40', className)}
     onClick={() => sc.switchChainAsync({ chainId }).catch(console.error)}
     busy={sc.isPending}
     disabled={sc.isPending}>
