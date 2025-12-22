@@ -1,4 +1,4 @@
-import { abiBeraLP, abiBeraVault, abiBQuery, abiBQueryOld } from '@/config/abi'
+import { abiBeraLP, abiBeraVault, abiBQuery } from '@/config/abi'
 import { getBvaultsPtSynthetic } from '@/config/api'
 import { BVaultConfig } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
@@ -105,14 +105,12 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     }
   }
   const updateBvaults = async (chainId: number, bvcs: BVaultConfig[]) => {
-    const start = now()
-    console.info('timeStart:updateBvaults', start)
     const pc = getPC(chainId)
     const [datas, lpdatas, ptRates] = await Promise.all([
       Promise.all(
         bvcs.map((bvc) =>
           pc
-            .readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVault', args: [bvc.vault] })
+            .readContract({ abi: abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVault', args: [bvc.vault] })
             .then((item) => ({ vault: bvc.vault, item })),
         ),
       ),
@@ -127,7 +125,6 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
         ),
       ),
     ])
-    console.info('timeEND:updateBvaults', now() - start)
     const map = filter(datas, (item) => item != null).reduce<BVaultsStore['bvaults']>(
       (map, item, i) => ({ ...map, [item.vault]: { ...item.item, ptRebaseRate: ptRates[i] } }),
       {},
@@ -165,7 +162,7 @@ export const sliceBVaultsStore: SliceFun<BVaultsStore> = (set, get, init = {}) =
     const pc = getPC(chainId)
     const datas = await Promise.all(
       mIds.map((epochId) =>
-        pc.readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpoch', args: [bvc.vault, epochId] }),
+        pc.readContract({ abi: abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpoch', args: [bvc.vault, epochId] }),
       ),
     )
     const map = datas.reduce<BVaultsStore['epoches']>((map, item) => ({ ...map, [`${bvc.vault}_${item!.epochId.toString()}`]: item }), {})

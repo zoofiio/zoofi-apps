@@ -21,9 +21,9 @@ export function LntVaultActivity({ vc }: { vc: LntVaultConfig }) {
             return res
         })
     })
-    return <div className="flex flex-col gap-5">
-        <div className="animitem font-semibold text-2xl leading-none">Activity</div>
-        <div className='animitem card overflow-x-auto font-sec'>
+    return <div className="flex flex-col gap-4 card">
+        <div className="animitem font-medium text-2xl leading-none">Activity</div>
+        <div className='animitem card bg-bg overflow-x-auto font-sec'>
             {
                 isLoading(data) && <div className="flex justify-center items-center pt-10 w-full h-[765px]"><Spinner /></div>
             }

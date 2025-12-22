@@ -21,7 +21,7 @@ import { floor, keys, min, toNumber } from 'es-toolkit/compat'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useRef, useState } from 'react'
-import { FaYoutube } from "react-icons/fa6"
+import { FaAngleRight, FaCheck, FaYoutube } from "react-icons/fa6"
 import { useSetState, useToggle } from 'react-use'
 import { toast } from 'sonner'
 import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
@@ -39,10 +39,12 @@ import { SimpleDialog } from './simple-dialog'
 import { SimpleTabs } from './simple-tabs'
 import { ConfigChainsProvider } from './support-chains'
 import { TokenInput } from './token-input'
-import { BBtn, Swap } from './ui/bbtn'
+import { BBtn, BBtn2, Swap } from './ui/bbtn'
 import { NumInput } from './ui/num-input'
 import { ProgressBar } from './ui/progress'
 import { Tip } from './ui/tip'
+import { LgBoardBloom, LgBoardBloom2 } from './ui/effects'
+import { LntNodeSvg, LvtNodeSvg } from './anim-svg'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
@@ -109,23 +111,23 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       }
     ]
   }
-  return <div className='flex flex-col gap-5 items-center p-5'>
-    <div className='w-full text-start'>Licenses ID
+  return <div className='flex flex-col gap-5 items-center p-5 pt-8 font-sec w-full'>
+    <div className='w-full text-start font-def'>Licenses ID
       {/* <span className={cn('text-xs ml-5 opacity-70', { "hidden": vc.isAethir },)}>Wait about 5 minutes after MINT to retrieve the list.</span> */}
     </div>
-    <div className='w-lg h-72 overflow-y-auto'>
-      <div className='w-full gap-2 grid grid-cols-4 '>
+    <div className='w-full h-72 overflow-y-auto text-sm'>
+      <div className='w-full gap-2 grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))]'>
         {nfts.result.map(id => (
           <div key={id.toString()}
-            className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })}
+            className={cn('flex rounded-xl bg-bg border px-4 py-3 border-transparent gap-1 items-center justify-between cursor-pointer', { 'border-primary': selectedNft[id.toString()] })}
             onClick={() => onClickOne(id)}
           >
-            <div className={cn('w-3 h-3 border border-black/20 bg-[#EBEBEB] rounded-full', { 'bg-primary': selectedNft[id.toString()] })} />
             #{id.toString()}
+            <FaCheck className={selectedNft[id.toString()] ? 'text-primary' : 'text-fg/20'} />
           </div>))}
       </div>
     </div>
-    <BBtn className='' onClick={onClickAll}>Select All</BBtn>
+    <BBtn className='max-w-sm' onClick={onClickAll}>Select All</BBtn>
     <div className='flex flex-col gap-1 w-full'>
       <div className='w-full'>Receive</div>
       <TokenInput tokens={[vt]} loading={false} disable amount={fmtBn(outAmountVT, vt.decimals)} />
@@ -143,7 +145,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         {`Operation Fees : ${vc.depositFees ?? '5%'}`}
       </div>
     </div>
-    <ConfigChainsProvider chains={[chainId]}>
+    <ConfigChainsProvider chains={chainId}>
       <Txs
         tx='Deposit'
         onTxSuccess={() => {
@@ -177,7 +179,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   const withdrawPrice = vd.result?.aVT ?? 0n
   const outAmountVT = withdrawPrice * BigInt(count);
   const withdrawStat = useLntVaultWithdrawState(vc)
-  return <div className='flex flex-col gap-5 items-center p-5'>
+  return <div className='flex flex-col gap-5 items-center p-5 pt-8 font-sec'>
     <div className='flex flex-col gap-1 w-full'>
       <div className=' w-full'>Input:</div>
       {vc.ytEnable && <>
@@ -185,7 +187,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
         <div className='w-full'>Pair With</div>
       </>}
       <TokenInput tokens={[vt]} disable amount={fmtBn(outAmountVT, vt.decimals)} />
-      <div className='mt-4 text-sm opacity-60 text-center'>
+      <div className='mt-4 text-sm opacity-60'>
         {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       {!withdrawStat.inWindow && withdrawStat.nWindow &&
@@ -197,7 +199,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       <div className='w-full'>Receive:</div>
       <NumInput title='Licenses' min={0} max={max} value={count} onChange={setCount} />
     </div>
-    <ConfigChainsProvider chains={[chainId]}>
+    <ConfigChainsProvider chains={chainId}>
       <Txs
         tx='Withdraw'
         className='mt-6'
@@ -219,8 +221,8 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
   const logs = useLntVaultLogs(vc)
-  const itemClassname = "flex flex-col gap-1 font-medium text-sm shrink-0 justify-center"
-  const itemTitClassname = "opacity-60 text-xs font-semibold font-sec"
+  const itemClassname = "flex gap-1 font-medium text-xs shrink-0 justify-between md:justify-center md:flex-col"
+  const itemTitClassname = "opacity-60 font-sec"
   const vtTotalSupply = useVTTotalSupply(vc)
   // const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
   // const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
@@ -229,11 +231,15 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const chain = useCurrentChain()
   const vtApy = calcVtApy(vc, vd.result, logs.result)
   return (
-    <div className={cn('animitem  card rounded-2xl overflow-hidden flex p-6 items-center gap-5 justify-between cursor-pointer overflow-x-auto', {})} onClick={() => toLntVault(r, vc.vault)}>
-      <div className='w-full min-w-max gap-4 grid grid-cols-[2.3fr_1.3fr_1fr_1fr_1.4fr_1fr]'>
-        <div className='flex items-center gap-2.5 shrink-0'>
+    <div className={cn(
+      'animitem card overflow-hidden flex p-4 items-center justify-between cursor-pointer overflow-x-auto',
+      'md:p-6'
+    )} onClick={() => toLntVault(r, vc.vault)}>
+      <div className='w-full min-w-max gap-4 grid md:grid-cols-[1.8fr_1.3fr_1fr_1fr_1.2fr_.5fr_.5fr]'>
+        <div className='flex items-center gap-2.5 shrink-0 border-r border-board'>
           <CoinIcon symbol={vc.projectIcon} size={40} />
-          <span className='text-sm font-semibold font-sec'>{vc.tit}</span>
+          <span className='text-sm font-medium font-sec'>{vc.tit}</span>
+          <BBtn2 className='h-6 w-6 p-0 aspect-square text-xs ml-auto md:hidden'><FaAngleRight /></BBtn2>
           <Badge text='Testnet' className={cn('opacity-0 absolute left-0 top-0', { 'opacity-100': chain.testnet || vc.test })} />
         </div>
         <div className={itemClassname}>
@@ -246,7 +252,6 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
               <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
             </>
           }
-
         </div>
         <div className={itemClassname}>
           <div className={itemTitClassname}>VT Supply</div>
@@ -254,34 +259,21 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
         </div>
         <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>VT Apy</div>
-          <div>{formatPercent(vtApy, 2, false)}</div>
+          <div className={vtApy >= 0 ? 'text-red-400' : 'text-green-400'}>{formatPercent(vtApy, 2, false)}</div>
         </div>
-        {/* <div className={cn(itemClassname, 'opacity-0', { 'opacity-100': vc.ytEnable })}>
-          <div className={itemTitClassname}>YT Supply</div>
-          <div>{displayBalance(ytTotalSupply.result)}</div>
-        </div> */}
-        {/* <div className={itemClassname}>
-          <div className={itemTitClassname}>VT Burned</div>
-          <div className="flex w-36 items-center ">
-            <div className="flex w-full h-4 bg-gray-200 rounded-full ">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${0}%`, background: 'linear-gradient(90deg, #C2B7FD 0%, #6466F1 100%)' }}
-              />
-            </div>
-            <div className="text-sm  text-right opacity-60 ml-[10px]">{0}%</div>
-          </div>
-        </div> */}
         <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>Due Date</div>
           {!vd ? '-' : <div className='relative whitespace-nowrap'>
             {endTimeStr}
-            <span className='opacity-60 text-xs absolute top-full left-1/2 -translate-x-1/2 font-sec'>{remainStr}</span>
+            <span className='opacity-60 text-xs absolute top-full right-0 font-sec md:right-[unset] md:left-1/2 md:-translate-x-1/2 '>{remainStr}</span>
           </div>}
         </div>
         <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>State</div>
           <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : 'Active'}</div>
+        </div>
+        <div className={cn(itemClassname, 'items-center hidden md:flex')}>
+          <BBtn2 className='h-6 w-6 p-0 aspect-square text-xs'><FaAngleRight /></BBtn2>
         </div>
       </div>
     </div>
@@ -349,38 +341,36 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
   const vtTotal = useVTTotalSupply(vc)
-  return <div style={{
-    backdropFilter: 'blur(20px)'
-  }} className="animitem card bg-white flex gap-5 h-full col-span-2 flex-wrap justify-center md:flex-nowrap" >
-    <div className='flex flex-col gap-5'>
-      <div className="flex gap-5 relative justify-center flex-wrap md:flex-nowrap">
-        <div className='text-[40px] lg:text-[160px] shrink-0 absolute left-0 top-0 lg:relative'>
-          <CoinIcon symbol={vc.icon} size={'1em'} className='object-contain' />
-        </div>
-        <div className="flex flex-col whitespace-nowrap gap-5 h-full text-sm font-medium">
-          <div className='flex justify-between gap-5 flex-wrap'>
-            <div className="pl-12 leading-10 lg:pl-0 lg:leading-normal text-base font-semibold">{vc.tit}</div>
-            <div></div>
-          </div>
-          <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap font-sec">{vc.info}</div>
+  return <div className="animitem card flex gap-2.5 p-2.5 flex-wrap justify-center" >
+    <div className='flex flex-col items-center md:flex-row p-2.5 pr-5 rounded-[10px] gap-5 bg-bg flex-1'>
+      {vc.isLVT ? <LgBoardBloom2 className='w-55 aspect-square flex justify-center items-center shrink-0'>
+        <LvtNodeSvg disableAnim node={<CoinIcon size={"100%"} symbol={vc.projectIcon} className='rounded-full border-2 border-amber-300' />} />
+      </LgBoardBloom2> : <LgBoardBloom className='w-55 aspect-square flex justify-center items-center shrink-0'>
+        <LntNodeSvg disableAnim node={<CoinIcon size={"100%"} symbol={vc.projectIcon} className='rounded-full border-2 border-green-300' />} />
+      </LgBoardBloom>}
+      <div className="flex flex-col gap-3 min-w-80">
+        <div className="leading-10 text-base font-semibold">{vc.tit}</div>
+        <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap font-sec">{vc.info}</div>
+        <div className='h-px bg-board' />
+        <div className=''>
+          <div className='flex justify-between mb-2'>Duration <span className='font-sec opacity-60'>{remainStr}</span></div>
+          <ProgressBar progress={progress} />
         </div>
       </div >
-      <div className='mt-auto'>
-        <div className='flex justify-between opacity-60 mb-2'>Duration <span className='font-sec'>{remainStr}</span></div>
-        <ProgressBar progress={progress} />
-      </div>
     </div>
-    {(vc.isFil || vc.isSei) && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
-      <span className=''>Total Locked</span>
-      <div className='font-bold'> {displayBalance(vtTotal, undefined, t.decimals)}</div>
-      <div className='flex items-center gap-2.5'>
-        <TokenIcon token={t} size={20} />
-        {t.symbol}
-      </div>
-    </div>}
-    {vc.isVerio && <LVTDepositWithdrawVerio vc={vc} />}
-    {vc.reppo && <LntVaultDepositReppo vc={vc} />}
-    {!vc.isLVT && !vc.reppo && <LNTDepositWithdraw vc={vc} />}
+    <div className='p-5 gap-5 rounded-[10px] bg-bg'>
+      {(vc.isFil || vc.isSei) && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
+        <span className=''>Total Locked</span>
+        <div className='font-bold'> {displayBalance(vtTotal, undefined, t.decimals)}</div>
+        <div className='flex items-center gap-2.5'>
+          <TokenIcon token={t} size={20} />
+          {t.symbol}
+        </div>
+      </div>}
+      {vc.isVerio && <LVTDepositWithdrawVerio vc={vc} />}
+      {vc.reppo && <LntVaultDepositReppo vc={vc} />}
+      {!vc.isLVT && !vc.reppo && <LNTDepositWithdraw vc={vc} />}
+    </div>
   </div>
 }
 
@@ -452,15 +442,18 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   }
   // const outAmount = 0n
   const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
-  return <div className='flex flex-col gap-1'>
+  return <div className='flex flex-col gap-1 font-sec'>
     <TokenInput tokens={[input]} disable={vc.isIdle} amount={inputAsset} setAmount={setInputAsset} />
     <Swap onClick={() => toggle()} />
-    <TokenInput tokens={[output]} disable checkBalance={false} loading={isFetchingCalc} amount={fmtBn(outAmount, output.decimals)} />
-    <div className="flex justify-between items-center text-xs font-medium gap-2 flex-wrap">
-      <div>Price: {swapPrice}</div>
-      <div>Price Impact: {priceimpcat}</div>
-    </div>
-    <div className="flex justify-between items-center text-xs font-medium opacity-60 gap-2 flex-wrap">
+    <TokenInput tokens={[output]} disable checkBalance={false} loading={isFetchingCalc} amount={fmtBn(outAmount, output.decimals)}
+      otherInfo={
+        <div className="flex justify-between items-center text-xs gap-2 flex-wrap w-full text-fg">
+          <div>Price: {swapPrice}</div>
+          <div>Price Impact: {priceimpcat}</div>
+        </div>
+      } />
+
+    <div className="flex justify-between items-center text-xs opacity-60 gap-2 flex-wrap">
       <div className='whitespace-nowrap'>Implied APY Change: {formatPercent(apy)} → {formatPercent(apyto)}</div>
       <Fees fees={fees} />
     </div>
@@ -721,8 +714,8 @@ function VT({ vc }: { vc: LntVaultConfig }) {
   const vtTotal = useVTTotalSupply(vc)
   const r = useRouter()
   return <div className="flex flex-col gap-4 w-full">
-    <div className='animitem card p-0! overflow-hidden w-full'>
-      <div className='flex p-5 bg-[#A3D395] gap-5 relative'>
+    <div className='animitem card p-0! overflow-hidden w-full font-sec'>
+      <div className='flex p-5 bg-[#A3D395] gap-4 relative'>
         <TokenIcon size={48} token={vt} />
         <div className='flex flex-col gap-3'>
           <div className='text-xl leading-6 text-black font-semibold'>{vt.symbol}</div>
@@ -734,13 +727,13 @@ function VT({ vc }: { vc: LntVaultConfig }) {
           {` `} to {getChain(vc.chain)!.name} first
         </div>}
       </div>
-      <div className='flex whitespace-nowrap flex-wrap items-baseline justify-between px-2.5 pt-2 gap-2.5'>
+      <div className='flex whitespace-nowrap flex-wrap items-baseline justify-between px-2.5 pt-2 gap-2.5 font-sec'>
         <div className='flex justify-between gap-2.5 items-baseline'>
           <div className="text-lg font-medium">{formatPercent(apy)}</div>
-          <div className="text-xs font-semibold opacity-60 font-sec">Fixed APY</div>
+          <div className="text-xs font-semibold opacity-60">Fixed APY</div>
         </div>
         <div className='flex justify-between gap-2.5 items-baseline'>
-          <div className="text-xs font-semibold opacity-60 font-sec">Circulation amount</div>
+          <div className="text-xs font-semibold opacity-60">Circulation amount</div>
           <div className="text-lg font-medium">{displayBalance(vtTotal, undefined, vt.decimals)}</div>
         </div>
       </div>
@@ -750,17 +743,15 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         </button>
       </div>
     </div>
-    <div className="animitem card p-4! min-h-[390px]">
-      {vc.vtActive ? <SimpleTabs
-        listClassName="p-0 gap-6 mb-4"
-        triggerClassName={`text-base leading-none data-[state="active"]:text-black`}
-        data={[
-          { tab: 'Swap', content: <SwapVTYT vc={vc} type='vt' /> },
-          { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='vt' /> },
-          { tab: 'Remove Liquidity', content: <LPRemove vc={vc} type='vt' /> },
-        ]}
-      /> : <div className='w-full py-[150px] text-center text-base font-semibold'>Swap Coming Soon</div>}
-    </div>
+    {vc.vtActive ? <SimpleTabs
+      listClassName="p-0 gap-3 mb-4"
+      triggerClassName={`text-base font-sec leading-none rounded-[10px] px-4 py-2 bg-bg text-fg/60 data-[state="active"]:bg-[#191F1B] data-[state="active"]:text-primary`}
+      data={[
+        { tab: 'Swap', content: <SwapVTYT vc={vc} type='vt' /> },
+        { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='vt' /> },
+        { tab: 'Remove Liquidity', content: <LPRemove vc={vc} type='vt' /> },
+      ]}
+    /> : <div className='w-full py-[150px] text-center text-base font-semibold'>Swap Coming Soon</div>}
   </div>
 }
 function YT({ vc }: { vc: LntVaultConfig }) {
@@ -795,7 +786,7 @@ function YT({ vc }: { vc: LntVaultConfig }) {
     <div className="animitem card p-4!">
       <SimpleTabs
         listClassName="p-0 gap-6 mb-4"
-        triggerClassName={`text-base leading-none data-[state="active"]:text-black`}
+        triggerClassName={`text-base leading-none`}
         data={[
           { tab: 'Swap', content: <SwapVTYT vc={vc} type='yt' /> },
           { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='yt' /> },
@@ -818,7 +809,7 @@ export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
     ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt2, vt]} /> }] : []),
   ]
   const currentTab = data.find(item => tabToSearchParams(item.tab) === tab)?.tab
-  return <div className='animitem card bg-white'>
+  return <div className='animitem card'>
     <SimpleTabs
       currentTab={currentTab}
       onTabChange={(tab) => toLntVault(r, vc.vault, tab)}

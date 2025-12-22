@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { isNil } from "es-toolkit"
 import { isNumber, round, toNumber } from "es-toolkit/compat"
 import { IoIosAdd, IoIosRemove } from "react-icons/io"
 
@@ -52,32 +53,30 @@ export function NumInput({
     }
     const mvalue = clampValue(value)
 
-    return <div className={cn("flex gap-5 justify-center items-center select-none", className)}>
-        <div className={cn("shrink-0 text-4xl rounded-lg hover:bg-primary/20 cursor-pointer dark:text-white", btnClassName, subClassName)}
+    return <div className={cn("flex gap-5 items-center select-none p-4 bg-bg rounded-xl", className)}>
+        <span className="mr-auto">{title}</span>
+        <div className={cn("shrink-0 text-2xl rounded-full bg-primary/80 cursor-pointer ", { 'cursor-not-allowed bg-fg/10': !isNil(min) && mvalue <= min }, btnClassName, subClassName)}
             onClick={() => setNewValue((mvalue ?? 0) - step)}>
             <IoIosRemove />
         </div>
-        <div className="relative">
-            <input
-                className={cn(
-                    "h-14 w-14 text-center font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-hidden dark:text-slate-50",
-                    "shrink-0 bg-white dark:bg-transparent border-slate-400  focus:border-primary",
-                    numClassName)}
-                type="number"
-                value={mvalue}
-                onChange={(e) => {
-                    const num = tryToNumber(e.target.value)
-                    const nv = integer ? round(num) : num
-                    onChange?.(nv)
-                    setNewValue(nv)
-                }}
-            />
-            {Boolean(title) && <div className="font-medium text-xs text-center absolute top-full leading-5 opacity-80">{title}</div>}
-        </div>
-        <div className={cn("shrink-0 text-4xl rounded-lg hover:bg-primary/20 cursor-pointer dark:text-white", btnClassName, addClassName)}
+        <input
+            className={cn(
+                "w-8 px-2 text-center min-w-4 font-bold text-lg outline-hidden ",
+                "shrink-0",
+                numClassName)}
+            type="number"
+            value={mvalue}
+            onChange={(e) => {
+                const num = tryToNumber(e.target.value)
+                const nv = integer ? round(num) : num
+                onChange?.(nv)
+                setNewValue(nv)
+            }}
+        />
+        <div className={cn("shrink-0 text-2xl rounded-full bg-primary/80 cursor-pointer", { 'cursor-not-allowed bg-fg/10': !isNil(max) && mvalue >= max }, btnClassName, addClassName)}
             onClick={() => setNewValue((mvalue ?? 0) + step)}>
             <IoIosAdd />
         </div>
-        {isNumber(max) && <div className="shrink-0 text-xs font-medium cursor-pointer dark:text-white" onClick={() => setNewValue(max)}>Max</div>}
+        {isNumber(max) && <div className="shrink-0 text-xs font-medium cursor-pointer text-primary" onClick={() => setNewValue(max)}>Max</div>}
     </div>
 }

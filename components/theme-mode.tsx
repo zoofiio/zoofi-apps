@@ -41,7 +41,7 @@ const Icons = {
   system: <MdComputer />,
 }
 
-export function ThemeMode() {
+export function ThemeMode({ triggerClassName }: { triggerClassName?: string }) {
   const ts = useThemeState()
   const onChangeTheme = () => {
     const { theme, themeMode } = getThemeState()
@@ -59,21 +59,29 @@ export function ThemeMode() {
   }
   return (
     <SimpleDialog
-      className='max-w-[200px] py-10 flex flex-col text-base text-stone-500 dark:text-white'
-      trigger={<div className='text-xl hidden md:block'>{Icons[ts.theme as 'light' | 'dark' | 'system']}</div>}
+      className='max-w-100 pb-8 flex flex-col text-base text-fg'
+      trigger={<div className={cn('text-sm hidden md:block cursor-pointer', triggerClassName)}>{Icons[ts.theme as 'light' | 'dark' | 'system']}</div>}
     >
-      {['Light', 'Dark', 'System'].map((item, index) => (
-        <div
-          key={'theme_mode_' + item}
-          className={cn('flex px-5 items-center py-2 gap-3 cursor-pointer', {
-            'bg-stone-100 dark:bg-zinc-700': item.toLowerCase() == ts.themeMode,
-          })}
-          onClick={() => onClick(item)}
-        >
-          <div className='text-2xl'>{Icons[item.toLowerCase() as 'light' | 'dark' | 'system']}</div>
-          <span className=''>{item}</span>
-        </div>
-      ))}
+      <div className='text-lg p-4'>Theme</div>
+      <div className='flex flex-col px-4 gap-4'>
+        {['Light', 'Dark', 'System'].map((item, index) => (
+          <div
+            key={'theme_mode_' + item}
+            className={cn('flex bg-bg px-4 items-center py-2 gap-3 cursor-pointer font-sec rounded-xl', {
+              'bg-primary/5 text-primary': item.toLowerCase() == ts.themeMode,
+            })}
+            onClick={() => onClick(item)}
+          >
+            <div
+              className={cn('text-xl rounded-lg bg-bg w-7 aspect-square flex justify-center items-center', {
+                'bg-primary/10': item.toLowerCase() == ts.themeMode,
+              })}>
+              {Icons[item.toLowerCase() as 'light' | 'dark' | 'system']}
+            </div>
+            <span className=''>{item}</span>
+          </div>
+        ))}
+      </div>
     </SimpleDialog>
   )
 }

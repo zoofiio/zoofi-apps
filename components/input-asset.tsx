@@ -144,13 +144,13 @@ export function AssetInput({
           disabled={disable}
           style={{ paddingLeft: `${round((coinSymbolWidth + 32) / 16, 3)}rem` }}
           className={clsx(
-            readonly ? 'bg-slate-50 cursor-not-allowed dark:bg-slate-800' : 'bg-white dark:bg-transparent',
+            readonly ? 'bg-bg cursor-not-allowed' : '',
             {
               'border-green-700 border-2': selected,
               'border-red-400 border-2! focus:border-red-400': isError,
               'border-slate-400  focus:border-primary': !isError && !selected,
             },
-            'w-full h-14 text-right pr-4 font-bold text-lg border-[#4A5546] border focus:border-2 text-slate-700 rounded-lg outline-hidden dark:text-slate-50',
+            'w-full h-14 text-right pr-4 font-bold text-lg border-[#4A5546] border focus:border-2 text-fg rounded-lg outline-hidden ',
           )}
           placeholder='0.000'
           maxLength={36}

@@ -48,7 +48,7 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
     const nftsStandard = useErc721Balance(chainId, vc.reppo!.standard, vc.nftBalanceBy)
     const nftsPreminum = useErc721Balance(chainId, vc.reppo!.preminum, vc.nftBalanceBy)
     const vtc = useLntVaultVTC(vc)
-    const outAmountVT = (currentPrice - currentPrice * parseEther(vtc.toFixed(6))/DECIMAL) * BigInt(tokenIds.length)
+    const outAmountVT = (currentPrice - currentPrice * parseEther(vtc.toFixed(6)) / DECIMAL) * BigInt(tokenIds.length)
     const nfts = curentNft == vc.reppo!.standard ? nftsStandard : nftsPreminum
     const vt = getTokenBy(vd.result!.VTbyDeposit ?? vd.result!.VT, chainId, { symbol: 'VT' })!
     const onClickOne = (id: string) => {
@@ -142,7 +142,7 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
                 {`Operation Fees : ${formatPercent(vtc, 2, false)}`}
             </div>
         </div>
-        <ConfigChainsProvider chains={[chainId]}>
+        <ConfigChainsProvider chains={chainId}>
             <Txs
                 tx='Deposit'
                 onTxSuccess={() => {
@@ -173,7 +173,7 @@ export function LntVaultDepositReppo({ vc }: { vc: LntVaultConfig }) {
             <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
             <span className='opacity-50 ml-1'>Licenses</span>
         </div>
-        <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto'>
+        <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto font-sec'>
             <SimpleDialog
                 triggerRef={depositRef}
                 trigger={

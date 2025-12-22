@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Dispatch, Ref, SetStateAction } from 'react'
-import { IoIosCloseCircleOutline } from 'react-icons/io'
+import { FaX } from 'react-icons/fa6'
 
 export function SimpleDialog({
   trigger,
@@ -37,7 +37,7 @@ export function SimpleDialog({
     <Dialog.Root open={open} defaultOpen={defaultOpen} {...props}>
       {Boolean(trigger) && <Dialog.Trigger asChild ref={triggerRef} {...(triggerProps || {})}>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
-        <div className='w-screen h-screen fixed top-0 left-0 inset-0 z-101 bg-black/60' />
+        <div className='w-screen h-screen fixed top-0 left-0 inset-0 z-100 bg-black/60' />
         <Dialog.Content
           onEscapeKeyDown={(e) => {
             disableClose && e.stopPropagation()
@@ -50,15 +50,15 @@ export function SimpleDialog({
           }}
           style={style}
           className={cn(
-            'fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[640px] -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#333333] rounded-2xl overflow-hidden shadow-2xl z-101',
+            'fixed trans-center card p-0 max-h-[85vh] w-[90vw] max-w-135 rounded-2xl overflow-hidden shadow-2xl z-100',
             className,
           )}
         >
           {children}
           {!disableClose && <Dialog.Close
-            className={cn('absolute right-4 top-4 cursor-point text-xl', closeClassName)}
+            className={cn('absolute right-4 top-3 cursor-pointer text-base bg-bg p-2.5 hover:shadow shadow-primary rounded-full', closeClassName)}
           >
-            <IoIosCloseCircleOutline />
+            <FaX />
           </Dialog.Close>}
         </Dialog.Content>
       </Dialog.Portal>

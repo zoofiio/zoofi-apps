@@ -1,4 +1,4 @@
-import { abiBQuery, abiBQueryOld } from '@/config/abi'
+import { abiBQuery } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
 import { Address } from 'viem'
 import { getPC } from './publicClient'
@@ -32,9 +32,7 @@ export const sliceUserBVaults: SliceFun<UserBVaultsStore> = (set, get, init) => 
     if (epoches.length == 0) return {}
     const pc = getPC(chainId)
     const endEpoches = await Promise.all(
-      epoches.map((e) =>
-        pc.readContract({ abi: bvc.isOld ? abiBQueryOld : abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpochUser', args: [bvc.vault, e.epochId, user] }),
-      ),
+      epoches.map((e) => pc.readContract({ abi: abiBQuery, address: bvc.bQueryAddres, functionName: 'queryBVaultEpochUser', args: [bvc.vault, e.epochId, user] })),
     )
     set({ epoches: { ...get().epoches, [bvc.vault]: endEpoches } })
     return endEpoches

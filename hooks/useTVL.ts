@@ -9,7 +9,7 @@ import { Address } from 'viem'
 export function useTVL() {
   const chainId = useCurrentChainId()
 
-  const bvcs = BVAULTS_CONFIG[chainId].filter((item) => (item.onEnv || []).includes(ENV))
+  const bvcs = BVAULTS_CONFIG.filter((item) => (item.onEnv || []).includes(ENV))
   const bvaults = useStore((s) => s.sliceBVaultsStore.bvaults)
   const tprices = useStore((s) => s.sliceTokenStore.prices)
 

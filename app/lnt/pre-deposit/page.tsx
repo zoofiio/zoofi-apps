@@ -7,7 +7,7 @@ import Link from "next/link"
 
 export default function Page() {
     return <PageWrap>
-        <div className="flex flex-col gap-8 w-full max-w-[1232px] px-4 mx-auto">
+        <div className="flex flex-col gap-8 w-full max-w-[1232px] px-4 mx-auto font-sec">
             <div className="w-full">
                 <div className='page-title'>Pre-Deposit</div>
                 <div className="w-full flex items-center gap-5 flex-wrap justify-between">

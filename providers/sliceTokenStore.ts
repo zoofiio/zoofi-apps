@@ -2,7 +2,7 @@ import { abiCrocQuery } from '@/config/abi'
 import { getNftTokensIdsByUser, getTokensPriceByPyth } from '@/config/api'
 import { CrocQueryAddress, HONEY_Address } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
-import { berachain, berachainTestnet } from '@/config/network'
+import { berachain } from '@/config/network'
 import { isNativeToken } from '@/config/tokens'
 import { DECIMAL } from '@/constants'
 import { groupBy, mapValues } from 'es-toolkit'
@@ -107,9 +107,7 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
     if (mLps.length !== 0) {
       console.info('mlps;', tokens, mLps)
       // for testnet
-      if (chainId === berachainTestnet.id) {
-        await updateLPTokensStatForTest(chainId, mLps)
-      } else if (chainId === berachain.id) {
+      if (chainId === berachain.id) {
         const map = await getTokensPriceByPyth()
         set({ prices: { ...get().prices, ...map } })
       }
@@ -120,7 +118,6 @@ export const sliceTokenStore: SliceFun<TokenStore> = (set, get, init = {}) => {
   const updateDefTokenList = async (chainId: number) => {
     const urls: { [k: number]: string } = {
       [berachain.id]: 'https://hub.berachain.com/internal-env/defaultTokenList.json',
-      [berachainTestnet.id]: 'https://raw.githubusercontent.com/berachain/default-lists/main/src/tokens/bartio/defaultTokenList.json',
     }
     const tokenUrl = urls[chainId]
     if (!tokenUrl) return []
