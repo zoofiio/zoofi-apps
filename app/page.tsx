@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const r = useRouter()
   return <>
-    <div className="w-full max-w-320 mx-auto min-h-[calc(100vh-72px)] px-4 flex flex-col justify-center h-max relative pb-8">
+    <div className="w-full max-w-320 mx-auto min-h-[calc(100vh-72px)] px-4 flex flex-col justify-center h-max relative pt-22 pb-8">
       <div className="grid md:grid-cols-2 h-max items-center flex-wrap justify-center gap-[clamp(20px,5.5vw,100px)] relative">
         <LgBoardBloom className="animitem h-full flex-1 basis-0 min-w-80 cursor-pointer" onClick={() => r.push("/lnt")}>
           <div className="w-full flex flex-col gap-4 p-4 md:p-5">
