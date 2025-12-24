@@ -117,7 +117,7 @@ export function TokenInput({
           type='number'
           disabled={disable}
           className={cn(
-            'bg-transparent flex-1 h-full font-semibold text-right text-2xl outline-none! border-none!',
+            'bg-transparent min-w-0 basis-0 flex-1 h-full font-semibold text-right text-2xl outline-none! border-none!',
             {
               'cursor-not-allowed ': readonly
             },

@@ -809,7 +809,7 @@ export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
     ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt2, vt]} /> }] : []),
   ]
   const currentTab = data.find(item => tabToSearchParams(item.tab) === tab)?.tab
-  return <div className='animitem card'>
+  return <div className='animitem card md:min-h-177'>
     <SimpleTabs
       currentTab={currentTab}
       onTabChange={(tab) => toLntVault(r, vc.vault, tab)}
