@@ -9,8 +9,6 @@ const SupportICONS: { [k: string]: string } = {
   balance: 'balance.png',
   berachain: 'berachain.svg',
   berahub: 'berahub.svg',
-  bg_home: 'bg_home.svg',
-  blackLine: 'blackLine.svg',
   Bull: 'Bull.svg',
   coin: 'coin.png',
   discord: 'discord.png',

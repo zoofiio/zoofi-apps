@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js?56" defer></Script>
       </head>
-      <body className="bg-main text-fg">
+      <body className="bg-main text-fg bg-[url(/bg_main2.png)] dark:bg-[url(/bg_main.png)]">
         <PageLayout>{children}</PageLayout>
         <div id='tooltip-root' className='fixed left-0 top-0 z-200' />
       </body>
