@@ -285,7 +285,7 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
   const withdrawPrice = vd.data?.aVT ?? 0n
-  return <div className='flex flex-col h-full justify-between shrink-0 gap-6 w-full md:w-fit'>
+  return <div className='flex flex-col h-full justify-between shrink-0 gap-6 w-full'>
     <div className='flex items-center text-sm justify-between gap-5 whitespace-nowrap'>
       <span className='font-def text-lg font-medium'>Total Deposited</span>
       <span className='opacity-50 ml-1'>Licenses</span>
@@ -340,8 +340,8 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
         </div>
       </div >
     </div>
-    <div className='p-5 gap-5 rounded-[10px] bg-main font-sec'>
-      {(vc.isFil || vc.isSei) && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
+    <div className='p-5 gap-5 rounded-[10px] bg-main font-sec w-full md:w-fit min-w-75'>
+      {(vc.isFil || vc.isSei) && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 w-full my-auto px-5 md:gap-10'>
         <span className='font-def text-lg font-medium'>Total Locked</span>
         <div className='font-bold font-def text-xl'> {displayBalance(vtTotal, undefined, t.decimals)}</div>
         <div className='flex items-center gap-2.5'>
@@ -805,24 +805,9 @@ export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
 
 
 
-export function LNTTestHeader({ vc }: { vc: LntVaultConfig }) {
-  const { address } = useAccount()
-  if (vc.tit !== "0G AI Alignment Node" || !vc.isZeroG || !vc.test) return null
-  const txs = async () => {
-    return [{ abi: abiMockERC721, address: vc.asset, functionName: vc.test ? 'safeMint' : 'mint', args: [address] }]
-  }
-  return <div className='flex justify-end items-center gap-5 lg:gap-10 text-sm lg:text-base'>
-    {vc.test && <Link href={"https://faucet.0g.ai/"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
-      <CoinIcon symbol='ZeroG' size={32} className='object-contain' />
-      Faucet
-    </Link>}
-    <Txs tx='Mint Test Node' className='w-[180px]' txs={txs} disabled={!address} />
-  </div>
-}
-
 export function LNTAethirHeader({ vc }: { vc: LntVaultConfig }) {
   if (!vc.isAethir) return null
-  return <div className='flex justify-end items-center gap-5 lg:gap-10 text-sm lg:text-base'>
+  return <div className='font-sec flex justify-end items-center gap-5 text-xs lg:gap-10 lg:text-sm '>
     <Link href={"https://youtu.be/mK2ZBujbuR4"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
       <FaYoutube className='text-[1.5em] text-red-500' />
       Tutorial
@@ -832,5 +817,6 @@ export function LNTAethirHeader({ vc }: { vc: LntVaultConfig }) {
       Buy Node on Opensea
     </Link>
   </div>
+
 }
 

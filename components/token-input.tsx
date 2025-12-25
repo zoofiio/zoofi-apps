@@ -100,7 +100,7 @@ export function TokenInput({
       <div className='flex items-center w-full h-10 relative gap-3'>
         {loading && <Spinner className='absolute right-24 top-4.5' />}
 
-        <div className='flex items-center gap-2 w-fit left-4 z-50'>
+        <div className='flex items-center gap-2 w-fit left-4'>
           {tokens.length > 1 ? <SimpleSelect className='border-none' options={options} onChange={(n) => {
             console.info('tokenChange:', n)
             setToken(n.data); onTokenChange?.(n.data)

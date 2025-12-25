@@ -49,6 +49,7 @@ input[type='number'] {
   --color-fg: var(--fg);
   --color-board: var(--board);
   --color-primary: var(--primary);
+  --breakpoint-slg: 56rem;
 }
 
 

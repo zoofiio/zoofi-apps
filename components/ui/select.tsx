@@ -36,7 +36,7 @@ export function SimpleSelect<T extends OptionBase>({ options, value, defValue, o
         return item.show
     }
     if (options.length == 0) return null
-    return <div ref={ref} className={cn("w-auto rounded-sm relative border-board border select-none cursor-pointer", className)}>
+    return <div ref={ref} className={cn("w-auto rounded-sm relative border-board border select-none cursor-pointer z-60", className)}>
         <div className={cn("flex items-center justify-between gap-5 px-2 py-1", currentClassName)} onClick={() => setIsOpen(!isOpen)}>
             <div className="flex items-center">
                 {renderItem(current)}
@@ -44,7 +44,7 @@ export function SimpleSelect<T extends OptionBase>({ options, value, defValue, o
             {isOpen ? <BsChevronUp /> : <BsChevronDown />}
         </div>
         {isOpen && (
-            <div className={cn("mt-1 absolute bg-main overflow-hidden z-50 top-full w-full right-0 flex flex-col rounded-sm border-board border", listClassName)}>
+            <div className={cn("mt-1 absolute bg-main overflow-hidden top-full w-full right-0 flex flex-col rounded-sm border-board border", listClassName)}>
                 {options.map(item => (
                     <div
                         key={typeof item === 'string' ? item : item.key}

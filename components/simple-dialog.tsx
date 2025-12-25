@@ -37,7 +37,7 @@ export function SimpleDialog({
     <Dialog.Root open={open} defaultOpen={defaultOpen} {...props}>
       {Boolean(trigger) && <Dialog.Trigger asChild ref={triggerRef} {...(triggerProps || {})}>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
-        <div className='w-screen h-screen fixed top-0 left-0 inset-0 z-100 bg-black/60' />
+        <div className='w-screen h-screen fixed top-0 left-0 inset-0 z-110 bg-black/60' />
         <Dialog.Content
           onEscapeKeyDown={(e) => {
             disableClose && e.stopPropagation()
@@ -50,13 +50,13 @@ export function SimpleDialog({
           }}
           style={style}
           className={cn(
-            'fixed trans-center card p-0 max-h-[85vh] w-[90vw] max-w-135 rounded-2xl overflow-hidden shadow-2xl z-100',
+            'fixed trans-center card p-0 max-h-[85vh] w-[90vw] max-w-135 rounded-2xl overflow-hidden shadow-2xl z-110',
             className,
           )}
         >
           {children}
           {!disableClose && <Dialog.Close
-            className={cn('absolute right-4 top-3 cursor-pointer text-base bg-main p-2.5 hover:shadow shadow-primary rounded-full', closeClassName)}
+            className={cn('absolute right-4 top-3 cursor-pointer text-base bg-main p-2.5 m-shadow-around hover:shadow-primary/60 rounded-full', closeClassName)}
           >
             <FaX />
           </Dialog.Close>}

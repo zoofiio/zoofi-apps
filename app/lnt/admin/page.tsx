@@ -43,7 +43,7 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress, chain }: {
   const currentUnits = typeof param.units == 'number' ? param.units : 10
   return (
     <Expandable tit='Vault Param Vaule'>
-      <SimpleSelect className='w-full animitem z-50' itemClassName='p-3' currentClassName='p-3' listClassName='max-h-[350px] overflow-y-auto' options={params} onChange={(data) => setState({ param: data })} />
+      <SimpleSelect className='w-full animitem' itemClassName='p-3' currentClassName='p-3' listClassName='max-h-[350px] overflow-y-auto' options={params} onChange={(data) => setState({ param: data })} />
       <input
         value={value.toString()}
         onChange={(e) => {
@@ -276,7 +276,7 @@ export default function AdminPage() {
               'Vault': current?.vc.vault
             }, undefined, 2)}
           </div>
-          <SimpleSelect className='w-full animitem z-50' itemClassName='p-3 font-mono' currentClassName='p-3' options={options} onChange={setCurrent} />
+          <SimpleSelect className='w-full animitem' itemClassName='p-3 font-mono' currentClassName='p-3' options={options} onChange={setCurrent} />
           {
             current && <ConfigChainsProvider chains={current.vc.chain}>
               {current.vc.reppo && <AdminReppo vc={current.vc} />}

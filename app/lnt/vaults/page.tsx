@@ -1,6 +1,6 @@
 'use client'
 
-import { LNT_VT_YT, LNTAethirHeader, LNTInfo, LNTTestHeader, LNTVaultCard } from '@/components/lnt-vault'
+import { LNT_VT_YT, LNTAethirHeader, LNTInfo, LNTVaultCard } from '@/components/lnt-vault'
 import { LntVaultActivity } from '@/components/lnt-vault-activity'
 import LntVaultChart from '@/components/lnt-vault-chart'
 import { LntMyPositions } from '@/components/lnt-vault-positions'
@@ -27,12 +27,11 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
       {isError(vd) && 'Opps! Network Error!'}
       {isLoading(vd) && <Spinner className="mt-10 mx-auto text-black dark:text-white" />}
       {isSuccess(vd) && <>
-        <div className='flex w-full justify-between gap-5 items-center'>
-          <BBtn2 className='w-fit gap-0.5 text-xs' onClick={() => r.push(vc.isLVT ? '/lvt' : '/lnt')}><FaAngleLeft /> {vc.isLVT ? 'LVT-Vault' : 'LNT-Vault'}</BBtn2>
+        <div className='flex flex-wrap w-full justify-between gap-5 items-center'>
+          <BBtn2 className='w-fit gap-0.5 text-xs whitespace-nowrap' onClick={() => r.push(vc.isLVT ? '/lvt' : '/lnt')}><FaAngleLeft /> {vc.isLVT ? 'LVT-Vault' : 'LNT-Vault'}</BBtn2>
           {vc.reppo && <BBtn2 className='w-fit gap-0.5 text-xs' onClick={() => r.push('/lnt/pre-deposit')}> {'Pre Deposit'}</BBtn2>}
+          <LNTAethirHeader vc={vc} />
         </div>
-        <LNTTestHeader vc={vc} />
-        <LNTAethirHeader vc={vc} />
         <LNTInfo vc={vc} />
         <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4'>
           <LntVaultChart vc={vc} />
@@ -86,7 +85,6 @@ export default function Vaults({ type = 'lnt' }: { type?: 'lnt' | 'lvt' }) {
           </>
         ) : (
           <ConfigChainsProvider chains={currentVc.chain}>
-            {/* <Demo className='absolute top-3 right-5 z-50' /> */}
             <LntVaultPage vc={currentVc} tab={paramsTab as string} />
           </ConfigChainsProvider>
         )}

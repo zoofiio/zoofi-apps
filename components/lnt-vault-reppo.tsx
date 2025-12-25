@@ -167,7 +167,7 @@ export function LntVaultDepositReppo({ vc }: { vc: LntVaultConfig }) {
     const reppoNfts = useReppoLntVaultNFTs(vc)
     const standarPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.standard))?.aVT ?? 0n
     const premiumPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.preminum))?.aVT ?? 0n
-    return <div className='flex flex-col h-full justify-between shrink-0 gap-6 w-full md:w-fit'>
+    return <div className='flex flex-col h-full justify-between shrink-0 gap-6 w-full'>
         <div className='flex items-center text-sm justify-between whitespace-nowrap'>
             <span className='font-def text-lg'>Total Deposited</span>
             <span className='opacity-50 ml-1'>Licenses</span>

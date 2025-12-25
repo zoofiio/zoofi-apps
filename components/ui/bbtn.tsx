@@ -58,7 +58,7 @@ export function Swap(p: HTMLAttributes<HTMLDivElement>) {
   return <div
     {...props}
     style={{ transform: 'rotateX(180deg) rotateZ(90deg)', ...(style || {}) }}
-    className={cn("flex w-8 h-8 justify-center items-center self-center text-sm cursor-pointer border border-board bg-main text-fg rounded-full m-shadow-around hover:shadow-primary hover:border-primary", className)}
+    className={cn("flex w-8 h-8 justify-center items-center self-center text-sm cursor-pointer border border-board bg-main text-fg rounded-full m-shadow-around hover:shadow-primary/60 hover:border-primary", className)}
   >
     <AiOutlineSwap />
   </div>

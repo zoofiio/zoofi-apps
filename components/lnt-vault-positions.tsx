@@ -18,6 +18,8 @@ import { CoinAmount } from "./coin-amount";
 import { TokenIcon } from "./icons/tokenicon";
 import STable from "./simple-table";
 import { Tip } from "./ui/tip";
+import { toLntVault } from "@/app/routes";
+import { useRouter } from "next/navigation";
 const claimColSize = 1.3;
 const statuColSize = 1.6
 
@@ -39,6 +41,7 @@ function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
     const chainId = useCurrentChainId()
     const { address } = useAccount()
     const data: ReactNode[][] = []
+    const fVcs: LntVaultConfig[] = []
     for (const vc of vcs) {
         const vd = useLntVault(vc)
         const logs = useLntVaultLogs(vc)
@@ -52,6 +55,7 @@ function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
         const isMature = nowUnix() > matureTime
         const isDisableClaim = !isMature || vtBalance.data <= 0n || !address
         if (!filter || (vtBalance.data > 0n || vt2Balance.data > 0n)) {
+            fVcs.push(vc)
             data.push([
                 <TokenSymbol key={'vt'} t={vt} />,
                 <Fragment key={'vtValue'}>
@@ -79,6 +83,7 @@ function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
         }
     }
     const header = ['VT', 'Value', 'APY', 'Status', 'Redeemable', '']
+    // const r = useRouter()
     return <div className="animitem card overflow-x-auto font-sec">
         <STable
             headerClassName='text-left border-b-0'
@@ -86,6 +91,7 @@ function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
             cellClassName={(_i, ci) => ci == 0 ? 'py-2 px-0' : 'py-2 px-4'}
             rowClassName='text-left text-sm leading-none'
             header={header}
+            // onClickRow={filter ? (i) => toLntVault(r, fVcs[i].vault) : undefined}
             span={{ 2: statuColSize, 3: 2, [header.length - 1]: claimColSize }}
             data={data}
         />

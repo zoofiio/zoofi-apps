@@ -50,7 +50,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
                 {`1 vIP(Verio IP) = ${displayBalance(vd.data?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
             </div>
             <div>
-                
+
             </div>
         </div>
         <Txs
@@ -108,7 +108,7 @@ export function LVTDepositWithdrawVerio({ vc }: { vc: LntVaultConfig }) {
     // const withdrawRef = useRef<HTMLButtonElement>(null)
     const vd = useLntVault(vc)
     const asset = getTokenBy(vc.asset, vc.chain, { symbol: 'vIP' })!
-    return <div className='flex flex-col items-center h-full justify-between shrink-0 gap-5 w-full md:w-fit min-w-75'>
+    return <div className='flex flex-col items-center h-full justify-between shrink-0 gap-5 w-full'>
         <span className='font-def text-lg font-medium'>Total Locked</span>
         <div className='font-bold font-def text-xl'> {displayBalance(vd.data?.activeDepositCount, undefined, asset.decimals)}</div>
         <div className='flex items-center gap-2.5'>

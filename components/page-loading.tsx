@@ -23,7 +23,6 @@ export function PageLoading() {
         console.info('pathname change:', pathname)
         usePageLoad.setState({ isLoading: false })
     }, [pathname])
-    // return <div className={cn('top-loader fixed z-50 top-0 left-0 ')} />
     return <div className={cn('top-loader fixed z-50 top-0 left-0', isLoading ? 'visible' : 'invisible')} />
 }
 
