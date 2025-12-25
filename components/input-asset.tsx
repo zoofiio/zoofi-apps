@@ -144,7 +144,7 @@ export function AssetInput({
           disabled={disable}
           style={{ paddingLeft: `${round((coinSymbolWidth + 32) / 16, 3)}rem` }}
           className={clsx(
-            readonly ? 'bg-bg cursor-not-allowed' : '',
+            readonly ? 'bg-main cursor-not-allowed' : '',
             {
               'border-green-700 border-2': selected,
               'border-red-400 border-2! focus:border-red-400': isError,

@@ -44,7 +44,7 @@ export function SimpleSelect<T extends OptionBase>({ options, value, defValue, o
             {isOpen ? <BsChevronUp /> : <BsChevronDown />}
         </div>
         {isOpen && (
-            <div className={cn("mt-1 absolute bg-bg overflow-hidden z-50 top-full w-full right-0 flex flex-col rounded-sm border-board border", listClassName)}>
+            <div className={cn("mt-1 absolute bg-main overflow-hidden z-50 top-full w-full right-0 flex flex-col rounded-sm border-board border", listClassName)}>
                 {options.map(item => (
                     <div
                         key={typeof item === 'string' ? item : item.key}

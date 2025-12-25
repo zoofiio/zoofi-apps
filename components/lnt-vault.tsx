@@ -26,6 +26,7 @@ import { useSetState, useToggle } from 'react-use'
 import { toast } from 'sonner'
 import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
+import { LntNodeSvg, LvtNodeSvg } from './anim-svg'
 import { TX, TxConfig, Txs, withTokenApprove } from './approve-and-tx'
 import { BridgeToken } from './bridge-token'
 import { Fees } from './fees'
@@ -40,23 +41,21 @@ import { SimpleTabs } from './simple-tabs'
 import { ConfigChainsProvider } from './support-chains'
 import { TokenInput } from './token-input'
 import { BBtn, BBtn2, Swap } from './ui/bbtn'
+import { LgBoardBloom, LgBoardBloom2 } from './ui/effects'
 import { NumInput } from './ui/num-input'
 import { ProgressBar } from './ui/progress'
-import { Tip } from './ui/tip'
-import { LgBoardBloom, LgBoardBloom2 } from './ui/effects'
-import { LntNodeSvg, LvtNodeSvg } from './anim-svg'
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
   const vd = useLntVault(vc)
-  const withdrawPrice = vd.result?.aVT ?? 0n
+  const withdrawPrice = vd.data?.aVT ?? 0n
   const maxSelected = 30;
   const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
   const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
   const chainId = vc.deposit?.chain ?? vc.chain
   const mVault = vc.deposit?.vault ?? vc.vault
-  const nfts = useErc721Balance(chainId, vd.result!.NFT, vc.nftBalanceBy)
-  const vt = getTokenBy(vd.result!.VTbyDeposit ?? vd.result!.VT, chainId, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, chainId, { symbol: 'YT' })!
+  const nfts = useErc721Balance(chainId, vd.data!.NFT, vc.nftBalanceBy)
+  const vt = getTokenBy(vd.data!.VTbyDeposit ?? vd.data!.VT, chainId, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.data!.YT, chainId, { symbol: 'YT' })!
   const { data: outAmountVT } = useQuery({
     ...useCalcKey(['calcLntDeposit', chainId, tokenIds]),
     initialData: 0n,
@@ -81,7 +80,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
       toast.error(`Up to ${maxSelected}`)
     } else {
       const snft: { [tokenId: string]: boolean } = {}
-      nfts.result.filter(item => !selectedNft[item.toString()]).slice(0, maxSelected - tokenIds.length).forEach(item => {
+      nfts.data.filter(item => !selectedNft[item.toString()]).slice(0, maxSelected - tokenIds.length).forEach(item => {
         snft[item] = true
       })
       console.info('onClickAll:', snft, selectedNft, tokenIds)
@@ -117,9 +116,9 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     </div>
     <div className='w-full h-72 overflow-y-auto text-sm'>
       <div className='w-full gap-2 grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))]'>
-        {nfts.result.map(id => (
+        {nfts.data.map(id => (
           <div key={id.toString()}
-            className={cn('flex rounded-xl bg-bg border px-4 py-3 border-transparent gap-1 items-center justify-between cursor-pointer', { 'border-primary': selectedNft[id.toString()] })}
+            className={cn('flex rounded-xl bg-main border px-4 py-3 border-transparent gap-1 items-center justify-between cursor-pointer', { 'border-primary': selectedNft[id.toString()] })}
             onClick={() => onClickOne(id)}
           >
             #{id.toString()}
@@ -139,7 +138,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
       <div className='text-left'>
         {vc.isZeroG ? `Get ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol} immediately Remaining portion will be distributed on BSC` :
-          `1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
+          `1 License = ${displayBalance(vd.data?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
         {`Operation Fees : ${vc.depositFees ?? '5%'}`}
@@ -166,17 +165,17 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
   const vd = useLntVault(vc)
   const chainId = vc.deposit?.chain ?? vc.chain
   const mVault = vc.deposit?.vault ?? vc.vault
-  const vt = getTokenBy(vd.result!.VTbyDeposit ?? vd.result!.VT, chainId, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, chainId, { symbol: 'YT' })!
+  const vt = getTokenBy(vd.data!.VTbyDeposit ?? vd.data!.VT, chainId, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.data!.YT, chainId, { symbol: 'YT' })!
   const ytBalance = useBalance(vc.ytEnable ? yt : undefined)
   const vtBalance = useBalance(vt)
-  const maxByYT = floor(toNumber(fmtBn(ytBalance.result, yt.decimals)))
-  const avt = vd.result?.aVT ?? 0n
-  const maxByVT = toNumber((avt > 0n ? vtBalance.result / avt : 0n).toString())
-  const maxByActive = toNumber((vd.result?.activeDepositCount ?? 0n).toString())
+  const maxByYT = floor(toNumber(fmtBn(ytBalance.data, yt.decimals)))
+  const avt = vd.data?.aVT ?? 0n
+  const maxByVT = toNumber((avt > 0n ? vtBalance.data / avt : 0n).toString())
+  const maxByActive = toNumber((vd.data?.activeDepositCount ?? 0n).toString())
   const [count, setCount] = useState(0)
   const max = vc.ytEnable ? min([maxByYT, maxByVT, maxByActive])! : min([maxByVT, maxByActive])!
-  const withdrawPrice = vd.result?.aVT ?? 0n
+  const withdrawPrice = vd.data?.aVT ?? 0n
   const outAmountVT = withdrawPrice * BigInt(count);
   const withdrawStat = useLntVaultWithdrawState(vc)
   return <div className='flex flex-col gap-5 items-center p-5 pt-8 font-sec'>
@@ -188,7 +187,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
       </>}
       <TokenInput tokens={[vt]} disable amount={fmtBn(outAmountVT, vt.decimals)} />
       <div className='mt-4 text-sm opacity-60'>
-        {`1 License = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
+        {`1 License = ${displayBalance(vd.data?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       {!withdrawStat.inWindow && withdrawStat.nWindow &&
         <div className='text-sm opacity-60 text-center'>
@@ -206,7 +205,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
         onTxSuccess={() => {
           onSuccess()
         }}
-        disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.result || !withdrawStat.inWindow}
+        disabled={count <= 0 || max <= 0 || count > max || outAmountVT < 0n || outAmountVT > vtBalance.data || !withdrawStat.inWindow}
         txs={[{
           abi: abiLntVault,
           address: mVault,
@@ -221,15 +220,15 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
   const r = useRouter()
   const vd = useLntVault(vc)
   const logs = useLntVaultLogs(vc)
-  const itemClassname = "flex gap-1 font-medium text-xs shrink-0 justify-between md:justify-center md:flex-col"
-  const itemTitClassname = "opacity-60 font-sec"
+  const itemClassname = "flex gap-1 font-medium text-xs shrink-0 justify-between md:justify-center md:flex-col md:text-sm"
+  const itemTitClassname = "opacity-60 font-sec font-normal text-xs"
   const vtTotalSupply = useVTTotalSupply(vc)
   // const yt = getTokenBy(vd.result?.YT, vc.chain, { symbol: 'YT' })
   // const ytTotalSupply = useTotalSupply(vc.ytEnable ? yt : undefined)
-  const t = getTokenBy(vd.result?.T, vc.chain, { symbol: 'T' })
+  const t = getTokenBy(vd.data?.T, vc.chain, { symbol: 'T' })
   const { remainStr, endTimeStr } = useLntVaultTimes(vc)
   const chain = useCurrentChain()
-  const vtApy = calcVtApy(vc, vd.result, logs.result)
+  const vtApy = calcVtApy(vc, vd.data, logs.data)
   return (
     <div className={cn(
       'animitem card overflow-hidden flex p-4 items-center justify-between cursor-pointer overflow-x-auto',
@@ -249,7 +248,7 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
               <div>{displayBalance(vtTotalSupply ?? 0n, undefined, t?.decimals)}</div>
             </> : <>
               <div className={itemTitClassname}>Total Deposited</div>
-              <div>{displayBalance(vd.result?.activeDepositCount ?? 0n, 0, 0)}</div>
+              <div>{displayBalance(vd.data?.activeDepositCount ?? 0n, 0, 0)}</div>
             </>
           }
         </div>
@@ -259,20 +258,20 @@ export function LNTVaultCard({ vc }: { vc: LntVaultConfig }) {
         </div>
         <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>VT Apy</div>
-          <div className={vtApy >= 0 ? 'text-red-400' : 'text-green-400'}>{formatPercent(vtApy, 2, false)}</div>
+          <div>{formatPercent(vtApy, 2, false)}</div>
         </div>
         <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>Due Date</div>
           {!vd ? '-' : <div className='relative whitespace-nowrap'>
             {endTimeStr}
-            <span className='opacity-60 text-xs absolute top-full right-0 font-sec md:right-[unset] md:left-1/2 md:-translate-x-1/2 '>{remainStr}</span>
+            <span className='opacity-60 font-light text-xs absolute top-full right-0 font-sec md:right-[unset] md:left-1/2 md:-translate-x-1/2 '>{remainStr}</span>
           </div>}
         </div>
         <div className={cn(itemClassname, 'items-center')}>
           <div className={itemTitClassname}>State</div>
-          <div>{!vd ? '-' : vd.result?.closed ? 'Closed' : 'Active'}</div>
+          <div>{!vd ? '-' : vd.data?.closed ? 'Closed' : 'Active'}</div>
         </div>
-        <div className={cn(itemClassname, 'items-center hidden md:flex')}>
+        <div className={cn(itemClassname, 'items-center hidden md:flex border-l border-board')}>
           <BBtn2 className='h-6 w-6 p-0 aspect-square text-xs'><FaAngleRight /></BBtn2>
         </div>
       </div>
@@ -284,14 +283,14 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
   const depositRef = useRef<HTMLButtonElement>(null)
   const withdrawRef = useRef<HTMLButtonElement>(null)
   const vd = useLntVault(vc)
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const withdrawPrice = vd.result?.aVT ?? 0n
-  return <div className=' flex flex-col h-full justify-between shrink-0 gap-6 w-full md:w-fit'>
-    <div className='flex items-center text-sm justify-center whitespace-nowrap'>
-      <span className=''>Total Deposited</span>
-      <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
+  const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
+  const withdrawPrice = vd.data?.aVT ?? 0n
+  return <div className='flex flex-col h-full justify-between shrink-0 gap-6 w-full md:w-fit'>
+    <div className='flex items-center text-sm justify-between gap-5 whitespace-nowrap'>
+      <span className='font-def text-lg font-medium'>Total Deposited</span>
       <span className='opacity-50 ml-1'>Licenses</span>
     </div>
+    <div className='font-def text-xl font-bold text-center'>{displayBalance(vd.data!.activeDepositCount, 0, 0)}</div>
     <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto'>
       <SimpleDialog
         triggerRef={depositRef}
@@ -310,26 +309,9 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
       </SimpleDialog>}
       {
-        vc.isZeroG ? <>
-          <div className='text-sm text-center'>
-            1 License = 854.7 v0G (Max) <Tip>
-              Get {displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol} immediately<br />
-              Remaining portion will be<br />
-              distributed on BSC
-            </Tip>
-          </div>
-          <div className='flex flex-col items-center text-sm'>
-            {/* Claimable : 234.5 v0G */}
-            <span>Claimable : - {vt.symbol}</span>
-            <Txs
-              tx='Claim'
-              txs={[]}
-            />
-          </div>
-        </>
-          : <div className='mt-4 text-sm opacity-60 text-center'>
-            {`1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
-          </div>
+        <div className='mt-4 text-sm opacity-60 text-center'>
+          {`1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
+        </div>
       }
     </div>
 
@@ -339,29 +321,29 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
 export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
   const { progress, remainStr } = useLntVaultTimes(vc)
   const vd = useLntVault(vc)
-  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
+  const t = getTokenBy(vd.data!.T, vc.chain, { symbol: 'T' })!
   const vtTotal = useVTTotalSupply(vc)
   return <div className="animitem card flex gap-2.5 p-2.5 flex-wrap justify-center" >
-    <div className='flex flex-col items-center md:flex-row p-2.5 pr-5 rounded-[10px] gap-5 bg-bg flex-1'>
+    <div className='flex flex-col items-center md:flex-row p-2.5 pr-5 rounded-[10px] gap-5 bg-main flex-1'>
       {vc.isLVT ? <LgBoardBloom2 className='w-55 aspect-square flex justify-center items-center shrink-0'>
         <LvtNodeSvg disableAnim node={<CoinIcon size={"100%"} symbol={vc.projectIcon} className='rounded-full border-2 border-amber-300' />} />
       </LgBoardBloom2> : <LgBoardBloom className='w-55 aspect-square flex justify-center items-center shrink-0'>
         <LntNodeSvg disableAnim node={<CoinIcon size={"100%"} symbol={vc.projectIcon} className='rounded-full border-2 border-green-300' />} />
       </LgBoardBloom>}
       <div className="flex flex-col gap-3 min-w-80">
-        <div className="leading-10 text-base font-semibold">{vc.tit}</div>
-        <div className="opacity-60 text-sm font-medium leading-normal whitespace-pre-wrap font-sec">{vc.info}</div>
+        <div className="leading-10 text-xl font-medium">{vc.tit}</div>
+        <div className="opacity-60 text-sm leading-normal whitespace-pre-wrap font-sec">{vc.info}</div>
         <div className='h-px bg-board' />
-        <div className=''>
-          <div className='flex justify-between mb-2'>Duration <span className='font-sec opacity-60'>{remainStr}</span></div>
+        <div className='text-sm'>
+          <div className='flex justify-between mb-2'>Duration <span className='text-xs font-sec opacity-60'>{remainStr}</span></div>
           <ProgressBar progress={progress} />
         </div>
       </div >
     </div>
-    <div className='p-5 gap-5 rounded-[10px] bg-bg'>
+    <div className='p-5 gap-5 rounded-[10px] bg-main font-sec'>
       {(vc.isFil || vc.isSei) && <div className='flex flex-col h-full items-center justify-between shrink-0 gap-2 md:gap-10 w-full pt-5 my-auto md:pt-10 px-5 md:px-10 md:w-fit'>
-        <span className=''>Total Locked</span>
-        <div className='font-bold'> {displayBalance(vtTotal, undefined, t.decimals)}</div>
+        <span className='font-def text-lg font-medium'>Total Locked</span>
+        <div className='font-bold font-def text-xl'> {displayBalance(vtTotal, undefined, t.decimals)}</div>
         <div className='flex items-center gap-2.5'>
           <TokenIcon token={t} size={20} />
           {t.symbol}
@@ -383,28 +365,28 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const [inputAsset, setInputAsset] = useState(vc.isIdle ? '1' : '')
   const inputAssetBn = parseEthers(inputAsset)
   const [isToggled, toggle] = useToggle(true)
-  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
+  const t = getTokenBy(vd.data!.T, vc.chain, { symbol: 'T' })!
+  const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.data!.YT, vc.chain, { symbol: 'YT' })!
   const swapTo = type == 'vt' ? vt : yt;
   const input = isToggled ? swapTo : t;
   const output = isToggled ? t : swapTo;
   const inputBalance = useBalance(input);
   const outputBalance = useBalance(output);
-  const [token0, token1] = useMemo(() => uniSortTokens([vd.result!.T, vd.result!.VT]), [vd.result])
+  const [token0, token1] = useMemo(() => uniSortTokens([vd.data!.T, vd.data!.VT]), [vd.data])
   const poolkey = useLntHookPoolkey(vc)
   const zeroForOne = isAddressEqual(input.address, token0)
   const { data: outAmount, isFetching: isFetchingCalc } = useQuery({
-    ...useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, zeroForOne, vc.chain, poolkey.result, isToggled]),
+    ...useCalcKey([`calcKey:swapVTYT:${type}`, inputAsset, zeroForOne, vc.chain, poolkey.data, isToggled]),
     initialData: 0n,
     queryFn: async () => {
       if (type == 'yt') return 0n
       const pc = getPC(vc.chain)
-      if (!vd.result || inputAssetBn <= 0n || !poolkey.result) return 0n
-      console.info('vd:', vd.result)
+      if (!vd.data || inputAssetBn <= 0n || !poolkey.data) return 0n
+      console.info('vd:', vd.data)
       // if (vc.isAethir || vc.isZeroG) {
       return pc.readContract({
-        abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: isToggled ? 'getAmountOutVTforT' : 'getAmountOutTforVT',
+        abi: abiLntVTSwapHook, address: vd.data!.vtSwapPoolHook, functionName: isToggled ? 'getAmountOutVTforT' : 'getAmountOutTforVT',
         args: [inputAssetBn],
       })
       // }
@@ -420,28 +402,28 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
     }
   })
   let fees = '-'
-  if (logs.result && logs.result.Feerate > DECIMAL) {
-    fees = `${fmtPercent(logs.result.Feerate - DECIMAL, 18, 3)}`
+  if (logs.data && logs.data.Feerate > DECIMAL) {
+    fees = `${fmtPercent(logs.data.Feerate - DECIMAL, 18, 3)}`
   }
   let swapPrice = '-'
   let priceimpcat = '-'
   let apy = 0
   let apyto = 0
   if (type == 'vt') {
-    const tPriceVt = calcTPriceVT(vc, vd.result, logs.result)
+    const tPriceVt = calcTPriceVT(vc, vd.data, logs.data)
     if (tPriceVt > 0) {
-      const tPriceVtAfter = calcTPriceVT(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
+      const tPriceVtAfter = calcTPriceVT(vc, vd.data, logs.data, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
       swapPrice = isToggled ? `1 ${vt.symbol} = ${round(1 / tPriceVt, 2)} ${t.symbol}` : `1 ${t.symbol} = ${round(tPriceVt, 2)} ${vt.symbol}`
       if (tPriceVt > 0) {
         priceimpcat = formatPercent(Math.abs(tPriceVtAfter - tPriceVt) / tPriceVt)
       }
-      apy = calcVtApy(vc, vd.result, logs.result)
-      apyto = calcVtApy(vc, vd.result, logs.result, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
+      apy = calcVtApy(vc, vd.data, logs.data)
+      apyto = calcVtApy(vc, vd.data, logs.data, isToggled ? -outAmount : inputAssetBn, isToggled ? inputAssetBn : -outAmount)
       console.info("SwapVT:", tPriceVt, tPriceVtAfter, apy, apyto)
     }
   }
   // const outAmount = 0n
-  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result || outAmount <= 0n || !poolkey.result
+  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.data || outAmount <= 0n || !poolkey.data
   return <div className='flex flex-col gap-1 font-sec'>
     <TokenInput tokens={[input]} disable={vc.isIdle} amount={inputAsset} setAmount={setInputAsset} />
     <Swap onClick={() => toggle()} />
@@ -466,7 +448,7 @@ function SwapVTYT({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
         approveName: `Approve ${input.symbol}`,
         executeName: `Swap ${input.symbol} for ${output.symbol}`,
         chainId: vc.chain,
-        poolkey: poolkey.result!,
+        poolkey: poolkey.data!,
         amountIn: inputAssetBn,
         is0To1: zeroForOne
       })}
@@ -483,9 +465,9 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const { address } = useAccount()
   const vd = useLntVault(vc)
   const poolkey = useLntHookPoolkey(vc)
-  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
+  const t = getTokenBy(vd.data!.T, vc.chain, { symbol: 'T' })!
+  const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.data!.YT, vc.chain, { symbol: 'YT' })!
 
   const [input1Asset, setInput1Asset] = useState('')
   const input1AssetBn = parseEthers(input1Asset)
@@ -493,8 +475,8 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const input2AssetBn = parseEthers(input2Asset)
   const input1 = t;
   const input2 = type == 'vt' ? vt : yt;
-  const output = type == 'vt' ? getTokenBy(vd.result!.vtSwapPoolHook, vc.chain, { symbol: 'lpTVT' })! : getTokenBy(vc.lpTYT, vc.chain, { symbol: 'lpTYT' })!;
-  const [token0, token1] = useMemo(() => uniSortTokens([vd.result!.T, type == 'vt' ? vd.result!.VT : vd.result!.YT]), [type, vd.result])
+  const output = type == 'vt' ? getTokenBy(vd.data!.vtSwapPoolHook, vc.chain, { symbol: 'lpTVT' })! : getTokenBy(vc.lpTYT, vc.chain, { symbol: 'lpTYT' })!;
+  const [token0, token1] = useMemo(() => uniSortTokens([vd.data!.T, type == 'vt' ? vd.data!.VT : vd.data!.YT]), [type, vd.data])
   const token0IsInput1 = isAddressEqual(token0, input1.address)
   const input1Balance = useBalance(input1);
   const input2Balance = useBalance(input2);
@@ -527,9 +509,9 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       console.info('calcLPAdd1:', inputIsToken0, inputAmount)
       if (type == 'vt') {
         const [liq0, liq1, totalShares] = await Promise.all([
-          pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve0' }),
-          pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve1' }),
-          pc.readContract({ abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'totalSupply' }),
+          pc.readContract({ abi: abiLntVTSwapHook, address: vd.data!.vtSwapPoolHook, functionName: 'reserve0' }),
+          pc.readContract({ abi: abiLntVTSwapHook, address: vd.data!.vtSwapPoolHook, functionName: 'reserve1' }),
+          pc.readContract({ abi: erc20Abi, address: vd.data!.vtSwapPoolHook, functionName: 'totalSupply' }),
         ])
         console.info('liq0,liq1:', fmtBn(liq0), fmtBn(liq1))
         if (liq0 == 0n || liq1 == 0n) {
@@ -556,23 +538,23 @@ function LPAdd({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   })
 
   const outAmount = liquidity
-  const disableTx = type !== 'vt' || input1AssetBn <= 0n || input1AssetBn > input1Balance.result || input2AssetBn <= 0n || input2AssetBn > input2Balance.result
+  const disableTx = type !== 'vt' || input1AssetBn <= 0n || input1AssetBn > input1Balance.data || input2AssetBn <= 0n || input2AssetBn > input2Balance.data
   const outLoading = isFetchingOut && input1AssetBn > 0n
   const txs = async () => {
     if (type == 'yt') {
-      return encodeModifyLP({ chainId: vc.chain, lp: vd.result!.vtSwapPoolHook, poolkey: poolkey.result!, liquidity, amount0Max, amount1Max, })
+      return encodeModifyLP({ chainId: vc.chain, lp: vd.data!.vtSwapPoolHook, poolkey: poolkey.data!, liquidity, amount0Max, amount1Max, })
     }
     // struct AddLiquidityParams {uint256 amount0Desired;uint256 amount1Desired;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
     return withTokenApprove({
       approves: [
-        { spender: vd.result!.vtSwapPoolHook, token: input1.address, amount: input1AssetBn },
-        { spender: vd.result!.vtSwapPoolHook, token: input2.address, amount: input2AssetBn },
+        { spender: vd.data!.vtSwapPoolHook, token: input1.address, amount: input1AssetBn },
+        { spender: vd.data!.vtSwapPoolHook, token: input2.address, amount: input2AssetBn },
       ],
       user: address!,
       pc: getPC(vc.chain),
       tx: {
         name: 'Add Liquidity',
-        abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'addLiquidity', args: [{
+        abi: abiLntVTSwapHook, address: vd.data!.vtSwapPoolHook, functionName: 'addLiquidity', args: [{
           amount0Desired: token0IsInput1 ? input1AssetBn : input2AssetBn,
           amount1Desired: token0IsInput1 ? input2AssetBn : input1AssetBn,
           amount0Min: 0n,
@@ -619,13 +601,13 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const poolkey = useLntHookPoolkey(vc)
   const [inputAsset, setInputAsset] = useState('')
   const inputAssetBn = parseEthers(inputAsset)
-  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
-  const input = type == 'vt' ? getTokenBy(vd.result!.vtSwapPoolHook, vc.chain, { symbol: 'lpTVT' })! : getTokenBy(vc.lpTYT, vc.chain, { symbol: 'lpTYT' })!;
+  const t = getTokenBy(vd.data!.T, vc.chain, { symbol: 'T' })!
+  const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
+  const yt = getTokenBy(vd.data!.YT, vc.chain, { symbol: 'YT' })!
+  const input = type == 'vt' ? getTokenBy(vd.data!.vtSwapPoolHook, vc.chain, { symbol: 'lpTVT' })! : getTokenBy(vc.lpTYT, vc.chain, { symbol: 'lpTYT' })!;
   const output1 = t;
   const output2 = type == 'vt' ? vt : yt;
-  const [token0, token1] = useMemo(() => uniSortTokens([vd.result!.T, type == 'vt' ? vd.result!.VT : vd.result!.YT]), [type, vd.result])
+  const [token0, token1] = useMemo(() => uniSortTokens([vd.data!.T, type == 'vt' ? vd.data!.VT : vd.data!.YT]), [type, vd.data])
   const output1IsToken0 = isAddressEqual(token0, output1.address)
   const inputBalance = useBalance(input);
   const inputTotalSupply = useTotalSupply(input)
@@ -640,9 +622,9 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
         // return calcRemoveLP({ chainId, pc, token0, token1, token0Decimals: vt.decimals, token1Decimals: t.decimals, fee: vd.result!.vtSwapPoolFee, tickSpacing: vd.result!.vtSwapPoolTickSpacing, hooks: vd.result!.vtSwapPoolHook, inputAmount: inputAssetBn })
       }
       const [liq0, liq1, totalShares] = await Promise.all([
-        pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve0' }),
-        pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'reserve1' }),
-        pc.readContract({ abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'totalSupply' }),
+        pc.readContract({ abi: abiLntVTSwapHook, address: vd.data!.vtSwapPoolHook, functionName: 'reserve0' }),
+        pc.readContract({ abi: abiLntVTSwapHook, address: vd.data!.vtSwapPoolHook, functionName: 'reserve1' }),
+        pc.readContract({ abi: erc20Abi, address: vd.data!.vtSwapPoolHook, functionName: 'totalSupply' }),
       ])
       // const [vtLiq, tLiq] = await pc.readContract({ abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'getVTAndTReserves' })
       if (liq0 == 0n || liq1 == 0n) return [0n, 0n]
@@ -659,17 +641,17 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
   const priceimpcat = 0
   const apy = 1.2
   const apyto = apy
-  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.result
+  const disableTx = type != 'vt' || inputAssetBn <= 0n || inputAssetBn > inputBalance.data
   const txs = (): TxConfig[] => {
     if (type == 'yt') {
-      return encodeModifyLP({ chainId: vc.chain, poolkey: poolkey.result!, lp: vd.result!.vtSwapPoolHook, liquidity: -inputAssetBn, })
+      return encodeModifyLP({ chainId: vc.chain, poolkey: poolkey.data!, lp: vd.data!.vtSwapPoolHook, liquidity: -inputAssetBn, })
     }
     // struct RemoveLiquidityParams {uint256 liquidity;uint256 amount0Min;uint256 amount1Min;uint256 deadline;int24 tickLower;int24 tickUpper;bytes32 userInputSalt;}
     return [
       // { abi: erc20Abi, address: vd.result!.vtSwapPoolHook, functionName: 'approve', args: [vd.result!.vtSwapPoolHook, inputAssetBn] },
       {
         name: 'Remove Liquidity',
-        abi: abiLntVTSwapHook, address: vd.result!.vtSwapPoolHook, functionName: 'removeLiquidity', args: [{
+        abi: abiLntVTSwapHook, address: vd.data!.vtSwapPoolHook, functionName: 'removeLiquidity', args: [{
           liquidity: inputAssetBn,
           amount0Min: 0n,
           amount1Min: 0n,
@@ -681,7 +663,7 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
       }
     ]
   }
-  const poolShare = inputTotalSupply.result > 0n ? inputBalance.result * DECIMAL / inputTotalSupply.result : 0n
+  const poolShare = inputTotalSupply.data > 0n ? inputBalance.data * DECIMAL / inputTotalSupply.data : 0n
   const poolShareStr = `Pool share: ${fmtPercent(poolShare, input.decimals, 2)}`
   return <div className='flex flex-col gap-1'>
     <TokenInput tokens={[input]} amount={inputAsset} setAmount={setInputAsset} error={errorInput} otherInfo={poolShareStr} />
@@ -704,9 +686,9 @@ function LPRemove({ vc, type }: { vc: LntVaultConfig, type: 'vt' | 'yt' }) {
 function VT({ vc }: { vc: LntVaultConfig }) {
   const vd = useLntVault(vc)
   const logs = useLntVaultLogs(vc)
-  const apy = calcVtApy(vc, vd.result, logs.result)
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
+  const apy = calcVtApy(vc, vd.data, logs.data)
+  const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
+  const t = getTokenBy(vd.data!.T, vc.chain, { symbol: 'T' })!
   const { data: walletClient } = useWalletClient()
   const onAddPToken = () => {
     walletClient?.watchAsset({ type: 'ERC20', options: vt }).catch(handleError)
@@ -718,7 +700,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
       <div className='flex p-5 bg-[#A3D395] gap-4 relative'>
         <TokenIcon size={48} token={vt} />
         <div className='flex flex-col gap-3'>
-          <div className='text-xl leading-6 text-black font-semibold'>{vt.symbol}</div>
+          <div className='text-lg font-def leading-6 text-black font-semibold'>{vt.symbol}</div>
           <div className='text-xs leading-none text-black/60 font-medium font-sec'>1 {vt.symbol} is equal to 1 {t.symbol} at maturity</div>
         </div>
         {vc.deposit && <div className='text-sm text-black absolute top-5 right-5 font-sec'>
@@ -729,12 +711,12 @@ function VT({ vc }: { vc: LntVaultConfig }) {
       </div>
       <div className='flex whitespace-nowrap flex-wrap items-baseline justify-between px-2.5 pt-2 gap-2.5 font-sec'>
         <div className='flex justify-between gap-2.5 items-baseline'>
-          <div className="text-lg font-medium">{formatPercent(apy)}</div>
-          <div className="text-xs font-semibold opacity-60">Fixed APY</div>
+          <div className="text-xs font-medium opacity-60">APY Est.</div>
+          <div className="text-lg font-semibold">{formatPercent(apy)}</div>
         </div>
         <div className='flex justify-between gap-2.5 items-baseline'>
-          <div className="text-xs font-semibold opacity-60">Circulation amount</div>
-          <div className="text-lg font-medium">{displayBalance(vtTotal, undefined, vt.decimals)}</div>
+          <div className="text-xs font-medium opacity-60">Total Supply</div>
+          <div className="text-lg font-semibold">{displayBalance(vtTotal, undefined, vt.decimals)}</div>
         </div>
       </div>
       <div className='flex px-2 pb-4'>
@@ -745,7 +727,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
     </div>
     {vc.vtActive ? <SimpleTabs
       listClassName="p-0 gap-3 mb-4"
-      triggerClassName={`text-base font-sec leading-none rounded-[10px] px-4 py-2 bg-bg text-fg/60 data-[state="active"]:bg-[#191F1B] data-[state="active"]:text-primary`}
+      triggerClassName={`text-base font-sec leading-none rounded-[10px] px-4 py-2 bg-card data-[state="active"]:bg-primary/20`}
       data={[
         { tab: 'Swap', content: <SwapVTYT vc={vc} type='vt' /> },
         { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='vt' /> },
@@ -757,8 +739,8 @@ function VT({ vc }: { vc: LntVaultConfig }) {
 function YT({ vc }: { vc: LntVaultConfig }) {
   const { data: walletClient } = useWalletClient()
   const vd = useLntVault(vc)
-  const yt = getTokenBy(vd.result!.YT, vc.chain, { symbol: 'YT' })!
-  const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
+  const yt = getTokenBy(vd.data!.YT, vc.chain, { symbol: 'YT' })!
+  const t = getTokenBy(vd.data!.T, vc.chain, { symbol: 'T' })!
   const onAddPToken = () => {
     walletClient?.watchAsset({ type: 'ERC20', options: yt }).catch(handleError)
   }
@@ -800,8 +782,8 @@ function YT({ vc }: { vc: LntVaultConfig }) {
 export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
   const r = useRouter()
   const vd = useLntVault(vc)
-  const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
-  const vt2 = getTokenBy(vd.result!.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })
+  const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
+  const vt2 = getTokenBy(vd.data!.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })
   const data = [
     { tab: 'Vesting Token', content: <VT vc={vc} /> },
     ...(vc.ytEnable ? [{ tab: 'Yield Token', content: <YT vc={vc} /> }] : []),
@@ -809,7 +791,7 @@ export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
     ...(vt2 ? [{ tab: 'Bridge', content: <BridgeToken config={[vt2, vt]} /> }] : []),
   ]
   const currentTab = data.find(item => tabToSearchParams(item.tab) === tab)?.tab
-  return <div className='animitem card md:min-h-177'>
+  return <div className='animitem card not-dark:bg-main md:min-h-177'>
     <SimpleTabs
       currentTab={currentTab}
       onTabChange={(tab) => toLntVault(r, vc.vault, tab)}

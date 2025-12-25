@@ -56,7 +56,7 @@ export function SimpleDialog({
         >
           {children}
           {!disableClose && <Dialog.Close
-            className={cn('absolute right-4 top-3 cursor-pointer text-base bg-bg p-2.5 hover:shadow shadow-primary rounded-full', closeClassName)}
+            className={cn('absolute right-4 top-3 cursor-pointer text-base bg-main p-2.5 hover:shadow shadow-primary rounded-full', closeClassName)}
           >
             <FaX />
           </Dialog.Close>}

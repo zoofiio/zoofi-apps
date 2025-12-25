@@ -2,6 +2,7 @@
   return this.toString()
 }
 
+import '@fontsource/parkinsans/300.css';
 import '@fontsource/parkinsans/400.css';
 import '@fontsource/parkinsans/500.css';
 import '@fontsource/parkinsans/600.css';
@@ -51,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js?56" defer></Script>
       </head>
-      <body className="bg-bg text-fg">
+      <body className="bg-main text-fg">
         <PageLayout>{children}</PageLayout>
         <div id='tooltip-root' className='fixed left-0 top-0 z-200' />
       </body>

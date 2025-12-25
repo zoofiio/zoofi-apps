@@ -34,7 +34,7 @@ export function useReppoLntVaultNFTs(vc: LntVaultConfig) {
 function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
     const vd = useLntVault(vc)
 
-    const withdrawPrice = vd.result?.aVT ?? 0n
+    const withdrawPrice = vd.data?.aVT ?? 0n
     const maxSelected = 30;
     const [curentNft, setCurrentNft] = useState(vc.reppo!.standard)
     const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
@@ -42,15 +42,15 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
     const chainId = vc.deposit?.chain ?? vc.chain
     const mVault = vc.deposit?.vault ?? vc.vault
     const reppoNfts = useReppoLntVaultNFTs(vc)
-    const standarPrice = reppoNfts.result.find(item => isAddressEqual(item.NFT, vc.reppo!.standard))?.aVT ?? 0n
-    const premiumPrice = reppoNfts.result.find(item => isAddressEqual(item.NFT, vc.reppo!.preminum))?.aVT ?? 0n
+    const standarPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.standard))?.aVT ?? 0n
+    const premiumPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.preminum))?.aVT ?? 0n
     const currentPrice = curentNft == vc.reppo!.standard ? standarPrice : premiumPrice
     const nftsStandard = useErc721Balance(chainId, vc.reppo!.standard, vc.nftBalanceBy)
     const nftsPreminum = useErc721Balance(chainId, vc.reppo!.preminum, vc.nftBalanceBy)
     const vtc = useLntVaultVTC(vc)
     const outAmountVT = (currentPrice - currentPrice * parseEther(vtc.toFixed(6)) / DECIMAL) * BigInt(tokenIds.length)
     const nfts = curentNft == vc.reppo!.standard ? nftsStandard : nftsPreminum
-    const vt = getTokenBy(vd.result!.VTbyDeposit ?? vd.result!.VT, chainId, { symbol: 'VT' })!
+    const vt = getTokenBy(vd.data!.VTbyDeposit ?? vd.data!.VT, chainId, { symbol: 'VT' })!
     const onClickOne = (id: string) => {
         if (selectedNft[id.toString()]) {
             setSelectNft({ [id.toString()]: false })
@@ -70,7 +70,7 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
             toast.error(`Up to ${maxSelected}`)
         } else {
             const snft: { [tokenId: string]: boolean } = {}
-            nfts.result.filter(item => !selectedNft[item.toString()]).slice(0, maxSelected - tokenIds.length).forEach(item => {
+            nfts.data.filter(item => !selectedNft[item.toString()]).slice(0, maxSelected - tokenIds.length).forEach(item => {
                 snft[item] = true
             })
             console.info('onClickAll:', snft, selectedNft, tokenIds)
@@ -119,7 +119,7 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
         </div>
         <div className='w-lg h-72 overflow-y-auto'>
             <div className='w-full gap-2 grid grid-cols-4 '>
-                {nfts.result.map(id => (
+                {nfts.data.map(id => (
                     <div key={id.toString()}
                         className={cn('flex gap-1 items-center cursor-pointer', { 'text-primary': selectedNft[id.toString()] })}
                         onClick={() => onClickOne(id)}
@@ -163,16 +163,16 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
 export function LntVaultDepositReppo({ vc }: { vc: LntVaultConfig }) {
     const depositRef = useRef<HTMLButtonElement>(null)
     const vd = useLntVault(vc)
-    const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
+    const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
     const reppoNfts = useReppoLntVaultNFTs(vc)
-    const standarPrice = reppoNfts.result.find(item => isAddressEqual(item.NFT, vc.reppo!.standard))?.aVT ?? 0n
-    const premiumPrice = reppoNfts.result.find(item => isAddressEqual(item.NFT, vc.reppo!.preminum))?.aVT ?? 0n
-    return <div className=' flex flex-col h-full justify-between shrink-0 gap-6 w-full md:w-fit'>
-        <div className='flex items-center text-sm justify-center whitespace-nowrap'>
-            <span className=''>Total Deposited</span>
-            <span className='ml-8 text-base font-bold'>{displayBalance(vd.result!.activeDepositCount, 0, 0)}</span>
+    const standarPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.standard))?.aVT ?? 0n
+    const premiumPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.preminum))?.aVT ?? 0n
+    return <div className='flex flex-col h-full justify-between shrink-0 gap-6 w-full md:w-fit'>
+        <div className='flex items-center text-sm justify-between whitespace-nowrap'>
+            <span className='font-def text-lg'>Total Deposited</span>
             <span className='opacity-50 ml-1'>Licenses</span>
         </div>
+        <div className='font-def text-xl font-bold text-center'>{displayBalance(vd.data!.activeDepositCount, 0, 0)}</div>
         <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto font-sec'>
             <SimpleDialog
                 triggerRef={depositRef}

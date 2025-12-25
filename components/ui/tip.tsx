@@ -51,7 +51,7 @@ export function Tip({
         </Tooltip.Trigger>
 
         <Tooltip.Portal container={tooltipRoot}>
-          <Tooltip.Content ref={ref} className={cn('max-w-xs text-sm font-sec text-white bg-bg-tip m-shadow-around shadow-bg/20 rounded-md p-4', contentClassName)}>
+          <Tooltip.Content ref={ref} className={cn('max-w-xs text-sm font-sec text-white bg-tip m-shadow-around shadow-bg/20 rounded-md p-4', contentClassName)}>
             {children}
             <Tooltip.Arrow />
           </Tooltip.Content>

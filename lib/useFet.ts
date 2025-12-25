@@ -25,7 +25,7 @@ export type FetStatus = 'idle' | 'fetching' | 'success' | 'error'
 export type FetStat<FET = Fet<any>> = {
   key: string
   status: FetStatus
-  result: FetRes<FET>
+  data: FetRes<FET>
   lastUpDate: number
   error?: Error
 }
@@ -49,7 +49,7 @@ function initFS<FET extends Fet<any>>(fet: FET): FetStat<FET> {
   return {
     key: fet.key,
     status: 'idle',
-    result: (fet as FetWithInit<any>).initResult,
+    data: (fet as FetWithInit<any>).initResult,
     lastUpDate: 0,
   }
 }
@@ -85,7 +85,7 @@ async function runFetImpl<T>(fet: Fet<T>) {
       if (runId !== fets[fet.key].runId) break
       const res = await (isMock ? (typeof mocks[fet.key] == 'function' ? mocks[fet.key]() : mocks[fet.key]) : fet.fetfn())
       if (runId !== fets[fet.key].runId) break
-      fets[fet.key].fs.result = res as any
+      fets[fet.key].fs.data = res as any
       fets[fet.key].fs.lastUpDate = now()
       fets[fet.key].fs.status = 'success'
       emiter.emit(fet.key, fets[fet.key].fs)

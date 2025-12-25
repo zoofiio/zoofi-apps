@@ -61,34 +61,21 @@ function MenusContent({ animitem }: { animitem?: boolean }) {
     const showLntVaultAdmin = useShowLntVaultAdmin()
     const menus = useMemo<MenuItem[]>(() => {
         if (pathname.startsWith("/b-vaults")) {
-            return [{
-                href: '/b-vaults',
-                name: "B-Vault",
-                icon: LuBox,
-                subs: [
-                    { href: '/b-vaults', name: 'B-Vault', icon: LuBox },
-                    { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuCircleUser },
-                    { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuChartLine },
-                    ...(showBvaultAdmin ? [{ href: '/b-vaults/admin', name: 'Admin', icon: LuSettings }] : [])
-                ],
-            }]
+            return [
+                { href: '/b-vaults', name: 'B-Vault', icon: LuBox },
+                { href: '/b-vaults/portfolio', name: 'Portfolio', icon: LuCircleUser },
+                { href: '/b-vaults/dashboard', name: 'Dashboard', icon: LuChartLine },
+                ...(showBvaultAdmin ? [{ href: '/b-vaults/admin', name: 'Admin', icon: LuSettings }] : [])
+            ]
         }
         return [
-            {
-                href: '/lnt',
-                name: "LNT-Vault",
-                icon: LuBox,
-                subs: [
-                    { href: '/lnt/pre-deposit', name: 'Pre-Deposit', icon: LuSquareSquare },
-                    { href: '/lnt/vaults', name: 'LNT-Vault', icon: LuBox, demo: true },
-                    ...(showLntVaultAdmin ? [
-                        { href: '/lnt/ops', name: 'Ops', icon: AiFillApi },
-                        { href: '/lnt/admin', name: 'Admin', icon: LuSettings },
-                    ] : [])
-                ]
-            },
+            { href: '/lnt', name: 'LNT-Vault', icon: LuBox, demo: true },
             { href: '/lvt', name: 'LVT-Vault', icon: LuBoxes, },
             { href: '/portfolio', name: 'Portfolio', icon: LuCircleUser, disabled: true },
+            ...(showLntVaultAdmin ? [
+                { href: '/lnt/ops', name: 'Ops', icon: AiFillApi },
+                { href: '/lnt/admin', name: 'Admin', icon: LuSettings },
+            ] : []),
         ] as MenuItem[]
     }, [showBvaultAdmin, showLntVaultAdmin, pathname])
     return <div className={cn("flex-col gap-2 items-end flex w-full")}>
@@ -116,6 +103,9 @@ export function Menus() {
 
             <Link href={'/'} className="hidden md:block cursor-pointer ml-5 leading-none text-fg/80 border border-board rounded-xl px-3 py-2 hover:border-primary hover:text-primary">
                 {`Home`}
+            </Link>
+            <Link href={'/portfolio'} className="hidden md:block cursor-pointer ml-5 leading-none text-fg/80 border border-board rounded-xl px-3 py-2 hover:border-primary hover:text-primary">
+                {`Portfolio`}
             </Link>
         </div>
         {/* for pc */}

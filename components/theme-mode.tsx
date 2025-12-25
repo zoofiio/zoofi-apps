@@ -67,13 +67,13 @@ export function ThemeMode({ triggerClassName }: { triggerClassName?: string }) {
         {['Light', 'Dark', 'System'].map((item, index) => (
           <div
             key={'theme_mode_' + item}
-            className={cn('flex bg-bg px-4 items-center py-2 gap-3 cursor-pointer font-sec rounded-xl', {
+            className={cn('flex bg-main px-4 items-center py-2 gap-3 cursor-pointer font-sec rounded-xl', {
               'bg-primary/5 text-primary': item.toLowerCase() == ts.themeMode,
             })}
             onClick={() => onClick(item)}
           >
             <div
-              className={cn('text-xl rounded-lg bg-bg w-7 aspect-square flex justify-center items-center', {
+              className={cn('text-xl rounded-lg bg-main w-7 aspect-square flex justify-center items-center', {
                 'bg-primary/10': item.toLowerCase() == ts.themeMode,
               })}>
               {Icons[item.toLowerCase() as 'light' | 'dark' | 'system']}

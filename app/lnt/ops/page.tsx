@@ -38,11 +38,11 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
     const { copyTextToClipboard } = useCopy()
     const vd = useLntVault(vc)
     const data = useFet({
-        key: vd.result ? `AethirOpsManagerData: ${vc.vault}` : '',
+        key: vd.data ? `AethirOpsManagerData: ${vc.vault}` : '',
         fetfn: async () => {
             const pc = getPC(vc.chain)
             // vault nfts
-            const vaultNftCount = await pc.readContract({ abi: erc721Abi, functionName: 'balanceOf', address: vd.result!.NFT, args: [vc.vault] })
+            const vaultNftCount = await pc.readContract({ abi: erc721Abi, functionName: 'balanceOf', address: vd.data!.NFT, args: [vc.vault] })
             const erc721AbiMore = parseAbi([
                 'function tokenIdsOfOwnerByAmount(address owner, uint256 index) view returns(uint256[])'
             ])
@@ -65,7 +65,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
                     }
                 ))).then(flatten)
             }
-            const getVaultNft = async () => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenIdsOfOwnerByAmount', address: vd.result!.NFT, args: [vc.vault, vaultNftCount] }).then(data => data.map(id => id.toString()))
+            const getVaultNft = async () => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenIdsOfOwnerByAmount', address: vd.data!.NFT, args: [vc.vault, vaultNftCount] }).then(data => data.map(id => id.toString()))
             const data = await promiseAll({
                 vaultNft: getVaultNft(),
                 setUsers: getSetUsers(),
@@ -111,8 +111,8 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
         openCofrimOrder: boolean
         filterVaultNftIds?: string
     }>({ delegateTo: '', delegateExpire: (2n ** 63n), openCofrimOrder: false })
-    const delegateToAdd = delegateTo ?? data.result?.opsStats.burners[0]?.burner_wallet ?? ''
-    const delegateIdsStr = delegateIds ?? data.result?.error.join(',') ?? ''
+    const delegateToAdd = delegateTo ?? data.data?.opsStats.burners[0]?.burner_wallet ?? ''
+    const delegateIdsStr = delegateIds ?? data.data?.error.join(',') ?? ''
     const { mutate: orderNodeOps, isPending: isBusyOrder } = useMutation({
         mutationFn: async () => opsOrderAethir(vc.chain, token, 1),
         onError: handleError,
@@ -138,16 +138,16 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
         }
     })
 
-    const bunners = (data.result?.opsStats.burners ?? [])
+    const bunners = (data.data?.opsStats.burners ?? [])
     const bunerCapacity = (planId: string) => {
-        return (data.result?.opsStats.deployments.find(item => item.plan_id == planId)?.no_of_nodes ?? 1) * 100
+        return (data.data?.opsStats.deployments.find(item => item.plan_id == planId)?.no_of_nodes ?? 1) * 100
     }
     const createAt = (planId: string) => {
-        return data.result?.opsStats.deployments.find(item => item.plan_id == planId)?.start_date ?? '-'
+        return data.data?.opsStats.deployments.find(item => item.plan_id == planId)?.start_date ?? '-'
     }
-    const vaultNfts = (data.result?.vaultNft ?? []).reverse()
-    const inBunnerNftMap = data.result?.inBunnerNftMap ?? {}
-    const inSetUsersMap = data.result?.inSetUsersMap ?? {}
+    const vaultNfts = (data.data?.vaultNft ?? []).reverse()
+    const inBunnerNftMap = data.data?.inBunnerNftMap ?? {}
+    const inSetUsersMap = data.data?.inSetUsersMap ?? {}
     const inSetUsers = (id: string) => {
         return inSetUsersMap[id] && bunners.find(buner => isAddressEqual(buner.burner_wallet, inSetUsersMap[id].user))
     }
@@ -177,10 +177,10 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
     return <div className={cn(itemClassName, 'gap-5')}>
         <div className=" font-semibold text-2xl">{vc.tit}</div>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-5">
-            <NumItem tit="Vault Deposited" num={data.result?.vaultNft.length} numClassName="" />
-            <NumItem tit="Delegate Success" num={data.result?.success.length} numClassName="text-green-500" />
-            <NumItem tit="Delegate Pending" num={data.result?.pending.length} numClassName="text-yellow-500" />
-            <NumItem tit="Not Delegate" num={data.result?.error.length} numClassName="text-red-500" />
+            <NumItem tit="Vault Deposited" num={data.data?.vaultNft.length} numClassName="" />
+            <NumItem tit="Delegate Success" num={data.data?.success.length} numClassName="text-green-500" />
+            <NumItem tit="Delegate Pending" num={data.data?.pending.length} numClassName="text-yellow-500" />
+            <NumItem tit="Not Delegate" num={data.data?.error.length} numClassName="text-red-500" />
         </div>
         <div className={cn(itemClassName, 'overflow-x-auto')}>
             <div className="font-semibold text-xl">{"BurnerList"}</div>
@@ -203,16 +203,16 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
         </div>
         <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Rewards">
             <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
-                <NumItem tit="Un Claim" num={displayBalance(parseEther(data.result?.rewards.claimable_ath ?? '0'))} numClassName="" />
-                <NumItem tit="Claimed" num={displayBalance(data.result?.rewards.totalClaimed)} numClassName="text-yellow-500" />
-                <NumItem tit="Un Withdraw" num={displayBalance(data.result?.rewards.pendingClaimed)} numClassName="text-red-500" />
-                <NumItem tit="Withdrawal" num={displayBalance(data.result?.rewards.withdrawAmount)} numClassName="text-green-500" />
-                <NumItem tit="Claim Fee" num={5 * (data.result?.rewards.claims.length ?? 0)} numClassName="text-orange-500" />
+                <NumItem tit="Un Claim" num={displayBalance(parseEther(data.data?.rewards.claimable_ath ?? '0'))} numClassName="" />
+                <NumItem tit="Claimed" num={displayBalance(data.data?.rewards.totalClaimed)} numClassName="text-yellow-500" />
+                <NumItem tit="Un Withdraw" num={displayBalance(data.data?.rewards.pendingClaimed)} numClassName="text-red-500" />
+                <NumItem tit="Withdrawal" num={displayBalance(data.data?.rewards.withdrawAmount)} numClassName="text-green-500" />
+                <NumItem tit="Claim Fee" num={5 * (data.data?.rewards.claims.length ?? 0)} numClassName="text-orange-500" />
             </div>
             <div>Un withdraw list:</div>
             <STable
                 header={['OrderID', 'Amount', 'Claim At', 'Can Withdraw At']}
-                data={(data.result?.rewards.claims ?? []).filter(item => !data.result?.rewards.withdrawsOrderIds.includes(item.orderId)).map((item, i) => [
+                data={(data.data?.rewards.claims ?? []).filter(item => !data.data?.rewards.withdrawsOrderIds.includes(item.orderId)).map((item, i) => [
                     `${item.orderId}`,
                     displayBalance(item.amount),
                     fmtDate(item.time * 1000, FMT.ALL),
@@ -307,7 +307,7 @@ export default function Page() {
             opsToken ? <>
                 <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Admins">
                     <div className="p-5 rounded-sm bg-primary/10">
-                        {JSON.stringify(admins.result, undefined, 2)}
+                        {JSON.stringify(admins.data, undefined, 2)}
                     </div>
                     <input className={cn(inputClassname)} value={modifyAdd} onChange={(e) => setModifyAdd(e.target.value)} />
                     <SimpleSelect options={modifytypes} onChange={setModifyType} />

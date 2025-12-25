@@ -23,7 +23,7 @@ export function LntVaultActivity({ vc }: { vc: LntVaultConfig }) {
     })
     return <div className="flex flex-col gap-4 card">
         <div className="animitem font-medium text-2xl leading-none">Activity</div>
-        <div className='animitem card bg-bg overflow-x-auto font-sec'>
+        <div className='animitem card bg-main overflow-x-auto font-sec'>
             {
                 isLoading(data) && <div className="flex justify-center items-center pt-10 w-full h-[765px]"><Spinner /></div>
             }
@@ -31,7 +31,7 @@ export function LntVaultActivity({ vc }: { vc: LntVaultConfig }) {
                 isSuccess(data) &&
                 <STable
                     header={["License ID", "Activity", "From/to", "Time"]}
-                    data={data.result.items.map((item) => [
+                    data={data.data.items.map((item) => [
                         `#${item.tokenId}`,
                         <div key={'action'} className={item.type == 'Deposit' ? 'text-green-500' : 'text-red-500'}>{item.type == 'Deposit' ? item.type : 'Withdraw'}</div>,
                         `${shortStr(item.user)}`,

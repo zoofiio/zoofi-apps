@@ -27,7 +27,10 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
       {isError(vd) && 'Opps! Network Error!'}
       {isLoading(vd) && <Spinner className="mt-10 mx-auto text-black dark:text-white" />}
       {isSuccess(vd) && <>
-        <BBtn2 className='w-fit gap-0.5 text-xs' onClick={() => r.push(vc.isLVT ? '/lvt' : '/lnt')}><FaAngleLeft /> {vc.isLVT ? 'LVT-Vault' : 'LNT-Vault'}</BBtn2>
+        <div className='flex w-full justify-between gap-5 items-center'>
+          <BBtn2 className='w-fit gap-0.5 text-xs' onClick={() => r.push(vc.isLVT ? '/lvt' : '/lnt')}><FaAngleLeft /> {vc.isLVT ? 'LVT-Vault' : 'LNT-Vault'}</BBtn2>
+          {vc.reppo && <BBtn2 className='w-fit gap-0.5 text-xs' onClick={() => r.push('/lnt/pre-deposit')}> {'Pre Deposit'}</BBtn2>}
+        </div>
         <LNTTestHeader vc={vc} />
         <LNTAethirHeader vc={vc} />
         <LNTInfo vc={vc} />
@@ -41,6 +44,10 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
     </div>
   )
 }
+
+
+export const lntDesc = `LNT (Liquid Node Token) Vault is a decentralized protocol designed to facilitate the issuance and management of node-based assets through Non-Fungible Tokens (NFTs) and derivative financial instruments.`
+export const lvtDesc = `LVT (Liquid Vesting Token) Vault is a smart new way to make locked-up tokens in crypto projects tradeable right away, without breaking the rules or the project's long-term plans.`
 
 export default function Vaults({ type = 'lnt' }: { type?: 'lnt' | 'lvt' }) {
   const vcs = (LNTVAULTS_CONFIG).filter(item => {
@@ -64,8 +71,7 @@ export default function Vaults({ type = 'lnt' }: { type?: 'lnt' | 'lvt' }) {
           <>
             <div className='page-title'>{type.toUpperCase()}-Vaults</div>
             <div className='font-sec mx-auto mt-4 text-center text-fg/60 flex flex-col gap-5 px-4 md:max-w-250 md:px-10 md:block'>
-              {type == 'lnt' ? `LNT (Liquid Node Token) Vault is a decentralized protocol designed to facilitate the issuance and management of node-based assets through Non-Fungible Tokens (NFTs) and derivative financial instruments.`
-                : `LVT (Liquid Vesting Token) Vault is a smart new way to make locked-up tokens in crypto projects tradeable right away, without breaking the rules or the project's long-term plans.`}
+              {type == 'lnt' ? lntDesc : lvtDesc}
               <Link href={`https://docs.zoofi.io/${type}-vault/background`}
                 target='_blank'
                 className='text-fg underline underline-offset-2 ml-5'>{`Learn More>`}</Link>

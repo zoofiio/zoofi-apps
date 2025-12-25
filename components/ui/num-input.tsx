@@ -53,7 +53,7 @@ export function NumInput({
     }
     const mvalue = clampValue(value)
 
-    return <div className={cn("flex gap-5 items-center select-none p-4 bg-bg rounded-xl", className)}>
+    return <div className={cn("flex gap-5 items-center select-none p-4 bg-main rounded-xl", className)}>
         <span className="mr-auto">{title}</span>
         <div className={cn("shrink-0 text-2xl rounded-full bg-primary/80 cursor-pointer ", { 'cursor-not-allowed bg-fg/10': !isNil(min) && mvalue <= min }, btnClassName, subClassName)}
             onClick={() => setNewValue((mvalue ?? 0) - step)}>

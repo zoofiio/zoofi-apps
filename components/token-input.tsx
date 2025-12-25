@@ -73,7 +73,7 @@ export function TokenInput({
   const mShowBalance = showBalance && !disable
   const mCheckBalance = checkBalance && !disable
   const tokenBalance = useBalance(mShowBalance ? token : undefined)
-  const balance = tokenBalance.result;
+  const balance = tokenBalance.data;
   const inputRef = useRef<HTMLInputElement>(null)
   const balanceInsufficient = mCheckBalance && parseEthers(`${amount ?? '0'}`, token.decimals) > balance
   const isError = Boolean(error) || balanceInsufficient
@@ -81,7 +81,7 @@ export function TokenInput({
   if (options.length == 0) return null
   return (
     <div
-      className={cn('relative w-full flex flex-col p-4 gap-4 font-sec border border-transparent bg-bg rounded-xl m-shadow-around', {
+      className={cn('relative w-full flex flex-col p-4 gap-4 font-sec border border-transparent bg-main rounded-xl m-shadow-around', {
         ' border-green-700': selected,
         ' border-red-400 has-focus:shadow-red-400/40': isError,
         ' has-focus:border-primary has-focus:shadow-primary/40': !isError && !selected,

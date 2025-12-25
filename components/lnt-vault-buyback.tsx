@@ -32,8 +32,8 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
     const buybackPool = vc.buybackPool ?? vc.vault;
     const { address: user } = useAccount()
     const vd = useLntVault(vc)
-    const t = getTokenBy(vd.result!.T, vc.chain, { symbol: 'T' })!
-    const vt = getTokenBy(vd.result!.VT, vc.chain, { symbol: 'VT' })!
+    const t = getTokenBy(vd.data!.T, vc.chain, { symbol: 'T' })!
+    const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
     const vtBalance = useBalance(vt)
     const [input, setAmount] = useState<string>()
     const inputBn = parseEthers(input || '0', vt.decimals)
@@ -51,13 +51,13 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
             })
         }
     })
-    const pots = buybackDatas.result?.pots ?? []
-    const vestingRate = aarToNumber(buybackDatas.result?.VestingRate ?? 0n, 18)
+    const pots = buybackDatas.data?.pots ?? []
+    const vestingRate = aarToNumber(buybackDatas.data?.VestingRate ?? 0n, 18)
     const price = `Conversion ratio : 1 ${vt.symbol} = ${round((1 - vestingRate), 2)} ${t.symbol}`
 
     // nextBuyback
     const nextBuyback = getNextBatch(vc)
-    const minStakeAmountVT = buybackDatas.result?.minStakeAmountVT ?? 0n
+    const minStakeAmountVT = buybackDatas.data?.minStakeAmountVT ?? 0n
 
     // pendingSale
     const pendinSale = useFet({
@@ -87,7 +87,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
     })
     const getJoinTxs: TXSType = async ({ pc, wc }) => {
         if (inputBn < minStakeAmountVT) throw new Error("Stake amount too small")
-        if (inputBn > vtBalance.result) throw new Error("Balance too low")
+        if (inputBn > vtBalance.data) throw new Error("Balance too low")
         return withTokenApprove({
             pc, user: wc.account.address,
             approves: [{ spender: buybackPool, token: vt.address, amount: inputBn }],
@@ -100,7 +100,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         })
     }
     const getWithdrawTxs: TXSType = async ({ pc, wc }) => {
-        if (inputBn > userPendingSale.result) throw new Error("Input amount too large")
+        if (inputBn > userPendingSale.data) throw new Error("Input amount too large")
         return [{
             abi: abiLntBuyback,
             address: buybackPool,
@@ -118,11 +118,11 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         }))
     }
     return <div className="flex flex-col gap-4 w-full text-sm">
-        <div className="font-sec overflow-hidden bg-size-[100%_100%] animitem text-sm font-semibold flex items-center justify-between gap-4 py-2 px-4 rounded-xl border border-board bg-[url(/bg_buyback.png)] bg-no-repeat">
-            <span className="max-w-50 text-base">You can gradually convert VT to T here.</span>
+        <div className="font-sec overflow-hidden animitem text-sm font-semibold flex items-center justify-between gap-4 py-2 px-4 rounded-xl border border-board bg-size-[100%_100%] bg-[url(/bg_buyback.png)] not-dark:bg-[url(/bg_buyback2.png)] bg-no-repeat">
+            <span className="max-w-55 text-base">You can gradually convert VT to T here.</span>
             <Link href={'https://docs.zoofi.io/lnt-vault/product-design/how-does-lnt-work/vt-value-anchoring'}
                 target="_blank"
-                className="hover:text-primary font-normal">{`Read more>`}</Link>
+                className="hover:text-primary not-dark:opacity-60 font-normal">{`Read more>`}</Link>
         </div>
         <div className="font-sec animitem flex flex-wrap justify-between items-center gap-3 whitespace-nowrap">
             <div className="flex gap-2 items-center p-2 border border-board rounded-lg flex-1 basis-0">
@@ -134,7 +134,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
             </div>
             <div className="flex gap-4 items-center p-2 border border-board rounded-lg flex-1 basis-0">
                 <div className="text-fg/60">Total Request</div>
-                <div className="font-medium ml-auto">{displayBalance(pendinSale.result, undefined, vt.decimals)}</div>
+                <div className="font-medium ml-auto">{displayBalance(pendinSale.data, undefined, vt.decimals)}</div>
                 <Tip>If the amount of VT in the pool exceeds the rewards for the current batch, participating users will receive settlement on a pro-rata basis. The remaining VT will continue to wait for the next batch of redemption until fully converted.</Tip>
             </div>
         </div>
@@ -146,11 +146,11 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
             checkBalance={false}
             otherInfo={<div className="flex items-center gap-2 ml-auto">
                 <span>
-                    Pending : {displayBalance(userPendingSale.result, undefined, vt.decimals)}
+                    Pending : {displayBalance(userPendingSale.data, undefined, vt.decimals)}
                 </span>
                 <button
                     className='text-primary ml-2'
-                    onClick={() => setAmount(formatUnits(userPendingSale.result, vt.decimals))}
+                    onClick={() => setAmount(formatUnits(userPendingSale.data, vt.decimals))}
                 >
                     Max
                 </button>
@@ -164,9 +164,9 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         <div className="flex items-center gap-5">
             <div className="flex justify-between px-3 py-2 rounded-xl items-center flex-1 border border-board h-12">
                 <span className="text-fg/60">Settled</span>
-                {displayBalance(userSeltted.result, undefined, t.decimals)}
+                {displayBalance(userSeltted.data, undefined, t.decimals)}
             </div>
-            <Txs tx="Claim" className="w-fit" disabled={userSeltted.result == 0n} txs={getCalimTxs} />
+            <Txs tx="Claim" className="w-fit" disabled={userSeltted.data == 0n} txs={getCalimTxs} />
         </div>
     </div>
 }

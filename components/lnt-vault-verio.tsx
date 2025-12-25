@@ -20,7 +20,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     const vd = useLntVault(vc)
     const chainId = vc.chain
     const mVault = vc.vault
-    const vt = getTokenBy(vd.result!.VT ?? vd.result!.VT, chainId, { symbol: 'VT' })!
+    const vt = getTokenBy(vd.data!.VT ?? vd.data!.VT, chainId, { symbol: 'VT' })!
     const asset = getTokenBy(vc.asset, chainId, { symbol: 'vIP' })!
     const [input, setInput] = useState('')
     const inputBn = parseEthers(input, asset.decimals)
@@ -37,7 +37,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
             }
         })
     }
-    const outAmountVT = inputBn * vd.result!.aVT / DECIMAL
+    const outAmountVT = inputBn * vd.data!.aVT / DECIMAL
     return <div className='flex flex-col gap-5 items-center p-5'>
         <div>Deposit</div>
         <TokenInput tokens={[asset]} amount={input} setAmount={setInput} />
@@ -47,7 +47,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
         </div>
         <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
             <div className='text-left'>
-                {`1 vIP(Verio IP) = ${displayBalance(vd.result?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
+                {`1 vIP(Verio IP) = ${displayBalance(vd.data?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
             </div>
             <div>
                 
@@ -67,7 +67,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
     const chainId = vc.deposit?.chain ?? vc.chain
     const mVault = vc.deposit?.vault ?? vc.vault
     const asset = getTokenBy(vc.asset, chainId, { symbol: 'vIP' })!
-    const vt = getTokenBy(vd.result!.VT, chainId, { symbol: 'vIP' })!
+    const vt = getTokenBy(vd.data!.VT, chainId, { symbol: 'vIP' })!
     const [input, setInput] = useState('')
     const inputBn = parseEthers(input, vt.decimals)
     const vtBalance = useBalance(vt)
@@ -91,7 +91,7 @@ function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: ()
             onTxSuccess={() => {
                 onSuccess()
             }}
-            disabled={inputBn <= 0n || inputBn > vtBalance.result}
+            disabled={inputBn <= 0n || inputBn > vtBalance.data}
             txs={[{
                 abi: abiLntVault,
                 address: mVault,
@@ -108,9 +108,9 @@ export function LVTDepositWithdrawVerio({ vc }: { vc: LntVaultConfig }) {
     // const withdrawRef = useRef<HTMLButtonElement>(null)
     const vd = useLntVault(vc)
     const asset = getTokenBy(vc.asset, vc.chain, { symbol: 'vIP' })!
-    return <div className=' flex flex-col items-center h-full justify-between shrink-0 gap-5 w-full md:w-fit min-w-75'>
-        <span className=''>Total Locked</span>
-        <div className='font-bold'> {displayBalance(vd.result?.activeDepositCount, undefined, asset.decimals)}</div>
+    return <div className='flex flex-col items-center h-full justify-between shrink-0 gap-5 w-full md:w-fit min-w-75'>
+        <span className='font-def text-lg font-medium'>Total Locked</span>
+        <div className='font-bold font-def text-xl'> {displayBalance(vd.data?.activeDepositCount, undefined, asset.decimals)}</div>
         <div className='flex items-center gap-2.5'>
             <TokenIcon token={asset} size={20} />
             {asset.symbol}

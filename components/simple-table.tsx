@@ -46,7 +46,7 @@ export const STable = ({
   const cols = header.reduce<number>((sum, _item, i) => sum + (span[i] ?? 1), 0);
   const baseSize = cols > 0 ? 100 / cols : 0;
   return (
-    <table className={cn('relative w-full bg-transparent ', className)}>
+    <table className={cn('relative w-full bg-transparent text-sm', className)}>
       <thead className=''>
         <tr
           className={cn(
@@ -77,7 +77,7 @@ export const STable = ({
             onMouseLeave={() => onRowMouseHover && onRowMouseHover(-1)}
             style={typeof rowStyle == 'function' ? rowStyle(index) : rowStyle}
             className={cn(
-              'font-medium whitespace-nowrap',
+              'whitespace-nowrap',
               onClickRow ? 'cursor-pointer' : '',
               typeof rowClassName == 'function' ? rowClassName(index) : rowClassName,
             )}

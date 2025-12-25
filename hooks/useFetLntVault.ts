@@ -3,13 +3,13 @@ import { getLntVaultSwapFee7Days } from '@/config/api'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { getTokenBy } from '@/config/tokens'
-import { DECIMAL, DECIMAL_10, YEAR_SECONDS } from '@/constants'
+import { DECIMAL, YEAR_SECONDS } from '@/constants'
 import { useFet } from '@/lib/useFet'
 import { aarToNumber, FMT, fmtDate, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
-import { Address, erc20Abi, erc721Abi, parseEther, PublicClient, toHex, zeroAddress } from 'viem'
+import { Address, erc20Abi, erc721Abi, PublicClient, toHex, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useBalance, useTotalSupply } from './useToken'
 
@@ -136,10 +136,10 @@ export function useLntVaultYTRewards(vc: LntVaultConfig) {
   const vd = useLntVault(vc)
   const { address } = useAccount()
   const rewards = useFet({
-    key: FET_KEYS.LntVaultYTRewards(vc, vd.result?.YT, address),
+    key: FET_KEYS.LntVaultYTRewards(vc, vd.data?.YT, address),
     fetfn: async () => {
       const pc = getPC(vc.chain)
-      return getRewardsBy(vd.result!.YT, address!, pc)
+      return getRewardsBy(vd.data!.YT, address!, pc)
     },
   })
   if (vd.status === 'fetching') {
@@ -152,7 +152,7 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   const vd = useLntVault(vc)
   const nowtime = round(now() / 1000)
   const startTime = toNumber((vc.startTime ?? 0n).toString())
-  const endTime = toNumber((vd.result?.expiryTime ?? 0n).toString())
+  const endTime = toNumber((vd.data?.expiryTime ?? 0n).toString())
   const progress = endTime > startTime ? Math.min(Math.max(((nowtime - startTime) * 100) / (endTime - startTime), 0), 100) : 100
   const progressPercent = `${round(progress, 2)}%`
   const remain = fmtDuration((endTime - nowtime) * 1000)
@@ -193,19 +193,19 @@ export function useLntVaultWithdrawWindows(vc: LntVaultConfig) {
 export function useLntVaultWithdrawState(vc: LntVaultConfig) {
   const withdarwWindows = useLntVaultWithdrawWindows(vc)
   const nowtime = nowUnix()
-  const inWindowI = withdarwWindows.result.findIndex((item) => item.startTime <= nowtime && nowtime <= item.startTime + item.duration)
+  const inWindowI = withdarwWindows.data.findIndex((item) => item.startTime <= nowtime && nowtime <= item.startTime + item.duration)
   const inWindow = !vc.RedeemStrategy || inWindowI >= 0
   return {
     inWindow: inWindow,
-    wWindow: inWindow ? (vc.RedeemStrategy ? withdarwWindows.result[inWindowI] : undefined) : undefined,
-    nWindow: inWindowI < 0 ? withdarwWindows.result.find((item) => item.startTime > nowtime) : undefined,
+    wWindow: inWindow ? (vc.RedeemStrategy ? withdarwWindows.data[inWindowI] : undefined) : undefined,
+    nWindow: inWindowI < 0 ? withdarwWindows.data.find((item) => item.startTime > nowtime) : undefined,
   }
 }
 
 export function calcTPriceVT(
   vc: LntVaultConfig,
-  vd: ReturnType<typeof useLntVault>['result'],
-  logs: ReturnType<typeof useLntVaultLogs>['result'],
+  vd: ReturnType<typeof useLntVault>['data'],
+  logs: ReturnType<typeof useLntVaultLogs>['data'],
   tChange: bigint = 0n,
   vtChange: bigint = 0n,
 ) {
@@ -222,15 +222,15 @@ export function calcTPriceVT(
   return tPriceVt
 }
 
-export function calcLntVaultYearsExpiry(vd: ReturnType<typeof useLntVault>['result']) {
+export function calcLntVaultYearsExpiry(vd: ReturnType<typeof useLntVault>['data']) {
   if (!vd || vd.expiryTime <= nowUnix()) return 0
   return aarToNumber(((vd.expiryTime - nowUnix()) * 10000n) / YEAR_SECONDS, 4)
 }
 
 export function calcVtApy(
   vc: LntVaultConfig,
-  vd: ReturnType<typeof useLntVault>['result'],
-  logs: ReturnType<typeof useLntVaultLogs>['result'],
+  vd: ReturnType<typeof useLntVault>['data'],
+  logs: ReturnType<typeof useLntVaultLogs>['data'],
   tChange: bigint = 0n,
   vtChange: bigint = 0n,
 ) {
@@ -242,7 +242,7 @@ export function calcVtApy(
   return apy
 }
 
-export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>['result'], logs: ReturnType<typeof useLntVaultLogs>['result'], swapfee7days: bigint = 0n) {
+export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>['data'], logs: ReturnType<typeof useLntVaultLogs>['data'], swapfee7days: bigint = 0n) {
   let apyFromVT = 0
   let apyFromSwap = 0
   let apyFromAirdrop = 0
@@ -274,14 +274,14 @@ export function calcLPApy(vc: LntVaultConfig, vd: ReturnType<typeof useLntVault>
 
 export function useVTTotalSupply(vc: LntVaultConfig) {
   const vd = useLntVault(vc)
-  const vtTotalSupply = useTotalSupply(getTokenBy(vd.result?.VT, vc.chain, { symbol: 'VT' }))
+  const vtTotalSupply = useTotalSupply(getTokenBy(vd.data?.VT, vc.chain, { symbol: 'VT' }))
   // byDeposit (other chain)
-  const vtByDeposit = getTokenBy(vd.result?.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })
+  const vtByDeposit = getTokenBy(vd.data?.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })
   const vtByDepositTotal = useTotalSupply(vtByDeposit)
 
   // adapter locked
   const vtAdapterLocked = useBalance(vtByDeposit, vc.deposit?.vtAdapter)
-  return vtTotalSupply.result + vtByDepositTotal.result - vtAdapterLocked.result
+  return vtTotalSupply.data + vtByDepositTotal.data - vtAdapterLocked.data
 }
 
 export function useLntDepsoitFee(vc: LntVaultConfig) {

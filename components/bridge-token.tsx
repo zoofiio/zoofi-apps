@@ -45,7 +45,7 @@ export function BridgeToken({ config, adapters }: {
     const inputBn = parseEthers(input, from.decimals)
     const balance = useBalance(from)
     const renderChain = (chain: Chain, label: string) => {
-        return <div className="flex gap-3 relative px-4 pt-8 py-6 items-center rounded-lg bg-bg border border-board text-sm">
+        return <div className="flex gap-3 relative px-4 pt-8 py-6 items-center rounded-lg bg-main border border-board text-sm">
             <img src={(chain as any).iconUrl} className="w-5 h-5 rounded-full" />
             <div className="font-medium whitespace-nowrap">{chain.name}</div>
             <div className="absolute left-2 top-2 px-2 text-xs">{label}</div>

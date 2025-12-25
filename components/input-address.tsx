@@ -37,7 +37,7 @@ export function AddressInput({
           type='text'
           disabled={disable}
           className={cn(
-            'bg-bg border border-board',
+            'bg-main border border-board',
             readonly ? 'cursor-not-allowed' : '',
             'w-full h-14 text-right px-4 font-bold text-sm border focus:border-primary rounded-xl outline-none',
             {

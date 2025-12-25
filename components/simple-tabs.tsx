@@ -42,7 +42,7 @@ export function SimpleTabs({
           <Tabs.Trigger
             key={item.tab}
             className={cn(
-              'cursor-pointer text-sm py-1.5 px-0 text-fg/50 data-[state="active"]:font-medium data-[state="active"]:text-fg',
+              'cursor-pointer font-normal text-sm py-1.5 px-0 text-fg/50 data-[state="active"]:font-medium data-[state="active"]:text-fg',
               typeof triggerClassName == 'function' ? triggerClassName(i) : triggerClassName,
             )}
             value={item.tab}
