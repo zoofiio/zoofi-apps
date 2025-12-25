@@ -726,6 +726,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
       </div>
     </div>
     {vc.vtActive ? <SimpleTabs
+      className='animitem'
       listClassName="p-0 gap-3 mb-4"
       triggerClassName={`text-base font-sec leading-none rounded-[10px] px-4 py-2 bg-card data-[state="active"]:bg-primary/20`}
       data={[
@@ -733,7 +734,7 @@ function VT({ vc }: { vc: LntVaultConfig }) {
         { tab: 'Add Liquidity', content: <LPAdd vc={vc} type='vt' /> },
         { tab: 'Remove Liquidity', content: <LPRemove vc={vc} type='vt' /> },
       ]}
-    /> : <div className='w-full py-[150px] text-center text-base font-semibold'>Swap Coming Soon</div>}
+    /> : <div className='animitem w-full py-[150px] text-center text-base font-semibold'>Swap Coming Soon</div>}
   </div>
 }
 function YT({ vc }: { vc: LntVaultConfig }) {

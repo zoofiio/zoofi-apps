@@ -161,7 +161,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
             <Txs tx="Request" disabled={inputBn <= 0n} txs={getJoinTxs} />
             <Txs tx="Withdraw" disabled={inputBn <= 0n} txs={getWithdrawTxs} />
         </div>
-        <div className="flex items-center gap-5">
+        <div className="animitem flex items-center gap-5">
             <div className="flex justify-between px-3 py-2 rounded-xl items-center flex-1 border border-board h-12">
                 <span className="text-fg/60">Settled</span>
                 {displayBalance(userSeltted.data, undefined, t.decimals)}

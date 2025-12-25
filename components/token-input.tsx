@@ -81,7 +81,7 @@ export function TokenInput({
   if (options.length == 0) return null
   return (
     <div
-      className={cn('relative w-full flex flex-col p-4 gap-4 font-sec border border-transparent bg-main rounded-xl m-shadow-around', {
+      className={cn('relative w-full flex flex-col p-4 gap-4 font-sec border border-transparent bg-card dark:bg-main rounded-xl m-shadow-around', {
         ' border-green-700': selected,
         ' border-red-400 has-focus:shadow-red-400/40': isError,
         ' has-focus:border-primary has-focus:shadow-primary/40': !isError && !selected,

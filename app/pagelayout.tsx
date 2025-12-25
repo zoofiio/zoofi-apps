@@ -23,7 +23,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
         <Providers>
           <Header />
           <Menus />
-          <div className='w-screen h-screen overflow-auto flex justify-center relative'>
+          <div className='w-screen h-screen overflow-y-auto overflow-x-hidden flex justify-center relative'>
             {/* {children} */}
             {children}
           </div>
