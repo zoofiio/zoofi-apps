@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,2423,i=>{"use strict";var t=i.i(29743),n=i.i(989846),o=i.i(751755);function r({children:i}){return(0,t.jsx)(n.ConfigChainsProvider,{chains:[o.berachain.id],children:i})}BigInt.prototype.toJSON=function(){return this.toString()},i.s(["default",()=>r])}]);
