@@ -230,3 +230,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     </>,
   },
 ]
+
+
+export const LntConfigs = LNTVAULTS_CONFIG.filter(item => !item.isLVT)
+export const LvtConfigs = LNTVAULTS_CONFIG.filter(item => item.isLVT)

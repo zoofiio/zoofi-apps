@@ -28,6 +28,7 @@ input[type='number'] {
   --fg: #ffffff;
   --board: #252525;
   --primary: #1eca53;
+  
  
 }
 .light {
@@ -50,6 +51,7 @@ input[type='number'] {
   --color-board: var(--board);
   --color-primary: var(--primary);
   --breakpoint-slg: 56rem;
+  --backgroundImage-error: linear-gradient(274.04deg, rgba(255, 133, 151, 0.16) -17.72%, rgba(255, 58, 88, 0.16) 113.66%);
 }
 
 

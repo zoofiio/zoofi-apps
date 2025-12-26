@@ -100,8 +100,8 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
             }
         ]
     }
-    return <div className='flex flex-col gap-5 items-center p-5'>
-        <div className='w-full text-start font-medium flex items-center justify-between'>Licenses ID
+    return <div className='flex flex-col gap-5 items-center p-5 font-sec'>
+        <div className='w-full text-start font-medium flex items-center justify-between font-def'>Licenses ID
             <div className="flex ml-auto items-center gap-5 mr-10">
                 <div className={cn("cursor-pointer underline-offset-4", { 'underline': curentNft === vc.reppo!.standard })}
                     onClick={() => {
@@ -129,12 +129,12 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
                     </div>))}
             </div>
         </div>
-        <BBtn className='' onClick={onClickAll}>Select All</BBtn>
+        <BBtn className='max-w-sm' onClick={onClickAll}>Select All</BBtn>
         <div className='flex flex-col gap-1 w-full'>
             <div className='w-full'>Receive</div>
             <TokenInput tokens={[vt]} loading={false} disable amount={fmtBn(outAmountVT, vt.decimals)} />
         </div>
-        <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
+        <div className='text-xs opacity-60 text-center flex justify-between gap-5 w-full'>
             <div className='text-left'>
                 {`1 License = ${displayBalance(currentPrice, undefined, vt.decimals)} ${vt.symbol}`}
             </div>

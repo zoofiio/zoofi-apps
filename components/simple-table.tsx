@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { floor } from 'es-toolkit/compat'
-import React, { CSSProperties, ReactNode } from 'react'
+import { CSSProperties, ReactNode } from 'react'
 
 export interface TableProps {
   header: ReactNode[]

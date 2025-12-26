@@ -2,9 +2,7 @@
 import { abiLntVault } from "@/config/abi/abiLNTVault";
 import { abiRewardManager } from "@/config/abi/abiRewardManager";
 import { LntVaultConfig } from "@/config/lntvaults";
-import { getChainName } from "@/config/network";
 import { getTokenBy, Token } from "@/config/tokens";
-import { useCurrentChainId } from "@/hooks/useCurrentChainId";
 import { calcLPApy, calcVtApy, useLntVault, useLntVaultLogs, useLntVaultSwapFee7Days } from "@/hooks/useFetLntVault";
 import { useBalance } from "@/hooks/useToken";
 import { reFet } from "@/lib/useFet";
@@ -18,8 +16,6 @@ import { CoinAmount } from "./coin-amount";
 import { TokenIcon } from "./icons/tokenicon";
 import STable from "./simple-table";
 import { Tip } from "./ui/tip";
-import { toLntVault } from "@/app/routes";
-import { useRouter } from "next/navigation";
 const claimColSize = 1.3;
 const statuColSize = 1.6
 
@@ -38,7 +34,6 @@ function TokenSymbol({ t, size = 32, className }: { t?: Token, size?: number, cl
 
 
 function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
-    const chainId = useCurrentChainId()
     const { address } = useAccount()
     const data: ReactNode[][] = []
     const fVcs: LntVaultConfig[] = []
@@ -46,28 +41,18 @@ function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
         const vd = useLntVault(vc)
         const logs = useLntVaultLogs(vc)
         const apy = calcVtApy(vc, vd.data, logs.data)
-        const vt = getTokenBy(vd.data?.VT, chainId, { symbol: 'VT' })!
-        const vt2 = getTokenBy(vd.data?.VTbyDeposit, vc.deposit?.chain, { symbol: 'VT' })!
-        const t = getTokenBy(vd.data?.T, chainId, { symbol: 'T' })!
+        const vt = getTokenBy(vd.data?.VT, vc.chain, { symbol: 'VT' })
+        const t = getTokenBy(vd.data?.T, vc.chain, { symbol: 'T' })!
         const vtBalance = useBalance(vt)
-        const vt2Balance = useBalance(vt2)
         const matureTime = vd.data?.expiryTime ?? 2051193600n
         const isMature = nowUnix() > matureTime
         const isDisableClaim = !isMature || vtBalance.data <= 0n || !address
-        if (!filter || (vtBalance.data > 0n || vt2Balance.data > 0n)) {
+        if ((!filter || vtBalance.data > 0n) && vt) {
             fVcs.push(vc)
             data.push([
                 <TokenSymbol key={'vt'} t={vt} />,
                 <Fragment key={'vtValue'}>
-                    {vt2 ? <Tip node={<div className="underline underline-offset-2">{displayBalance(vtBalance.data + vt2Balance.data, undefined, vt.decimals)}</div>}>
-                        <div>
-                            {getChainName(vc.chain)}: {displayBalance(vtBalance.data, undefined, vt.decimals)}
-                        </div>
-                        <div>
-                            {getChainName(vc.deposit!.chain)}: {displayBalance(vt2Balance.data, undefined, vt.decimals)}
-                        </div>
-                    </Tip>
-                        : displayBalance(vtBalance.data, undefined, vt.decimals)}
+                    {displayBalance(vtBalance.data, undefined, vt.decimals)}
                 </Fragment>,
                 formatPercent(apy),
                 isMature ? 'Mature' : 'Active',
@@ -94,12 +79,12 @@ function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
             // onClickRow={filter ? (i) => toLntVault(r, fVcs[i].vault) : undefined}
             span={{ 2: statuColSize, 3: 2, [header.length - 1]: claimColSize }}
             data={data}
+
         />
     </div>
 }
 
 function LP({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
-    const chainId = useCurrentChainId()
     const { address } = useAccount()
     const data: ReactNode[][] = []
     for (const vc of vcs) {
@@ -107,10 +92,10 @@ function LP({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
         const logs = useLntVaultLogs(vc)
         const swapfee7days = useLntVaultSwapFee7Days(vc)
         const { apy, items } = calcLPApy(vc, vd.data, logs.data, swapfee7days.data)
-        const lpTVT = getTokenBy(vd.data?.vtSwapPoolHook, chainId, { symbol: 'lpTVT' })!
+        const lpTVT = getTokenBy(vd.data?.vtSwapPoolHook, vc.chain, { symbol: 'lpTVT' })
         const lpTVTBalance = useBalance(lpTVT)
         const disableClaim = !vc.lpYields
-        if (!filter || lpTVTBalance.data > 0n) {
+        if ((!filter || lpTVTBalance.data > 0n) && lpTVT) {
             data.push([
                 <TokenSymbol key={'lpTVT'} t={lpTVT} />,
                 displayBalance(lpTVTBalance.data, undefined, lpTVT.decimals),
@@ -146,10 +131,10 @@ function LP({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
     </div>
 }
 
-export function LntMyPositions({ vc, filter }: { vc: LntVaultConfig | LntVaultConfig[], filter?: boolean }) {
+export function LntMyPositions({ vc, filter, tit }: { vc: LntVaultConfig | LntVaultConfig[], filter?: boolean, tit?: string }) {
     const vcs = flatten([vc])
     return <div className="flex flex-col gap-4 card not-dark:bg-main">
-        <div className="font-medium text-lg leading-none">My Positions</div>
+        <div className="font-medium text-lg leading-none">{tit ?? 'My Positions'}</div>
         <div className="flex flex-col gap-2.5">
             <VT vcs={vcs} filter={filter} />
             <LP vcs={vcs} filter={filter} />
