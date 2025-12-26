@@ -16,9 +16,6 @@ import { CoinAmount } from "./coin-amount";
 import { TokenIcon } from "./icons/tokenicon";
 import STable from "./simple-table";
 import { Tip } from "./ui/tip";
-const claimColSize = 1.3;
-const statuColSize = 1.6
-
 const MCoinAmount = ({ ...p }: Parameters<typeof CoinAmount>[0]) => {
     return <CoinAmount className="font-bold text-sm" symbolClassName="opacity-100" {...p} />
 }
@@ -32,7 +29,7 @@ function TokenSymbol({ t, size = 32, className }: { t?: Token, size?: number, cl
 }
 
 
-
+const span = { 0: 2, 4: 2.8 }
 function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
     const { address } = useAccount()
     const data: ReactNode[][] = []
@@ -77,7 +74,7 @@ function VT({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
             rowClassName='text-left text-sm leading-none'
             header={header}
             // onClickRow={filter ? (i) => toLntVault(r, fVcs[i].vault) : undefined}
-            span={{ 2: statuColSize, 3: 2, [header.length - 1]: claimColSize }}
+            span={span}
             data={data}
 
         />
@@ -106,7 +103,6 @@ function LP({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
                 </Tip>,
                 '',
                 '',
-                '',
                 disableClaim ? '' : <Txs
                     onTxSuccess={() => reFet(vd.key, lpTVTBalance.key)}
                     key="claim"
@@ -117,7 +113,7 @@ function LP({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
             ])
         }
     }
-    const header = ['LP', 'Value', 'APY', '', '', '', '']
+    const header = ['LP', 'Value', 'APY', '', '', '']
     return <div className="animitem card overflow-x-auto font-sec">
         <STable
             headerClassName='text-left font-semibold border-b-0'
@@ -125,7 +121,7 @@ function LP({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
             cellClassName={(_i, ci) => ci == 0 ? 'py-2 px-0' : 'py-2 px-4'}
             rowClassName='text-left text-sm leading-none'
             header={header}
-            span={{ 2: statuColSize, [header.length - 1]: claimColSize }}
+            span={span}
             data={data}
         />
     </div>
