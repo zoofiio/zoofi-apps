@@ -20,7 +20,7 @@ export function LntNodeSvg({ node, disableAnim }: { node?: ReactNode, disableAni
                 </foreignObject>
             </g>}
         <defs>
-            <linearGradient id="paint0_linear_57_1167" x1="184" y1="183" x2="184" y2="283" gradientUnits="userSpaceOnUse">
+            <linearGradient id="paint0_linear_57_1167" x1="184" y1="113" x2="184" y2="283" gradientUnits="userSpaceOnUse">
                 <stop stopColor="#006A1F" stopOpacity="0" />
                 <stop offset="1" stopColor="#1ECA53" />
             </linearGradient>
@@ -50,7 +50,7 @@ export function LvtNodeSvg({ node, disableAnim = false }: { node?: ReactNode, di
             </g>
         }
         <defs>
-            <linearGradient id="paint_0_linear_57_1168" x1="184" y1="183" x2="184" y2="283" gradientUnits="userSpaceOnUse">
+            <linearGradient id="paint_0_linear_57_1168" x1="184" y1="179" x2="184" y2="349" gradientUnits="userSpaceOnUse">
                 <stop stopColor="#8C6F00" stopOpacity="0" />
                 <stop offset="1" stopColor="#FDD849" />
             </linearGradient>
