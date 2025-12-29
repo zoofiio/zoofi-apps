@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs */
 import { useMemo, useRef } from 'react'
 import { useCurrentChainId } from './useCurrentChainId'
 

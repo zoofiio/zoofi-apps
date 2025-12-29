@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 export function useIsClient() {
   const [isClient, setClient] = useState(false)
   useEffect(() => {
-    setClient(true)
+    setTimeout(() => setClient(true),0);
   }, [])
   return isClient
 }

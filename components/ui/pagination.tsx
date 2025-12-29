@@ -35,13 +35,6 @@ export function Pagination({ className, itemClassname, currentPage = 1, pages = 
 }
 
 
-export function usePagination<T>(list: T[], pagesize: number = 20) {
-    const datas = chunk(list, pagesize)
-    const pages = datas.length;
-    const [currentPage, setCurrentPage] = useState(1)
-    return useMemo(() => ({ datas, pages, currentPage, onPageChange: (page: number) => setCurrentPage(page) }), [list, pagesize, pages, currentPage])
-}
-
 export function usePaginationByTotal(total: number, pagesize: number = 20) {
     const [currentPage, setCurrentPage] = useState(1)
     return useMemo(() => ({ pages: Math.ceil(total / pagesize), currentPage, onPageChange: (page: number) => setCurrentPage(page) }), [currentPage, total, pagesize])

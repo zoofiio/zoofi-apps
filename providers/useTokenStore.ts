@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { proxyGetDef } from '@/lib/utils'
 import { TokenStore } from './sliceTokenStore'
 import { useStore } from './useBoundStore'

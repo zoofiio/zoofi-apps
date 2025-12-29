@@ -52,6 +52,6 @@ export function useInitAnimRoot(classname: string = 'animitem') {
     onChange()
     mo.observe(root.current, { subtree: true, childList: true })
     return () => mo.disconnect()
-  }, [root.current])
+  }, [])
   return root
 }
