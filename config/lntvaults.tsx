@@ -210,7 +210,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     protocol: '0xa341e92b22b1a2c94b24163eae09aed34e8ea134',
     protocalSettings: '0x056e530679857dbd884f7a9bd71e6b8a76909181',
     vtSwapHook: '0x3362cb23043cb5e7c52711c5763c69fd513a3a88',
-    onEnv: ['test'],
+    onEnv: ['test','prod'],
     buyback: true,
     buybackPool: '0x8bf32a9603859235cdaf32e8201982a6cdcf411a',
     lpTYT: zeroAddress,
