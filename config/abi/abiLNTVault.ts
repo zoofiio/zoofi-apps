@@ -208,3 +208,12 @@ export const abiLvtVerio = parseAbi([
   'function calculateIPWithdrawal(uint256 verioIPToBurn) public view returns (uint256)',
   'function calculateVerioIPMint(uint256 ipAmount) public view returns (uint256)',
 ])
+
+export const abi0GMarginAccount = parseAbi([
+  'function stake() external payable',
+  'function unstake(uint256 amount) external',
+  'function updateUnstakeStartTime(uint256 newStartTime) external',
+  'function totalStakeAmount() public view returns (uint256)',
+  'function userStakeAmount(address user) public view returns (uint256)',
+  'function unstakeStartTime() public view returns (uint256)',
+])

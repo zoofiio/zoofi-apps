@@ -4,6 +4,7 @@ import { LNT_VT_YT, LNTAethirHeader, LNTInfo, LNTVaultCard } from '@/components/
 import { LntVaultActivity } from '@/components/lnt-vault-activity'
 import LntVaultChart from '@/components/lnt-vault-chart'
 import { LntMyPositions } from '@/components/lnt-vault-positions'
+import { Lnt0gHeader } from '@/components/lnt-vualt-0g'
 import { PageWrap } from '@/components/page-wrap'
 import { Spinner } from '@/components/spinner'
 import { ConfigChainsProvider } from '@/components/support-chains'
@@ -30,7 +31,8 @@ function LntVaultPage({ vc, tab }: { vc: LntVaultConfig; tab?: string }) {
         <div className='flex flex-wrap w-full justify-between gap-5 items-center'>
           <BBtn2 className='w-fit gap-0.5 text-xs whitespace-nowrap' onClick={() => r.push(vc.isLVT ? '/lvt' : '/lnt')}><FaAngleLeft /> {vc.isLVT ? 'LVT-Vault' : 'LNT-Vault'}</BBtn2>
           {vc.reppo && <BBtn2 className='w-fit gap-0.5 text-xs' onClick={() => r.push('/lnt/pre-deposit')}> {'Pre Deposit'}</BBtn2>}
-          <LNTAethirHeader vc={vc} />
+          {vc.isAethir && <LNTAethirHeader vc={vc} />}
+          {vc.isZeroG && <Lnt0gHeader vc={vc} />}
         </div>
         <LNTInfo vc={vc} />
         <div className='grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4'>

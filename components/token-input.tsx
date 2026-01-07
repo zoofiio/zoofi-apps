@@ -39,7 +39,7 @@ export function TokenInput({
 }: {
   tokens: Token[],
   checkBalance?: boolean
-  balance?: boolean
+  balance?: boolean | bigint
   balanceTit?: string
   readonly?: boolean
   selected?: boolean
@@ -70,10 +70,10 @@ export function TokenInput({
       onTokenChange?.(options[0].data)
     }
   }, [token, options])
-  const mShowBalance = showBalance && !disable
+  const mShowBalance = showBalance !== false && !disable
   const mCheckBalance = checkBalance && !disable
-  const tokenBalance = useBalance(mShowBalance ? token : undefined)
-  const balance = tokenBalance.data;
+  const tokenBalance = useBalance(mShowBalance && typeof showBalance !== 'bigint' ? token : undefined)
+  const balance = typeof showBalance === 'bigint' ? showBalance : tokenBalance.data;
   const inputRef = useRef<HTMLInputElement>(null)
   const balanceInsufficient = mCheckBalance && parseEthers(`${amount ?? '0'}`, token.decimals) > balance
   const isError = Boolean(error) || balanceInsufficient

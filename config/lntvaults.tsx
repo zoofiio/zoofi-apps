@@ -47,7 +47,11 @@ export type LntVaultConfig = {
     standard: Address
     preminum: Address
   }
-
+  // 0g margin account
+  marginAccount?: {
+    margin: Address
+    input: Address
+  }
   // is
   isFil?: boolean
   isVerio?: boolean
@@ -59,7 +63,7 @@ export type LntVaultConfig = {
 export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
   {
     chain: zeroGmainnet.id,
-    nftBalanceBy: 'anker',
+    nftBalanceBy: 'zoofi',
     vault: '0x218f0dcefd23b464388fc2c6da6ba72e84cedf5e',
     asset: '0x18e56e7b120c7CBD06117A36E94E61a932A5A302',
     protocol: '0x9cfd768c1047d20456ab7333e135c16efd0ae4d2',
@@ -79,10 +83,15 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     disWithdrawNFT: true,
     buybackPool: '0xda407f56296305b93eabdd1cf22742ea160fb4a9',
     vtSwapHook: '0x0c9a6b7b7176e002ced0b46246ed25f9cded7a88',
+    depositFees: '0%',
+    marginAccount: {
+      margin: '0x9231e8161249907656a98f369fa08c51fbe69c72',
+      input: zeroAddress
+    }
   },
   {
     chain: zeroGmainnet.id,
-    nftBalanceBy: 'anker',
+    nftBalanceBy: 'zoofi',
     vault: '0xf3af51a12635d35f2371555b9097131cc48dbfb8',
     asset: '0x2cbe935ab14f19bf8062aa5361134a0eaac70078',
     protocol: '0x60789f985641d75fd11124180d758c798aba2f8c',
@@ -102,6 +111,11 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     disWithdrawNFT: true,
     buybackPool: '0xf579c039c52ab795f0c4e358d3b462be883cdd9f',
     vtSwapHook: '0xb29e56b2b4dc5de5f26c5703a6db6fcc1432fa88',
+    depositFees: '0%',
+    marginAccount: {
+      margin: '0x0d8365c3e6d6431995df442d5edca3adcc2be2d8',
+      input: zeroAddress
+    }
   },
   {
     chain: arbitrum.id,
@@ -199,8 +213,19 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     projectIcon: 'IP',
     startTime: 1765323400n,
     icon: 'IP',
-    tit: 'vIP(Verio) 90-Locked Vault',
-    info: `Story is a purpose-built Layer 1 blockchain designed specifically for intellectual property. Verio is the IP trust engine powering Story's IP blockchain. vIP, issued by Verio, is the LST asset of the Story network. The vIP (Verio) 90-Locked Vault instantly unlocks and distributes the next 90 days of LST staking rewards upfront, while still allowing users to redeem locked vIP 1:1 for WIP upon maturity.`,
+    tit: 'Story IP 360-Locked Vault',
+    info: <>
+      {`Story is a purpose-built Layer 1 blockchain designed specifically for intellectual property. The IP 360-Locked Vault instantly unlocks and distributes the next 360 days of LST staking(Verio&Metapool) rewards upfront, while still allowing users to redeem locked vIP 1:1 for WIP upon maturity.`}
+      <div className='flex gap-4 flex-wrap'>
+        Delegation details
+        <a href='https://verio.network' target='_blank' className='underline underline-offset-2 text-primary cursor-pointer'>
+          Verio
+        </a>
+        <a href='https://staking.story.foundation/validators/0x1ab2bf769daa40e0dbeb9cc8417817e99aa451cf' target='_blank' className='underline underline-offset-2 text-primary cursor-pointer'>
+          Metapool
+        </a>
+      </div>
+    </>,
   },
   {
     isLVT: true,

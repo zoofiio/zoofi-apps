@@ -2,7 +2,6 @@ import { toLntVault } from '@/app/routes'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
-import { getChain } from '@/config/network'
 import { getTokenBy } from '@/config/tokens'
 import { encodeModifyLP, encodeSingleSwap } from '@/config/uni'
 import { DECIMAL } from '@/constants'
@@ -135,11 +134,11 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
       <div className='text-left'>
-        {vc.isZeroG ? `Get ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol} immediately Remaining portion will be distributed on BSC` :
+        {vc.isZeroG ? <>Get {displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol}<br />The remaining portion will be distributed within 3 days.</> :
           `1 License = ${displayBalance(vd.data?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>
-        {`Operation Fees : ${vc.depositFees ?? '5%'}`}
+        {vc.depositFees != '0%' ? `Operation Fees : ${vc.depositFees ?? '5%'}` : ''}
       </div>
     </div>
     <ConfigChainsProvider chains={chainId}>
@@ -306,9 +305,14 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
       >
         <LntVaultWithdraw vc={vc} onSuccess={() => withdrawRef.current?.click()} />
       </SimpleDialog>}
+      <div className='mt-4 text-sm opacity-60 text-center'>
+        {vc.isZeroG ? `1 License = 854.7 v0G(Max)` : `1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
+      </div>
+
       {
-        <div className='mt-4 text-sm opacity-60 text-center'>
-          {`1 License = ${displayBalance(withdrawPrice, undefined, vt.decimals)} ${vt.symbol}`}
+        vc.isZeroG && <div className='flex flex-col items-center w-full'>
+          <div className='text-sm opacity-60 text-center'>Claimable: - v0G</div>
+          <Txs tx='Claim' txs={[]} />
         </div>
       }
     </div>
@@ -783,7 +787,6 @@ export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
 
 
 export function LNTAethirHeader({ vc }: { vc: LntVaultConfig }) {
-  if (!vc.isAethir) return null
   return <div className='font-sec flex justify-end items-center gap-5 text-xs lg:gap-10 lg:text-sm '>
     <Link href={"https://youtu.be/mK2ZBujbuR4"} target='_blank' className='flex items-center gap-2 underline underline-offset-2'>
       <FaYoutube className='text-[1.5em] text-red-500' />

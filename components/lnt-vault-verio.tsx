@@ -1,6 +1,6 @@
 import { abiLntVault } from "@/config/abi/abiLNTVault"
 import { LntVaultConfig } from "@/config/lntvaults"
-import { getTokenBy } from "@/config/tokens"
+import { getTokenBy, Token } from "@/config/tokens"
 import { DECIMAL } from "@/constants"
 import { useLntVault } from "@/hooks/useFetLntVault"
 import { fmtBn, parseEthers } from "@/lib/utils"
@@ -69,8 +69,8 @@ export function LVTDepositWithdrawVerio({ vc }: { vc: LntVaultConfig }) {
         <span className='font-def text-lg font-medium'>Total Locked</span>
         <div className='font-bold font-def text-xl'> {displayBalance(vd.data?.activeDepositCount, undefined, asset.decimals)}</div>
         <div className='flex items-center gap-2.5'>
-            <TokenIcon token={asset} size={20} />
-            {asset.symbol}
+            <TokenIcon token={{ chain: vc.chain, symbol: 'IP' } as Token} size={20} />
+            {'IP'}
         </div>
         <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto w-full'>
             <SimpleDialog

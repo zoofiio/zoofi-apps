@@ -35,6 +35,7 @@ const SupportICONS: { [k: string]: string } = {
   ZUSD: 'ZUSD.svg',
   BYUSD: 'BYUSD.webp',
   ['0G']: '0G.png',
+  ['W0G']: '0G.png',
   ATH: 'ATH.png',
   Fil: 'Filecoin.svg',
   REPPO: 'REPPO.svg',
