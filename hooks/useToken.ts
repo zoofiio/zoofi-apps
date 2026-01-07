@@ -1,6 +1,6 @@
 import { Token } from '@/config/tokens'
 
-import { getNftsByAlchemy, getNftsByMoralis, getNftsByZoofi } from '@/config/api'
+import { getNftsByAlchemy, getNftsByAnker, getNftsByMoralis, getNftsByZoofi } from '@/config/api'
 import { useFet } from '@/lib/useFet'
 import { getPC } from '@/providers/publicClient'
 import { range } from 'es-toolkit'
@@ -37,7 +37,7 @@ const abiErc721Enumerable = parseAbi([
   'function tokenIdsOfOwnerByAmount(address owner, uint256 index) view returns(uint256[])',
   'function tokenOfOwnerByIndex(address owner, uint256 index) view returns(uint256)',
 ])
-export function useErc721Balance(chainId: number, token?: Address, by?: 'Moralis' | 'alchemy' | 'zoofi' | 'rpc' | 'rpc-amount', user?: Address) {
+export function useErc721Balance(chainId: number, token?: Address, by: 'Moralis' | 'alchemy' | 'zoofi' | 'rpc' | 'rpc-amount' | 'anker' = 'rpc', user?: Address) {
   const { address } = useAccount()
   // const address: Address = "0x89D07bF06674f1eAc72bAcE3E16B9567bA1197f9"
   const byUser = user ?? address
@@ -66,8 +66,10 @@ export function useErc721Balance(chainId: number, token?: Address, by?: 'Moralis
         return getNftsByZoofi(chainId, token, byUser)
       } else if (by == 'alchemy') {
         return getNftsByAlchemy(chainId, token, byUser)
-      } else {
+      } else if (by == 'Moralis') {
         return getNftsByMoralis(chainId, token, byUser)
+      } else {
+        return getNftsByAnker(chainId, token, byUser)
       }
     },
   })

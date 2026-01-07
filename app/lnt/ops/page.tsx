@@ -42,7 +42,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
         fetfn: async () => {
             const pc = getPC(vc.chain)
             // vault nfts
-            const vaultNftCount = await pc.readContract({ abi: erc721Abi, functionName: 'balanceOf', address: vd.data!.NFT, args: [vc.vault] })
+            const vaultNftCount = await pc.readContract({ abi: erc721Abi, functionName: 'balanceOf', address: vc.asset, args: [vc.vault] })
             const erc721AbiMore = parseAbi([
                 'function tokenIdsOfOwnerByAmount(address owner, uint256 index) view returns(uint256[])'
             ])
@@ -65,7 +65,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
                     }
                 ))).then(flatten)
             }
-            const getVaultNft = async () => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenIdsOfOwnerByAmount', address: vd.data!.NFT, args: [vc.vault, vaultNftCount] }).then(data => data.map(id => id.toString()))
+            const getVaultNft = async () => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenIdsOfOwnerByAmount', address: vc.asset, args: [vc.vault, vaultNftCount] }).then(data => data.map(id => id.toString()))
             const data = await promiseAll({
                 vaultNft: getVaultNft(),
                 setUsers: getSetUsers(),

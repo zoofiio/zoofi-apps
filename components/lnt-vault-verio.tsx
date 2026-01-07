@@ -1,20 +1,16 @@
-import { abiLntVault, abiLvtVerio } from "@/config/abi/abiLNTVault"
+import { abiLntVault } from "@/config/abi/abiLNTVault"
 import { LntVaultConfig } from "@/config/lntvaults"
 import { getTokenBy } from "@/config/tokens"
+import { DECIMAL } from "@/constants"
 import { useLntVault } from "@/hooks/useFetLntVault"
-import { useBalance } from "@/hooks/useToken"
 import { fmtBn, parseEthers } from "@/lib/utils"
 import { displayBalance } from "@/utils/display"
 import { useRef, useState } from "react"
 import { Txs, TXSType, withTokenApprove } from "./approve-and-tx"
+import { TokenIcon } from "./icons/tokenicon"
 import { SimpleDialog } from "./simple-dialog"
 import { TokenInput } from "./token-input"
 import { BBtn } from "./ui/bbtn"
-import { DECIMAL } from "@/constants"
-import { TokenIcon } from "./icons/tokenicon"
-import { useQuery } from "@tanstack/react-query"
-import { getPC } from "@/providers/publicClient"
-import { useCalcKey } from "@/hooks/useCalcKey"
 
 function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
     const vd = useLntVault(vc)
@@ -60,45 +56,6 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
                 onSuccess()
             }}
             txs={getTxs} />
-    </div>
-}
-function LntVaultWithdraw({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
-    const vd = useLntVault(vc)
-    const chainId = vc.deposit?.chain ?? vc.chain
-    const mVault = vc.deposit?.vault ?? vc.vault
-    const asset = getTokenBy(vc.asset, chainId, { symbol: 'vIP' })!
-    const vt = getTokenBy(vd.data!.VT, chainId, { symbol: 'vIP' })!
-    const [input, setInput] = useState('')
-    const inputBn = parseEthers(input, vt.decimals)
-    const vtBalance = useBalance(vt)
-    const { data: outAmountVT, isFetching: loadingOutAmountVT } = useQuery({
-        ...useCalcKey(['verioRedeemOut', inputBn, vc.vault]),
-        queryFn: async () => {
-            return getPC(vc.chain).readContract({ abi: abiLvtVerio, address: vc.vault, functionName: 'calculateVerioIPMint', args: [inputBn] })
-        }
-    })
-    return <div className='flex flex-col gap-5 items-center p-5'>
-        <div>Withdraw</div>
-        <div className='flex flex-col gap-1 w-full'>
-            <div className='w-full'>Input:</div>
-            <TokenInput tokens={[vt]} amount={input} setAmount={setInput} />
-            <div className='w-full'>Receive:</div>
-            <TokenInput tokens={[asset]} disable balance={false} loading={loadingOutAmountVT} amount={fmtBn(outAmountVT ?? 0n, asset.decimals)} />
-        </div>
-        <Txs
-            tx='Withdraw'
-            className='mt-6'
-            onTxSuccess={() => {
-                onSuccess()
-            }}
-            disabled={inputBn <= 0n || inputBn > vtBalance.data}
-            txs={[{
-                abi: abiLntVault,
-                address: mVault,
-                functionName: 'redeem',
-                args: [inputBn]
-            }]} />
-
     </div>
 }
 

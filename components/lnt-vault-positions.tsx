@@ -89,7 +89,7 @@ function LP({ vcs, filter }: { vcs: LntVaultConfig[], filter?: boolean }) {
         const logs = useLntVaultLogs(vc)
         const swapfee7days = useLntVaultSwapFee7Days(vc)
         const { apy, items } = calcLPApy(vc, vd.data, logs.data, swapfee7days.data)
-        const lpTVT = getTokenBy(vd.data?.vtSwapPoolHook, vc.chain, { symbol: 'lpTVT' })
+        const lpTVT = getTokenBy(vc.vtSwapHook, vc.chain, { symbol: 'lpTVT' })
         const lpTVTBalance = useBalance(lpTVT)
         const disableClaim = !vc.lpYields
         if ((!filter || lpTVTBalance.data > 0n) && lpTVT) {

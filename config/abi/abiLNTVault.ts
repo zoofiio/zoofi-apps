@@ -2,7 +2,7 @@ import { parseAbi } from 'viem'
 
 export const abiQueryLNT = parseAbi([
   'function queryLntVault(address vault) external view returns (LntVault memory lv)',
-  `struct LntVault {bool closed;uint256 activeDepositCount;address NFT;address VT;address YT;address T;address vATOracle;address tokenPot;address vtSwapPoolHook;uint256 aVT;}`,
+  `struct LntVault {bool closed;uint256 activeDepositCount;address VT;address YT;address T;address vATOracle;uint256 aVT;}`,
   `function earned(address irm,address user) external view returns (Earned[] memory)`,
   `struct Earned { address token; uint256 value;}`,
   'function calcDeposit(address vault,uint256[] calldata nftIds) external view returns (uint256 vt)',
@@ -12,21 +12,18 @@ export const abiQueryLNT = parseAbi([
 ])
 
 export const abiLntVault = parseAbi([
-  'function deposit(uint256 tokenId, uint256 value) external',
   'function deposit(uint256 tokenId) external',
   'function deposit(uint256[] calldata tokenIds) external',
-  'function batchDeposit(uint256[] calldata tokenIds, uint256[] calldata values) external',
   'function batchDeposit(uint256[] calldata tokenIds) external',
   'function redeem() external',
-  'function batchRedeem(uint256 count) external',
   'function redeem(uint256 count) external',
+  'function batchRedeem(uint256 count) external',
   'function redeemT(uint256 amount) external',
   'function close() external',
   'function withdrawProfitT(address recipient) external',
 
   'function VT() external view returns (address)',
   'function T() external view returns (address)',
-  'function vtSwapPoolHook() external view returns (address)',
   'function pausedDeposit() external view returns (bool)',
   'function paused() external view returns (bool)',
   'function autoBuyback() external view returns (bool)',

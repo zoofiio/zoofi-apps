@@ -126,35 +126,18 @@ function AdminReppo({ vc }: { vc: LntVaultConfig }) {
 }
 
 function Admin0G({ vc }: { vc: LntVaultConfig }) {
-  if (!vc.deposit) return null
   return <>
-    <Expandable tit={`Deposit/Withdraw NFT (${getChain(vc.deposit.chain)!.name})`}>
-      <ConfigChainsProvider chains={vc.deposit.chain}>
-        {vc.deposit.protocalSettings &&
-          <UpdateVaultParams
-            chain={vc.deposit.chain}
-            vault={vc.deposit.vault}
-            protocoSettingAddress={vc.deposit.protocalSettings}
-            paramList={LntVaultParams2_1}
-          />}
-        {vc.deposit.protocol && <ContractAll unwrap tit='Protocol' abi={abiLntProtocol} address={vc.deposit.protocol} />}
-        <GeneralAction disableAnim abi={abiMockERC721} tit={`mintMockErc721 (${vc.asset})`} functionName={'airdropByOwner'} address={vc.asset} />
-        <ContractAll unwrap tit='aVToracle' abi={abiZeroGVToracale} address={vc.deposit.vtOracle} />
-        <ContractAll unwrap tit='Vault' abi={abiLntVaultDepositExt} address={vc.deposit.vault} />
-      </ConfigChainsProvider>
-    </Expandable>
-    <Expandable tit={`Swap (${getChain(vc.chain)!.name})`}>
-      {vc.protocalSettings && <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams2_2} />}
-      <ContractAll unwrap tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
-      <GeneralAction disableAnim abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
-        infos={() => promiseAll({
-          vtPriceStartTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
-          vtPriceEndTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
-        })} />
-      {vc.buybackPool && <ContractAll unwrap tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
-
-      <Erc20Approve />
-    </Expandable>
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams2_2} />
+    <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
+    <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
+      infos={() => promiseAll({
+        vtPriceStartTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
+        vtPriceEndTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
+      })} />
+    <ContractAll tit='Vault' abi={abiLntVault} address={vc.vault}
+      argsDef={{ buyback: async () => getPC(vc.chain).readContract({ abi: erc20Abi, functionName: 'balanceOf', address: '0xFf8104251E7761163faC3211eF5583FB3F8583d6', args: [vc.vault] }).then(bn => [bn.toString()]) }} />
+    <ContractAll tit='Vault Ext' abi={abiLntVaultDepositExt} address={vc.vault} />
+    {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
   </>
 }
 
@@ -280,9 +263,8 @@ export default function AdminPage() {
           {
             current && <ConfigChainsProvider chains={current.vc.chain}>
               {current.vc.reppo && <AdminReppo vc={current.vc} />}
-              {current.vc.deposit && <Admin0G vc={current.vc} />}
+              {current.vc.isZeroG && <Admin0G vc={current.vc} />}
               {current.vc.isAethir && <AdminAethir vc={current.vc} />}
-
               {current.vc.isFil && <AdminFilcoin vc={current.vc} />}
               {current.vc.isVerio && <AdminVerio vc={current.vc} />}
               {current.vc.isSei && <AdminSei vc={current.vc} />}

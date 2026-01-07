@@ -3,12 +3,12 @@
         return this.toString()
     }
 import { ConfigChainsProvider } from "@/components/support-chains";
-import { sei } from "@/config/network";
+import { sei, story } from "@/config/network";
 import { ReactNode } from "react";
-import { bsc, story } from "viem/chains";
+import { bsc } from "viem/chains";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[bsc.id,story.id, sei.id]}>
+    return <ConfigChainsProvider chains={[bsc.id, sei.id, story.id]}>
         {children}
     </ConfigChainsProvider>
 

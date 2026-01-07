@@ -8,7 +8,7 @@ import { ReactNode } from "react";
 import { bsc } from "viem/chains";
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return <ConfigChainsProvider chains={[base.id, arbitrum.id, bsc.id, story.id, sei.id]}>
+    return <ConfigChainsProvider chains={[base.id, arbitrum.id, bsc.id, sei.id, story.id]}>
         {children}
     </ConfigChainsProvider>
 

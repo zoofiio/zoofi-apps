@@ -56,7 +56,7 @@ function initFS<FET extends Fet<any>>(fet: FET): FetStat<FET> {
 
 function isOldFetStat(fet: Fet<any>) {
   const fs = fets[fet.key]?.fs
-  const cacheTime = fet.cacheTime ?? 1000
+  const cacheTime = fet.cacheTime ?? 1000 * 60
   if (fet.key && fs && fs.status !== 'fetching' && now() - fs.lastUpDate > cacheTime) {
     return true
   }

@@ -1,6 +1,7 @@
 import { abiReppoLntVault } from "@/config/abi/abiLNTVault";
 import { LntVaultConfig } from "@/config/lntvaults";
 import { getTokenBy } from "@/config/tokens";
+import { DECIMAL } from "@/constants";
 import { useLntVault, useLntVaultVTC } from "@/hooks/useFetLntVault";
 import { useErc721Balance } from "@/hooks/useToken";
 import { reFet, useFet } from "@/lib/useFet";
@@ -17,7 +18,6 @@ import { SimpleDialog } from "./simple-dialog";
 import { ConfigChainsProvider } from "./support-chains";
 import { TokenInput } from "./token-input";
 import { BBtn } from "./ui/bbtn";
-import { DECIMAL } from "@/constants";
 
 
 export function useReppoLntVaultNFTs(vc: LntVaultConfig) {
@@ -33,14 +33,12 @@ export function useReppoLntVaultNFTs(vc: LntVaultConfig) {
 
 function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => void }) {
     const vd = useLntVault(vc)
-
-    const withdrawPrice = vd.data?.aVT ?? 0n
     const maxSelected = 30;
     const [curentNft, setCurrentNft] = useState(vc.reppo!.standard)
     const [selectedNft, setSelectNft] = useSetState<{ [tokenId: string]: boolean }>({})
     const tokenIds = keys(selectedNft).filter(item => selectedNft[item]).map(item => BigInt(item))
-    const chainId = vc.deposit?.chain ?? vc.chain
-    const mVault = vc.deposit?.vault ?? vc.vault
+    const chainId = vc.chain
+    const mVault = vc.vault
     const reppoNfts = useReppoLntVaultNFTs(vc)
     const standarPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.standard))?.aVT ?? 0n
     const premiumPrice = reppoNfts.data.find(item => isAddressEqual(item.NFT, vc.reppo!.preminum))?.aVT ?? 0n
@@ -50,7 +48,7 @@ function DepositReppo({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () => 
     const vtc = useLntVaultVTC(vc)
     const outAmountVT = (currentPrice - currentPrice * parseEther(vtc.toFixed(6)) / DECIMAL) * BigInt(tokenIds.length)
     const nfts = curentNft == vc.reppo!.standard ? nftsStandard : nftsPreminum
-    const vt = getTokenBy(vd.data!.VTbyDeposit ?? vd.data!.VT, chainId, { symbol: 'VT' })!
+    const vt = getTokenBy(vd.data!.VT, chainId, { symbol: 'VT' })!
     const onClickOne = (id: string) => {
         if (selectedNft[id.toString()]) {
             setSelectNft({ [id.toString()]: false })

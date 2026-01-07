@@ -119,7 +119,7 @@ export const multicallBatchConfig = { batchSize: 1024, wait: 500 }
 export const beraChains = [berachain]
 export const lntChains = [base]
 // allapps chanis
-export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGmainnet, base, berachain, arbitrum, bsc, story, sei]
+export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGmainnet, base, berachain, arbitrum, bsc, sei, story]
 
 const refChainId = { chainId: SUPPORT_CHAINS[0].id }
 export function getCurrentChainId() {

@@ -3,6 +3,7 @@ import { keys } from 'es-toolkit/compat'
 import { Address, Hex, numberToHex, parseUnits } from 'viem'
 import api from '../../utils/api'
 import { arbitrumSepolia, sepolia, arbitrum, base, berachain } from 'viem/chains'
+import { zeroGmainnet } from '../network'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
   api.get<{ price: string; time: number }[]>(chainId, `/api/bvault/getEpochYTPrices/${vault}/${epochId}`)
@@ -122,6 +123,40 @@ export const getNftsByMoralis = async (chainId: number, nft: Address, owner: Add
   ).then((response) => response.json())
 
   return []
+}
+export const getNftsByAnker = async (chainId: number, nft: Address, owner: Address) => {
+  const map: { [k: number]: string } = {
+    [zeroGmainnet.id]: '0g_mainnet_evm',
+  }
+  if (!map[chainId]) throw new Error('not support chain')
+  let pageToken = undefined
+  const tokenIds: string[] = []
+  while (true) {
+    const datas: any = await fetch(`https://rpc.ankr.com/multichain/e1a06837672f1dd89a4c70522941d3beebad120eafad005d79d77c42856d9310`, {
+      method: 'POST',
+      body: JSON.stringify({
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'ankr_getNFTsByOwner',
+        params: {
+          blockchain: [map[chainId]],
+          filter: [
+            {
+              [nft]: [],
+            },
+          ],
+          pageSize: 500,
+          pageToken,
+          walletAddress: owner,
+        },
+      }),
+    }).then((response) => response.json())
+    const ids = ((datas.result?.assets ?? []) as any[]).map((item: any) => item.tokenId as string)
+    tokenIds.push(...ids)
+    if (ids.length < 500 || !datas.result.nextPageToken) break
+    pageToken = datas.result.nextPageToken
+  }
+  return tokenIds
 }
 
 export type NftTx = { blockNum: Hex; hash: Hex; from: Address; to: Address; erc721TokenId: Hex }
