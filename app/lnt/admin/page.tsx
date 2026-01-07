@@ -7,7 +7,7 @@ import { PageWrap } from '@/components/page-wrap'
 import { Spinner } from '@/components/spinner'
 import { ConfigChainsProvider } from '@/components/support-chains'
 import { SimpleSelect } from '@/components/ui/select'
-import { abiMockERC721, abiProtocolSettings } from '@/config/abi'
+import { abiAccessCtl, abiMockERC721, abiProtocolSettings } from '@/config/abi'
 import { abiAethirVToracle, abiLntBuyback, abiLntProtocol, abiLntVault, abiLntVaultDepositExt, abiLVTVault, abiRedeemStrategy, abiReppoLntVault, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { getChain } from '@/config/network'
@@ -138,6 +138,7 @@ function Admin0G({ vc }: { vc: LntVaultConfig }) {
       argsDef={{ buyback: async () => getPC(vc.chain).readContract({ abi: erc20Abi, functionName: 'balanceOf', address: '0xFf8104251E7761163faC3211eF5583FB3F8583d6', args: [vc.vault] }).then(bn => [bn.toString()]) }} />
     <ContractAll tit='Vault Ext' abi={abiLntVaultDepositExt} address={vc.vault} />
     {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
+    {vc.tit.includes("Mock") && <ContractAll tit='MockErc721' abi={[...abiMockERC721,...abiAccessCtl]} address={vc.asset} />}
   </>
 }
 

@@ -25,6 +25,7 @@ import abiMockERC721 from './MockERC721'
 import abiBeraVault from './BeraVault'
 import abiBeraLP from './BeraLP'
 import { abiWETH } from './WETH'
+import abiAccessCtl from './AccessCtl'
 
 export {
   abiPriceFeed,
@@ -50,5 +51,6 @@ export {
   abiMockERC721,
   abiBeraVault,
   abiBeraLP,
-  abiWETH
+  abiWETH,
+  abiAccessCtl,
 }
