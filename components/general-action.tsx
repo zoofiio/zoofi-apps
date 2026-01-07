@@ -33,7 +33,7 @@ export const defConvertArg = (arg: string, _i: number, param: AbiParameter) => {
     }
     return BigInt((arg || '').replaceAll(' ', ''))
   }
-  if (param.type == 'bytes32') return stringToHex(arg, { size: 32 })
+  if (param.type == 'bytes32' && !arg.startsWith('0x')) return stringToHex(arg, { size: 32 })
   if (param.type == 'bool') {
     if (arg == 'true') return true
     return false
