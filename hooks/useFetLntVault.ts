@@ -24,58 +24,6 @@ export const FET_KEYS = {
 }
 export async function fetLntVault(vc: LntVaultConfig) {
   const pc = getPC(vc.chain)
-  // if (vc.isLVT) {
-  //   if (vc.isFil || vc.isSei)
-  //     return promiseAll({
-  //       activeDepositCount: Promise.resolve(0n),
-  //       aVT: pc.readContract({ abi: abiZeroGVToracale, address: vc.vault, functionName: 'aVT' }),
-  //       closed: Promise.resolve(false),
-  //       NFT: Promise.resolve(vc.asset),
-  //       VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
-  //       YT: Promise.resolve(zeroAddress as Address),
-  //       T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
-  //       vATOracle: Promise.resolve(zeroAddress as Address),
-  //       expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
-  //       startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
-  //     })
-  //   async function aVT() {
-  //     const one = DECIMAL
-  //     const [vipInRate, vipRate] = await Promise.all([
-  //       pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'paramValue', args: [toHex('VerioIPInflationRate', { size: 32 })] }),
-  //       pc.readContract({ abi: abiLvtVerio, address: vc.vault, functionName: 'calculateIPWithdrawal', args: [one] }),
-  //     ])
-  //     return (vipInRate * one * vipRate) / DECIMAL / DECIMAL
-  //   }
-  //   return promiseAll({
-  //     activeDepositCount: pc.readContract({ abi: erc20Abi, address: vc.asset, functionName: 'balanceOf', args: [vc.vault] }),
-  //     aVT: aVT(),
-  //     closed: Promise.resolve(false),
-  //     NFT: Promise.resolve(zeroAddress),
-  //     VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
-  //     YT: Promise.resolve(zeroAddress as Address),
-  //     T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
-  //     vATOracle: Promise.resolve(zeroAddress as Address),
-  //     expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
-  //     startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
-  //   })
-  // }
-  // if (vc.reppo) {
-  //   return promiseAll({
-  //     activeDepositCount: Promise.all(
-  //       [vc.reppo.standard, vc.reppo.preminum].map((nft) => pc.readContract({ abi: erc721Abi, address: nft, functionName: 'balanceOf', args: [vc.vault] })),
-  //     ).then<bigint>((counts) => counts.reduce((t, c) => t + c, 0n)),
-  //     aVT: Promise.resolve(0n),
-  //     closed: Promise.resolve(false),
-  //     NFT: Promise.resolve(vc.asset),
-  //     VT: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'VT' }),
-  //     YT: Promise.resolve(zeroAddress as Address),
-  //     T: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'T' }),
-  //     vATOracle: Promise.resolve(zeroAddress as Address),
-  //     expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
-  //     startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
-  //   })
-  // }
-
   const reppoOverwrite: { [k: string]: Promise<any> } = vc.reppo
     ? {
         activeDepositCount: Promise.all(

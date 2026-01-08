@@ -125,9 +125,10 @@ function AdminReppo({ vc }: { vc: LntVaultConfig }) {
   </>
 }
 
+const LntVault0GParams = [...LntVaultParams2_1, ...LntVaultParams2_2]
 function Admin0G({ vc }: { vc: LntVaultConfig }) {
   return <>
-    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams2_2} />
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVault0GParams} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
@@ -137,6 +138,7 @@ function Admin0G({ vc }: { vc: LntVaultConfig }) {
     <ContractAll tit='Vault' abi={abiLntVault} address={vc.vault}
       argsDef={{ buyback: async () => getPC(vc.chain).readContract({ abi: erc20Abi, functionName: 'balanceOf', address: '0xFf8104251E7761163faC3211eF5583FB3F8583d6', args: [vc.vault] }).then(bn => [bn.toString()]) }} />
     <ContractAll tit='Vault Ext' abi={abiLntVaultDepositExt} address={vc.vault} />
+    <ContractAll tit='VTOracale' abi={abiZeroGVToracale} address={vc.vault} />
     {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
     {vc.tit.includes("Mock") && <ContractAll tit='MockErc721' abi={[...abiMockERC721, ...abiAccessCtl]} address={vc.asset} />}
     {vc.marginAccount && <ContractAll tit='Margin Account' abi={abi0GMarginAccount} address={vc.marginAccount.margin} />}
