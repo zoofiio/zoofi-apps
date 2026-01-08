@@ -9,7 +9,7 @@ import { aarToNumber, FMT, fmtDate, fmtDuration, nowUnix, promiseAll } from '@/l
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
-import { Address, erc20Abi, erc721Abi, PublicClient, toHex, zeroAddress } from 'viem'
+import { Address, erc721Abi, PublicClient, toHex, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useTotalSupply } from './useToken'
 

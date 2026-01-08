@@ -1,20 +1,18 @@
+import { abi0GMarginAccount } from "@/config/abi/abiLNTVault";
 import { LntVaultConfig } from "@/config/lntvaults";
+import { getTokenBy } from "@/config/tokens";
+import { useBalance } from "@/hooks/useToken";
+import { cn, FMT, fmtDate, nowUnix, parseEthers } from "@/lib/utils";
+import { getPC } from "@/providers/publicClient";
+import { useQuery } from "@tanstack/react-query";
+import { isNil } from "es-toolkit";
+import { useState } from "react";
 import { erc721Abi } from "viem";
+import { useAccount } from "wagmi";
 import { Txs } from "./approve-and-tx";
 import { SimpleDialog } from "./simple-dialog";
-import { BBtn } from "./ui/bbtn";
-import { cn, FMT, fmtDate, nowUnix, parseEthers } from "@/lib/utils";
-import { useState } from "react";
 import { TokenInput } from "./token-input";
-import { getTokenBy } from "@/config/tokens";
-import { useLntVault } from "@/hooks/useFetLntVault";
-import { now } from "es-toolkit/compat";
-import { useQuery } from "@tanstack/react-query";
-import { useAccount } from "wagmi";
-import { getPC } from "@/providers/publicClient";
-import { abi0GMarginAccount } from "@/config/abi/abiLNTVault";
-import { useBalance } from "@/hooks/useToken";
-import { isNil } from "es-toolkit";
+import { BBtn } from "./ui/bbtn";
 
 const types = ['Deposit', 'Withdraw'] as const
 type TypeItem = (typeof types)[number]
@@ -70,7 +68,7 @@ function MarginAccount({ vc }: { vc: LntVaultConfig }) {
         }
         <Txs
             tx={type}
-            disabled={inputBn <= 0n || (type == 'Deposit' && inputBn > mtBalance.data) || (type == 'Withdraw' && inputBn > mStaked || nowUnix() < (withdrawTime ?? 9999999999999999n))}
+            disabled={inputBn <= 0n || (type == 'Deposit' && inputBn > mtBalance.data) || (type == 'Withdraw' && (inputBn > mStaked || nowUnix() < (withdrawTime ?? 9999999999999999n)))}
             txs={[{
                 abi: abi0GMarginAccount,
                 address: vc.marginAccount!.margin,
