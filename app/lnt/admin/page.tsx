@@ -138,7 +138,7 @@ function Admin0G({ vc }: { vc: LntVaultConfig }) {
     <ContractAll tit='Vault' abi={abiLntVault} address={vc.vault}
       argsDef={{ buyback: async () => getPC(vc.chain).readContract({ abi: erc20Abi, functionName: 'balanceOf', address: '0xFf8104251E7761163faC3211eF5583FB3F8583d6', args: [vc.vault] }).then(bn => [bn.toString()]) }} />
     <ContractAll tit='Vault Ext' abi={abiLntVaultDepositExt} address={vc.vault} />
-    <ContractAll tit='VTOracale' abi={abiZeroGVToracale} address={vc.vault} />
+    {vc.VToracle && <ContractAll tit='VTOracale' abi={abiZeroGVToracale} address={vc.VToracle} />}
     {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
     {vc.tit.includes("Mock") && <ContractAll tit='MockErc721' abi={[...abiMockERC721, ...abiAccessCtl]} address={vc.asset} />}
     {vc.marginAccount && <ContractAll tit='Margin Account' abi={abi0GMarginAccount} address={vc.marginAccount.margin} />}
@@ -175,7 +175,7 @@ function AdminAethir({ vc }: { vc: LntVaultConfig }) {
     <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={vc.vault} />
     <GeneralAction abi={abiLntVault} functionName='updateAethirClaimAndWithdraw' address={vc.vault} />
     <ContractAll unwrap tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
-    {vc.AethirVToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={vc.AethirVToracle} />}
+    {vc.VToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={vc.VToracle} />}
     {vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={vc.RedeemStrategy}
       itemInfos={{
         updateRedeemStrategy: {

@@ -15,9 +15,7 @@ export type LntVaultConfig = {
   protocalSettings: Address
   lpTYT?: Address
   RedeemStrategy?: Address
-  // aethir
-  AethirNFT?: Address
-  AethirVToracle?: Address
+  VToracle?: Address
 
   onEnv?: TypeENV[]
   vtActive: boolean
@@ -69,6 +67,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     protocol: '0x9cfd768c1047d20456ab7333e135c16efd0ae4d2',
     protocalSettings: '0x1c77a85d47974fea7c8391317326335e35ee3644',
     onEnv: ['test'],
+    VToracle: '0xdAD824d9ed0B1aF7eA34B594d1f83b00207481D4',
     lpTYT: zeroAddress,
     isZeroG: true,
     vtActive: true,
@@ -97,6 +96,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     protocol: '0x60789f985641d75fd11124180d758c798aba2f8c',
     protocalSettings: '0x94822b9ba715e9e3079ed12489dc7a016694fc67',
     onEnv: ['test'],
+    VToracle: '0x831DC0DABe78B245c51F701ca21FB25760189c69',
     lpTYT: zeroAddress,
     isZeroG: true,
     vtActive: true,
@@ -125,7 +125,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     protocol: '0x170e0c91ffa71dc3c16d43f754b3aece688470c8',
     protocalSettings: '0x2f70e725553c8e3341e46caa4e9b303e9d810fc9',
     onEnv: ['test', 'prod'],
-    AethirVToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
+    VToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
     RedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
     vtSwapHook: '0xbf4b4A83708474528A93C123F817e7f2A0637a88',
     isAethir: true,
