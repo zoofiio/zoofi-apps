@@ -2,7 +2,7 @@ import { abiLntVault } from "@/config/abi/abiLNTVault"
 import { LntVaultConfig } from "@/config/lntvaults"
 import { getTokenBy, Token } from "@/config/tokens"
 import { DECIMAL } from "@/constants"
-import { useLntVault } from "@/hooks/useFetLntVault"
+import { useLntVault, useVTTotalSupply } from "@/hooks/useFetLntVault"
 import { fmtBn, parseEthers } from "@/lib/utils"
 import { displayBalance } from "@/utils/display"
 import { useRef, useState } from "react"
@@ -61,26 +61,23 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
 
 
 export function LVTDepositWithdrawVerio({ vc }: { vc: LntVaultConfig }) {
-    const depositRef = useRef<HTMLButtonElement>(null)
-    // const withdrawRef = useRef<HTMLButtonElement>(null)
-    const vd = useLntVault(vc)
-    const asset = getTokenBy(vc.asset, vc.chain, { symbol: 'vIP' })!
+    const vtTotal = useVTTotalSupply(vc)
     return <div className='flex flex-col items-center h-full justify-between shrink-0 gap-5 w-full'>
         <span className='font-def text-lg font-medium'>Total Locked</span>
-        <div className='font-bold font-def text-xl'> {displayBalance(vd.data?.activeDepositCount, undefined, asset.decimals)}</div>
+        <div className='font-bold font-def text-xl'> {displayBalance(vtTotal)}</div>
         <div className='flex items-center gap-2.5'>
             <TokenIcon token={{ chain: vc.chain, symbol: 'IP' } as Token} size={20} />
             {'IP'}
         </div>
         <div className='flex flex-col gap-5 justify-between lg:px-8 my-auto w-full'>
-            <SimpleDialog
+            {/* <SimpleDialog
                 triggerRef={depositRef}
                 trigger={
                     <BBtn className='shrink-0'>Deposit</BBtn>
                 }
             >
                 <LntVaultDeposit vc={vc} onSuccess={() => depositRef.current?.click()} />
-            </SimpleDialog>
+            </SimpleDialog> */}
             {/* <SimpleDialog
                 triggerRef={withdrawRef}
                 trigger={

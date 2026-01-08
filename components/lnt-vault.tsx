@@ -134,7 +134,7 @@ function LntVaultDeposit({ vc, onSuccess }: { vc: LntVaultConfig, onSuccess: () 
     </div>
     <div className='text-sm opacity-60 text-center flex justify-between gap-5 w-full'>
       <div className='text-left'>
-        {vc.isZeroG ? <>Get {displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol}<br />The remaining portion will be distributed within 3 days.</> :
+        {vc.isZeroG ? <>Get {displayBalance(withdrawPrice, undefined, vt.decimals)} {vt.symbol} immediately.<br />The remaining portion will be distributed within 3 days.</> :
           `1 License = ${displayBalance(vd.data?.aVT ?? 0n, undefined, vt.decimals)} ${vt.symbol}`}
       </div>
       <div>

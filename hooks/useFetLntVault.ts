@@ -9,7 +9,7 @@ import { aarToNumber, FMT, fmtDate, fmtDuration, nowUnix, promiseAll } from '@/l
 import { getPC } from '@/providers/publicClient'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
-import { Address, erc721Abi, PublicClient, toHex, zeroAddress } from 'viem'
+import { Address, erc20Abi, erc721Abi, PublicClient, toHex, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import { useTotalSupply } from './useToken'
 
@@ -90,6 +90,7 @@ export async function fetLntVault(vc: LntVaultConfig) {
           pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'paramValue', args: [toHex('VerioIPInflationRate', { size: 32 })] }),
           pc.readContract({ abi: abiLvtVerio, address: vc.vault, functionName: 'calculateIPWithdrawal', args: [DECIMAL] }),
         ]).then(([vipInRate, vipRate]) => (vipInRate * DECIMAL * vipRate) / DECIMAL / DECIMAL),
+        // activeDepositCount: pc.readContract({ abi: erc20Abi, address: vc.asset, functionName: 'balanceOf', })
       }
     : {}
 
