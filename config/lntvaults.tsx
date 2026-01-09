@@ -33,6 +33,7 @@ export type LntVaultConfig = {
   buyback?: boolean
   buybackPool?: Address
   disWithdrawNFT?: boolean
+  wrapT?: boolean
 
   vtSwapHook: Address
 
@@ -73,6 +74,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     vtActive: true,
     ytEnable: false,
     lpYields: false,
+    wrapT: true,
     projectIcon: '0G',
     startTime: 1767687020n,
     icon: 'ZeroG',
@@ -102,6 +104,7 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     vtActive: true,
     ytEnable: false,
     lpYields: false,
+    wrapT: true,
     projectIcon: '0G',
     startTime: 1767687020n,
     icon: 'ZeroG',
@@ -210,6 +213,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     vtActive: true,
     ytEnable: false,
     lpYields: false,
+    wrapT: true,
     projectIcon: 'IP',
     startTime: 1765323400n,
     icon: 'IP',
@@ -244,6 +248,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
     vtActive: true,
     ytEnable: false,
     lpYields: false,
+    wrapT: true,
     projectIcon: 'SEI',
     startTime: 1765869735n,
     icon: 'SEI',

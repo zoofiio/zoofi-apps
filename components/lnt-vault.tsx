@@ -22,7 +22,7 @@ import { useMemo, useRef, useState } from 'react'
 import { FaAngleRight, FaCheck, FaYoutube } from "react-icons/fa6"
 import { useSetState, useToggle } from 'react-use'
 import { toast } from 'sonner'
-import { erc20Abi, erc721Abi, isAddressEqual, toHex } from 'viem'
+import { erc20Abi, erc721Abi, isAddressEqual, parseAbi, toHex, zeroAddress } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
 import { LntNodeSvg, LvtNodeSvg } from './anim-svg'
 import { TX, TxConfig, Txs, withTokenApprove } from './approve-and-tx'
@@ -762,15 +762,47 @@ function YT({ vc }: { vc: LntVaultConfig }) {
     </div>
   </div>
 }
+const abiWrapT = parseAbi([
+  'function deposit() external payable',
+  'function withdraw(uint256 value) external'
+])
+function WrapT({ vc }: { vc: LntVaultConfig }) {
+  const vd = useLntVault(vc)
+  const NativeToken = getTokenBy(zeroAddress, vc.chain)!
+  const WrapToken = getTokenBy(vd.data!.T, vc.chain)!
+  const [[input, out], setInputOut] = useState([NativeToken, WrapToken])
+  const [amount, setAmount] = useState('')
+  const amountBn = parseEthers(amount, input.decimals)
+  const isWrap = input == NativeToken
+  const onSwitch = () => setInputOut([out, input])
+  const inputBalance = useBalance(input)
+  return <div className="flex flex-col gap-4 w-full animitem">
+    <TokenInput tokens={[input]} amount={amount} setAmount={setAmount} />
+    <Swap onClick={onSwitch} />
+    <TokenInput tokens={[out]} disable amount={amount} />
+    <Txs
+      tx={isWrap ? 'Wrap' : 'Unwrap'}
+      disabled={amountBn <= 0n || amountBn > inputBalance.data}
+      txs={[isWrap ?
+        { abi: abiWrapT, address: WrapToken.address, functionName: 'deposit', value: amountBn } :
+        { abi: abiWrapT, address: WrapToken.address, functionName: 'withdraw', args: [amountBn] }]}
+      onTxSuccess={() => {
+        setAmount('')
+        reFet(inputBalance.key)
+      }}
+    />
+  </div>
+}
 
 export function LNT_VT_YT({ vc, tab }: { vc: LntVaultConfig, tab?: string }) {
   const r = useRouter()
-  const vd = useLntVault(vc)
-  const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
+  // const vd = useLntVault(vc)
+  // const vt = getTokenBy(vd.data!.VT, vc.chain, { symbol: 'VT' })!
   const data = [
     { tab: 'Vesting Token', content: <VT vc={vc} /> },
     ...(vc.ytEnable ? [{ tab: 'Yield Token', content: <YT vc={vc} /> }] : []),
-    ...(vc.buyback ? [{ tab: 'Put Option', content: <LntVaultBuyback vc={vc} /> }] : [])
+    ...(vc.buyback ? [{ tab: 'Put Option', content: <LntVaultBuyback vc={vc} /> }] : []),
+    ...(vc.wrapT ? [{ tab: 'Wrap', content: <WrapT vc={vc} /> }] : [])
   ]
   const currentTab = data.find(item => tabToSearchParams(item.tab) === tab)?.tab
   return <div className='animitem card not-dark:bg-main md:min-h-177'>

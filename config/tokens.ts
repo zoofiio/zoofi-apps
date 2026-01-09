@@ -14,6 +14,7 @@ export const TOKENS: Token[] = [
   { address: zeroAddress, symbol: 'ETH', decimals: 18, chain: mainnet.id, isNative: true },
   { address: zeroAddress, symbol: 'ETH', decimals: 18, chain: sepolia.id, isNative: true },
   { address: zeroAddress, symbol: '0G', decimals: 18, chain: zeroGmainnet.id, isNative: true },
+  { address: zeroAddress, symbol: 'IP', decimals: 18, chain: story.id, isNative: true },
 
   // for 0G
   { address: '0x1Cd0690fF9a693f5EF2dD976660a8dAFc81A109c', symbol: 'W0G', decimals: 18, chain: zeroGmainnet.id },
