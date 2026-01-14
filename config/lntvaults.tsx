@@ -225,7 +225,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
         <a href='https://verio.network' target='_blank' className='underline underline-offset-2 text-primary cursor-pointer'>
           Verio
         </a>
-        <a href='https://staking.story.foundation/validators/0x1ab2bf769daa40e0dbeb9cc8417817e99aa451cf' target='_blank' className='underline underline-offset-2 text-primary cursor-pointer'>
+        <a href='https://www.metapool.app/stake?token=ip' target='_blank' className='underline underline-offset-2 text-primary cursor-pointer'>
           Metapool
         </a>
       </div>
