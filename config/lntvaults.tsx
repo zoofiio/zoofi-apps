@@ -226,7 +226,7 @@ Checker nodes ensure the integrity and service quality of Aethir network by chec
           Verio
         </a>
         <a href='https://www.metapool.app/stake?token=ip' target='_blank' className='underline underline-offset-2 text-primary cursor-pointer'>
-          Metapool
+          Meta Pool
         </a>
       </div>
     </>,
