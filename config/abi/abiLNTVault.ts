@@ -50,6 +50,7 @@ export const abiLntVault = parseAbi([
   'function updateVTPriceTime(uint256 newStartTime, uint256 newEndTime) external',
   'function buybackVT(uint256 amountT) external',
   'function updateBuybackPool(address newPool) external',
+  'function buyback(uint256 amountT) external',
 ])
 
 

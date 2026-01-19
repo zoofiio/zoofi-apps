@@ -15,32 +15,31 @@ import { fetLntVault } from '@/hooks/useFetLntVault'
 import { cn, FMT, fmtDate, promiseAll, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { keys } from 'es-toolkit/compat'
+import { useState } from 'react'
 import { useSetState } from 'react-use'
-import { Address, erc1155Abi, erc20Abi, formatUnits, parseAbi, parseUnits, stringToHex } from 'viem'
-
-
-type ParamItem = { show: string; value: string; units?: number /** def 10 */ }
-
-function UpdateVaultParams({ paramList, vault, protocoSettingAddress, chain }: { chain: number, paramList: ParamItem[]; vault: Address; protocoSettingAddress: Address }) {
-  const params = useMemo(() => paramList.map((p, i) => ({ ...p, show: `${p.show}(${p.value})`, key: `param:${i}` })), [paramList])
-  const [{ value, param }, setState] = useSetState({
-    value: '',
-    param: params[0],
-  })
+import { Address, erc1155Abi, erc20Abi, formatUnits, hexToString, parseAbi, parseUnits, stringToHex } from 'viem'
+function UpdateVaultParams({ vault, protocoSettingAddress, chain }: { chain: number, vault: Address; protocoSettingAddress: Address }) {
   const { data, refetch, isFetching } = useQuery({
-    queryKey: ['vualtParams:', chain, vault, paramList],
+    queryKey: ['vualtParams:', chain, vault],
     queryFn: async () => {
       const all: any = {}
       const pc = getPC(chain)
-      paramList.forEach(item => {
-        all[`${item.show}(${item.value})`] = pc.readContract({ abi: abiProtocolSettings, address: protocoSettingAddress, functionName: 'vaultParamValue', args: [vault, stringToHex(item.value, { size: 32 })] })
-          .then((res => formatUnits((res as unknown as bigint) || 0n, typeof item.units == 'number' ? item.units : 10)))
+      const paramsHex = await pc.readContract({ abi: parseAbi(['function params() public view returns (bytes32[] memory)']), address: protocoSettingAddress, functionName: 'params' })
+      const params = paramsHex.map(item => hexToString(item, { size: 32 }))
+      params.forEach(item => {
+        all[item] = pc.readContract({ abi: abiProtocolSettings, address: protocoSettingAddress, functionName: 'vaultParamValue', args: [vault, stringToHex(item, { size: 32 })] })
+          .then((res => formatUnits((res as unknown as bigint) || 0n, 18)))
       })
       return promiseAll(all)
     }
   })
-  const currentUnits = typeof param.units == 'number' ? param.units : 10
+  const params = keys(data ?? {});
+  const [{ value, param }, setState] = useSetState({
+    value: '',
+    param: params[0],
+  })
+
   return (
     <Expandable tit='Vault Param Vaule'>
       <SimpleSelect className='w-full animitem' itemClassName='p-3' currentClassName='p-3' listClassName='max-h-[350px] overflow-y-auto' options={params} onChange={(data) => setState({ param: data })} />
@@ -66,7 +65,7 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress, chain }: {
           abi: abiProtocolSettings,
           address: protocoSettingAddress,
           functionName: 'updateVaultParamValue',
-          args: [vault, stringToHex(param.value, { size: 32 }), parseUnits(value, currentUnits)],
+          args: [vault, stringToHex(param, { size: 32 }), parseUnits(value, 18)],
         }]}
         onTxSuccess={() => {
           setState({ value: '' })
@@ -77,41 +76,9 @@ function UpdateVaultParams({ paramList, vault, protocoSettingAddress, chain }: {
     </Expandable>
   )
 }
-const LntVaultParams: ParamItem[] = [
-  { show: '', value: 'VTC', units: 18 },
-  { show: '', value: 'BuybackDiscountThreshold', units: 18 },
-  { show: '', value: 'BuybackProfitCommissionRate', units: 18 },
-  { show: '', value: 'initialAnchor', units: 18 },
-  { show: '', value: 'scalarRoot', units: 18 },
-  { show: '', value: 'vtSwapFee', units: 18 },
-  { show: '', value: 'R', units: 18 },
-]
-const LntVaultParams2_1: ParamItem[] = [
-  { show: '', value: 'VTC', units: 18 }
-]
-const LntVaultParams2_2: ParamItem[] = [
-  { show: '', value: 'VestingRate', units: 18 },
-  { show: '', value: 'initialAnchor', units: 18 },
-  { show: '', value: 'scalarRoot', units: 18 },
-  { show: '', value: 'vtSwapFee', units: 18 },
-  { show: '', value: 'R', units: 18 },
-]
-
-const LntVaultParamsReppo: ParamItem[] = [
-  ...LntVaultParams2_1,
-  ...LntVaultParams2_2
-]
-
-const LvtVaultParamsVerio: ParamItem[] = [
-  ...LntVaultParams,
-  { show: '', value: 'VerioIPInflationRate', units: 18 },
-  { show: '', value: 'VestingRate', units: 18 },
-]
-
-
 function AdminReppo({ vc }: { vc: LntVaultConfig }) {
   return <>
-    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParamsReppo} />
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
@@ -125,10 +92,9 @@ function AdminReppo({ vc }: { vc: LntVaultConfig }) {
   </>
 }
 
-const LntVault0GParams = [...LntVaultParams2_1, ...LntVaultParams2_2]
 function Admin0G({ vc }: { vc: LntVaultConfig }) {
   return <>
-    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVault0GParams} />
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
@@ -145,12 +111,10 @@ function Admin0G({ vc }: { vc: LntVaultConfig }) {
   </>
 }
 
-
-
 function AdminAethir({ vc }: { vc: LntVaultConfig }) {
   return <>
     <AsyncInfo keys={[vc.vault]} infos={() => fetLntVault(vc)} />
-    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams} />
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
         vtPriceStartTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
@@ -158,6 +122,7 @@ function AdminAethir({ vc }: { vc: LntVaultConfig }) {
       })} />
     <ContractAll tit='Vault' abi={abiLntVault} address={vc.vault} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
+    <ContractAll tit='ProtocolSettings' abi={abiProtocolSettings} address={vc.protocalSettings} />
     {vc.VToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={vc.VToracle} />}
     {vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={vc.RedeemStrategy}
       itemInfos={{
@@ -188,7 +153,7 @@ const abiMErc1155 = [
 ]
 function AdminFilcoin({ vc }: { vc: LntVaultConfig }) {
   return <>
-    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams2_2} />
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
@@ -204,7 +169,7 @@ function AdminFilcoin({ vc }: { vc: LntVaultConfig }) {
 
 function AdminVerio({ vc }: { vc: LntVaultConfig }) {
   return <>
-    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LvtVaultParamsVerio} />
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
@@ -218,7 +183,7 @@ function AdminVerio({ vc }: { vc: LntVaultConfig }) {
 
 function AdminSei({ vc }: { vc: LntVaultConfig }) {
   return <>
-    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams2_2} />
+    <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
