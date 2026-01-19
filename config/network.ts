@@ -1,7 +1,7 @@
 import { Address, Chain, defineChain } from 'viem'
-import { base as baseMainnet, zeroG, arbitrum as arbitrumMain, bsc as bscMain, arbitrumSepolia as arbSep, bscTestnet as bscTest, story as _story, sei as _sei } from 'viem/chains'
-import { LP_TOKENS } from './lpTokens'
+import { sei as _sei, story as _story, arbitrum as arbitrumMain, arbitrumSepolia as arbSep, base as baseMainnet, bsc as bscMain, bscTestnet as bscTest, zeroG } from 'viem/chains'
 import { BASE_PATH } from './env'
+import { LP_TOKENS } from './lpTokens'
 
 export const berachain = defineChain({
   id: 80094,
@@ -13,8 +13,6 @@ export const berachain = defineChain({
   },
   rpcUrls: {
     default: { http: ['https://rpc.berachain.com'] },
-    // "https://berachain-mainnet.g.alchemy.com/v2/-yCJ0Aq6OmJoAtLknbSiImqfoPCzQCxe"
-    alchemy: { http: ['https://berachain-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'] },
   },
   blockExplorers: {
     default: {
@@ -36,9 +34,9 @@ export const base = defineChain({
   ...baseMainnet,
   rpcUrls: {
     ...baseMainnet.rpcUrls,
-    alchemy: {
-      http: ['https://base-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'],
-    },
+    public: {
+      http: ['https://base-rpc.publicnode.com', 'https://base-mainnet.public.blastapi.io', 'https://base.drpc.org'],
+    }
   },
   iconUrl: `${BASE_PATH}/BaseNetwork.png`,
 })
@@ -73,12 +71,13 @@ export const arbitrum = defineChain({
   ...arbitrumMain,
   rpcUrls: {
     ...arbitrumMain.rpcUrls,
-    alchemy: {
-      http: ['https://arb-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'],
-    },
+    public: {
+      http: ['https://api.zan.top/arb-one', 'https://public-arb-mainnet.fastnode.io', 'https://arbitrum.drpc.org']
+    }
   },
   iconUrl: `${BASE_PATH}/arbitrum.svg`,
 })
+
 export const arbitrumSepolia = defineChain({
   ...arbSep,
   iconUrl: `${BASE_PATH}/arbitrum.svg`,
@@ -105,9 +104,6 @@ export const sei = defineChain({
   rpcUrls: {
     default: {
       http: ['https://sei-evm-rpc.stakeme.pro'],
-    },
-    alchemy: {
-      http: ['https://sei-mainnet.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX'],
     },
   },
   iconUrl: `${BASE_PATH}/sei.svg`,
