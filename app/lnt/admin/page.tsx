@@ -174,7 +174,9 @@ function AdminAethir({ vc }: { vc: LntVaultConfig }) {
     />
     <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={vc.vault} />
     <GeneralAction abi={abiLntVault} functionName='updateAethirClaimAndWithdraw' address={vc.vault} />
-    <ContractAll unwrap tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
+    <GeneralAction abi={abiLntVault} functionName='updateBuybackPool' address={vc.vault} />
+    
+    <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     {vc.VToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={vc.VToracle} />}
     {vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={vc.RedeemStrategy}
       itemInfos={{
