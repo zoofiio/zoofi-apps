@@ -2,7 +2,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 console.info('BASE_PATH', basePath)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // output: 'export',
   basePath,
   typescript: {
     ignoreBuildErrors: true,

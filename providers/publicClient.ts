@@ -1,5 +1,4 @@
 import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
-import { useReadingCountStore } from '@/hooks/useWrapPublicClient'
 import { flatten } from 'es-toolkit'
 import { keys } from 'es-toolkit/compat'
 
@@ -19,9 +18,9 @@ function createPCS(chainId: number) {
     const pc = createPublicClient({
       batch: { multicall: multicallBatchConfig },
       // chain: SUPPORT_CHAINS.find((c) => c.id == chainId)!,
-      transport: http(url, { batch: apiBatchConfig }),
+      transport: http(url, { batch: apiBatchConfig, fetchOptions: { cache: 'force-cache' } }),
     })
-  
+
     // const originRead = pc.readContract
     // pc.readContract = async (...args) => {
     //   try {
