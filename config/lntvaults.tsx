@@ -131,6 +131,8 @@ export const LNTVAULTS_CONFIG: LntVaultConfig[] = [
     VToracle: '0xd7fc9ab355567af429fb5bb3b535eab4c7e48567',
     RedeemStrategy: '0x878aac1ca6b36a2841ae0200f2366a4178c2ca22',
     vtSwapHook: '0xbf4b4A83708474528A93C123F817e7f2A0637a88',
+    buybackPool: '0xf74b2eab9763e412849f7923317d31be49118b3b',
+    buyback: true,
     isAethir: true,
     lpTYT: zeroAddress,
     test: false,

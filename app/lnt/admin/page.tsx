@@ -151,31 +151,12 @@ function AdminAethir({ vc }: { vc: LntVaultConfig }) {
   return <>
     <AsyncInfo keys={[vc.vault]} infos={() => fetLntVault(vc)} />
     <UpdateVaultParams chain={vc.chain} vault={vc.vault} protocoSettingAddress={vc.protocalSettings} paramList={LntVaultParams} />
-    <GeneralAction abi={abiLntVault} functionName='withdrawProfitT' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='close' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='updateAutoBuyback' address={vc.vault}
-      infos={() => getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'autoBuyback' })} />
-    <GeneralAction abi={abiLntVault} functionName='updateCheckerNode' address={vc.vault}
-      infos={() => getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'checkerNode' })}
-    />
-    <GeneralAction abi={abiLntVault} functionName='setUser' address={vc.vault} argsDef={['', '', (2n ** 63n).toString()]} />
-    <GeneralAction abi={abiLntVault} functionName='batchSetUser' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='setUserRecordsInfo' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='removeLastSetUserRecords' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='buybackVT' address={vc.vault} />
     <GeneralAction abi={abiLntVault} functionName='updateVTPriceTime' address={vc.vault}
       infos={() => promiseAll({
         vtPriceStartTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
         vtPriceEndTime: getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' })
       })} />
-    <GeneralAction abi={abiLntVault} functionName='updateVTAOracle' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='updateRedeemStrategy' address={vc.vault}
-      infos={() => getPC(vc.chain).readContract({ abi: abiLntVault, address: vc.vault, functionName: 'redeemStrategy' })}
-    />
-    <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='updateAethirClaimAndWithdraw' address={vc.vault} />
-    <GeneralAction abi={abiLntVault} functionName='updateBuybackPool' address={vc.vault} />
-    
+    <ContractAll tit='Vault' abi={abiLntVault} address={vc.vault} />
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     {vc.VToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={vc.VToracle} />}
     {vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={vc.RedeemStrategy}
@@ -193,7 +174,7 @@ function AdminAethir({ vc }: { vc: LntVaultConfig }) {
         }
       }}
     />}
-
+    {vc.buybackPool && <ContractAll tit='Put Option' abi={abiLntBuyback} address={vc.buybackPool} />}
     <Erc20Approve />
   </>
 }

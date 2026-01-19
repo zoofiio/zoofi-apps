@@ -8,7 +8,7 @@ import { aarToNumber, fmtDuration, parseEthers, promiseAll } from "@/lib/utils";
 import { getPC } from "@/providers/publicClient";
 import { displayBalance } from "@/utils/display";
 import { round } from "es-toolkit";
-import { now } from "es-toolkit/compat";
+import { findLast, now } from "es-toolkit/compat";
 import Link from "next/link";
 import { useState } from "react";
 import { formatUnits, toHex } from "viem";
@@ -17,6 +17,8 @@ import { Txs, TXSType, withTokenApprove } from "./approve-and-tx";
 import { TokenIcon } from "./icons/tokenicon";
 import { TokenInput } from "./token-input";
 import { Tip } from "./ui/tip";
+import { aethirPutoptonBatchs } from "./lnt-vault-aethir";
+
 function getNextBatch(vc: LntVaultConfig) {
     if (vc.reppo) {
         const nowTime = now()
@@ -26,6 +28,13 @@ function getNextBatch(vc: LntVaultConfig) {
         if (nextDate.getTime() > 1795996800000) return undefined;
         return { value: '4,135', time: nextDate.getTime() }
     }
+    if (vc.isAethir) {
+        const batch = aethirPutoptonBatchs.find(item => Math.floor(Date.now() / 1000) < (item.time + item.cliffSecond))
+        if (batch) {
+            return { value: displayBalance(batch.amount, 0), time: (batch.time + batch.cliffSecond) * 1000 }
+        }
+    }
+
     return undefined
 }
 export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
