@@ -1,0 +1,7 @@
+services:
+  zoofi-app:
+    container_name: zoofi-app
+    image: zoofi-app:latest
+    restart: always
+    ports:
+      - 4321:3000

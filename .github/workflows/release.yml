@@ -1,15 +1,57 @@
-name: Github Pages
+name: Releases
 on:
   workflow_dispatch:
     inputs:
       job:
         required: true
         type: choice
-        options: ['prod', 'test', 'all']
+        options: ['prod', 'test', 'docker', 'all']
   push:
     branches: ['dev', 'main']
 
 jobs:
+  docker:
+    if: contains(github.event.head_commit.message, '[docker]') || contains(github.event.head_commit.message, '[all]') || github.event.inputs.job == 'docker' || github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}  
+
+      - name: Set pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies & build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/zoofiio/zoofi-app:latest
+            ghcr.io/zoofiio/zoofi-app:${{ env.date }}
+
+
   prod:
     if: contains(github.event.head_commit.message, '[prod]') || contains(github.event.head_commit.message, '[all]') || github.event.inputs.job == 'prod' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
