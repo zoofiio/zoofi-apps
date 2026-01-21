@@ -1,3 +1,4 @@
+'use client'
 import { cn } from '@/lib/utils';
 import { ButtonHTMLAttributes, HTMLAttributes, useRef } from 'react';
 import { AiOutlineSwap } from 'react-icons/ai';

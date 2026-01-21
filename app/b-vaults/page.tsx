@@ -6,51 +6,28 @@ import { Noti } from '@/components/noti'
 import { PageWrap } from '@/components/page-wrap'
 import { SimpleTabs } from '@/components/simple-tabs'
 import { ConfigChainsProvider } from '@/components/support-chains'
+import { BBtn2 } from '@/components/ui/bbtn'
 import { SimpleSelect } from '@/components/ui/select'
 import { abiBVault } from '@/config/abi'
 import { BVaultConfig, BvaultsByEnv } from '@/config/bvaults'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useLoadBVaults } from '@/hooks/useLoads'
 import { tabToSearchParams } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { useBoundStore, useStore } from '@/providers/useBoundStore'
-import { useBVault, useBVaultEpoches } from '@/providers/useBVaultsData'
+import { useBVault, useBVaults } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ReactNode, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FaAngleLeft, FaSpinner } from 'react-icons/fa6'
 import { isAddressEqual } from 'viem'
 import { useAccount } from 'wagmi'
 import { toBVault } from '../routes'
-import { BBtn2 } from '@/components/ui/bbtn'
-function StrongSpan({ children }: { children: ReactNode }) {
-  return <span className='font-extrabold'>{children}</span>
-}
 
 const SupportTabs = ['redeem', 'principal_panda', 'boost_venom'] as const
 
 function BVaultPage({ bvc, currentTab }: { bvc: BVaultConfig; currentTab?: string }) {
   const { address } = useAccount()
-  const bvd = useBVault(bvc.vault)
+  const bvd = useBVault(bvc)
   const chainId = useCurrentChainId()
-  useQuery({
-    queryKey: ['UpdateVaultDetails', chainId, bvc, bvd],
-    queryFn: async () => {
-      if (bvd.epochCount == 0n) return false
-      await useBoundStore.getState().sliceBVaultsStore.updateEpoches(chainId, bvc)
-      return true
-    },
-  })
-  const epoches = useBVaultEpoches(bvc.vault)
-  useQuery({
-    queryKey: ['UpdateUserData', bvc, epoches, address],
-    queryFn: async () => {
-      if (epoches.length == 0 || !address) return false
-      console.info('epochesOld:', epoches)
-      await useBoundStore.getState().sliceUserBVaults.updateEpoches(chainId, bvc, address!, epoches)
-      return true
-    },
-  })
   const { data: showAddReward } = useQuery({
     queryKey: ['checkIsBriber', chainId, address, bvc],
     queryFn: async () => {
@@ -123,18 +100,23 @@ export default function Vaults() {
   const currentTab = SupportTabs.includes(paramsTab as any) ? (paramsTab as (typeof SupportTabs)[number]) : ''
   const currentVc = bvcs.find((item) => item.vault == paramsVault)
   // useUpdateBVaultsData(bvcs)
-  const { loading } = useLoadBVaults()
   const [currentFilter, setFilter] = useState(vaultsFilters.find(item => item === sessionStorage.getItem('bvualts-filter')) ?? vaultsFilters[0])
   const wrapSetFilter = (nf: VaultsFilterType) => {
     setFilter(nf)
     sessionStorage.setItem("bvualts-filter", nf)
   }
-  const bvaults = useStore(s => s.sliceBVaultsStore.bvaults, ['sliceBVaultsStore.bvaults'])
+  const bvaults = useBVaults(bvcs)
+  const loading = bvaults.some(item => item.isLoading)
   const fVcs = useMemo(() => {
     if (loading) return bvcs
     if (currentFilter == 'All') return bvcs
-    if (currentFilter == 'Active') return bvcs.filter(vc => !Boolean(bvaults[vc.vault]?.closed))
-    return bvcs.filter(vc => Boolean(bvaults[vc.vault]?.closed))
+    const isActive = (vc: BVaultConfig) => {
+      const vcIndex = bvcs.findIndex(item => item.vault == vc.vault && item.chain == vc.chain)
+      const vd = bvaults[vcIndex]?.data
+      return Boolean(vd) && !vd!.closed
+    }
+    if (currentFilter == 'Active') return bvcs.filter(isActive)
+    return bvcs.filter(vc => !isActive(vc))
   }, [loading, bvaults, currentFilter, bvcs])
   return (
     <PageWrap>

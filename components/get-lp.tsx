@@ -1,11 +1,20 @@
 import { LP_TOKENS } from "@/config/lpTokens"
-import { getBexPoolURL } from "@/config/network"
-import { Address } from "viem"
-import Link from 'next/link'
-import { CoinIcon } from "./icons/coinicon"
+
 import { useCurrentChainId } from "@/hooks/useCurrentChainId"
+import Link from 'next/link'
+import { Address } from "viem"
+import { berachain } from "viem/chains"
+import { CoinIcon } from "./icons/coinicon"
 
-
+export const BEX_URLS: { [k: number]: string } = {
+    [berachain.id]: 'https://hub.berachain.com',
+}
+export const getBexPoolURL = (chainId: number, pool: Address) => {
+    if (berachain.id) {
+        return `${BEX_URLS[chainId]}/pools/${LP_TOKENS[pool].poolId}/deposit/`
+    }
+    return ''
+}
 
 function getKodiakLink(pool: string) {
     return `https://app.kodiak.finance/#/liquidity/pools/${pool}?chain=berachain_mainnet`

@@ -1,3 +1,5 @@
+'use client'
+
 import { useDocumentVisible } from '@/hooks/useDocumentVisible'
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit'
 import { useEffect, useState } from 'react'
@@ -5,8 +7,6 @@ import { useAccount, useSwitchChain } from 'wagmi'
 import { Spinner } from './spinner'
 import { useConfigChains } from './support-chains'
 import { BBtn } from './ui/bbtn'
-
-
 
 function WalletIcon() {
   return <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,7 +30,7 @@ export default function ConnectBtn() {
   const { isConnected, chainId } = useAccount()
   const showConnect = !isConnected
   const cm = useConnectModal()
-  const { chains } = useConfigChains()
+  const chains = useConfigChains()
   const sc = useSwitchChain()
   const [isSwitching, setSwitching] = useState(false)
   const docVisible = useDocumentVisible()

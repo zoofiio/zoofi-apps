@@ -1,39 +1,44 @@
-import { Address, Chain, defineChain } from 'viem'
-import { sei as _sei, story as _story, arbitrum as arbitrumMain, arbitrumSepolia as arbSep, base as baseMainnet, bsc as bscMain, bscTestnet as bscTest, zeroG } from 'viem/chains'
-import { BASE_PATH } from './env'
-import { LP_TOKENS } from './lpTokens'
+import { Assign, Chain, ChainFormatters, defineChain, Prettify } from 'viem'
+import { arbitrum as _arbitrum, arbitrumSepolia as _arbSep, base as _base, berachain as _berachain, bsc as _bsc, bscTestnet as _bscTest, sei as _sei, story as _story } from 'viem/chains'
+import { ALCHEMY_API_KEY, BASE_PATH } from './env'
 
-export const berachain = defineChain({
-  id: 80094,
-  name: 'Berachain',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'BERA Token',
-    symbol: 'BERA',
-  },
-  rpcUrls: {
-    default: { http: ['https://rpc.berachain.com'] },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://berascan.com/',
-    },
-  },
-  contracts: {
-    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11', blockCreated: 109269 },
-  },
-  testnet: false,
-  fees: {
-    baseFeeMultiplier: 1.4,
-  },
+function mconfigChain<
+  formatters extends ChainFormatters,
+  const chain extends Chain<formatters>
+>(chain: chain): Prettify<Assign<Chain<undefined>, chain>> {
+  const rpcUrls: Chain<formatters>['rpcUrls'] = {
+    ...chain.rpcUrls
+  }
+  if (ALCHEMY_API_KEY) {
+    const subdommainmap: { [k: number]: string } = {
+      [_sei.id]: 'sei-mainnet',
+      [_story.id]: 'story-mainnet',
+      [_arbitrum.id]: 'arb-mainnet',
+      [_base.id]: 'base-mainnet',
+      [_bsc.id]: 'bnb-mainnet',
+      [_berachain.id]: 'berachain-mainnet'
+    }
+    if (subdommainmap[chain.id]) {
+      rpcUrls.alchemy = {
+        http: [`https://${subdommainmap[chain.id]}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`]
+      }
+    }
+  }
+  return defineChain({
+    ...chain,
+    rpcUrls,
+  }) as unknown as Assign<Chain<undefined>, chain>
+}
+
+export const berachain = mconfigChain({
+  ..._berachain,
   iconUrl: `${BASE_PATH}/berachain.svg`,
 })
 
-export const base = defineChain({
-  ...baseMainnet,
+export const base = mconfigChain({
+  ..._base,
   rpcUrls: {
-    ...baseMainnet.rpcUrls,
+    ..._base.rpcUrls,
     public: {
       http: ['https://base-rpc.publicnode.com', 'https://base-mainnet.public.blastapi.io', 'https://base.drpc.org'],
     }
@@ -41,14 +46,7 @@ export const base = defineChain({
   iconUrl: `${BASE_PATH}/BaseNetwork.png`,
 })
 
-export const zeroGTestnet = defineChain({
-  ...zeroG,
-  id: 16601,
-  name: '0G Testnet',
-  iconUrl: `${BASE_PATH}/ZeroG.png`,
-})
-
-export const zeroGmainnet = defineChain({
+export const zeroGmainnet = mconfigChain({
   id: 16661,
   name: '0G Mainnet',
   nativeCurrency: { name: '0G', symbol: '0G', decimals: 18 },
@@ -67,39 +65,40 @@ export const zeroGmainnet = defineChain({
   iconUrl: `${BASE_PATH}/ZeroG.png`,
 })
 
-export const arbitrum = defineChain({
-  ...arbitrumMain,
+export const arbitrum = mconfigChain({
+  ..._arbitrum,
   rpcUrls: {
-    ...arbitrumMain.rpcUrls,
+    ..._arbitrum.rpcUrls,
     public: {
       http: ['https://api.zan.top/arb-one', 'https://public-arb-mainnet.fastnode.io', 'https://arbitrum.drpc.org']
-    }
+    },
+
   },
   iconUrl: `${BASE_PATH}/arbitrum.svg`,
 })
 
 export const arbitrumSepolia = defineChain({
-  ...arbSep,
+  ..._arbSep,
   iconUrl: `${BASE_PATH}/arbitrum.svg`,
 })
 
-export const bsc = defineChain({
-  ...bscMain,
+export const bsc = mconfigChain({
+  ..._bsc,
   name: 'BSC',
   iconUrl: `${BASE_PATH}/bsc.svg`,
 })
 export const bscTestnet = defineChain({
-  ...bscTest,
+  ..._bscTest,
   name: 'BSC Test',
   iconUrl: `${BASE_PATH}/bsc.svg`,
 })
 
-export const story = defineChain({
+export const story = mconfigChain({
   ..._story,
   iconUrl: `${BASE_PATH}/IP.svg`,
 })
 
-export const sei = defineChain({
+export const sei = mconfigChain({
   ..._sei,
   rpcUrls: {
     default: {
@@ -117,15 +116,6 @@ export const lntChains = [base]
 // allapps chanis
 export const SUPPORT_CHAINS: [Chain, ...Chain[]] = [zeroGmainnet, base, berachain, arbitrum, bsc, sei, story]
 
-const refChainId = { chainId: SUPPORT_CHAINS[0].id }
-export function getCurrentChainId() {
-  return refChainId.chainId
-}
-
-export function isBerachain(id: number) {
-  return !!beraChains.find((item) => item.id == id)
-}
-
 export function isTestnet(chainId: number, def: boolean = false) {
   return SUPPORT_CHAINS.find((item) => item.id === chainId)?.testnet ?? def
 }
@@ -136,14 +126,4 @@ export function getChain(chainId: number) {
 
 export function getChainName(chainId: number) {
   return getChain(chainId)?.name || `Chain(${chainId})`
-}
-
-export const BEX_URLS: { [k: number]: string } = {
-  [berachain.id]: 'https://hub.berachain.com',
-}
-export const getBexPoolURL = (chainId: number, pool: Address) => {
-  if (berachain.id) {
-    return `${BEX_URLS[chainId]}/pools/${LP_TOKENS[pool].poolId}/deposit/`
-  }
-  return ''
 }

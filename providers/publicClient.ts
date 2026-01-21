@@ -1,5 +1,4 @@
 import { apiBatchConfig, multicallBatchConfig, SUPPORT_CHAINS } from '@/config/network'
-import { useReadingCountStore } from '@/hooks/useWrapPublicClient'
 import { flatten } from 'es-toolkit'
 import { keys } from 'es-toolkit/compat'
 
@@ -21,21 +20,6 @@ function createPCS(chainId: number) {
       // chain: SUPPORT_CHAINS.find((c) => c.id == chainId)!,
       transport: http(url, { batch: apiBatchConfig }),
     })
-  
-    // const originRead = pc.readContract
-    // pc.readContract = async (...args) => {
-    //   try {
-    //     useReadingCountStore.getState().upReadingCount(1)
-    //     // await isBusy()
-    //     // @ts-ignore
-    //     return await originRead(...args)
-    //   } catch (error) {
-    //     console.error('readError', error, '\nArgs', [...args])
-    //     throw error
-    //   } finally {
-    //     useReadingCountStore.getState().upReadingCount(-1)
-    //   }
-    // }
     return pc
   })
   return pcs

@@ -1,15 +1,14 @@
 import { abiBVault } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
 import { berachain } from '@/config/network'
-import { isNativeToken } from '@/config/tokens'
+import { isNativeToken, Token } from '@/config/tokens'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
+import { useBalance } from '@/hooks/useToken'
+import { reFet } from '@/lib/useFet'
 import { cn, handleError, parseEthers } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { TokenItem } from '@/providers/sliceTokenStore'
-import { useBoundStore, useStore } from '@/providers/useBoundStore'
 import { useBVault } from '@/providers/useBVaultsData'
-import { useBalances } from '@/providers/useTokenStore'
 import { displayBalance } from '@/utils/display'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { isEmpty } from 'es-toolkit/compat'
@@ -18,40 +17,36 @@ import { FiArrowDown } from 'react-icons/fi'
 import { toast } from 'sonner'
 import { Address, erc20Abi, isAddress } from 'viem'
 import { useAccount, useWalletClient } from 'wagmi'
-import { AssetInput } from './input-asset'
 import { CoinIcon } from './icons/coinicon'
+import { AssetInput } from './input-asset'
 import { PulseTokenItem } from './pulse-ui'
 import { SimpleDialog } from './simple-dialog'
 import { BBtn } from './ui/bbtn'
-
+export type TokenItem = Token & {
+  name?: string
+  url?: string
+}
 const defTokens: TokenItem[] = [
-  { symbol: 'HONEY', name: 'HONEY Token', address: '0x0e4aaf1351de4c0264c5c7056ef3777b41bd8e03', decimals: 18, },
-  { symbol: 'USDC', name: 'USD Coin', address: '0xd6d83af58a19cd14ef3cf6fe848c9a4d21e5727c', decimals: 18, },
-  { symbol: 'WBERA', name: 'BERA Token', address: '0x7507c1dc16935b82698e4c63f2746a2fcf994df8', decimals: 18, },
-  { symbol: 'iBGT', name: 'Infrared BGT', address: '0x46eFC86F0D7455F135CC9df501673739d513E982', decimals: 18, },
-  { symbol: 'USDT', name: 'Tether USD', address: '0x05D0dD5135E3eF3aDE32a9eF9Cb06e8D37A6795D', decimals: 18, },
-  { symbol: 'DAI', name: 'Decentralized USD', address: '0x806Ef538b228844c73E8E692ADCFa8Eb2fCF729c', decimals: 18, },
-  { symbol: 'WBTC', name: 'Wrapped Bitcoin', address: '0x2577D24a26f8FA19c1058a8b0106E2c7303454a4', decimals: 18, },
-  { symbol: 'WETH', name: 'Wrapped Ether', address: '0xE28AfD8c634946833e89ee3F122C06d7C537E8A8', decimals: 18, },
-]
-const beraTokens: TokenItem[] = [
-  { symbol: 'iBGT', name: 'Infrared BGT', address: '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b', decimals: 18 },
-  { symbol: 'HONEY', name: 'HONEY Token', address: '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce', decimals: 18 },
-  { symbol: 'USDC', name: 'USDC Token', address: '0x549943e04f40284185054145c6E4e9568C1D3241', decimals: 6 },
-  { symbol: 'WBERA', name: 'Wrapped Bera', address: '0x6969696969696969696969696969696969696969', decimals: 18 },
+  { chain: berachain.id, symbol: 'iBGT', name: 'Infrared BGT', address: '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b', decimals: 18 },
+  { chain: berachain.id, symbol: 'HONEY', name: 'HONEY Token', address: '0xFCBD14DC51f0A4d49d5E53C2E0950e0bC26d0Dce', decimals: 18 },
+  { chain: berachain.id, symbol: 'USDC', name: 'USDC Token', address: '0x549943e04f40284185054145c6E4e9568C1D3241', decimals: 6 },
+  { chain: berachain.id, symbol: 'WBERA', name: 'Wrapped Bera', address: '0x6969696969696969696969696969696969696969', decimals: 18 },
 ]
 
+
+function TokenBalance({ t }: { t: TokenItem }) {
+  const balance = useBalance(t).data
+  return <span className='ml-auto'>{displayBalance(balance, 3, t.decimals)}</span>
+}
 function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[]; hiddenNative?: boolean; onSelect?: (item: TokenItem) => void }) {
   const chainId = useCurrentChainId()
-  const defTokenList = useStore((s) => s.sliceTokenStore.defTokenList)
   const originTokens = useMemo(() => {
-    const list = !isEmpty(tokens) ? tokens! : isEmpty(defTokenList) ? defTokenList! : chainId == berachain.id ? beraTokens : defTokens
+    const list = !isEmpty(tokens) ? tokens! : defTokens
     if (hiddenNative) return list.filter((item) => !isNativeToken(item.address))
     return list
-  }, [tokens, defTokenList, hiddenNative, chainId])
+  }, [tokens, hiddenNative, chainId])
 
   const [input, setInput] = useState('')
-  const balances = useBalances()
   const { address: user } = useAccount()
   const { data: searchdTokens, isFetching } = useQuery({
     ...useCalcKey(['searchTokens', input, originTokens]),
@@ -66,7 +61,6 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
           pc.readContract({ abi: erc20Abi, address, functionName: 'symbol' }),
           pc.readContract({ abi: erc20Abi, address, functionName: 'decimals' }),
         ])
-        user && useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, [address], user)
         return [{ symbol, address, decimals }] as TokenItem[]
       } else {
         if (!input) return originTokens
@@ -81,16 +75,6 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
 
   })
   const showTokens = searchdTokens || originTokens
-
-  useQuery({
-    queryKey: ['updateBalancesForUnknowToken', originTokens],
-    enabled: !!user,
-    queryFn: () =>
-      useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId,
-        originTokens.map((item) => item.address),
-        user!,
-      ),
-  })
 
   return (
     <div className='flex flex-col gap-4 p-5'>
@@ -124,7 +108,7 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
               >
                 <CoinIcon className='rounded-full' size={40} symbol={t.symbol} url={t.url} />
                 <span>{t.symbol}</span>
-                <span className='ml-auto'>{displayBalance(balances[t.address], 3, t.decimals)}</span>
+                <TokenBalance t={t} />
               </div>
             ))}
           </>
@@ -135,13 +119,12 @@ function TokenSelect({ tokens, onSelect, hiddenNative }: { tokens?: TokenItem[];
 }
 
 export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
-  const balances = useBalances()
-  const bvd = useBVault(bvc.vault)
-  const defTokenList = useStore((s) => s.sliceTokenStore.defTokenList)
-  const defToken = !isEmpty(defTokenList) ? defTokenList[0] : defTokens[0]
+  const bvd = useBVault(bvc)
+  const defToken = defTokens[0]
   const [stoken, setStoken] = useState(defToken)
   const [input, setInput] = useState('')
-  const balance = balances[stoken.address]
+  const balanceFet = useBalance({ ...stoken, chain: bvc.chain })
+  const balance = balanceFet.data
   const inputBn = parseEthers(input, stoken.decimals)
   const triggerRef = useRef<HTMLDivElement>(null)
   const wc = useWalletClient()
@@ -158,7 +141,7 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
       }
       const hash = await wc.data.writeContract({ abi: abiBVault, address: bvc.vault, functionName: 'addAdhocBribes', args: [stoken.address, inputBn] })
       await pc.waitForTransactionReceipt({ hash, confirmations: 3 })
-      useBoundStore.getState().sliceTokenStore.updateTokensBalance(chainId, [stoken.address], address)
+      reFet(balanceFet.key)
       setInput('')
       toast.success('Transaction success')
     },
@@ -169,7 +152,7 @@ export function BVaultAddReward({ bvc }: { bvc: BVaultConfig }) {
   return (
     <div className='max-w-4xl mx-auto mt-8 animitem card'>
       <div className='relative'>
-        <AssetInput decimals={stoken.decimals} asset={stoken.symbol} assetURL={stoken.url} balance={balances[stoken.address]} amount={input} setAmount={setInput} />
+        <AssetInput decimals={stoken.decimals} asset={stoken.symbol} assetURL={stoken.url} balance={balance} amount={input} setAmount={setInput} />
         <SimpleDialog
           trigger={
             <div ref={triggerRef} className='absolute left-0 top-0 flex cursor-pointer justify-end items-center py-4'>

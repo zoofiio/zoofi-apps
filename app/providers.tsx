@@ -1,12 +1,10 @@
 'use client'
-  ; (BigInt.prototype as any).toJSON = function () {
-    return this.toString()
-  }
+
 import * as React from 'react';
 
 import { SUPPORT_CHAINS, apiBatchConfig, multicallBatchConfig } from '@/config/network';
 import { RainbowKitProvider, connectorsForWallets, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
-import { binanceWallet, bitgetWallet, coinbaseWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
+import { binanceWallet, baseAccount, bitgetWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
 import { WagmiProvider, createConfig, createStorage } from 'wagmi';
 
 const walletConnectProjectId = 'abf1f323cd9ff9f6a27167188d993168'
@@ -17,7 +15,6 @@ import { ConfigChainsProvider } from '@/components/support-chains';
 import { useThemeState } from '@/components/theme-mode';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Chain, createClient, http } from 'viem';
-
 
 const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3, refetchOnMount: 'always', staleTime: 1000 } } })
 const storage = createStorage({
@@ -34,7 +31,7 @@ const connectors = connectorsForWallets(
   [
     {
       groupName: 'Recommended',
-      wallets: [injectedWallet, metaMaskWallet, coinbaseWallet, binanceWallet, okxWallet, bitgetWallet, tokenPocketWallet, gateWallet, walletConnectWallet],
+      wallets: [injectedWallet, metaMaskWallet, baseAccount, binanceWallet, okxWallet, bitgetWallet, tokenPocketWallet, gateWallet, walletConnectWallet],
     },
   ],
   {

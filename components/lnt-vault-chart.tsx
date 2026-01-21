@@ -1,3 +1,4 @@
+'use client'
 /* eslint-disable react-hooks/preserve-manual-memoization */
 
 import { getLntVaultVTPriceApy } from '@/config/api'
@@ -5,13 +6,13 @@ import { LntVaultConfig } from '@/config/lntvaults'
 import { useFet } from '@/lib/useFet'
 import { FMT, fmtDate, formatPercent } from '@/lib/utils'
 import { graphic } from 'echarts'
+import EChartsReact from 'echarts-for-react'
 import { round } from 'es-toolkit'
 import { now } from 'es-toolkit/compat'
 import { useMemo, useState } from 'react'
 import { useToggle } from 'react-use'
 import { formatUnits } from 'viem'
 import { SimpleSelect } from './ui/select'
-import EChartsReact from 'echarts-for-react'
 
 const bnToNum = (bn: string, decimal: number = 18) => round(parseFloat(formatUnits(BigInt(bn), decimal)), 5)
 
@@ -109,13 +110,14 @@ function ChartItem({ tit, types, vc, data, yFormater }: { tit: string, types: st
 export default function LntVaultChart({ vc }: { vc: LntVaultConfig }) {
   const endTime = Math.round(now() / 1000)
   const startTime = Math.round(endTime - 60 * 60 * 24 * 90)
+  // const data = use(getLntVaultVTPriceApy(vc.chain, vc.vault, startTime, endTime))
   const data = useFet({
     key: `LntVaultVTChartData:${vc.vault}`,
     initResult: [],
     fetfn: async () => getLntVaultVTPriceApy(vc.chain, vc.vault, startTime, endTime)
-  })
-  const vtApy = data.data.map(item => [fmtDate(item.time * 1000, FMT.ALL3), (bnToNum(item.apy) + 1) ** 2 - 1] as [string, number]);
-  const vtPrice = data.data.map(item => [fmtDate(item.time * 1000, FMT.ALL3), bnToNum(item.price)] as [string, number]);
+  }).data
+  const vtApy = data.map(item => [fmtDate(item.time * 1000, FMT.ALL3), (bnToNum(item.apy) + 1) ** 2 - 1] as [string, number]);
+  const vtPrice = data.map(item => [fmtDate(item.time * 1000, FMT.ALL3), bnToNum(item.price)] as [string, number]);
   return (
     <div className='animitem max-w-4xl w-full min-w-0 flex flex-col gap-5 shrink-0'>
       <ChartItem tit='APY' types={vc.ytEnable ? ["YT APY", 'VT APY'] : ['VT APY']} vc={vc} data={vtApy} yFormater={(v) => formatPercent(v, 2, false)} />

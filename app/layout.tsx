@@ -1,6 +1,4 @@
-; (BigInt.prototype as any).toJSON = function () {
-  return this.toString()
-}
+
 
 import '@fontsource/parkinsans/300.css';
 import '@fontsource/parkinsans/400.css';

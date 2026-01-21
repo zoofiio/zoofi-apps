@@ -7,6 +7,7 @@ export type Conifg = {
   cacheTime?: number // default 1000
   retry?: number // default 3
   retryInterval?: number // default 500
+  suspend?: boolean
 }
 
 export type FetFN<RES> = () => Promise<RES>
@@ -89,7 +90,7 @@ async function runFetImpl<T>(fet: Fet<T>) {
       fets[fet.key].fs.lastUpDate = now()
       fets[fet.key].fs.status = 'success'
       emiter.emit(fet.key, fets[fet.key].fs)
-      return res
+      return res as T
     } catch (err: any) {
       if (retryCount == 0) {
         if (runId !== fets[fet.key].runId) break
@@ -132,7 +133,7 @@ export function runFet<T>(fet: Fet<T>, emit: boolean = false): FetStat<Fet<T>> {
 }
 
 function now() {
-  return new Date().getTime()
+  return Date.now()
 }
 
 const updateReducer = (num: number) => (num + 1) % 1_000_000

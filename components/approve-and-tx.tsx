@@ -1,3 +1,5 @@
+'use client'
+
 import { useApproves } from '@/hooks/useApprove'
 import { useWrapContractWrite } from '@/hooks/useWrapContractWrite'
 import { useEffect, useRef } from 'react'
@@ -155,7 +157,7 @@ export function TxsStat({ className }: { className?: string }) {
   return <SimpleDialog open disableClose className={cn('max-w-100 flex flex-col gap-2 p-4 font-sec', className)}>
     <div className='text-xl font-semibold'>Progress <Tip>Will require multiple signatures, this will be simplified into 1 approval with future updates!</Tip></div>
     <div className='flex flex-col gap-2 max-h-80 overflow-y-auto px-2.5 pt-5'>
-      {txs.map((tx, i) => <div key={`tx_item_stat_${i}`} className={cn('animitem rounded-xl flex items-center gap-5 bg-main p-4',{
+      {txs.map((tx, i) => <div key={`tx_item_stat_${i}`} className={cn('animitem rounded-xl flex items-center gap-5 bg-main p-4', {
         "bg-primary/5 text-primary": progress >= i
       })}>
         <span className=''>{i + 1}</span>

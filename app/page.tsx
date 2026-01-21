@@ -1,9 +1,4 @@
-'use client'
-  ;
-
-(BigInt.prototype as any).toJSON = function () {
-  return this.toString()
-}
+'use client';
 
 import { LntNodeSvg, LvtNodeSvg } from "@/components/anim-svg";
 import { LgBoardBloom, LgBoardBloom2 } from "@/components/ui/effects";

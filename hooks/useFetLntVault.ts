@@ -1,89 +1,34 @@
-import { abiLntVault, abiLntVTSwapHook, abiLvtVerio, abiQueryLNT, abiRedeemStrategy } from '@/config/abi/abiLNTVault'
 import { getLntVaultSwapFee7Days } from '@/config/api'
-import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { getTokenBy } from '@/config/tokens'
-import { DECIMAL, YEAR_SECONDS } from '@/constants'
+import { YEAR_SECONDS } from '@/constants'
+import { fetRouter } from '@/lib/fetRouter'
 import { useFet } from '@/lib/useFet'
-import { aarToNumber, FMT, fmtDate, fmtDuration, nowUnix, promiseAll } from '@/lib/utils'
-import { getPC } from '@/providers/publicClient'
+import { aarToNumber, FMT, fmtDate, fmtDuration, nowUnix } from '@/lib/utils'
 import { round } from 'es-toolkit'
 import { now, toNumber } from 'es-toolkit/compat'
-import { Address, erc721Abi, PublicClient, toHex, zeroAddress } from 'viem'
-import { useAccount } from 'wagmi'
+import { fetLntHookPoolkey, fetLntVault, fetLntVaultLogs, fetLntWithdrawWindows } from './fetsLnt'
 import { useTotalSupply } from './useToken'
 
 export const FET_KEYS = {
   LntVault: (vc: LntVaultConfig) => `fetLntVault:${vc.vault}`,
   LntVaultLogs: (vc: LntVaultConfig) => `LntVaultLogs:${vc.vault}`,
-  LntVaultYTRewards: (vc: LntVaultConfig, yt?: Address, user?: string) => (yt && yt !== zeroAddress && user ? `fetLntVaultYTRewards:${yt}:${user}` : ''),
-  LntVaultOperators: (vc: LntVaultConfig, nodeOP?: Address) => (nodeOP ? `fetLntVaultOperators:${nodeOP}` : ''),
-  LntHookPoolkey: (vc: LntVaultConfig, hook?: Address) => (hook && hook !== zeroAddress ? `LntHookPoolkey:${vc.vault}:${hook}` : ''),
-  LntWithdrawPrice: (vc: LntVaultConfig) => `LntWithdrawPrice:${vc.vault}`,
+  LntHookPoolkey: (vc: LntVaultConfig) => `LntHookPoolkey:${vc.vault}`,
   LntWithdrawWindows: (vc: LntVaultConfig) => (vc.RedeemStrategy ? `LntWithdrawWindows:${vc.vault}` : ''),
 }
-export async function fetLntVault(vc: LntVaultConfig) {
-  const pc = getPC(vc.chain)
-  const reppoOverwrite: { [k: string]: Promise<any> } = vc.reppo
-    ? {
-        activeDepositCount: Promise.all(
-          [vc.reppo.standard, vc.reppo.preminum].map((nft) => pc.readContract({ abi: erc721Abi, address: nft, functionName: 'balanceOf', args: [vc.vault] })),
-        ).then<bigint>((counts) => counts.reduce((t, c) => t + c, 0n)),
-      }
-    : {}
 
-  const verioOverwrite: { [k: string]: Promise<any> } = vc.isVerio
-    ? {
-        aVT: Promise.all([
-          pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'paramValue', args: [toHex('VerioIPInflationRate', { size: 32 })] }),
-          pc.readContract({ abi: abiLvtVerio, address: vc.vault, functionName: 'calculateIPWithdrawal', args: [DECIMAL] }),
-        ]).then(([vipInRate, vipRate]) => (vipInRate * DECIMAL * vipRate) / DECIMAL / DECIMAL),
-        // activeDepositCount: pc.readContract({ abi: erc20Abi, address: vc.asset, functionName: 'balanceOf', })
-      }
-    : {}
-
-  const { lntdata, ...other } = await promiseAll({
-    lntdata: pc.readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'queryLntVault', args: [vc.vault] }),
-    expiryTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceEndTime' }),
-    startTime: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'vtPriceStartTime' }),
-    ...reppoOverwrite,
-    ...verioOverwrite,
-  })
-  return { ...lntdata, ...other }
-}
 export function useLntVault(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntVault(vc),
-    fetfn: async () => fetLntVault(vc),
+    fetfn: () => fetRouter('/api/lnt', { chain: vc.chain, vault: vc.vault, fet: 'fetLntVault' }) as ReturnType<typeof fetLntVault>,
   })
 }
 
 export function useLntHookPoolkey(vc: LntVaultConfig) {
   return useFet({
-    key: FET_KEYS.LntHookPoolkey(vc, vc.vtSwapHook),
-    fetfn: async () => getPC(vc.chain).readContract({ abi: abiLntVTSwapHook, address: vc.vtSwapHook, functionName: 'poolKey' }),
+    key: FET_KEYS.LntHookPoolkey(vc),
+    fetfn: () => fetRouter('/api/lnt', { chain: vc.chain, vault: vc.vault, fet: 'fetLntHookPoolkey' }) as ReturnType<typeof fetLntHookPoolkey>,
   })
-}
-
-export async function getRewardsBy(rewradManager: Address, user: Address, pc: PublicClient) {
-  return pc
-    .readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'earned', args: [rewradManager, user] })
-    .then((item) => item.map((r) => [r.token, r.value] as [Address, bigint]))
-}
-export function useLntVaultYTRewards(vc: LntVaultConfig) {
-  const vd = useLntVault(vc)
-  const { address } = useAccount()
-  const rewards = useFet({
-    key: FET_KEYS.LntVaultYTRewards(vc, vd.data?.YT, address),
-    fetfn: async () => {
-      const pc = getPC(vc.chain)
-      return getRewardsBy(vd.data!.YT, address!, pc)
-    },
-  })
-  if (vd.status === 'fetching') {
-    rewards.status = 'fetching'
-  }
-  return rewards
 }
 
 export function useLntVaultTimes(vc: LntVaultConfig) {
@@ -97,10 +42,11 @@ export function useLntVaultTimes(vc: LntVaultConfig) {
   return { progress, progressPercent, remain, remainStr: `~ ${remain} remaining`, endTimeStr: fmtDate(endTime * 1000, FMT.DATE2) }
 }
 
+
 export function useLntVaultLogs(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntVaultLogs(vc),
-    fetfn: async () => getPC(vc.chain).readContract({ abi: abiQueryLNT, code: codeQueryLNT, functionName: 'getLog', args: [vc.vault, vc.vtSwapHook] }),
+    fetfn: () => fetRouter('/api/lnt', { chain: vc.chain, vault: vc.vault, fet: 'fetLntVaultLogs' }) as ReturnType<typeof fetLntVaultLogs>,
   })
 }
 
@@ -108,23 +54,17 @@ export function useLntVaultSwapFee7Days(vc: LntVaultConfig) {
   return useFet({
     key: `LntVaultSwapFee7Days:${vc.vault}`,
     initResult: 0n,
-    fetfn: async () => getLntVaultSwapFee7Days(vc.chain, vc.vault),
+    fetfn: () => getLntVaultSwapFee7Days(vc.chain, vc.vault),
   })
 }
+
+
 
 export function useLntVaultWithdrawWindows(vc: LntVaultConfig) {
   return useFet({
     key: FET_KEYS.LntWithdrawWindows(vc),
     initResult: [],
-    fetfn: async () => {
-      const pc = getPC(vc.chain)
-      const redeemStrategy = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'redeemStrategy' })
-      const canRedeem = await pc.readContract({ abi: abiRedeemStrategy, address: redeemStrategy, functionName: 'canRedeem' })
-      if (canRedeem) return [{ startTime: nowUnix(), duration: 10000000000n }]
-      const windowCount = await pc.readContract({ abi: abiRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindowsCount' })
-      const [sTimes, durations] = await pc.readContract({ abi: abiRedeemStrategy, address: redeemStrategy, functionName: 'redeemTimeWindows', args: [0n, windowCount] })
-      return sTimes.map((st, i) => ({ startTime: st, duration: durations[i] })).sort((a, b) => (a.startTime > b.startTime ? 1 : a.startTime < b.startTime ? -1 : 0))
-    },
+    fetfn: () => fetRouter('/api/lnt', { chain: vc.chain, vault: vc.vault, fet: 'fetLntWithdrawWindows' }) as ReturnType<typeof fetLntWithdrawWindows>,
   })
 }
 
@@ -214,19 +154,6 @@ export function useVTTotalSupply(vc: LntVaultConfig) {
   const vd = useLntVault(vc)
   const vtTotalSupply = useTotalSupply(getTokenBy(vd.data?.VT, vc.chain, { symbol: 'VT' }))
   return vtTotalSupply.data
-}
-
-export function useLntDepsoitFee(vc: LntVaultConfig) {
-  return useFet({
-    key: `LNTVaultDepositFee:${vc.chain}-${vc.vault}`,
-    fetfn: async () =>
-      getPC(vc.chain).readContract({
-        abi: abiLntVault,
-        address: vc.vault,
-        functionName: 'paramValue',
-        args: [toHex('VTC', { size: 32 })],
-      }),
-  })
 }
 
 export function useLntVaultVTC(vc: LntVaultConfig) {

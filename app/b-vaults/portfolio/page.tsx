@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client'
 import { toBVault } from '@/app/routes'
 import BeraLine from '@/components/icons/BeraLine'
@@ -7,17 +8,16 @@ import PandaLine from '@/components/icons/PandaLine'
 import VenomLine from '@/components/icons/VenomLine'
 import { PageWrap } from '@/components/page-wrap'
 import STable, { TableProps } from '@/components/simple-table'
-import { BVaultConfig, BvaultsByEnv } from '@/config/bvaults'
+import { BvaultsByEnv } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
-import { useLoadBVaults, useLoadUserBVaults } from '@/hooks/useLoads'
-import { fmtDate, fmtPercent } from '@/lib/utils'
-import { useBoundStore } from '@/providers/useBoundStore'
-import { calcBVaultPTApy } from '@/providers/useBVaultsData'
+import { Token } from '@/config/tokens'
+import { useBalance } from '@/hooks/useToken'
+import { fmtDate } from '@/lib/utils'
+import { useBVault, useBVaultApy, useBVaultEpoches, useUserBVaultEpoches } from '@/providers/useBVaultsData'
 import { displayBalance } from '@/utils/display'
 import { useRouter } from 'next/navigation'
-import { ReactNode, useMemo } from 'react'
+import { ReactNode } from 'react'
 import { MdArrowOutward } from 'react-icons/md'
-import { Address } from 'viem'
 
 function PortfolioItem({
   title,
@@ -68,48 +68,37 @@ function CoinText(p: { symbol: string; txt?: string; size?: number }) {
 function PrincipalItem() {
   const r = useRouter()
   const bvcs = BvaultsByEnv
-  const data: ReactNode[][] = useMemo(() => {
-    const s = useBoundStore.getState()
-    const inRedeem = (bvc: BVaultConfig) => {
-      return (s.sliceUserBVaults.epoches[bvc.vault] || []).reduce((sum, item) => sum + item.redeemingBalance, 0n)
-    }
-    const claimAble = (bvc: BVaultConfig) => {
-      return (s.sliceUserBVaults.epoches[bvc.vault] || []).reduce((sum, item) => sum + item.claimableAssetBalance, 0n)
-    }
-    const yieldDay = (bvc: BVaultConfig) => {
-      const balance = s.sliceTokenStore.balances[bvc.pToken] || 0n
-      return (calcBVaultPTApy(bvc) * balance) / 10n ** 10n / 365n
-    }
-    const datas = bvcs
-      .map((bvc) => {
-        const pBalance = s.sliceTokenStore.balances[bvc.pToken] || 0n
-        const pRedeeming = inRedeem(bvc)
-        const pClaimAble = claimAble(bvc)
-        const pTotalUser = pBalance + pRedeeming + pClaimAble
-        const lp = LP_TOKENS[bvc.asset]
-        const [baseSymbol, quoteSymbol] = lp ? bvc.assetSymbol.split('-') : ['', '']
-        const totalLP = s.sliceBVaultsStore.bvaults[bvc.vault]?.lpLiq || 0n
-        const totalLPBase = s.sliceBVaultsStore.bvaults[bvc.vault]?.lpBase || 0n
-        const totalLPQuote = s.sliceBVaultsStore.bvaults[bvc.vault]?.lpQuote || 0n
-        const uBase = lp && totalLP && totalLPBase && pTotalUser ? (pTotalUser * totalLPBase) / totalLP : 0n
-        const uQuote = lp && totalLP && totalLPQuote && pTotalUser ? (pTotalUser * totalLPQuote) / totalLP : 0n
-        const fmtTotalUser = displayBalance(pTotalUser)
-        return { bvc, pBalance, pRedeeming, pClaimAble, lp, baseSymbol, quoteSymbol, uBase, uQuote, pTotalUser, fmtTotalUser }
-      })
-      .filter((item) => item.pTotalUser > 0n)
-    const maxFmtTotalUserLength = datas.reduce((max, item) => Math.max(max, item.fmtTotalUser.length), 0)
-    const fmtTotalUserWidth = Math.round(maxFmtTotalUserLength * 5 + 20)
-    return datas.map(({ bvc, pBalance, pRedeeming, pClaimAble, lp, fmtTotalUser, baseSymbol, quoteSymbol, uBase, uQuote }) => {
-      return [
-        <CoinText key={'coin'} symbol={bvc.assetSymbol} txt={bvc.pTokenSymbol} size={32} />,
+  const data: ReactNode[][] = []
+  for (const vc of bvcs) {
+    const bvd = useBVault(vc)
+    const userepoches = useUserBVaultEpoches(vc)
+    const pBalance = useBalance({ chain: vc.chain, address: vc.pToken } as Token).data
+    const [fmtApy, ptApy] = useBVaultApy(vc)
+    const yieldDay = (ptApy * pBalance) / 10n ** 10n / 365n
+
+    const pRedeeming = (userepoches).reduce((sum, item) => sum + item.redeemingBalance, 0n)
+    const pClaimAble = (userepoches).reduce((sum, item) => sum + item.claimableAssetBalance, 0n)
+    const pTotalUser = pBalance + pRedeeming + pClaimAble
+    const lp = LP_TOKENS[vc.asset]
+    const [baseSymbol, quoteSymbol] = lp ? vc.assetSymbol.split('-') : ['', '']
+
+    const totalLP = bvd?.lpLiq || 0n
+    const totalLPBase = bvd?.lpBase || 0n
+    const totalLPQuote = bvd?.lpQuote || 0n
+    const uBase = lp && totalLP && totalLPBase && pTotalUser ? (pTotalUser * totalLPBase) / totalLP : 0n
+    const uQuote = lp && totalLP && totalLPQuote && pTotalUser ? (pTotalUser * totalLPQuote) / totalLP : 0n
+    const fmtTotalUser = displayBalance(pTotalUser)
+    if (pTotalUser > 0n) {
+      data.push([
+        <CoinText key={'coin'} symbol={vc.assetSymbol} txt={vc.pTokenSymbol} size={32} />,
         displayBalance(pBalance),
         displayBalance(pRedeeming),
-        <div key={'claim'} className='flex w-fit cursor-pointer items-center gap-2 underline' onClick={() => toBVault(r, bvc.vault, 'principal_panda', 'claim')}>
+        <div key={'claim'} className='flex w-fit cursor-pointer items-center gap-2 underline' onClick={() => toBVault(r, vc.vault, 'principal_panda', 'claim')}>
           {displayBalance(pClaimAble)}
           <MdArrowOutward />
         </div>,
         <div key={'total'} className='flex items-center gap-2'>
-          <div style={{ width: fmtTotalUserWidth }}>{fmtTotalUser}</div>
+          <div>{fmtTotalUser}</div>
           {lp && (
             <div>
               <CoinText size={14} symbol={baseSymbol} txt={displayBalance(uBase)} />
@@ -117,11 +106,11 @@ function PrincipalItem() {
             </div>
           )}
         </div>,
-        fmtPercent(calcBVaultPTApy(bvc), 10),
-        displayBalance(yieldDay(bvc)),
-      ]
-    })
-  }, [bvcs, useBoundStore.getState()])
+        fmtApy,
+        displayBalance(yieldDay),
+      ])
+    }
+  }
   return (
     <PortfolioItem
       title={<IconTitle tit='Principal Panda' icon='PandaLine' />}
@@ -136,73 +125,56 @@ function PrincipalItem() {
 function BoostItem() {
   const r = useRouter()
   const bvcs = BvaultsByEnv
-  const data: ReactNode[][] = useMemo(() => {
-    const s = useBoundStore.getState()
-    const epochInfo = (vault: Address, id: number) => s.sliceBVaultsStore.epoches[`${vault}_${id}`]
-    // const myShare = (bribes: Exclude<UserBVaultsStore['epoches'][Address], undefined>[number]['bribes']) => {
-    //   const fb = bribes.find((b) => b.bribeAmount > 0n)
-    //   if (!fb || fb.bribeTotalAmount == 0n) return { myShare: '0.0%', myShareBn: 0n }
-    //   const myShareBn = (fb.bribeAmount * DECIMAL) / fb.bribeTotalAmount
-    //   return { myShare: fmtPercent(myShareBn, 18), myShareBn }
-    // }
-    const datas = bvcs
-      .map((bvc) => {
-        const epochs = s.sliceUserBVaults.epoches[bvc.vault] || []
-        const epochsData = epochs
-
-          .map((epoch) => ({
-            ...epoch,
-            // ...myShare(epoch.bribes||[]),
-            epochInfo: epochInfo(bvc.vault, parseInt(epoch.epochId.toString())),
-            settled: s.sliceBVaultsStore.epoches[`${bvc.vault}_${parseInt(epoch.epochId.toString())}`]?.settled || false,
-          }))
-          .filter((item) => !!item.epochInfo && (item.userBalanceYToken > 0n || item.userBalanceYTokenSyntyetic > 0n))
-        return { bvc, epochsData }
-      })
-      .filter((item) => item.epochsData.length)
-    return datas.map(({ bvc, epochsData }) => [
-      <CoinText key={'coin'} symbol={bvc.assetSymbol} txt={bvc.yTokenSymbol} size={32} />,
-      <div key={'epochs'}>
-        {epochsData.map((epoch) => (
-          <div key={epoch.epochId.toString()} className='flex items-baseline'>
-            <div className='w-16'>Epoch {epoch.epochId.toString()}</div>
-            <div className='opacity-60 text-xs'>
-              {fmtDate(epoch.epochInfo!.startTime * 1000n)} - {fmtDate((epoch.epochInfo!.startTime + epoch.epochInfo!.duration) * 1000n)}
-            </div>
-          </div>
-        ))}
-      </div>,
-      <div key={'amount'}>
-        {epochsData.map((epoch) => (
-          <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYToken)}</div>
-        ))}
-      </div>,
-      <div key={'time weighted'}>
-        {epochsData.map((epoch) => (
-          <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYTokenSyntyetic, undefined, 23)}</div>
-        ))}
-      </div>,
-      // <div key={'my share'}>
-      //   {epochsData.map((epoch) => (
-      //     <div key={epoch.epochId.toString()}>{epoch.myShare}</div>
-      //   ))}
-      // </div>,
-      <div key={'status'}>
-        {epochsData.map((epoch) => (
-          <div key={epoch.epochId.toString()}>
-            {epoch.settled ? (
-              <div key={'claim'} className='flex w-fit cursor-pointer items-center gap-2 underline' onClick={() => toBVault(r, bvc.vault, 'boost_venom')}>
-                {'Ready to Harvest'}
-                <MdArrowOutward />
+  const data: ReactNode[][] = []
+  for (const vc of bvcs) {
+    const epoches = useBVaultEpoches(vc)
+    const userepoches = useUserBVaultEpoches(vc)
+    const epochsData = userepoches
+      .map((epoch) => ({
+        ...epoch,
+        epochInfo: epoches.find(e => e.epochId == epoch.epochId),
+      }))
+      .filter((item) => !!item.epochInfo && (item.userBalanceYToken > 0n || item.userBalanceYTokenSyntyetic > 0n))
+    if (epochsData.length) {
+      data.push([
+        <CoinText key={'coin'} symbol={vc.assetSymbol} txt={vc.yTokenSymbol} size={32} />,
+        <div key={'epochs'}>
+          {epochsData.map((epoch) => (
+            <div key={epoch.epochId.toString()} className='flex items-baseline'>
+              <div className='w-16'>Epoch {epoch.epochId.toString()}</div>
+              <div className='opacity-60 text-xs'>
+                {fmtDate(epoch.epochInfo!.startTime * 1000n)} - {fmtDate((epoch.epochInfo!.startTime + epoch.epochInfo!.duration) * 1000n)}
               </div>
-            ) : (
-              'Ongoing'
-            )}
-          </div>
-        ))}
-      </div>,
-    ])
-  }, [bvcs, useBoundStore.getState()])
+            </div>
+          ))}
+        </div>,
+        <div key={'amount'}>
+          {epochsData.map((epoch) => (
+            <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYToken)}</div>
+          ))}
+        </div>,
+        <div key={'time weighted'}>
+          {epochsData.map((epoch) => (
+            <div key={epoch.epochId.toString()}>{displayBalance(epoch.userBalanceYTokenSyntyetic, undefined, 23)}</div>
+          ))}
+        </div>,
+        <div key={'status'}>
+          {epochsData.map((epoch) => (
+            <div key={epoch.epochId.toString()}>
+              {epoch.epochInfo?.settled ? (
+                <div key={'claim'} className='flex w-fit cursor-pointer items-center gap-2 underline' onClick={() => toBVault(r, vc.vault, 'boost_venom')}>
+                  {'Ready to Harvest'}
+                  <MdArrowOutward />
+                </div>
+              ) : (
+                'Ongoing'
+              )}
+            </div>
+          ))}
+        </div>,
+      ])
+    }
+  }
   return (
     <PortfolioItem
       title={<IconTitle tit='Boost Venom' icon='VenomLine' />}
@@ -213,8 +185,6 @@ function BoostItem() {
   )
 }
 export default function Dashboard() {
-  useLoadBVaults()
-  useLoadUserBVaults()
   return (
     <PageWrap>
       <div className='w-full max-w-[1200px] px-4 mx-auto flex flex-col gap-5 md:pb-8'>
