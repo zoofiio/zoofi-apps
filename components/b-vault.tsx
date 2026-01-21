@@ -10,10 +10,10 @@ import { useBvaultROI } from '@/hooks/useBVaultROI'
 import { useCalcKey } from '@/hooks/useCalcKey'
 import { useCurrentChainId } from '@/hooks/useCurrentChainId'
 import { useGetAdditionalConfig } from '@/hooks/useGetConfigs'
+import { useTokenPrices } from '@/hooks/useToken'
 import { cn, FMT, fmtBn, fmtDate, fmtDuration, fmtPercent, getBigint, handleError, parseEthers, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { useStore } from '@/providers/useBoundStore'
-import { useBVault, useBVaultApy, useBVaultBoost, useCalcClaimable, useEpochesData, useUpBVaultForUserAction } from '@/providers/useBVaultsData'
+import { useAssetBalance, useBVault, useBVaultApy, useCalcClaimable, useEpochesData, usePtBalance, useUpBVaultForUserAction } from '@/providers/useBVaultsData'
 import { displayBalance } from '@/utils/display'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { now } from 'es-toolkit/compat'
@@ -26,17 +26,16 @@ import { toast } from 'sonner'
 import { zeroAddress } from 'viem'
 import { useWalletClient } from 'wagmi'
 import { ApproveAndTx, Txs } from './approve-and-tx'
-import { AssetInput } from './input-asset'
 import BvaultEpochYtPrices from './b-vault-epoch-ytprices'
 import { GetLP } from './get-lp'
 import { CoinIcon, DoubleCoinIcon } from './icons/coinicon'
-import STable from './simple-table'
+import { AssetInput } from './input-asset'
 import { SimpleTabs } from './simple-tabs'
 import { BBtn } from './ui/bbtn'
+import { ProgressBar } from './ui/progress'
 import { Switch } from './ui/switch'
 import { Tip } from './ui/tip'
 import { itemClassname, renderChoseSide, renderStat, renderToken } from './vault-card-ui'
-import { ProgressBar } from './ui/progress'
 
 function TupleTxt(p: { tit: string; sub: ReactNode; subClassname?: string }) {
   return (
@@ -52,9 +51,9 @@ const maxClassname = 'max-w-4xl mx-auto w-full'
 export function BVaultRedeem({ bvc }: { bvc: BVaultConfig }) {
   const [inputPToken, setInputPToken] = useState('')
   const inputPTokenBn = parseEthers(inputPToken)
-  const bvd = useBVault(bvc.vault)
-  const epoch = useEpochesData(bvc.vault)[0]
-  const pTokenBalance = useStore((s) => s.sliceTokenStore.balances[bvc.pToken] || 0n, [`sliceTokenStore.balances.${bvc.pToken}`])
+  const bvd = useBVault(bvc)
+  const epoch = useEpochesData(bvc)[0]
+  const pTokenBalance = usePtBalance(bvc)
   const upForUserAction = useUpBVaultForUserAction(bvc)
   const waitTimeFmt = bvd.current.duration > 0n ? `Waiting Time: ~${fmtDuration((bvd.current.duration + bvd.current.startTime) * 1000n - BigInt(now()))}` : ''
   return (
@@ -86,10 +85,10 @@ export function BVaultRedeem({ bvc }: { bvc: BVaultConfig }) {
   )
 }
 export function BVaultRedeemAll({ bvc }: { bvc: BVaultConfig }) {
-  const pTokenBalance = useStore((s) => s.sliceTokenStore.balances[bvc.pToken] || 0n, [`sliceTokenStore.balances.${bvc.pToken}`])
+  const pTokenBalance = usePtBalance(bvc)
   const upForUserAction = useUpBVaultForUserAction(bvc)
   const { data: wc } = useWalletClient()
-  const { ids, claimable } = useCalcClaimable(bvc.vault)
+  const { ids, claimable } = useCalcClaimable(bvc)
   const chainId = useCurrentChainId()
   const { mutate, isPending } = useMutation({
     mutationKey: ['readeemAll', pTokenBalance, claimable, ids],
@@ -125,10 +124,10 @@ export function BVaultRedeemAll({ bvc }: { bvc: BVaultConfig }) {
 }
 
 export function BVaultClaim({ bvc }: { bvc: BVaultConfig }) {
-  const bvd = useBVault(bvc.vault)
-  const epoch = useEpochesData(bvc.vault)[0]
+  const bvd = useBVault(bvc)
+  const epoch = useEpochesData(bvc)[0]
   const redeemingBalance = epoch?.redeemingBalance || 0n
-  const { ids, claimable } = useCalcClaimable(bvc.vault)
+  const { ids, claimable } = useCalcClaimable(bvc)
   const upForUserAction = useUpBVaultForUserAction(bvc)
   return (
     <div>
@@ -184,8 +183,8 @@ export function BVaultP({ bvc }: { bvc: BVaultConfig }) {
   const isLP = !!lp
   const pTokenSymbolShort = isLP ? 'PT' : bvc.pTokenSymbol
   const assetSymbolShort = isLP ? 'LP' : bvc.assetSymbol
-  const bvd = useBVault(bvc.vault)
-  const assetBalance = useStore((s) => s.sliceTokenStore.balances[bvc.asset] || 0n, [`sliceTokenStore.balances.${bvc.asset}`])
+  const bvd = useBVault(bvc)
+  const assetBalance = useAssetBalance(bvc)
   const [fmtApy] = useBVaultApy(bvc)
   const { data: walletClient } = useWalletClient()
   const upForUserAction = useUpBVaultForUserAction(bvc)
@@ -278,12 +277,10 @@ export function BVaultYInfo({ bvc }: { bvc: BVaultConfig }) {
   const yTokenSymbolShort = isLP ? 'YT' : bvc.yTokenSymbol
   const assetSymbolShort = isLP ? 'LP token' : bvc.assetSymbol
 
-  const bvd = useBVault(bvc.vault)
+  const bvd = useBVault(bvc)
   const epoch = bvd.current
 
   const oneYTYieldOfAsset = bvd.current.yTokenAmountForSwapYT > 0n ? (bvd.lockedAssetTotal * DECIMAL) / bvd.current.yTokenAmountForSwapYT : 0n
-  const [fmtBoost] = useBVaultBoost(bvc.vault)
-
   const calcProgress = (ep: typeof epoch) => {
     const now = BigInt(Math.floor(new Date().getTime() / 1000))
     if (now < ep.startTime) return 0
@@ -348,8 +345,8 @@ function BVaultYTrans({ bvc }: { bvc: BVaultConfig }) {
   const assetSymbolShort = isLP ? 'LP token' : bvc.assetSymbol
   const [inputAsset, setInputAsset] = useState('')
   const inputAssetBn = parseEthers(inputAsset)
-  const bvd = useBVault(bvc.vault)
-  const assetBalance = useStore((s) => s.sliceTokenStore.balances[bvc.asset] || 0n, [`sliceTokenStore.balances.${bvc.asset}`])
+  const bvd = useBVault(bvc)
+  const assetBalance = useAssetBalance(bvc)
   const chainId = useCurrentChainId()
   const { data: result, isFetching: isFetchingSwap } = useQuery({
     ...useCalcKey(['calcSwap', bvc.vault, inputAssetBn, chainId]),
@@ -435,7 +432,7 @@ function BribeTit(p: { name: string }) {
 }
 function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
   const [onlyMy, setOnlyMy] = useState(false)
-  const epochesData = useEpochesData(bvc.vault)
+  const epochesData = useEpochesData(bvc)
   const epoches = useMemo(() => {
     const myFilter = (item: (typeof epochesData)[number]) => item.sBribes.reduce((sum, b) => sum + b.bribeAmount, 0n) > 0n || item.aBribes.reduce((sum, b) => sum + b.bribeAmount, 0n) > 0n
     return onlyMy ? epochesData.filter(myFilter) : epochesData
@@ -575,7 +572,7 @@ function BVaultPools({ bvc }: { bvc: BVaultConfig }) {
 }
 
 export function BVaultB({ bvc }: { bvc: BVaultConfig }) {
-  const bvd = useBVault(bvc.vault)
+  const bvd = useBVault(bvc)
   return (
     <div className='grid grid-cols-1 md:grid-cols-[4fr_6fr] gap-5'>
       <BVaultYInfo bvc={bvc} />
@@ -589,11 +586,11 @@ export function BVaultB({ bvc }: { bvc: BVaultConfig }) {
 export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   const r = useRouter()
   const [token1, token2] = vc.assetSymbol.split('-')
-  const bvd = useBVault(vc.vault)
+  const bvd = useBVault(vc)
   const lp = LP_TOKENS[vc.asset]
-  const prices = useStore((s) => s.sliceTokenStore.prices, ['sliceTokenStore.prices'])
-  const lpBasePrice = lp ? prices[lp.base] || 0n : 0n
-  const lpQuotePrice = lp ? prices[lp.quote] || 0n : 0n
+  const prices = useTokenPrices()
+  const lpBasePrice = lp ? getBigint(prices, lp.base) : 0n
+  const lpQuotePrice = lp ? getBigint(prices, lp.quote) : 0n
   const lpBase = bvd.lpBase || 0n
   const lpQuote = bvd.lpQuote || 0n
   const lpBaseTvlBn = (lpBase * lpBasePrice) / DECIMAL
@@ -603,7 +600,6 @@ export function BVaultCard({ vc }: { vc: BVaultConfig }) {
   if (lpTvlBn === 0n) {
     lpTvlBn = bvd.lockedAssetTotal;
   }
-  const [fmtBoost] = useBVaultBoost(vc.vault)
   const [fmtApy] = useBVaultApy(vc)
   const epochName = `Epoch ${(bvd?.epochCount || 0n).toString()}`
   const settleTime = bvd.epochCount == 0n ? '-- -- --' : fmtDate((bvd.current.startTime + bvd.current.duration) * 1000n, FMT.DATE2)

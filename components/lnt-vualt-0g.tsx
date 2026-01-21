@@ -1,3 +1,5 @@
+'use client'
+
 import { abi0GMarginAccount } from "@/config/abi/abiLNTVault";
 import { LntVaultConfig } from "@/config/lntvaults";
 import { getTokenBy } from "@/config/tokens";

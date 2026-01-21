@@ -10,7 +10,6 @@ export type LntVaultConfig = {
   chain: number
   vault: Address
   asset: Address // ERC721
-
   protocol: Address
   protocalSettings: Address
   lpTYT?: Address

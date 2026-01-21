@@ -11,7 +11,7 @@ import { abiAccessCtl, abiMockERC721, abiProtocolSettings } from '@/config/abi'
 import { abi0GMarginAccount, abiAethirVToracle, abiLntBuyback, abiLntProtocol, abiLntVault, abiLntVaultDepositExt, abiLVTVault, abiRedeemStrategy, abiReppoLntVault, abiZeroGVToracale } from '@/config/abi/abiLNTVault'
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { getChain } from '@/config/network'
-import { fetLntVault } from '@/hooks/useFetLntVault'
+import { fetLntVault } from '@/hooks/fetsLnt'
 import { cn, FMT, fmtDate, promiseAll, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
@@ -175,7 +175,7 @@ function AdminAethir({ vc }: { vc: LntVaultConfig }) {
     <GeneralAction abi={abiLntVault} functionName='updateVTSwapHook' address={vc.vault} />
     <GeneralAction abi={abiLntVault} functionName='updateAethirClaimAndWithdraw' address={vc.vault} />
     <GeneralAction abi={abiLntVault} functionName='updateBuybackPool' address={vc.vault} />
-    
+
     <ContractAll tit='Protocol' abi={abiLntProtocol} address={vc.protocol} />
     {vc.VToracle && <ContractAll tit='AethirVToracle' abi={abiAethirVToracle} address={vc.VToracle} />}
     {vc.RedeemStrategy && <ContractAll tit='RedeemStrategy' abi={abiRedeemStrategy} address={vc.RedeemStrategy}

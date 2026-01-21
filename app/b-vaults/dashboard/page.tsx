@@ -2,17 +2,15 @@
 import { CoinIcon } from '@/components/icons/coinicon'
 import { PageWrap } from '@/components/page-wrap'
 import STable, { TableProps } from '@/components/simple-table'
-import { BVaultConfig, BVAULTS_CONFIG, BvaultsByEnv } from '@/config/bvaults'
+import { BVaultConfig, BvaultsByEnv } from '@/config/bvaults'
 import { LP_TOKENS } from '@/config/lpTokens'
-import { DECIMAL, ENV } from '@/constants'
-import { useCurrentChainId } from '@/hooks/useCurrentChainId'
-import { useLoadBVaults } from '@/hooks/useLoads'
+import { DECIMAL } from '@/constants'
+import { useBvaultROI } from '@/hooks/useBVaultROI'
+import { useTokenPrices } from '@/hooks/useToken'
 import { useTVL } from '@/hooks/useTVL'
 import { fmtPercent, getBigint } from '@/lib/utils'
-import { useStore } from '@/providers/useBoundStore'
-import { calcBVaultPTApy } from '@/providers/useBVaultsData'
+import { useBVaultApy, useBVaults } from '@/providers/useBVaultsData'
 import { displayBalance } from '@/utils/display'
-import { useBvaultROI } from '@/hooks/useBVaultROI'
 import { ReactNode, useMemo } from 'react'
 
 const greenPoint = (
@@ -56,20 +54,26 @@ function BVaultROI({ vc }: { vc: BVaultConfig }) {
   const { roi } = useBvaultROI(vc)
   return <>{fmtPercent(roi, 18, 2)}</>
 }
+
+function BVaultAPY({ vc }: { vc: BVaultConfig }) {
+  const [apy] = useBVaultApy(vc)
+  return <>{apy}</>
+}
+
 function BVaultsItem() {
   const bvcs = BvaultsByEnv
-  const bvaults = useStore((s) => s.sliceBVaultsStore.bvaults, ['sliceBVaultsStore.bvaults'])
-  const prices = useStore((s) => s.sliceTokenStore.prices, ['sliceTokenStore.prices'])
+  const bvaults = useBVaults(bvcs)
+  const prices = useTokenPrices()
 
   const data: ReactNode[][] = useMemo(() => {
-    const datas = bvcs.map((bvc) => {
-      const totalDeposit = getBigint(bvaults, [bvc.vault, 'lockedAssetTotal'])
+    const datas = bvcs.map((bvc, i) => {
+      const totalDeposit = getBigint(bvaults, [i, 'data', 'lockedAssetTotal'])
 
       let totalDepositUsd = (totalDeposit * getBigint(prices, [bvc.asset])) / DECIMAL
       const lp = LP_TOKENS[bvc.asset]
       if (lp) {
-        const base = getBigint(bvaults, [bvc.vault, 'lpBase']);
-        const quote = getBigint(bvaults, [bvc.vault, 'lpQuote']);
+        const base = getBigint(bvaults, [i, 'data', 'lpBase']);
+        const quote = getBigint(bvaults, [i, 'data', 'lpQuote']);
         totalDepositUsd = (base * getBigint(prices, [lp.base]) + quote * getBigint(prices, [lp.quote])) / DECIMAL
       }
       const [baseSymbol, quoteSymbol] = lp ? bvc.assetSymbol.split('-') : ['', '']
@@ -79,7 +83,7 @@ function BVaultsItem() {
     })
     const totalLeftWidth = datas.reduce((max, item) => Math.max(max, item.totalLeftWidth), 0) + 48
 
-    return datas.map(({ bvc, totalDeposit, totalDepositUsd, lp, baseSymbol, quoteSymbol }) => [
+    return datas.map(({ bvc, totalDeposit, totalDepositUsd, lp, baseSymbol, quoteSymbol }, i) => [
       <div key='icon' className='flex gap-2 items-center'>
         {<CoinIcon symbol={bvc.assetSymbol} size={20} />}
         <span>{bvc.assetSymbol}</span>
@@ -96,22 +100,21 @@ function BVaultsItem() {
           <div style={{ width: totalLeftWidth }}>
             <div className='flex gap-2 items-center'>
               {<CoinIcon symbol={baseSymbol} size={14} />}
-              <span>{displayBalance(getBigint(bvaults, [bvc.vault, 'lpBase']))}</span>
+              <span>{displayBalance(getBigint(bvaults, [i, 'data', 'lpBase']))}</span>
             </div>
             <div className='flex gap-2 items-center'>
               {<CoinIcon symbol={quoteSymbol} size={14} />}
-              <span>{displayBalance(getBigint(bvaults, [bvc.vault, 'lpQuote']))}</span>
+              <span>{displayBalance(getBigint(bvaults, [i, 'data', 'lpQuote']))}</span>
             </div>
           </div>
         )}
       </div>,
       <div key='status' className='flex gap-2 items-center'>
         {greenPoint}
-        <span>Epoch {getBigint(bvaults, [bvc.vault, 'epochCount']).toString()}</span>
+        <span>Epoch {getBigint(bvaults, [i, 'data', 'epochCount']).toString()}</span>
       </div>,
-      fmtPercent(calcBVaultPTApy(bvc), 10),
+      <BVaultAPY key={'apy'} vc={bvc} />,
       <BVaultROI key={'roi'} vc={bvc} />,
-      //  `${displayBalance(calcBVaultBoost(bvc.vault), 2)}X`,
     ])
   }, [bvcs, bvaults, prices])
   return <DashItem title='B-Vault' tHeader={['Vaults', 'Total Deposit', 'Status', 'PT APY', 'YT ROI']} tData={data} tableProps={{
@@ -120,7 +123,6 @@ function BVaultsItem() {
   }} />
 }
 export default function Dashboard() {
-  useLoadBVaults()
   return (
     <PageWrap>
       <div className='w-full max-w-[1200px] px-4 mx-auto flex flex-col gap-5 md:pb-8'>

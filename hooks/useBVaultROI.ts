@@ -1,26 +1,26 @@
 import { abiAdhocBribesPool } from '@/config/abi'
 import { BVaultConfig } from '@/config/bvaults'
 import { DECIMAL } from '@/constants'
+import { getBigint } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { useStore } from '@/providers/useBoundStore'
 import { calcLPPrice, useBVault } from '@/providers/useBVaultsData'
 import { useQuery } from '@tanstack/react-query'
-import { Address, formatEther, parseEther } from 'viem'
-import { AdditionalSupportTokens, useGetAdditionalConfig } from './useGetConfigs'
-import { useReturnsIBGT } from './useReturnsIBGT'
-import { getBigint } from '@/lib/utils'
-import { useCurrentChainId } from './useCurrentChainId'
 import { round } from 'es-toolkit'
 import { now } from 'es-toolkit/compat'
+import { formatEther, parseEther } from 'viem'
+import { useCurrentChainId } from './useCurrentChainId'
+import { AdditionalSupportTokens, useGetAdditionalConfig } from './useGetConfigs'
+import { useReturnsIBGT } from './useReturnsIBGT'
+import { useTokenPrices } from './useToken'
 
-export function useYTPoints(vault: Address) {
-  const bvd = useBVault(vault)
+export function useYTPoints(vc: BVaultConfig) {
+  const bvd = useBVault(vc)
   const chainId = useCurrentChainId()
   return useQuery({
     initialData: 0n,
     gcTime: 60 * 60 * 1000,
-    queryKey: ['ytPoints',chainId, vault, bvd.current.adhocBribesPool],
-    enabled: Boolean(vault) && Boolean(bvd.current.adhocBribesPool),
+    queryKey: ['ytPoints', chainId, vc.vault, bvd.current.adhocBribesPool],
+    enabled: Boolean(bvd.current.adhocBribesPool),
     queryFn: async () => {
       const pc = getPC(chainId)
       return pc.readContract({ abi: abiAdhocBribesPool, address: bvd.current.adhocBribesPool, functionName: 'totalSupply' })
@@ -45,7 +45,8 @@ export function calcAdditionalApy(additionalUSD: bigint, ytPoints: bigint, ytAmo
 }
 
 export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n, afterYtPriceBn: bigint = 0n) {
-  const bvd = useBVault(vc.vault)
+  const bvd = useBVault(vc)
+  const prices = useTokenPrices()
   const { data: perReturnsIBGT, isLoading: isLoading1 } = useReturnsIBGT(vc.vault)
   const { data: additionalConfig, isLoading: isLoading2 } = useGetAdditionalConfig()
   const endTime = bvd.current.duration + bvd.current.startTime
@@ -54,12 +55,8 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n, afterYtPri
   const ytAmount = bvd.current.yTokenAmountForSwapYT
   const returnsIBGTByYT = ytAmount > 0n ? (perReturnsIBGT * DECIMAL * remainDur) / ytAmount : 0n
 
-  const iBGTPrice =
-    useStore((s) => s.sliceTokenStore.prices['0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b'], [`sliceTokenStore.prices.0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b`]) || 0n
-
-  const prices = useStore((s) => s.sliceTokenStore.prices, [`sliceTokenStore.prices`]) || 0n
-
-  const lpPrice = calcLPPrice(vc.vault, vc.asset)
+  const iBGTPrice = getBigint(prices, '0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b')
+  const lpPrice = calcLPPrice(vc, bvd, prices)
   console.info('Prices:', vc.assetSymbol, formatEther(iBGTPrice), formatEther(lpPrice))
   const vualtYTokenBalance = bvd.current.vaultYTokenBalance
   const returnsIBGTByAfterYT = ytAmount + ytchange > 0n ? (perReturnsIBGT * DECIMAL * remainDur) / (ytAmount + ytchange) : 0n
@@ -76,7 +73,7 @@ export function useBvaultROI(vc: BVaultConfig, ytchange: bigint = 0n, afterYtPri
       ? 0n
       : (getBigint(prices, AdditionalSupportTokens[additional.token]) * parseEther(additional.amount.toFixed(6))) / DECIMAL
   // aditional airdrops
-  const { data: ytPoints, isLoading: isLoading3 } = useYTPoints(vc.vault)
+  const { data: ytPoints, isLoading: isLoading3 } = useYTPoints(vc)
 
   const additionalRoi = calcAdditionalApy(additionalUSD, ytPoints, ytAmount, remainDur, ytPriceBn)
   const additionalRoiChanged = ytchange > 0n ? calcAdditionalApy(additionalUSD, ytPoints, ytAmount + ytchange, remainDur, ytPriceChanged) : 0n

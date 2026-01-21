@@ -1,17 +1,18 @@
-import { abiLntBuyback, abiLntVault } from "@/config/abi/abiLNTVault";
+import { abiLntBuyback } from "@/config/abi/abiLNTVault";
 import { LntVaultConfig } from "@/config/lntvaults";
 import { getTokenBy } from "@/config/tokens";
+import { fetLntBuyback, fetLntBuybackUser } from "@/hooks/fetsLnt";
 import { useLntVault } from "@/hooks/useFetLntVault";
 import { useBalance } from "@/hooks/useToken";
+import { fetRouter } from "@/lib/fetRouter";
 import { useFet } from "@/lib/useFet";
-import { aarToNumber, fmtDuration, parseEthers, promiseAll } from "@/lib/utils";
-import { getPC } from "@/providers/publicClient";
+import { aarToNumber, fmtDuration, parseEthers } from "@/lib/utils";
 import { displayBalance } from "@/utils/display";
 import { round } from "es-toolkit";
 import { now } from "es-toolkit/compat";
 import Link from "next/link";
 import { useState } from "react";
-import { formatUnits, toHex } from "viem";
+import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { Txs, TXSType, withTokenApprove } from "./approve-and-tx";
 import { TokenIcon } from "./icons/tokenicon";
@@ -38,18 +39,8 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
     const [input, setAmount] = useState<string>()
     const inputBn = parseEthers(input || '0', vt.decimals)
     const buybackDatas = useFet({
-        key: `BuybackDatas:${vc.vault}`,
-        fetfn: async () => {
-            const pc = getPC(vc.chain)
-            const potCount = await pc.readContract({ abi: abiLntBuyback, address: buybackPool, functionName: 'stakingTokenPotCount' })
-            // const chunks = range(parseInt(potCount.toString())).map(item => BigInt(item))
-            return promiseAll({
-                pots: pc.readContract({ abi: abiLntBuyback, address: buybackPool, functionName: 'stakingTokenPotsRange', args: [0n, potCount] }),
-                buybackDustAmountVT: pc.readContract({ abi: abiLntBuyback, address: buybackPool, functionName: 'buybackDustAmountVT' }),
-                minStakeAmountVT: pc.readContract({ abi: abiLntBuyback, address: buybackPool, functionName: 'minStakeAmountVT' }),
-                VestingRate: pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'paramValue', args: [toHex('VestingRate', { size: 32 })] })
-            })
-        }
+        key: `BuybackDatas:${vc.chain}:${vc.vault}`,
+        fetfn: () => fetRouter('/api/lnt', { chain: vc.chain, vault: vc.vault, fet: 'fetLntBuyback' }) as ReturnType<typeof fetLntBuyback>
     })
     const pots = buybackDatas.data?.pots ?? []
     const vestingRate = aarToNumber(buybackDatas.data?.VestingRate ?? 0n, 18)
@@ -60,31 +51,14 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
     const minStakeAmountVT = buybackDatas.data?.minStakeAmountVT ?? 0n
 
     // pendingSale
-    const pendinSale = useFet({
-        key: pots.length ? `pendingSale:${vc.vault}` : '',
-        initResult: 0n,
-        fetfn: async () => {
-            const pc = getPC(vc.chain)
-            return pc.readContract({ abi: abiLntBuyback, address: buybackPool, functionName: 'totalStakingAmountVT', args: [pots[pots.length - 1]] })
-        }
-    })
-    const userPendingSale = useFet({
+    const pendinSale = buybackDatas.data?.pendingSale ?? 0n
+
+    const buybackUser = useFet({
         key: pots.length && user ? `BuybackUserPending:${vc.vault}:${user}` : '',
-        initResult: 0n,
-        fetfn: async () => {
-            const pc = getPC(vc.chain)
-            return pc.readContract({ abi: abiLntBuyback, address: buybackPool, functionName: 'userStakingAmountVT', args: [pots[pots.length - 1], user!] })
-        }
+        fetfn: () => fetRouter('/api/lnt', { chain: vc.chain, vault: vc.vault, byUser: user, fet: 'fetLntBuybackUser' }) as ReturnType<typeof fetLntBuybackUser>
     })
-    const userSeltted = useFet({
-        key: pots.length && user ? `BuybackUserSetteld:${vc.vault}:${user}` : '',
-        initResult: 0n,
-        fetfn: async () => {
-            const pc = getPC(vc.chain)
-            const boughts = await Promise.all(pots.map(pot => pc.readContract({ abi: abiLntBuyback, address: buybackPool, functionName: 'boughtAmountT', args: [pot, user!] })))
-            return boughts.reduce((sum, item) => sum + item, 0n)
-        }
-    })
+    const userPendingSale = buybackUser.data?.userPendingSale ?? 0n
+    const userSeltted = buybackUser.data?.userSeltted ?? 0n
     const getJoinTxs: TXSType = async ({ pc, wc }) => {
         if (inputBn < minStakeAmountVT) throw new Error("Stake amount too small")
         if (inputBn > vtBalance.data) throw new Error("Balance too low")
@@ -100,7 +74,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         })
     }
     const getWithdrawTxs: TXSType = async ({ pc, wc }) => {
-        if (inputBn > userPendingSale.data) throw new Error("Input amount too large")
+        if (inputBn > userPendingSale) throw new Error("Input amount too large")
         return [{
             abi: abiLntBuyback,
             address: buybackPool,
@@ -134,7 +108,7 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
             </div>
             <div className="flex gap-4 items-center p-2 border border-board rounded-lg flex-1 basis-0">
                 <div className="text-fg/60">Total Request</div>
-                <div className="font-medium ml-auto">{displayBalance(pendinSale.data, undefined, vt.decimals)}</div>
+                <div className="font-medium ml-auto">{displayBalance(pendinSale, undefined, vt.decimals)}</div>
                 <Tip>If the amount of VT in the pool exceeds the rewards for the current batch, participating users will receive settlement on a pro-rata basis. The remaining VT will continue to wait for the next batch of redemption until fully converted.</Tip>
             </div>
         </div>
@@ -146,11 +120,11 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
             checkBalance={false}
             otherInfo={<div className="flex items-center gap-2 ml-auto">
                 <span>
-                    Pending : {displayBalance(userPendingSale.data, undefined, vt.decimals)}
+                    Pending : {displayBalance(userPendingSale, undefined, vt.decimals)}
                 </span>
                 <button
                     className='text-primary ml-2'
-                    onClick={() => setAmount(formatUnits(userPendingSale.data, vt.decimals))}
+                    onClick={() => setAmount(formatUnits(userPendingSale, vt.decimals))}
                 >
                     Max
                 </button>
@@ -164,9 +138,9 @@ export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
         <div className="animitem flex items-center gap-5">
             <div className="flex justify-between px-3 py-2 rounded-xl items-center flex-1 border border-board h-12">
                 <span className="text-fg/60">Settled</span>
-                {displayBalance(userSeltted.data, undefined, t.decimals)}
+                {displayBalance(userSeltted, undefined, t.decimals)}
             </div>
-            <Txs tx="Claim" className="w-fit" disabled={userSeltted.data == 0n} txs={getCalimTxs} />
+            <Txs tx="Claim" className="w-fit" disabled={userSeltted == 0n} txs={getCalimTxs} />
         </div>
     </div>
 }

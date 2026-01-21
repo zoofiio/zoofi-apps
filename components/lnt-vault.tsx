@@ -1,3 +1,4 @@
+'use client'
 import { toLntVault } from '@/app/routes'
 import { abiLntVault, abiLntVTSwapHook, abiQueryLNT } from '@/config/abi/abiLNTVault'
 import { codeQueryLNT } from '@/config/codes'
@@ -316,7 +317,6 @@ export function LNTDepositWithdraw({ vc }: { vc: LntVaultConfig }) {
         </div>
       }
     </div>
-
   </div>
 }
 

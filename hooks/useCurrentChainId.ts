@@ -5,14 +5,14 @@ import { useChainId } from 'wagmi'
 
 export function useCurrentChainId() {
   const chainId = useChainId()
-  const { chains, def } = useConfigChains()
+  const chains = useConfigChains()
   const isSupported = chains.find((item) => item.id === chainId)
-  return isSupported ? chainId : def
+  return isSupported ? chainId : chains[0].id
 }
 
 export function useNetworkWrong() {
   const chainId = useChainId()
-  const { chains } = useConfigChains()
+  const chains = useConfigChains()
   const isSupported = chains.find((item) => item.id === chainId)
   return !isSupported
 }

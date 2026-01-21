@@ -1,3 +1,4 @@
+'use client'
 import { cn } from '@/lib/utils'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Dispatch, Ref, SetStateAction } from 'react'

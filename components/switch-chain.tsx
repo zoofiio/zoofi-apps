@@ -1,3 +1,4 @@
+'use client'
 import { useCurrentChainId } from "@/hooks/useCurrentChainId"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
@@ -12,7 +13,7 @@ import { useRef } from "react"
 
 export function SwitchChain() {
     const triggerRef = useRef<HTMLButtonElement>(null)
-    const { chains, setDef } = useConfigChains()
+    const chains = useConfigChains()
     const chainId = useCurrentChainId()
     const ct = chains.find(item => item.id == chainId)
     const { switchChainAsync } = useSwitchChain()
@@ -28,7 +29,6 @@ export function SwitchChain() {
         setSwitching({ [item.id]: true })
         switchChainAsync({ chainId: item.id }).catch(console.error).finally(() => {
             setSwitching({ [item.id]: false })
-            setDef(item.id)
             triggerRef.current?.click()
         })
     }

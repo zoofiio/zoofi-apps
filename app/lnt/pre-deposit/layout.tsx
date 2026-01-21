@@ -1,7 +1,5 @@
 'use client'
-    ; (BigInt.prototype as any).toJSON = function () {
-        return this.toString()
-    }
+
 import { ConfigChainsProvider } from "@/components/support-chains";
 import { base } from "@/config/network";
 import { ReactNode } from "react";
