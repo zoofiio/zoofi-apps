@@ -4,19 +4,34 @@ import * as React from 'react';
 
 import { SUPPORT_CHAINS, apiBatchConfig, multicallBatchConfig } from '@/config/network';
 import { RainbowKitProvider, connectorsForWallets, darkTheme, lightTheme } from '@rainbow-me/rainbowkit';
-import { binanceWallet, baseAccount, bitgetWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
+import { baseAccount, binanceWallet, bitgetWallet, gateWallet, injectedWallet, metaMaskWallet, okxWallet, tokenPocketWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
+import NextAdapterApp from 'next-query-params/app';
+import { QueryParamProvider } from 'use-query-params';
 import { WagmiProvider, createConfig, createStorage } from 'wagmi';
 
 const walletConnectProjectId = 'abf1f323cd9ff9f6a27167188d993168'
-import NextAdapterApp from 'next-query-params/app';
-import { QueryParamProvider } from 'use-query-params';
 
 import { ConfigChainsProvider } from '@/components/support-chains';
 import { useThemeState } from '@/components/theme-mode';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { isPlainObject } from 'es-toolkit';
 import { Chain, createClient, http } from 'viem';
 
-const qClient = new QueryClient({ defaultOptions: { queries: { retry: 3, refetchOnMount: 'always', staleTime: 1000 } } })
+const qClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3, refetchOnMount: 'always', staleTime: 1000, queryKeyHashFn: (queryKey) => {
+        return JSON.stringify(
+          queryKey,
+          (_, val) => isPlainObject(val) ? Object.keys(val).sort().reduce((result, key) => {
+            result[key] = val[key];
+            return result;
+          }, {} as any) : typeof val == 'bigint' ? val.toString() : val
+        )
+      }
+    }
+  }
+})
 const storage = createStorage({
   storage: {
     getItem: (key) => typeof window !== 'undefined' ? window.localStorage.getItem(key) : undefined,
