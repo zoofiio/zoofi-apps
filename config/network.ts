@@ -1,6 +1,6 @@
 import { Assign, Chain, ChainFormatters, defineChain, Prettify } from 'viem'
-import { arbitrum as _arbitrum, arbitrumSepolia as _arbSep, base as _base, berachain as _berachain, bsc as _bsc, bscTestnet as _bscTest, sei as _sei, story as _story } from 'viem/chains'
-import { ALCHEMY_API_KEY, BASE_PATH } from './env'
+import { arbitrum as _arbitrum, base as _base, berachain as _berachain, bsc as _bsc, bscTestnet as _bscTest, sei as _sei, story as _story } from 'viem/chains'
+import { ALCHEMY_API_KEY, ANKR_API_KEY, BASE_PATH } from './env'
 
 function mconfigChain<
   formatters extends ChainFormatters,
@@ -21,6 +21,20 @@ function mconfigChain<
     if (subdommainmap[chain.id]) {
       rpcUrls.alchemy = {
         http: [`https://${subdommainmap[chain.id]}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`]
+      }
+    }
+  }
+  if (ANKR_API_KEY) {
+    const netmap: { [k: number]: string } = {
+      [_sei.id]: 'sei-evm',
+      [_story.id]: 'story-mainnet',
+      [_arbitrum.id]: 'arbitrum',
+      [_base.id]: 'base',
+      [_bsc.id]: 'bsc',
+    }
+    if (netmap[chain.id]) {
+      rpcUrls.ankr = {
+        http: [`https://rpc.ankr.com/${netmap[chain.id]}`]
       }
     }
   }
@@ -77,10 +91,6 @@ export const arbitrum = mconfigChain({
   iconUrl: `${BASE_PATH}/arbitrum.svg`,
 })
 
-export const arbitrumSepolia = defineChain({
-  ..._arbSep,
-  iconUrl: `${BASE_PATH}/arbitrum.svg`,
-})
 
 export const bsc = mconfigChain({
   ..._bsc,

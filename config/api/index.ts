@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { keys } from 'es-toolkit/compat'
 import { Address, Hex, numberToHex, parseUnits } from 'viem'
+import { arbitrum, base, berachain } from 'viem/chains'
 import api from '../../utils/api'
-import { arbitrumSepolia, sepolia, arbitrum, base, berachain } from 'viem/chains'
+import { ALCHEMY_API_KEY, ANKR_API_KEY } from '../env'
 import { zeroGmainnet } from '../network'
 
 export const getBvaultEpochYtPrices = (chainId: number, vault: Address, epochId: bigint) =>
@@ -69,17 +70,14 @@ export const getTokensPriceByPyth = async () => {
 }
 
 const aclchemyMap: { [k: number]: string } = {
-  [sepolia.id]: 'eth-sepolia',
   [base.id]: 'base-mainnet',
   [berachain.id]: 'berachain-mainnet',
   [arbitrum.id]: 'arb-mainnet',
-  [arbitrumSepolia.id]: 'arb-sepolia',
 }
 export const getNftsByAlchemy = async (chainId: number, nft: Address, owner: Address) => {
-  if (!aclchemyMap[chainId]) {
+  if (!aclchemyMap[chainId] || !ALCHEMY_API_KEY) {
     throw new Error('Not Support')
   }
-  // https://eth-sepolia.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX
   let pageKey: string | undefined = undefined
   const getNfts = (pageSize: number = 100) =>
     axios
@@ -89,7 +87,7 @@ export const getNftsByAlchemy = async (chainId: number, nft: Address, owner: Add
         }[]
         totalCount: number
         pageKey?: string
-      }>(`https://${aclchemyMap[chainId]}.g.alchemy.com/nft/v3/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX/getNFTsForOwner?owner=${owner}&contractAddresses[]=${nft}&pageSize=${pageSize}`, {
+      }>(`https://${aclchemyMap[chainId]}.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${owner}&contractAddresses[]=${nft}&pageSize=${pageSize}`, {
         params: pageKey ? { pageKey } : {},
       })
       .then((res) => {
@@ -128,11 +126,11 @@ export const getNftsByAnker = async (chainId: number, nft: Address, owner: Addre
   const map: { [k: number]: string } = {
     [zeroGmainnet.id]: '0g_mainnet_evm',
   }
-  if (!map[chainId]) throw new Error('not support chain')
+  if (!map[chainId] || !ANKR_API_KEY) throw new Error('not support chain')
   let pageToken = undefined
   const tokenIds: string[] = []
   while (true) {
-    const datas: any = await fetch(`https://rpc.ankr.com/multichain/e1a06837672f1dd89a4c70522941d3beebad120eafad005d79d77c42856d9310`, {
+    const datas: any = await fetch(`https://rpc.ankr.com/multichain/${ANKR_API_KEY}`, {
       method: 'POST',
       body: JSON.stringify({
         id: 1,
@@ -161,7 +159,7 @@ export const getNftsByAnker = async (chainId: number, nft: Address, owner: Addre
 
 export type NftTx = { blockNum: Hex; hash: Hex; from: Address; to: Address; erc721TokenId: Hex }
 export const getNftTxsByAlchemy = async (chainId: number, opt: { nft: Address; from: Address; to: Address }) => {
-  if (!aclchemyMap[chainId]) {
+  if (!aclchemyMap[chainId] || !ALCHEMY_API_KEY) {
     throw new Error('Not Support')
   }
   let pageKey: string | undefined = undefined
@@ -169,7 +167,7 @@ export const getNftTxsByAlchemy = async (chainId: number, opt: { nft: Address; f
     axios
       .post<{
         result: { transfers: NftTx[]; pakeKey: string }
-      }>(`https://${aclchemyMap[chainId]}.g.alchemy.com/v2/7UXJgo01vxWHLJDk09Y0qZct8Y3zMDbX`, {
+      }>(`https://${aclchemyMap[chainId]}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`, {
         jsonrpc: '2.0',
         method: 'alchemy_getAssetTransfers',
         params: [

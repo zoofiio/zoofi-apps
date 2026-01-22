@@ -1,6 +1,6 @@
 import { abiLayerzeroOFT } from "@/config/abi/abiLayerzero";
 import { waitLayerZeroSend } from "@/config/layerzero";
-import { arbitrum, arbitrumSepolia, bsc, bscTestnet, SUPPORT_CHAINS } from "@/config/network";
+import { arbitrum, bsc, SUPPORT_CHAINS } from "@/config/network";
 import { Token } from "@/config/tokens";
 import { useCalcKey } from "@/hooks/useCalcKey";
 import { useBalance } from "@/hooks/useToken";
@@ -19,15 +19,13 @@ import { TokenInput } from "./token-input";
 import { Swap } from "./ui/bbtn";
 const eidMaps: { [k: number]: number } = {
     [arbitrum.id]: 30110,
-    [arbitrumSepolia.id]: 40231,
     [bsc.id]: 30102,
-    [bscTestnet.id]: 40102,
 }
 
 const defAdapters: {
     [k: `${number}:${Address}`]: Address
 } = {
-    [`${arbitrumSepolia.id}:0xad763df2355142dc944f24aeffdb7b1a6bf917f7`]: '0xB13038Dafc796A703A8204dD8559da1a0c27ae17',
+    
     [`${arbitrum.id}:0x5e95358b73bafe88c8dc1350697c4cb2354c63cd`]: '0x33C42E171cFD7Ec85D3dB34D7f6d3D8121f64E63'
 } as const
 export function BridgeToken({ config, adapters }: {
