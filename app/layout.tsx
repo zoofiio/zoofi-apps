@@ -16,12 +16,9 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import './globals.css';
 
-// import PageLayout from './pagelayout'
 import Script from 'next/script';
 import PageLayout from './pagelayout';
 import { ENV } from '@/config/env';
-
-// const PageLayout = dynamic(() => import("./pagelayout"), { ssr: false })
 
 const MMetas = {
   title: 'Zoo Finance',
