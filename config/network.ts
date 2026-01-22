@@ -31,10 +31,11 @@ function mconfigChain<
       [_arbitrum.id]: 'arbitrum',
       [_base.id]: 'base',
       [_bsc.id]: 'bsc',
+      [16661]: '0g_mainnet_evm',
     }
     if (netmap[chain.id]) {
       rpcUrls.ankr = {
-        http: [`https://rpc.ankr.com/${netmap[chain.id]}`]
+        http: [`https://rpc.ankr.com/${netmap[chain.id]}/${ANKR_API_KEY}`]
       }
     }
   }
