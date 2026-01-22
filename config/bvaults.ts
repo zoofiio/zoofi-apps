@@ -1,6 +1,6 @@
-import { ENV } from '@/constants'
+
 import { Address } from 'viem'
-import { TypeENV } from './env'
+import { TypeENV, ENV } from './env'
 import { berachain } from './network'
 
 export type BVaultConfig = {

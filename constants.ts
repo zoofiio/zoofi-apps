@@ -1,4 +1,3 @@
-import { TypeENV } from './config/env'
 export const DomainRef = {
   value: 'zoofi.io',
 }
@@ -14,10 +13,5 @@ const Day1 = 24 * 60 * 60 * 1000
 
 const DOC_LINK = () => `https://docs.${DomainRef.value}`
 
-const ENV: TypeENV = (process.env.NEXT_PUBLIC_ENV as any) || 'prod'
+export { Day1, DECIMAL, DECIMAL_10, DECIMAL_PRICE, DISCORD_LINK, DOC_LINK, TWITTER_LINK, YEAR_SECONDS }
 
-const isTEST = ENV == 'test'
-const isPROD = !ENV || ENV == 'prod'
-const isLOCL = process.env.NODE_ENV == 'development'
-console.info(process.env.NODE_ENV)
-export { TWITTER_LINK, DISCORD_LINK, DOC_LINK, DECIMAL, DECIMAL_PRICE,DECIMAL_10, Day1, ENV, isTEST, isPROD, isLOCL, YEAR_SECONDS }

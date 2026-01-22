@@ -19,6 +19,7 @@ import './globals.css';
 // import PageLayout from './pagelayout'
 import Script from 'next/script';
 import PageLayout from './pagelayout';
+import { ENV } from '@/config/env';
 
 // const PageLayout = dynamic(() => import("./pagelayout"), { ssr: false })
 
@@ -47,6 +48,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en' className='font-def' suppressHydrationWarning>
+      <meta name='meta_env' content={ENV} />
       <head>
         <Script src="https://telegram.org/js/telegram-web-app.js?56" defer></Script>
       </head>

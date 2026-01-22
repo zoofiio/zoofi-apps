@@ -1,4 +1,5 @@
-import { isLOCL } from '@/constants'
+
+import { isLOCL } from '@/config/env'
 import { sleep } from '@/lib/utils'
 import EventEmitter from 'events'
 import { useEffect, useReducer } from 'react'

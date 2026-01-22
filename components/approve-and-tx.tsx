@@ -46,8 +46,6 @@ export async function doTx(wc: WalletClient, config: SimulateContractParameters 
 export type TxConfig = SimulateContractParameters & { name?: string }
 export type TX = TxConfig | (() => Promise<TxConfig>)
 export const useTxsStore = create(() => ({ txs: [] as TxConfig[], progress: 0 }))
-// export const useTxsStore = create(() => ({ txs: [{ name: 'Approve 3234' }, { name: 'Execute 1' }, { name: 'Execute 2' }] as TxConfig[], progress: 1 }))
-// const supportedSendCalls: number[] = isPROD ? [] : [mainnet.id, optimism.id, bsc.id, polygon.id, base.id, arbitrum.id, berachain.id, sepolia.id]
 const supportedSendCalls: number[] = []
 
 export type TXSType = TX[] | ((args: { pc: PublicClient, wc: WalletClient<Transport, Chain, Account, RpcSchema> }) => Promise<TX[]> | TX[])

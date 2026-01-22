@@ -1,4 +1,5 @@
-import { isLOCL } from "@/constants"
+
+import { isLOCL } from "@/config/env"
 import { Address, isAddressEqual } from "viem"
 import { useAccount } from "wagmi"
 

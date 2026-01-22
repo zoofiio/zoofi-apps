@@ -1,7 +1,6 @@
 import { abiBVault } from '@/config/abi'
 import { BVaultConfig, BVAULTS_CONFIG } from '@/config/bvaults'
 import { LntVaultConfig } from '@/config/lntvaults'
-import { ENV } from '@/constants'
 import { fmtDate, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
@@ -9,6 +8,7 @@ import { useMemo } from 'react'
 import { useSetState } from 'react-use'
 import { Address } from 'viem'
 import { useCurrentChainId } from './useCurrentChainId'
+import { ENV } from '@/config/env'
 
 type OptionItem<T, type> = { label: string; value: Address; data: T; type: type }
 type OptionsItem = OptionItem<BVaultConfig, 'B-Vault'> | OptionItem<LntVaultConfig, 'Lnt-Vault'>
