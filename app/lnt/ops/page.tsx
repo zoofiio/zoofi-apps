@@ -14,6 +14,7 @@ import { LntVaultConfig, LNTVAULTS_CONFIG } from "@/config/lntvaults";
 import { arbitrum } from "@/config/network";
 import useCopy from "@/hooks/useCopy";
 import { useLntVault } from "@/hooks/useFetLntVault";
+import { toJson } from "@/lib/bnjson";
 import { isError, isLoading, isSuccess, reFet, useFet } from "@/lib/useFet";
 import { cn, FMT, fmtDate, handleError, promiseAll, shortStr, tryToBn, UnPromise } from "@/lib/utils";
 import { getPC } from "@/providers/publicClient";
@@ -307,7 +308,7 @@ export default function Page() {
             opsToken ? <>
                 <Expandable className="bg-black/10 dark:bg-white/10 rounded-xl" tit="Admins">
                     <div className="p-5 rounded-sm bg-primary/10">
-                        {JSON.stringify(admins.data, undefined, 2)}
+                        {toJson(admins.data, undefined, 2)}
                     </div>
                     <input className={cn(inputClassname)} value={modifyAdd} onChange={(e) => setModifyAdd(e.target.value)} />
                     <SimpleSelect options={modifytypes} onChange={setModifyType} />

@@ -9,6 +9,7 @@ import { Txs } from "../approve-and-tx"
 import { SimpleDialog } from "../simple-dialog"
 import { BBtn } from "../ui/bbtn"
 import { Tip } from "../ui/tip"
+import { toJson } from "@/lib/bnjson"
 export type MultiTxStore = {
     txs: SimulateContractParameters[],
     addTx: (...args: SimulateContractParameters[]) => void,
@@ -57,7 +58,7 @@ export function MultiTxTemp({ className }: { className?: string }) {
                 {txs.map((tx, index) => <div key={`tx_item_${index}`} className="flex bg-primary/20 rounded-md items-center gap-4 px-3 py-1">
                     <span>({shortStr(tx.address)})</span>
                     <span>{shortStr(tx.functionName)}</span>
-                    {size(tx.args) > 0 && <Tip>{JSON.stringify(tx.args, undefined, 2)}</Tip>}
+                    {size(tx.args) > 0 && <Tip>{toJson(tx.args, undefined, 2)}</Tip>}
                     <IoIosRemoveCircleOutline className="text-3xl cursor-pointer hover:text-red-500 ml-auto shrink-0" onClick={() => removeTx(index)} />
                 </div>)}
             </div>

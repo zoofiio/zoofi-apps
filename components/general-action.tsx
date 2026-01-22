@@ -15,6 +15,7 @@ import { Txs } from './approve-and-tx'
 import { AddMultiTx } from './multitxs'
 import { Spinner } from './spinner'
 import { BBtn } from './ui/bbtn'
+import { toJson } from '@/lib/bnjson'
 
 
 export const selectClassNames: Parameters<Select>[0]['classNames'] = {
@@ -149,11 +150,11 @@ export function GeneralAction({
 
       <div className={cn('whitespace-pre-wrap')}>
         {(isLoading || isLoadingArgsDef) && <Spinner />}
-        {!isNil(qInfo) && JSON.stringify(qInfo, undefined, 2)}
+        {!isNil(qInfo) && toJson(qInfo, undefined, 2)}
       </div>
 
       <div className={cn('whitespace-pre-wrap')}>
-        {!isNil(data) && JSON.stringify(data, undefined, 2)}
+        {!isNil(data) && toJson(data, undefined, 2)}
       </div>
       {
         isWrite ?
@@ -277,7 +278,7 @@ export function AsyncInfo({ infos, keys, className }: { className?: string, info
   return <div className={cn('whitespace-pre-wrap animitem', className)}>
     {isFetching && <Spinner />}
     {isError && !isFetching && <div className='text-red-400'>Error</div>}
-    {!isNil(qInfo) && JSON.stringify(qInfo, undefined, 2)}
+    {!isNil(qInfo) && toJson(qInfo, undefined, 2)}
     <BBtn onClick={() => refetch()}>Refresh</BBtn>
   </div>
 }

@@ -12,6 +12,7 @@ import { abi0GMarginAccount, abiAethirVToracle, abiLntBuyback, abiLntProtocol, a
 import { LntVaultConfig, LNTVAULTS_CONFIG } from '@/config/lntvaults'
 import { getChain } from '@/config/network'
 import { fetLntVault } from '@/hooks/fetsLnt'
+import { toJson } from '@/lib/bnjson'
 import { cn, FMT, fmtDate, promiseAll, shortStr } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
 import { useQuery } from '@tanstack/react-query'
@@ -57,7 +58,7 @@ function UpdateVaultParams({ vault, protocoSettingAddress, chain }: { chain: num
       />
       <div className='text-sm flex flex-col items-start min-h-[300px] whitespace-pre-wrap'>
         {isFetching && <Spinner className='text-xl' />}
-        {JSON.stringify(data, undefined, 2)}
+        {toJson(data, undefined, 2)}
       </div>
       <Txs
         tx='Write'
@@ -206,7 +207,7 @@ export default function AdminPage() {
         <MultiTxTemp />
         <div className='flex flex-col gap-2 w-full mx-auto px-5'>
           <div className="animitem text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
-            {JSON.stringify({
+            {toJson({
               'Decimal18': '000000000000000000',
               'Vault': current?.vc.vault
             }, undefined, 2)}

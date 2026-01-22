@@ -6,6 +6,7 @@ import { MultiTxTemp } from '@/components/multitxs'
 import { PageWrap } from '@/components/page-wrap'
 import { abiBVault, abiProtocolSettings, abiZooProtocol } from '@/config/abi'
 import { useVaultsConfigs } from '@/hooks/useVaultsConfigs'
+import { toJson } from '@/lib/bnjson'
 import { cn, parseEthers } from '@/lib/utils'
 import { useMemo } from 'react'
 import { FaSpinner } from 'react-icons/fa6'
@@ -130,7 +131,7 @@ export default function AdminPage() {
           <FaSpinner className='text-3xl animate-spin' />
         </div> : <div className='flex flex-col gap-4 w-full max-w-[840px] mx-auto px-5'>
           <div className="text-lg whitespace-pre-wrap p-2 bg-primary/20 rounded-xl">
-            {JSON.stringify({ 'Decimal18': '000000000000000000' }, undefined, 2)}
+            {toJson({ 'Decimal18': '000000000000000000' }, undefined, 2)}
           </div>
           <Select classNames={selectClassNames} defaultValue={options[0]} options={options} onChange={(e: any) => e && setState({ current: e as any })} />
           {current.type == 'B-Vault' && (

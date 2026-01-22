@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 
-export function toJson(obj: any) {
+export function toJson(obj: any, replacer?: (key: string, value: any) => any, space?: number | string) {
     return JSON.stringify(obj, (_key, value: any) => {
-        return typeof value == 'bigint' ? `__bn__${value.toString()}` : value
-    })
+        return typeof value == 'bigint' ? `__bn__${value.toString()}` : replacer ? replacer(_key, value) : value
+    }, space)
 }
 
 export function fromJson(json: string) {
