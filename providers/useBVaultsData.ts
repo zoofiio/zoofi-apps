@@ -79,7 +79,7 @@ export function useUserBVaultEpoches(vc: BVaultConfig) {
     enabled: Boolean(address),
     staleTime: 2000,
     refetchOnMount: 'always',
-    queryFn: () => fetRouter('/api/bvault', { chain: vc.chain, vault: vc.vault, byUser: address!, fet: 'fetBVaultEpoches' }) as ReturnType<typeof fetUserBVault>
+    queryFn: () => fetRouter('/api/bvault', { chain: vc.chain, vault: vc.vault, byUser: address!, fet: 'fetUserBVault' }) as ReturnType<typeof fetUserBVault>
   }).data ?? []).reverse()
 }
 
