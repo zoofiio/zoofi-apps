@@ -1,12 +1,13 @@
 import { abiLntBuyback, abiLntVault, abiLntVTSwapHook, abiLvtVerio, abiQueryLNT, abiRedeemStrategy } from '@/config/abi/abiLNTVault'
+import { getOpsAethirRewards, getOpsStatsAethir } from '@/config/api'
 import { codeQueryLNT } from '@/config/codes'
 import { LntVaultConfig } from '@/config/lntvaults'
 import { DECIMAL } from '@/constants'
 import { cacheGet } from '@/lib/cache'
 import { nowUnix, promiseAll } from '@/lib/utils'
 import { getPC } from '@/providers/publicClient'
-import { last } from 'es-toolkit'
-import { Address, erc721Abi, toHex } from 'viem'
+import { flatten, last } from 'es-toolkit'
+import { Address, erc721Abi, isAddressEqual, parseAbi, toHex } from 'viem'
 
 export async function fetLntVault(vc: LntVaultConfig) {
     const pc = getPC(vc.chain)
@@ -86,4 +87,67 @@ export async function fetLntBuybackUser(vc: LntVaultConfig, byUser: Address) {
         userPendingSale: pc.readContract({ abi: abiLntBuyback, address: vc.buybackPool!, functionName: 'userStakingAmountVT', args: [lastPot, byUser] }),
         userSeltted: userSeltted()
     })
+}
+
+export async function fetAethirOpsData(vc: LntVaultConfig, token: string) {
+    const pc = getPC(vc.chain)
+    // vault nfts
+    const vaultNftCount = await pc.readContract({ abi: erc721Abi, functionName: 'balanceOf', address: vc.asset, args: [vc.vault] })
+    const erc721AbiMore = parseAbi([
+        'function tokenIdsOfOwnerByAmount(address owner, uint256 index) view returns(uint256[])'
+    ])
+    const setUserCount = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'setUserRecordCount' })
+    const getSetUsers = async () => {
+        const chunkSize = 200n
+        const chunkList: { index: bigint, count: bigint }[] = []
+        const chunkCount = setUserCount / chunkSize
+        for (let index = 0n; index < chunkCount; index++) {
+            chunkList.push({ index: index * chunkSize, count: chunkSize })
+        }
+        let mod = setUserCount % chunkSize;
+        if (mod > 0) {
+            chunkList.push({ index: chunkSize * chunkCount, count: mod })
+        }
+        return Promise.all(chunkList.map(({ index, count }) => pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'setUserRecordsInfo', args: [index, count] }).then(
+            ([tokenIds, owners, users, isBan]) => {
+                return tokenIds.map((tokenId, i) => ({ tokenId, owner: owners[i], user: users[i], isBanned: isBan[i] }))
+            }
+        ))).then(flatten)
+    }
+    const getVaultNft = async () => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenIdsOfOwnerByAmount', address: vc.asset, args: [vc.vault, vaultNftCount] }).then(data => data.map(id => id.toString()))
+    const data = await promiseAll({
+        vaultNft: getVaultNft(),
+        setUsers: getSetUsers(),
+        opsStats: getOpsStatsAethir(vc.chain, token),
+        rewards: getOpsAethirRewards(vc.chain, token),
+    })
+    // calc
+    const inBunnerNftMap: { [k: string]: (typeof data.opsStats.burners)[number] } = {}
+    const bunnerAddress: Address[] = []
+    console.info('burners:', data.opsStats)
+    for (const bunnerItem of (data.opsStats.burners ?? [])) {
+        if (!bunnerItem.delegated_nfts) bunnerItem.delegated_nfts = []
+        bunnerItem.burner_wallet = bunnerItem.burner_wallet.startsWith('0x') ? bunnerItem.burner_wallet : `0x${bunnerItem.burner_wallet}`
+        for (const nftId of bunnerItem.delegated_nfts) {
+            inBunnerNftMap[nftId] = bunnerItem
+        }
+        bunnerAddress.push(bunnerItem.burner_wallet)
+    }
+    const inSetUsersMap: { [k: string]: (typeof data.setUsers)[number] } = {}
+    for (const setuser of data.setUsers) {
+        inSetUsersMap[setuser.tokenId.toString()] = setuser
+    }
+    const pending: string[] = []
+    const error: string[] = []
+    const success: string[] = []
+    for (const id of data.vaultNft) {
+        if (inBunnerNftMap[id]) {
+            success.push(id)
+        } else if (inSetUsersMap[id] && bunnerAddress.find(add => isAddressEqual(add, inSetUsersMap[id].user))) {
+            pending.push(id)
+        } else {
+            error.push(id)
+        }
+    }
+    return { ...data, pending, error, success, inSetUsersMap, inBunnerNftMap }
 }

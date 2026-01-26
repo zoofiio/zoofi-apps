@@ -1,5 +1,5 @@
 import { LntVaultConfig, LNTVAULTS_CONFIG } from "@/config/lntvaults";
-import { fetLntBuyback, fetLntBuybackUser, fetLntHookPoolkey, fetLntVault, fetLntVaultLogs, fetLntWithdrawWindows } from "@/hooks/fetsLnt";
+import { fetAethirOpsData, fetLntBuyback, fetLntBuybackUser, fetLntHookPoolkey, fetLntVault, fetLntVaultLogs, fetLntWithdrawWindows } from "@/hooks/fetsLnt";
 import { NextRequest, NextResponse } from "next/server";
 import { Address, isAddress, isAddressEqual } from "viem";
 
@@ -13,12 +13,16 @@ const fetMap = {
     fetLntWithdrawWindows,
     fetLntBuyback,
     fetLntBuybackUser,
+    fetAethirOpsData,
 }
 
 async function fetData(fet: keyof typeof fetMap, vc: LntVaultConfig, sp: Record<string, string>) {
     switch (fet) {
         case "fetLntBuybackUser": {
             return cacheGet(`${fet}:${vc.chain}:${vc.vault}:${sp.byUser}`, () => fetMap[fet](vc, sp.byUser as Address))
+        }
+        case "fetAethirOpsData": {
+            return cacheGet(`${fet}:${vc.chain}:${vc.vault}`, () => fetMap[fet](vc, sp.token))
         }
         default: {
             return cacheGet(`${fet}:${vc.chain}:${vc.vault}`, () => fetMap[fet](vc) as Promise<any>, 60000 * 60)

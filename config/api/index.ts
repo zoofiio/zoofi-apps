@@ -217,30 +217,6 @@ export const getOpsStatsAethir = (chainId: number, token: string) =>
       is_action_required: boolean
       node_name: string
       uuid: string
-      product_details: {
-        id: string
-        name: string
-        metadata: {
-          tags: string[]
-          chain: string
-          banner: string
-          status: string
-          logoUrl: string
-          network: string
-          node_type: string
-          categories: string[]
-          chain_name: string
-          description: string
-          displayName: string
-          displayNetwork: string
-          nodeops_doc_link: string
-          product_doc_link: string
-          market_share_percentage: number
-        }
-        is_active: boolean
-        created_at: string
-        updated_at: string
-      }
       plan_id: string
       no_of_nodes: number
       start_date: string

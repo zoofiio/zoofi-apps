@@ -9,23 +9,25 @@ import { Spinner } from "@/components/spinner";
 import { BBtn } from "@/components/ui/bbtn";
 import { SimpleSelect } from "@/components/ui/select";
 import { abiLntVault } from "@/config/abi/abiLNTVault";
-import { getOpsAdmins, getOpsAethirRewards, getOpsStatsAethir, modifyOpsAdmins, opsOrderAethir } from "@/config/api";
+import { getOpsAdmins, getOpsStatsAethir, modifyOpsAdmins, opsOrderAethir } from "@/config/api";
 import { LntVaultConfig, LNTVAULTS_CONFIG } from "@/config/lntvaults";
 import { arbitrum } from "@/config/network";
+import { fetAethirOpsData } from "@/hooks/fetsLnt";
 import useCopy from "@/hooks/useCopy";
 import { useLntVault } from "@/hooks/useFetLntVault";
 import { toJson } from "@/lib/bnjson";
+import { fetRouter } from "@/lib/fetRouter";
 import { isError, isLoading, isSuccess, reFet, useFet } from "@/lib/useFet";
-import { cn, FMT, fmtDate, handleError, promiseAll, shortStr, tryToBn, UnPromise } from "@/lib/utils";
+import { cn, FMT, fmtDate, handleError, shortStr, tryToBn, UnPromise } from "@/lib/utils";
 import { getPC } from "@/providers/publicClient";
 import { displayBalance } from "@/utils/display";
 import { useMutation } from "@tanstack/react-query";
-import { flatten, range, trim } from "es-toolkit";
+import { trim } from "es-toolkit";
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa6";
 import { useLocalStorage, useSetState } from "react-use";
 import { toast } from "sonner";
-import { Address, erc721Abi, isAddress, isAddressEqual, parseAbi, parseEther } from "viem";
+import { Address, isAddress, isAddressEqual, parseEther } from "viem";
 import { useAccount, useSignMessage, useWalletClient } from "wagmi";
 
 
@@ -40,68 +42,7 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
     const vd = useLntVault(vc)
     const data = useFet({
         key: vd.data ? `AethirOpsManagerData: ${vc.vault}` : '',
-        fetfn: async () => {
-            const pc = getPC(vc.chain)
-            // vault nfts
-            const vaultNftCount = await pc.readContract({ abi: erc721Abi, functionName: 'balanceOf', address: vc.asset, args: [vc.vault] })
-            const erc721AbiMore = parseAbi([
-                'function tokenIdsOfOwnerByAmount(address owner, uint256 index) view returns(uint256[])'
-            ])
-            const setUserCount = await pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'setUserRecordCount' })
-            console.info('setUserCount:', setUserCount)
-            const getSetUsers = async () => {
-                const chunkSize = 200n
-                const chunkList: { index: bigint, count: bigint }[] = []
-                const chunkCount = setUserCount / chunkSize
-                for (let index = 0n; index < chunkCount; index++) {
-                    chunkList.push({ index: index * chunkSize, count: chunkSize })
-                }
-                let mod = setUserCount % chunkSize;
-                if (mod > 0) {
-                    chunkList.push({ index: chunkSize * chunkCount, count: mod })
-                }
-                return Promise.all(chunkList.map(({ index, count }) => pc.readContract({ abi: abiLntVault, address: vc.vault, functionName: 'setUserRecordsInfo', args: [index, count] }).then(
-                    ([tokenIds, owners, users, isBan]) => {
-                        return tokenIds.map((tokenId, i) => ({ tokenId, owner: owners[i], user: users[i], isBanned: isBan[i] }))
-                    }
-                ))).then(flatten)
-            }
-            const getVaultNft = async () => pc.readContract({ abi: erc721AbiMore, functionName: 'tokenIdsOfOwnerByAmount', address: vc.asset, args: [vc.vault, vaultNftCount] }).then(data => data.map(id => id.toString()))
-            const data = await promiseAll({
-                vaultNft: getVaultNft(),
-                setUsers: getSetUsers(),
-                opsStats: getOpsStatsAethir(vc.chain, token),
-                rewards: getOpsAethirRewards(vc.chain, token),
-            })
-            // calc
-            const inBunnerNftMap: { [k: string]: (typeof data.opsStats.burners)[number] } = {}
-            const bunnerAddress: Address[] = []
-            for (const bunnerItem of data.opsStats.burners) {
-                if (!bunnerItem.delegated_nfts) bunnerItem.delegated_nfts = []
-                bunnerItem.burner_wallet = bunnerItem.burner_wallet.startsWith('0x') ? bunnerItem.burner_wallet : `0x${bunnerItem.burner_wallet}`
-                for (const nftId of bunnerItem.delegated_nfts) {
-                    inBunnerNftMap[nftId] = bunnerItem
-                }
-                bunnerAddress.push(bunnerItem.burner_wallet)
-            }
-            const inSetUsersMap: { [k: string]: (typeof data.setUsers)[number] } = {}
-            for (const setuser of data.setUsers) {
-                inSetUsersMap[setuser.tokenId.toString()] = setuser
-            }
-            const pending: string[] = []
-            const error: string[] = []
-            const success: string[] = []
-            for (const id of data.vaultNft) {
-                if (inBunnerNftMap[id]) {
-                    success.push(id)
-                } else if (inSetUsersMap[id] && bunnerAddress.find(add => isAddressEqual(add, inSetUsersMap[id].user))) {
-                    pending.push(id)
-                } else {
-                    error.push(id)
-                }
-            }
-            return { ...data, pending, error, success, inSetUsersMap, inBunnerNftMap }
-        }
+        fetfn: () => fetRouter('/api/lnt', { chain: vc.chain, vault: vc.vault, token, fet: 'fetAethirOpsData' }) as ReturnType<typeof fetAethirOpsData>
     })
 
     const [{ detailBuner, delegateTo, delegateIds, delegateExpire, openCofrimOrder, filterVaultNftIds }, setState] = useSetState<{
@@ -141,10 +82,10 @@ function AethirOpsManager({ vc, token }: { vc: LntVaultConfig, token: string }) 
 
     const bunners = (data.data?.opsStats.burners ?? [])
     const bunerCapacity = (planId: string) => {
-        return (data.data?.opsStats.deployments.find(item => item.plan_id == planId)?.no_of_nodes ?? 1) * 100
+        return ((data.data?.opsStats.deployments ?? []).find(item => item.plan_id == planId)?.no_of_nodes ?? 1) * 100
     }
     const createAt = (planId: string) => {
-        return data.data?.opsStats.deployments.find(item => item.plan_id == planId)?.start_date ?? '-'
+        return (data.data?.opsStats.deployments ?? []).find(item => item.plan_id == planId)?.start_date ?? '-'
     }
     const vaultNfts = (data.data?.vaultNft ?? []).reverse()
     const inBunnerNftMap = data.data?.inBunnerNftMap ?? {}
