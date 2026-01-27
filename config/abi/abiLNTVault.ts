@@ -51,6 +51,9 @@ export const abiLntVault = parseAbi([
   'function buybackVT(uint256 amountT) external',
   'function updateBuybackPool(address newPool) external',
   'function buyback(uint256 amountT) external',
+  'function rewardsOperators() external view returns (address[] memory operators)',
+  'function addRewardsOperator(address operator) external',
+  'function removeRewardsOperator(address operator) external',
 ])
 
 
