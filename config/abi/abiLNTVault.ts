@@ -155,6 +155,9 @@ export const abiLVTVault = [
     'function updateaVT(uint256 newAVT) external',
     'function mintVestingTokens(address to, uint256 amount) external',
     'function burnVestingTokens(uint256 amount) external',
+    'function rewardsOperators() external view returns (address[] memory operators)',
+    'function addRewardsOperator(address operator) external',
+    'function removeRewardsOperator(address operator) external',
   ]),
   ...abiPausedable,
 ]
