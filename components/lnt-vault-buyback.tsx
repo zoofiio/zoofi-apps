@@ -35,7 +35,18 @@ function getNextBatch(vc: LntVaultConfig) {
             return { value: displayBalance(batch.amount, 0), time: (batch.time + batch.cliffSecond) * 1000 }
         }
     }
-
+    if (vc.isFil) {
+        const nowTime = now()
+        const nextDate = new Date(nowTime + 24 * 3600 * 1000)
+        nextDate.setHours(8, 0, 0, 0)
+        return { value: '5,000', time: nextDate.getTime() }
+    }
+    // if (vc.isVerio) {
+    //     const nowTime = now()
+    //     const nextDate = new Date(nowTime + 24 * 3600 * 1000)
+    //     nextDate.setHours(8, 0, 0, 0)
+    //     return { value: '5,000', time: nextDate.getTime() }
+    // }
     return undefined
 }
 export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {
