@@ -39,15 +39,9 @@ function getNextBatch(vc: LntVaultConfig) {
         const nowTime = now()
         const nextDate = new Date(nowTime + 24 * 3600 * 1000)
         nextDate.setHours(8, 0, 0, 0)
-        const start = new Date('2026-02-10 00:00:00 UTC+0')
+        const start = new Date('2026-02-10 00:00:00Z')
         return { value: '5,000', time: Math.max(nextDate.getTime(), start.getTime()) }
     }
-    // if (vc.isVerio) {
-    //     const nowTime = now()
-    //     const nextDate = new Date(nowTime + 24 * 3600 * 1000)
-    //     nextDate.setHours(8, 0, 0, 0)
-    //     return { value: '5,000', time: nextDate.getTime() }
-    // }
     return undefined
 }
 export function LntVaultBuyback({ vc }: { vc: LntVaultConfig }) {

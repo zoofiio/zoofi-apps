@@ -33,7 +33,7 @@ export function handleError(error: any) {
 
 let poIndex = 0
 export function genPromiseObj<T = void>() {
-  let resolve: (v: T) => void = () => {}
+  let resolve: (v: T) => void = () => { }
   const promise = new Promise<T>((_resolve) => {
     resolve = _resolve
   })
@@ -141,7 +141,7 @@ export const fmtDate = (time: number | string | bigint | Date, fmt: string = FMT
 const FMT_DURATION_TYPES = ['seconds', 'minutes', 'hours', 'days', 'months'] as const
 type FMT_DURATION_TYPE = (typeof FMT_DURATION_TYPES)[number]
 export const fmtDuration = (duration: number | bigint, type: FMT_DURATION_TYPE | 'auto' = 'auto') => {
-  let durationBn = typeof duration == 'number' ? BigInt(duration) : duration
+  let durationBn = typeof duration == 'number' ? isNaN(duration) ? 0n : BigInt(duration) : duration
   durationBn < 0n && (durationBn = 0n)
   const divVauleMap: { [k in FMT_DURATION_TYPE]: bigint } = {
     seconds: 1000n,
