@@ -1,4 +1,4 @@
-import { retry } from "es-toolkit"
+// import { retry } from "es-toolkit"
 
 const cacheMap = new Map<string, { promise: Promise<any>, status: 'pending' | 'fullfild' | 'rejected', createTime: number }>()
 
@@ -8,7 +8,8 @@ export function cacheGet<T>(key: string, getFn: () => Promise<T>, cacheTime: num
         cache = {
             createTime: Date.now(),
             status: 'pending',
-            promise: retry(() => getFn(), { retries: 3, delay: 1000 })
+            // promise: retry(() => getFn(), { retries: 3, delay: 1000 })
+            promise: getFn()
                 .then((data) => {
                     cache!.status = 'fullfild';
                     return data

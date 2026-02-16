@@ -12,7 +12,7 @@ function mconfigChain<
   if (ALCHEMY_API_KEY) {
     const subdommainmap: { [k: number]: string } = {
       [_sei.id]: 'sei-mainnet',
-      [_story.id]: 'story-mainnet',
+      // [_story.id]: 'story-mainnet',
       [_arbitrum.id]: 'arb-mainnet',
       [_base.id]: 'base-mainnet',
       [_bsc.id]: 'bnb-mainnet',
@@ -26,11 +26,11 @@ function mconfigChain<
   }
   if (ANKR_API_KEY) {
     const netmap: { [k: number]: string } = {
-      [_sei.id]: 'sei-evm',
-      [_story.id]: 'story-mainnet',
-      [_arbitrum.id]: 'arbitrum',
-      [_base.id]: 'base',
-      [_bsc.id]: 'bsc',
+      // [_sei.id]: 'sei-evm',
+      // [_story.id]: 'story-mainnet',
+      // [_arbitrum.id]: 'arbitrum',
+      // [_base.id]: 'base',
+      // [_bsc.id]: 'bsc',
       [16661]: '0g_mainnet_evm',
     }
     if (netmap[chain.id]) {
