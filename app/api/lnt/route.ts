@@ -39,7 +39,6 @@ export async function GET(req: NextRequest) {
     const fet = sp.fet as keyof typeof fetMap
     const fetFn = fetMap[fet]
     if (fet || !fetFn) NextResponse.json({ message: 'Invalid request' }, { status: 400 })
-    sp.byUser as Address
     const data = await fetData(fet, vc, sp)
     return toJsonRES(data)
 }
