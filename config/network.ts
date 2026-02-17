@@ -95,6 +95,9 @@ export const arbitrum = mconfigChain({
 
 export const bsc = mconfigChain({
   ..._bsc,
+  rpcUrls: {
+    default: { http: ['https://bsc-dataseed.bnbchain.org', 'https://bsc.api.pocket.network'] },
+  },
   name: 'BSC',
   iconUrl: `${BASE_PATH}/bsc.svg`,
 })

@@ -332,7 +332,7 @@ export function LNTInfo({ vc }: { vc: LntVaultConfig }) {
       </LgBoardBloom2> : <LgBoardBloom className='w-55 aspect-square flex justify-center items-center shrink-0'>
         <LntNodeSvg disableAnim node={<CoinIcon size={"100%"} symbol={vc.projectIcon} className='rounded-full border-2 border-green-300' />} />
       </LgBoardBloom>}
-      <div className="flex flex-col gap-3 min-w-80">
+      <div className="flex flex-col gap-3 md:min-w-80">
         <div className="leading-10 text-xl font-medium">{vc.tit}</div>
         <div className="opacity-60 text-sm leading-normal whitespace-pre-wrap font-sec">{vc.info}</div>
         <div className='h-px bg-board' />
