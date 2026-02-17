@@ -78,7 +78,7 @@ export async function fetLntBuyback(vc: LntVaultConfig) {
 }
 
 export async function fetLntBuybackUser(vc: LntVaultConfig, byUser: Address) {
-    const { pots } = await cacheGet(`fetLntBuyback:${vc.chain}:${vc.vault}`, () => fetLntBuyback(vc))
+    const { pots } = await cacheGet(`fetLntBuyback:${vc.chain}:${vc.vault}`, () => fetLntBuyback(vc), 60000 * 60)
     const lastPot = last(pots)!
     const pc = getPC(vc.chain)
     const userSeltted = async () => Promise.all(pots.map(pot => pc.readContract({ abi: abiLntBuyback, address: vc.buybackPool!, functionName: 'boughtAmountT', args: [pot, byUser] })))
