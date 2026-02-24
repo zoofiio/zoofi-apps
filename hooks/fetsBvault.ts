@@ -83,7 +83,7 @@ export async function fetBVault(vc: BVaultConfig) {
 export async function fetBVaultEpoches(vc: BVaultConfig) {
     const vd = await cacheGet(`fetBVault:${vc.chain}:${vc.vault}`, () => fetBVault(vc), 60000 * 60)
     if (vd.epochCount == 0n) return []
-    const ids = range(toNumber(vd.epochCount.toString()) + 1).map((n) => BigInt(n))
+    const ids = range(1, toNumber(vd.epochCount.toString()) + 1).map((n) => BigInt(n))
     const pc = getPC(vc.chain)
     return Promise.all(ids.map((epochId) => pc.readContract({ abi: abiBQuery, address: vc.bQueryAddres, functionName: 'queryBVaultEpoch', args: [vc.vault, epochId] })))
 }
